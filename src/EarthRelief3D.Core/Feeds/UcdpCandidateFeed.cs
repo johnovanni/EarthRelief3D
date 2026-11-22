@@ -55,6 +55,7 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
         // Cache only after every file parsed, so a failed run retries the files it did not finish.
         foreach (var (name, entry) in fresh) _cache[name] = entry;
         store.ReplaceKind(CrisisKind.ArmedConflict, result.Crises);
+        store.MarkChecked(Name, now);   // R12: checked, whatever was found
         var names = result.UnresolvedNames.Count == 0 ? "" : ": " + string.Join(", ", result.UnresolvedNames);
         log.Info($"UCDP: {result.Crises.Count} conflicts from {byId.Count} events in {files.All.Count()} files; "
             + $"{result.SkippedUnresolved} events skipped (country not resolved{names}); {bad} unreadable rows");

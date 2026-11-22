@@ -31,8 +31,10 @@ public partial class App : Application
         // The log comes first (it always uses the real time and the usual folder).
         var log = _log = new FileLog(root.LogsDir, new SystemClock(), AppInfo.LogFilePrefix);
         log.Info($"{AppInfo.Name} {AppInfo.Version} starting" + (e.Args.Length > 0 ? " with " + string.Join(" ", e.Args) : ""));
+        // MessageBoxImage.None everywhere: Warning, Error and the other icons play a Windows sound, and the app must make
+        // no sound at all (the owner's rule; spec anti-goals). The text says what happened instead.
         void ShowCrash(string message) => MessageBox.Show(message + Environment.NewLine + Environment.NewLine + "Log folder: " + root.LogsDir,
-            AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
+            AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.None);
         _crash = new CrashHandler(log, message =>
         {
             if (Dispatcher.CheckAccess()) ShowCrash(message);

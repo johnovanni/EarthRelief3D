@@ -20,14 +20,17 @@ public class LayerStyleTests
         Assert.Equal(Color.FromRgb(0xC8, 0x00, 0x00), LayerStyle.IpcPhaseColor(4));
         Assert.Equal(Color.FromRgb(0x64, 0x00, 0x00), LayerStyle.IpcPhaseColor(5));
         Assert.Throws<ArgumentOutOfRangeException>(() => LayerStyle.IpcPhaseColor(6));
-        Assert.Equal(["Minimal", "Stressed", "Crisis", "Emergency", "Famine"], Enumerable.Range(1, 5).Select(LayerStyle.IpcPhaseName));
+        Assert.Equal(["Minimal", "Stressed", "Crisis", "Emergency", "Catastrophe/Famine"], Enumerable.Range(1, 5).Select(LayerStyle.IpcPhaseName));
+        Assert.Equal("Phase 5 Catastrophe/Famine", LayerStyle.IpcPhaseLabel(5));
     }
 
     [Fact]
     public void IpcColoursAreRecordedWithTheirSourceUrl()
     {
-        var source = File.ReadAllText(Path.Combine(RepoRoot(), "src", "EarthRelief3D.App", "Presentation", "LayerStyle.cs"));
+        var source = File.ReadAllText(Path.Combine(Repo.Root(), "src", "EarthRelief3D.App", "Presentation", "LayerStyle.cs"));
         Assert.Contains("https://www.ipcinfo.org/", source);
+        Assert.Contains("https://help.fews.net/brand/data-visualization-colors", source);
+        Assert.DoesNotContain(" .../", source);   // no elided URLs
         Assert.Contains("0xE6, 0x78, 0x00", source);
     }
 
@@ -107,12 +110,5 @@ public class LayerStyleTests
         double r1 = DisplacementSceneLayer.RadiusFor(1_000_000), r4 = DisplacementSceneLayer.RadiusFor(4_000_000);
         Assert.Equal(4.0, r4 * r4 / (r1 * r1), 6);
         Assert.Equal(0, DisplacementSceneLayer.RadiusFor(0));
-    }
-
-    private static string RepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "EarthRelief3D.sln"))) dir = dir.Parent;
-        return dir?.FullName ?? throw new DirectoryNotFoundException("EarthRelief3D.sln not found above the test output");
     }
 }

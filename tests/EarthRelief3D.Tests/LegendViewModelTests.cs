@@ -24,7 +24,10 @@ public class LegendViewModelTests
         var outB = TestData.Outbreak() with { Id = "who-2", CountryIso3 = "KEN", Citations = [Cite("WHO", T.AddDays(-4))] };
         var disp = TestData.Disp() with { Citation = Cite("UNHCR", new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc), "2026", "Mid-year 2026 figures") };
         var unplaced = new UnplacedReport("WHO", "Glimmer fever - Atlantis", "country name not recognised: Atlantis", Cite("WHO", T.AddDays(-2)));
-        return new CrisisSnapshot([conflictOld, conflictNew, foodA, foodB, outA, outB], [disp], [unplaced]);
+        return new CrisisSnapshot([conflictOld, conflictNew, foodA, foodB, outA, outB], [disp], [unplaced])
+        {
+            CheckedUtc = new Dictionary<string, DateTime> { ["UCDP"] = T, ["IPC"] = T, ["WHO"] = T, ["UNHCR"] = T },
+        };
     }
 
     private static (LegendViewModel Legend, LayerStripViewModel Layers, CrisisStore Store) Make(CrisisSnapshot? s = null)
@@ -32,7 +35,7 @@ public class LegendViewModelTests
         var store = new CrisisStore();
         if (s is not null) store.Load(s);
         var layers = new LayerStripViewModel(new MemorySettingsStore());
-        return (new LegendViewModel(store, layers), layers, store);
+        return (new LegendViewModel(store, layers, nowUtc: () => T), layers, store);
     }
 
     [Fact]
@@ -56,7 +59,10 @@ public class LegendViewModelTests
             Assert.False(string.IsNullOrWhiteSpace(l.Source));
         });
         // The food legend names each phase it shows, with the phase number.
-        Assert.Equal(["Phase 3 Crisis", "Phase 4 Emergency", "Phase 5 Famine"], Line(CrisisLayer.Food).Keys.Select(k => k.Label));
+        Assert.Equal(["Phase 3 Crisis", "Phase 4 Emergency", "Phase 5 Catastrophe/Famine"], Line(CrisisLayer.Food).Keys.Select(k => k.Label));
+        // Brushes are made once per colour, not on every read.
+        Assert.Same(Line(CrisisLayer.Food).Brush, Line(CrisisLayer.Food).Brush);
+        Assert.Same(Line(CrisisLayer.Food).Keys[0].Brush, Line(CrisisLayer.Food).Keys[0].Brush);
     }
 
     [Fact]
@@ -83,12 +89,39 @@ public class LegendViewModelTests
     }
 
     [Fact]
-    public void EmptyStoreSaysNoDataAndFollowsTheStore()
+    public void EmptyStoreSaysNotYetCheckedAndFollowsTheStore()
     {
         var (legend, _, store) = Make();
-        Assert.All(legend.Lines, l => Assert.Equal(LegendViewModel.NoData, l.AsOf));
+        Assert.All(legend.Lines, l => Assert.Equal(LegendViewModel.NotChecked, l.AsOf));
+        Assert.Equal("not yet checked", LegendViewModel.NotChecked);
         Assert.False(legend.HasUnplaced);
         store.Load(Snapshot());   // no dispatcher: at once
         Assert.Equal("as of Sep 2026", legend.Lines.Single(l => l.Layer == CrisisLayer.Food).AsOf);
+    }
+
+    [Fact]
+    public void CheckedSourceWithNothingSaysChecked()
+    {
+        var (legend, _, store) = Make();
+        store.MarkChecked("WHO", T);
+        store.MarkChecked("UCDP", T);
+        Assert.Equal("no reports in the last 90 days · checked 22 Nov 2026", legend.Lines.Single(l => l.Layer == CrisisLayer.Outbreaks).AsOf);
+        Assert.Equal("none recorded · checked 22 Nov 2026", legend.Lines.Single(l => l.Layer == CrisisLayer.Conflict).AsOf);
+        Assert.Equal(LegendViewModel.NotChecked, legend.Lines.Single(l => l.Layer == CrisisLayer.Food).AsOf);
+    }
+
+    [Fact]
+    public void FutureUnhcrDateShowsTheReleaseNotAnAsOf()
+    {
+        var future = TestData.Disp() with
+        {
+            Citation = Cite("UNHCR", new DateTime(2027, 6, 30, 0, 0, 0, DateTimeKind.Utc), "2027", "Mid-year 2027 figures"),
+        };
+        var (legend, _, store) = Make();
+        store.ReplaceDisplacement([future]);
+        var line = legend.Lines.Single(l => l.Layer == CrisisLayer.Displacement);
+        Assert.Equal("UNHCR, Mid-year 2027 figures", line.Source);
+        Assert.Equal("retrieved 22 Nov 2026", line.AsOf);
+        Assert.DoesNotContain("as of", line.SourceLine);
     }
 }

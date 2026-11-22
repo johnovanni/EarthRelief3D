@@ -55,15 +55,15 @@ public sealed class CrisisCacheTests : IDisposable
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "{not json");
         Assert.Null(Cache().Load());
-        File.WriteAllText(file, """{"SchemaVersion":1,"Crises":null,"Displacement":[],"Unplaced":[]}""");
+        File.WriteAllText(file, """{"SchemaVersion":2,"Crises":null,"Displacement":[],"Unplaced":[]}""");
         Assert.Null(Cache().Load());
-        File.WriteAllText(file, """{"SchemaVersion":1,"Crises":[null],"Displacement":[],"Unplaced":[]}""");
+        File.WriteAllText(file, """{"SchemaVersion":2,"Crises":[null],"Displacement":[],"Unplaced":[]}""");
         Assert.Null(Cache().Load());
     }
 
     [Theory]
-    [InlineData("""{"SchemaVersion":1,"Crises":[{"Id":"x"}],"Displacement":[],"Unplaced":[]}""")]
-    [InlineData("""{"SchemaVersion":1,"Crises":[{"$type":"zzz","Id":"x"}],"Displacement":[],"Unplaced":[]}""")]
+    [InlineData("""{"SchemaVersion":2,"Crises":[{"Id":"x"}],"Displacement":[],"Unplaced":[]}""")]
+    [InlineData("""{"SchemaVersion":2,"Crises":[{"$type":"zzz","Id":"x"}],"Displacement":[],"Unplaced":[]}""")]
     public void BadDiscriminatorLoadsAsEmptyAndDeletesFile(string json)
     {
         var file = Cache().FilePath;

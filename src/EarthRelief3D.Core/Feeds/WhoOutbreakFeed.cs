@@ -33,6 +33,7 @@ public sealed class WhoOutbreakFeed(FeedHttp http, CrisisStore store, IClock clo
         var (crises, unplaced, items) = Read(json, now);
         store.ReplaceKind(CrisisKind.Outbreak, crises);
         store.ReplaceUnplaced(Name, unplaced);
+        store.MarkChecked(Name, now);   // R12: checked, even with no report in the window
         log.Info($"WHO: {crises.Count} outbreak markers from {items} reports in the last {Window}; {unplaced.Count} not placed");
         return FeedRunResult.Ok;
     }

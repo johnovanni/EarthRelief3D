@@ -48,8 +48,9 @@ public class AppStartupTests
             // The cached snapshot is shown at once: the legend carries its dates and the panel its sections.
             Assert.True(services.CacheLoaded);
             Assert.Equal(cached, services.Store.Snapshot);
+            Assert.Equal(4, services.Store.Snapshot.CheckedUtc.Count);   // the cache keeps when each source was checked
             Assert.Equal(4, vm.Legend.Lines.Count);
-            Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NoData, l.AsOf));
+            Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NotChecked, l.AsOf));
             Assert.Equal("as of 30 Jun 2026", vm.Legend.Lines.Single(l => l.Layer == CrisisLayer.Displacement).AsOf);
             vm.Panel.Show("SDN");
             Assert.Equal(4, vm.Panel.Sections.Count);
@@ -67,7 +68,9 @@ public class AppStartupTests
                 Assert.Same(StatusDotsBrushes.Retrying, d.Brush);
             });
             Assert.Equal(cached, services.Store.Snapshot);
-            Assert.Equal(4, vm.Legend.Lines.Count(l => l.AsOf != LegendViewModel.NoData));
+            Assert.Equal(4, vm.Legend.Lines.Count(l => l.AsOf != LegendViewModel.NotChecked));
+            vm.Panel.Show("ISL");
+            Assert.Equal(CountryPanelViewModel.NoCrisisText, vm.Panel.Headline);
         }
         finally { Delete(root); }
     }
@@ -83,13 +86,29 @@ public class AppStartupTests
                        new MemorySettingsStore(), dispatcher: null))
             {
                 Assert.False(services.CacheLoaded);
-                Assert.All(services.Main.Legend.Lines, l => Assert.Equal(LegendViewModel.NoData, l.AsOf));
+                services.Main.Panel.Show("ISL");
+                Assert.Equal("Not yet checked: UCDP, IPC, WHO, UNHCR", services.Main.Panel.Headline);
+                Assert.All(services.Main.Legend.Lines, l => Assert.Equal(LegendViewModel.NotChecked, l.AsOf));
                 services.Store.Load(TestData.Snap());
                 services.Shutdown();
             }
             Assert.Equal(TestData.Snap(), new CrisisCache(root, new ListLog()).Load());
         }
         finally { Delete(root); }
+    }
+
+    /// <summary>"No sound anywhere": a message box with an icon plays a Windows sound, so none may have one.</summary>
+    [Fact]
+    public void NothingInTheAppPlaysASound()
+    {
+        var sources = Directory.EnumerateFiles(Path.Combine(Repo.Root(), "src"), "*.cs", SearchOption.AllDirectories)
+            .Where(f => !f.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar) && !f.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar))
+            .ToList();
+        Assert.NotEmpty(sources);
+        var pattern = new System.Text.RegularExpressions.Regex(@"MessageBoxImage\.(?!None)\w+|SystemSounds|SoundPlayer|MediaPlayer|Console\.Beep");
+        var hits = sources.SelectMany(f => File.ReadLines(f).Where(l => pattern.IsMatch(l)).Select(l => Path.GetFileName(f) + ": " + l.Trim())).ToList();
+        Assert.Empty(hits);
+        Assert.Contains(sources, f => File.ReadAllText(f).Contains("MessageBoxImage.None"));
     }
 
     [Fact]
@@ -109,7 +128,8 @@ public class AppStartupTests
         var store = new CrisisStore();
         store.Load(TestData.Snap());
         var countries = CountryResolver.LoadDefault();
-        var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null);
+        var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null,
+            nowUtc: () => SampleStore.Now);
         var viewport = new HelixViewport3D
         {
             Camera = new PerspectiveCamera(new Point3D(3, 0, 0), new Vector3D(-3, 0, 0), new Vector3D(0, 0, 1), 45),
@@ -188,6 +208,7 @@ public class AppStartupTests
         var pick = Assert.IsType<CountryPick>(hit.Item);
         Assert.Equal("SOM", pick.Iso3);
         Assert.Contains("Somalia", hit.Tooltip);
+        Assert.Contains("IPC analysis period", hit.Tooltip);   // the food layer answers first over Somalia
         rig.Scene.Select(hit);
         Assert.True(rig.Vm.Panel.IsOpen);
         Assert.Equal("Somalia", rig.Vm.Panel.CountryName);

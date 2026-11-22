@@ -31,10 +31,13 @@
                        Margin="0,6,0,0"/>
             <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" MaxHeight="560" Margin="0,4,0,0">
                 <StackPanel>
-                    <!-- No crisis: say so, and list the sources checked with their dates. -->
-                    <StackPanel Visibility="{Binding HasNoCrisis, Converter={StaticResource B2V}}" Margin="0,4,0,8">
-                        <TextBlock Text="{x:Static vm:CountryPanelViewModel.NoCrisisText}" FontWeight="SemiBold"/>
-                        <TextBlock Text="Sources checked:" Foreground="#A0AEC0" FontSize="13" Margin="0,6,0,2"/>
+                    <!-- "No crisis recorded by these sources" only when every source has been checked; otherwise
+                         "Not yet checked: ..." (ruling R12). -->
+                    <TextBlock Text="{Binding Headline}" FontWeight="SemiBold" Margin="0,4,0,4"
+                               Visibility="{Binding HasHeadline, Converter={StaticResource B2V}}"/>
+                    <!-- No crisis: the sources, each with the date it was checked. -->
+                    <StackPanel Visibility="{Binding HasNoCrisis, Converter={StaticResource B2V}}" Margin="0,0,0,8">
+                        <TextBlock Text="Sources:" Foreground="#A0AEC0" FontSize="13" Margin="0,2,0,2"/>
                         <ItemsControl ItemsSource="{Binding SourcesChecked}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

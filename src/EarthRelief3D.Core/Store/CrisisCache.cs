@@ -9,10 +9,12 @@ namespace EarthRelief3D.Core.Store;
 /// <summary>On-disk copy of the last snapshot (<c>cache/crises.json</c>), so a restart offline still shows the last known crises.</summary>
 public sealed class CrisisCache(AppDataRoot root, IAppLog log)
 {
-    /// <summary>Raised whenever the saved shape or meaning of the records changes; an older file is discarded.</summary>
-    public const int SchemaVersion = 1;
+    /// <summary>Raised whenever the saved shape or meaning of the records changes; an older file is discarded.
+    /// 2: the snapshot's per-source check times (ruling R12).</summary>
+    public const int SchemaVersion = 2;
 
-    private sealed record Dto(int SchemaVersion, List<Crisis> Crises, List<DisplacementFigure> Displacement, List<UnplacedReport> Unplaced);
+    private sealed record Dto(int SchemaVersion, List<Crisis> Crises, List<DisplacementFigure> Displacement, List<UnplacedReport> Unplaced,
+        Dictionary<string, DateTime>? CheckedUtc);
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -37,7 +39,10 @@ public sealed class CrisisCache(AppDataRoot root, IAppLog log)
                 return null;
             }
             if (Problem(dto) is { } problem) throw new JsonException("invalid record: " + problem);
-            return new CrisisSnapshot(dto.Crises, dto.Displacement, dto.Unplaced);
+            return new CrisisSnapshot(dto.Crises, dto.Displacement, dto.Unplaced)
+            {
+                CheckedUtc = new Dictionary<string, DateTime>(dto.CheckedUtc ?? [], StringComparer.Ordinal),
+            };
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException or ArgumentException or FormatException or InvalidOperationException or NotSupportedException)
         {
@@ -50,7 +55,8 @@ public sealed class CrisisCache(AppDataRoot root, IAppLog log)
     /// <summary>False (with a logged warning) if the file could not be written; never throws for I/O failures.</summary>
     public bool Save(CrisisSnapshot s)
     {
-        var dto = new Dto(SchemaVersion, [.. s.Crises], [.. s.Displacement], [.. s.Unplaced]);
+        var dto = new Dto(SchemaVersion, [.. s.Crises], [.. s.Displacement], [.. s.Unplaced],
+            new Dictionary<string, DateTime>(s.CheckedUtc, StringComparer.Ordinal));
         if (AtomicFile.TryWriteAllText(FilePath, JsonSerializer.Serialize(dto, Options), out var error)) return true;
         log.Warn("Could not save crisis cache", error);
         return false;

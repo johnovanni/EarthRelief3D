@@ -80,7 +80,7 @@ public sealed class SceneController
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
         _animator = new CameraAnimator(() => Camera);
-        _displacement = new DisplacementSceneLayer(store, _countries) { IsVisible = vm.Layers.ShowDisplacement };
+        _displacement = new DisplacementSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowDisplacement };
         _conflict = new ConflictSceneLayer(store, _countries) { IsVisible = vm.Layers.ShowConflict };
         _outbreaks = new OutbreakSceneLayer(store, _countries) { IsVisible = vm.Layers.ShowOutbreaks };
         _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay);
@@ -130,7 +130,8 @@ public sealed class SceneController
         {
             _log.Error("Globe load failed", ex);
             _firstCompose.TrySetException(ex);
-            if (!_closed) MessageBox.Show(_window, ex.Message, AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Error);
+            // MessageBoxImage.None: a box with an icon plays a Windows sound, and the app must make no sound at all.
+            if (!_closed) MessageBox.Show(_window, ex.Message, AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.None);
         }
     }
 
@@ -141,7 +142,7 @@ public sealed class SceneController
     internal Task StartHostAsync(Bgra32Image baseImage, SparseOverlay coastAndBorders)
     {
         var layers = _vm.Layers;
-        _borders = new BordersImageLayer(coastAndBorders, _store, _countries);
+        _borders = new BordersImageLayer(coastAndBorders, _store, _countries, () => _clock.UtcNow);
         _food = new FoodImageLayer(baseImage.Width, baseImage.Height, _store, _countries, _sta, _log, () => _closed) { IsVisible = layers.ShowFood };
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
         foreach (var b in HoverBlockers) host.HoverBlockers.Add(b);

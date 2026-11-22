@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows.Threading;
+using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.Settings;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
@@ -19,7 +20,7 @@ namespace EarthRelief3D.App.Services;
 public sealed class AppServices : IDisposable
 {
     /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s.</summary>
-    public static IReadOnlyList<string> FeedNames { get; } = ["UCDP", "IPC", "WHO", "UNHCR"];
+    public static IReadOnlyList<string> FeedNames => SourceDates.SourceNames;
 
     private readonly CrisisCacheWriter _cacheWriter;
     private readonly FeedHttp _http;
@@ -78,7 +79,7 @@ public sealed class AppServices : IDisposable
         if (!feeds.Select(f => f.Name).SequenceEqual(FeedNames)) throw new InvalidOperationException("Feed names and status dots differ.");
 
         var resolver = countries;
-        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher);
+        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke

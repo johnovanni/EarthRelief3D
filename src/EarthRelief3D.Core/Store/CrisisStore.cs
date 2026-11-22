@@ -38,6 +38,21 @@ public sealed class CrisisStore
         return s with { Unplaced = [.. s.Unplaced.Where(r => r.Source != source), .. fresh] };
     });
 
+    /// <summary>
+    /// Records that <paramref name="source"/> (a feed name) ran successfully at <paramref name="utc"/>, whether or not it
+    /// found anything (ruling R12). Feeds call it after their other writes.
+    /// </summary>
+    public bool MarkChecked(string source, DateTime utc)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(source);
+        return _store.Write(s =>
+        {
+            if (s.CheckedUtc.TryGetValue(source, out var t) && t == utc) return null;
+            var checks = new Dictionary<string, DateTime>(s.CheckedUtc, StringComparer.Ordinal) { [source] = utc };
+            return s with { CheckedUtc = checks };
+        });
+    }
+
     /// <summary>Replaces everything with a cached snapshot (at start-up).</summary>
     public bool Load(CrisisSnapshot cached) => _store.Write(s => s.Equals(cached) ? null : cached);
 }

@@ -23,11 +23,14 @@ public sealed class BordersImageLayer : ImageLayer, IPickable
     private readonly IImageLayer _image;
     private readonly CrisisStore _store;
     private readonly CountryIndex _countries;
+    private readonly Func<DateTime> _nowUtc;
 
     /// <param name="coastAndBorders">The lines at the globe image's size (<see cref="RasterizeCoastAndBorders"/>).</param>
-    public BordersImageLayer(SparseOverlay coastAndBorders, CrisisStore store, CountryIndex countries)
+    /// <param name="nowUtc">The clock for the hover's date wording.</param>
+    public BordersImageLayer(SparseOverlay coastAndBorders, CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
         : base(LayerId, "Coastlines and borders", Order)
     {
+        _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
         ArgumentNullException.ThrowIfNull(coastAndBorders);
         _image = new SparseOverlayLayer(coastAndBorders, Pass, Order);
         _store = store ?? throw new ArgumentNullException(nameof(store));
@@ -49,6 +52,6 @@ public sealed class BordersImageLayer : ImageLayer, IPickable
     {
         if (Picking.CountryAt(screen, projector, _countries) is not { } country) return null;
         return new PickResult(LayerId, new CountryPick(country.Iso3, null),
-            CrisisText.CountryHover(country.Name, _store.Snapshot.ByCountry(country.Iso3)));
+            CrisisText.CountryHover(country.Name, country.Iso3, _store.Snapshot, _nowUtc()));
     }
 }

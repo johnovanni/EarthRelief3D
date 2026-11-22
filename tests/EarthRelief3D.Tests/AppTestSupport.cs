@@ -7,6 +7,16 @@ using GlobeCore.Storage;
 
 namespace EarthRelief3D.Tests;
 
+internal static class Repo
+{
+    public static string Root()
+    {
+        var dir = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "EarthRelief3D.sln"))) dir = dir.Parent;
+        return dir?.FullName ?? throw new System.IO.DirectoryNotFoundException("EarthRelief3D.sln not found above the test output");
+    }
+}
+
 internal sealed class MemorySettingsStore(AppSettings? initial = null) : ISettingsStore<AppSettings>
 {
     public AppSettings Current { get; private set; } = initial ?? new AppSettings();

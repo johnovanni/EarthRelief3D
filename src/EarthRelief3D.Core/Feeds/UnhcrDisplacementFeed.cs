@@ -51,6 +51,7 @@ public sealed class UnhcrDisplacementFeed(FeedHttp http, CrisisStore store, IClo
                 figures.Add(new DisplacementFigure(iso, year, t.Refugees, t.AsylumSeekers, t.Idps, citation));
             }
             store.ReplaceDisplacement(figures);
+            store.MarkChecked(Name, now);   // R12
             log.Info($"UNHCR: {figures.Count} countries of origin for {year}; {skipped} skipped (code not a known country)");
             return FeedRunResult.Ok;
         }

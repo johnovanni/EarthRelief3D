@@ -10,7 +10,7 @@ namespace EarthRelief3D.App.ViewModels;
 /// <summary>One colour key under a legend line ("Phase 4 Emergency", "last 3 months").</summary>
 public sealed record LegendKey(string Label, Color Color)
 {
-    /// <summary>For the view (computed, so it takes no part in the record's equality).</summary>
+    /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
 }
 
@@ -18,7 +18,7 @@ public sealed record LegendKey(string Label, Color Color)
 public sealed record LegendLine(CrisisLayer Layer, string Symbol, Color Color, string Measures, string Source, string AsOf,
     IReadOnlyList<LegendKey> Keys)
 {
-    /// <summary>For the view (computed, so it takes no part in the record's equality).</summary>
+    /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
 
     /// <summary>"&lt;publisher&gt;, &lt;dataset&gt; · &lt;as of&gt;", the line under the measure.</summary>
@@ -35,7 +35,8 @@ public sealed record UnplacedLine(string Title, string Detail);
 /// </summary>
 public sealed partial class LegendViewModel : ObservableObject
 {
-    public const string NoData = "no data loaded yet";
+    /// <summary>A source that has never run successfully (ruling R12).</summary>
+    public const string NotChecked = SourceDates.NotChecked;
     public const string UnplacedTitle = "Not placed on the map";
     /// <summary>The standard UN note (spec Q3, §11), shown under the legend.</summary>
     public const string BoundaryNote = "The boundaries and names shown on this map do not imply official endorsement or acceptance by the United Nations.";
@@ -43,6 +44,7 @@ public sealed partial class LegendViewModel : ObservableObject
     private readonly CrisisStore _store;
     private readonly LayerStripViewModel _layers;
     private readonly Dispatcher? _dispatcher;
+    private readonly Func<DateTime> _nowUtc;
     private int _refreshPending;
 
     [ObservableProperty] private IReadOnlyList<LegendLine> _lines = [];
@@ -51,11 +53,13 @@ public sealed partial class LegendViewModel : ObservableObject
     [ObservableProperty] private bool _hasUnplaced;
 
     /// <param name="dispatcher">The UI thread's; store changes from other threads are queued onto it. Null: handled at once (tests).</param>
-    public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null)
+    /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
+    public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
         _dispatcher = dispatcher;
+        _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _store.Changed += OnStoreChanged;
         _layers.PropertyChanged += OnLayersChanged;
         Refresh();
@@ -65,11 +69,11 @@ public sealed partial class LegendViewModel : ObservableObject
     {
         var s = _store.Snapshot;
         var lines = new List<LegendLine>();
-        foreach (var summary in SourceDates.All(s))
+        foreach (var summary in SourceDates.All(s, _nowUtc()))
         {
             if (!_layers.IsShown(summary.Layer)) continue;
             lines.Add(new LegendLine(summary.Layer, LayerStyle.Symbol(summary.Layer), LayerStyle.SymbolColor(summary.Layer),
-                Measures(summary.Layer), summary.Source, summary.DateText ?? NoData, Keys(summary.Layer)));
+                Measures(summary.Layer), summary.Source, summary.LegendDate, Keys(summary.Layer)));
         }
         Lines = lines;
         Unplaced = [.. s.Unplaced.OrderByDescending(u => u.Citation.AsOfUtc)
@@ -90,7 +94,7 @@ public sealed partial class LegendViewModel : ObservableObject
     private static IReadOnlyList<LegendKey> Keys(CrisisLayer layer) => layer switch
     {
         CrisisLayer.Conflict => [.. LayerStyle.ConflictAgeColors.Select((c, i) => new LegendKey(LayerStyle.ConflictAgeLabels[i], c))],
-        CrisisLayer.Food => [.. Enumerable.Range(3, 3).Select(p => new LegendKey($"Phase {p} {LayerStyle.IpcPhaseName(p)}", LayerStyle.IpcPhaseColor(p)))],
+        CrisisLayer.Food => [.. Enumerable.Range(3, 3).Select(p => new LegendKey(LayerStyle.IpcPhaseLabel(p), LayerStyle.IpcPhaseColor(p)))],
         _ => [],
     };
 

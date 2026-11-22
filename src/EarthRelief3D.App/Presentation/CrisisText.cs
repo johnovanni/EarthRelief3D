@@ -55,7 +55,9 @@ public static class CrisisText
     public static string ConflictHover(string country, ConflictCrisis c) =>
         $"{country} · {ConflictKind} · {c.Severity.Text} · {AsOf(NewestAsOf(c))}";
 
-    public static string FoodHover(string country, FoodCrisis f) => $"{country} · {FoodKind} · {f.Severity.Text} · {FoodDate(f)}";
+    /// <summary>"Somalia · food crisis · Phase 4 Emergency · IPC analysis period ... (analysed Sep 2026)" (ruling R11: no "as of").</summary>
+    public static string FoodHover(string country, FoodCrisis f) =>
+        $"{country} · {FoodKind} · {LayerStyle.IpcPhaseLabel(f.HighestPhase)} · {FoodDate(f)}";
 
     /// <summary>"Kenya · disease outbreak · Zorvian fever · WHO, reported 18 Nov 2026".</summary>
     public static string OutbreakHover(string country, IReadOnlyList<OutbreakCrisis> reports)
@@ -64,18 +66,66 @@ public static class CrisisText
         return $"{country} · {OutbreakKind} · {diseases} · WHO, reported {Date(reports.Max(r => r.PublishedUtc))}";
     }
 
-    /// <summary>"Sudan · people forced from home · 12,345,678 · UNHCR, Mid-year 2026 figures, as of 30 Jun 2026".</summary>
-    public static string DisplacementHover(string country, DisplacementFigure f) =>
-        $"{country} · {DisplacementKind} · {Number(Total(f))} · UNHCR, {f.Citation.Dataset}, {AsOf(f.Citation.AsOfUtc)}";
+    /// <summary>"Sudan · people forced from home · 12,345,678 · UNHCR, Mid-year 2026 figures, as of 30 Jun 2026" (no "as of" for a future date).</summary>
+    public static string DisplacementHover(string country, DisplacementFigure f, DateTime nowUtc) =>
+        $"{country} · {DisplacementKind} · {Number(Total(f))} · UNHCR, {f.Citation.Dataset}, {DataDate(f.Citation, nowUtc)}";
 
-    /// <summary>"Sudan · armed conflict, food crisis · click for details", or "Iceland · no crisis recorded by these sources · ...".</summary>
-    public static string CountryHover(string country, IReadOnlyList<Crisis> crises)
+    /// <summary>
+    /// The country under the mouse, with the sources and dates of what is recorded there:
+    /// "Sudan · armed conflict, food crisis · UCDP (as of 31 Oct 2026), IPC (analysed Sep 2026) · click for details".
+    /// With no crisis it uses the check times (ruling R12): "Iceland · no crisis recorded by these sources · checked 22 Nov
+    /// 2026 · ...", or "Iceland · not yet checked: UCDP, IPC, WHO, UNHCR · ..." while a source has never run.
+    /// </summary>
+    public static string CountryHover(string country, string iso3, CrisisSnapshot s, DateTime nowUtc)
     {
+        var crises = s.ByCountry(iso3);
         var kinds = new List<string>();
-        if (crises.Any(c => c is ConflictCrisis)) kinds.Add(ConflictKind);
-        if (crises.Any(c => c is FoodCrisis { IsStale: false })) kinds.Add(FoodKind);
-        if (crises.Any(c => c is OutbreakCrisis)) kinds.Add(OutbreakKind);
-        var what = kinds.Count == 0 ? "no crisis recorded by these sources" : string.Join(", ", kinds);
-        return $"{country} · {what} · {ClickForDetails}";
+        var sources = new List<string>();
+        var conflicts = crises.OfType<ConflictCrisis>().ToList();
+        if (conflicts.Count > 0)
+        {
+            kinds.Add(ConflictKind);
+            var newest = conflicts.SelectMany(c => c.Citations).MaxBy(c => c.AsOfUtc);
+            sources.Add(newest is null ? "UCDP" : $"UCDP ({DataDate(newest, nowUtc)})");
+        }
+        if (crises.OfType<FoodCrisis>().Where(f => !f.IsStale).MaxBy(f => f.PeriodTo) is { } food)
+        {
+            kinds.Add(FoodKind);
+            var v = food.Citations.Count > 0 ? food.Citations[0].Version : null;
+            sources.Add(string.IsNullOrWhiteSpace(v) ? $"IPC ({FoodDate(food)})" : $"IPC (analysed {v})");
+        }
+        var outbreaks = crises.OfType<OutbreakCrisis>().ToList();
+        if (outbreaks.Count > 0)
+        {
+            kinds.Add(OutbreakKind);
+            sources.Add($"WHO (reported {Date(outbreaks.Max(o => o.PublishedUtc))})");
+        }
+        if (kinds.Count > 0) return $"{country} · {string.Join(", ", kinds)} · {string.Join(", ", sources)} · {ClickForDetails}";
+
+        var notChecked = SourceDates.Unchecked(s);
+        var checkedNames = SourceDates.SourceNames.Where(n => s.CheckedUtc.ContainsKey(n)).ToList();
+        var parts = new List<string> { country };
+        if (notChecked.Count == 0) parts.Add("no crisis recorded by these sources");
+        else if (checkedNames.Count > 0) parts.Add("none recorded by " + string.Join(", ", checkedNames));
+        if (checkedNames.Count > 0) parts.Add(CheckedDates(s, checkedNames));
+        if (notChecked.Count > 0) parts.Add("not yet checked: " + string.Join(", ", notChecked));
+        parts.Add(ClickForDetails);
+        return string.Join(" · ", parts);
     }
+
+    // "checked 22 Nov 2026" when the sources were checked on one day, else "checked UCDP 22 Nov 2026, IPC 21 Nov 2026".
+    private static string CheckedDates(CrisisSnapshot s, IReadOnlyList<string> names)
+    {
+        var days = names.Select(n => Date(s.CheckedUtc[n])).ToList();
+        return days.Distinct().Count() == 1 ? "checked " + days[0] : "checked " + string.Join(", ", names.Select((n, i) => n + " " + days[i]));
+    }
+
+    /// <summary>
+    /// A citation's date: "as of &lt;date&gt;"; or, while that date is still in the future (UNHCR's current-year figures are
+    /// as of 30 June and come out before it), "retrieved &lt;date&gt;": never "as of" a date that has not come yet.
+    /// </summary>
+    public static string DataDate(SourceCitation c, DateTime nowUtc) => IsFuture(c, nowUtc) ? "retrieved " + Date(c.RetrievedUtc) : AsOf(c.AsOfUtc);
+
+    /// <summary>True when the citation's as-of date has not come yet.</summary>
+    public static bool IsFuture(SourceCitation c, DateTime nowUtc) => c.AsOfUtc > nowUtc;
 }

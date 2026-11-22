@@ -29,7 +29,12 @@ public sealed class DisplacementSceneLayer : CrisisSceneLayer
 
     private readonly record struct RingPoints(Point3D Centre, Point3D Edge);
 
-    public DisplacementSceneLayer(CrisisStore store, CountryIndex countries) : base(LayerId, "People forced from home", Order, store, countries) { }
+    private readonly Func<DateTime> _nowUtc;
+
+    /// <param name="nowUtc">The clock for the hover's date wording (no "as of" a date still to come).</param>
+    public DisplacementSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+        : base(LayerId, "People forced from home", Order, store, countries) =>
+        _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
 
     /// <summary>Ring radius in Earth radii for <paramref name="total"/> people: area ∝ total.</summary>
     public static double RadiusFor(long total) => total <= 0 ? 0 : RadiusPerSqrtMillion * Math.Sqrt(total / 1e6);
@@ -62,7 +67,7 @@ public sealed class DisplacementSceneLayer : CrisisSceneLayer
             double rPx = Picking.Distance(c, e);
             if (Math.Abs(Picking.Distance(c, screen) - rPx) <= PickSlopPx)
                 return new PickResult(LayerId, new CountryPick(f.CountryIso3, CrisisLayer.Displacement),
-                    CrisisText.DisplacementHover(NameOf(f.CountryIso3), f));
+                    CrisisText.DisplacementHover(NameOf(f.CountryIso3), f, _nowUtc()));
         }
         return null;
     }

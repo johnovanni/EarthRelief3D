@@ -24,6 +24,7 @@ public sealed class IpcNationalFeed(FeedHttp http, CrisisStore store, IClock clo
         var result = IpcNationalReader.Read(csv, _countries, clock.UtcNow);
 
         store.ReplaceKind(CrisisKind.FoodCrisis, result.Crises);
+        store.MarkChecked(Name, clock.UtcNow);   // R12: checked, whatever was found
         log.Info($"IPC: {result.Crises.Count} countries with people in Phase 3 or higher ({result.Crises.Count(c => c.IsStale)} stale); "
             + $"{result.BlankPeriod} rows skipped (no current period)");
         return FeedRunResult.Ok;
