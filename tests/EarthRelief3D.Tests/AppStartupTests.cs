@@ -1,0 +1,276 @@
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Media3D;
+using AstroCore.Earth;
+using EarthRelief3D.App;
+using EarthRelief3D.App.Controllers;
+using EarthRelief3D.App.Layers;
+using EarthRelief3D.App.Presentation;
+using EarthRelief3D.App.Services;
+using EarthRelief3D.App.ViewModels;
+using EarthRelief3D.Core.Feeds;
+using EarthRelief3D.Core.Store;
+using GlobeCore.Feeds;
+using GlobeCore.Imaging;
+using GlobeCore.Storage;
+using GlobeCore.Wpf.Layers;
+using GlobeCore.Wpf.Status;
+using HelixToolkit.Wpf;
+
+namespace EarthRelief3D.Tests;
+
+public class AppStartupTests
+{
+    private static AppDataRoot TempRoot() =>
+        new(Path.Combine(Path.GetTempPath(), "er3d-start-" + Guid.NewGuid().ToString("N")));
+
+    private static void Delete(AppDataRoot root)
+    {
+        try { Directory.Delete(root.Root, recursive: true); } catch (IOException) { }
+    }
+
+    [Fact]
+    public async Task OfflineStartShowsCacheAndAmberDots()
+    {
+        var root = TempRoot();
+        try
+        {
+            Directory.CreateDirectory(root.CacheDir);
+            var cached = (await SampleStore.LoadAsync()).Snapshot;
+            Assert.True(new CrisisCache(root, new ListLog()).Save(cached));
+            var offline = new FeedHttp("test", new SampleHttpHandler());   // every request answers 404
+
+            using var services = AppServices.Create(root, offline, new FixedClock(SampleStore.Now), new ListLog(),
+                new MemorySettingsStore(), dispatcher: null);
+            var vm = services.Main;
+
+            // The cached snapshot is shown at once: the legend carries its dates and the panel its sections.
+            Assert.True(services.CacheLoaded);
+            Assert.Equal(cached, services.Store.Snapshot);
+            Assert.Equal(4, vm.Legend.Lines.Count);
+            Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NoData, l.AsOf));
+            Assert.Equal("as of 30 Jun 2026", vm.Legend.Lines.Single(l => l.Layer == CrisisLayer.Displacement).AsOf);
+            vm.Panel.Show("SDN");
+            Assert.Equal(4, vm.Panel.Sections.Count);
+
+            // One dot per source, grey until each reports.
+            Assert.Equal(AppServices.FeedNames, vm.Status.Dots.Select(d => d.Name));
+            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR"], AppServices.FeedNames);
+            Assert.All(vm.Status.Dots, d => Assert.Equal(FeedState.NotStarted, d.State));
+
+            // Every feed fails (no network): amber dots, and the cached data stays.
+            await services.Scheduler.TickAsync(default);
+            Assert.All(vm.Status.Dots, d =>
+            {
+                Assert.Equal(FeedState.Retrying, d.State);
+                Assert.Same(StatusDotsBrushes.Retrying, d.Brush);
+            });
+            Assert.Equal(cached, services.Store.Snapshot);
+            Assert.Equal(4, vm.Legend.Lines.Count(l => l.AsOf != LegendViewModel.NoData));
+        }
+        finally { Delete(root); }
+    }
+
+    [Fact]
+    public async Task NoCacheStartsEmptyAndShutdownSavesTheCache()
+    {
+        var root = TempRoot();
+        try
+        {
+            var offline = new FeedHttp("test", new SampleHttpHandler());
+            using (var services = AppServices.Create(root, offline, new FixedClock(SampleStore.Now), new ListLog(),
+                       new MemorySettingsStore(), dispatcher: null))
+            {
+                Assert.False(services.CacheLoaded);
+                Assert.All(services.Main.Legend.Lines, l => Assert.Equal(LegendViewModel.NoData, l.AsOf));
+                services.Store.Load(TestData.Snap());
+                services.Shutdown();
+            }
+            Assert.Equal(TestData.Snap(), new CrisisCache(root, new ListLog()).Load());
+        }
+        finally { Delete(root); }
+    }
+
+    [Fact]
+    public void AppInfoUserAgentNamesTheProjectOnly()
+    {
+        Assert.Equal($"EarthRelief3D/{AppInfo.Version} (+https://github.com/johnovanni/EarthRelief3D)", AppInfo.UserAgent);
+        Assert.Equal("earthrelief3d-", AppInfo.LogFilePrefix);
+    }
+
+    // ---------------------------------------------------------------- the scene (STA)
+
+    private sealed record Rig(SceneController Scene, MainViewModel Vm, HelixViewport3D Viewport, CrisisStore Store);
+
+    /// <summary>A SceneController in a window that is never shown, laid out by hand at 800x600, facing 0°N 0°E.</summary>
+    private static Rig NewScene()
+    {
+        var store = new CrisisStore();
+        store.Load(TestData.Snap());
+        var countries = CountryResolver.LoadDefault();
+        var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null);
+        var viewport = new HelixViewport3D
+        {
+            Camera = new PerspectiveCamera(new Point3D(3, 0, 0), new Vector3D(-3, 0, 0), new Vector3D(0, 0, 1), 45),
+        };
+        var overlay = new Canvas();
+        var grid = new Grid { Children = { viewport, overlay } };
+        var window = new Window { Content = grid };
+        grid.Measure(new Size(800, 600));
+        grid.Arrange(new Rect(0, 0, 800, 600));
+        var scene = new SceneController(viewport, overlay, vm, window, store, countries, new FixedClock(SampleStore.Now), new ListLog());
+        return new Rig(scene, vm, viewport, store);
+    }
+
+    private static async Task<Rig> StartAsync()
+    {
+        var rig = NewScene();
+        const int w = 64, h = 32;
+        var baseImage = Bgra32Image.Create(w, h);
+        Array.Fill(baseImage.Pixels, (byte)200);
+        var lineImage = Bgra32Image.Create(w, h);
+        for (int x = 0; x < w; x++) lineImage.Pixels[(h / 2 * w + x) * 4 + 3] = 255;
+        await rig.Scene.StartHostAsync(baseImage, SparseOverlay.FromImage(lineImage));
+        await StaAsync.WaitUntil(() => rig.Scene.Host!.IsComposeIdle);
+        return rig;
+    }
+
+    [Fact]
+    public void HostHasTheLayersInOrder() => StaAsync.Run(async () =>
+    {
+        var rig = await StartAsync();
+        var host = rig.Scene.Host!;
+
+        Assert.Equal(
+        [
+            (nameof(BordersImageLayer), BordersImageLayer.Order),
+            (nameof(FoodImageLayer), FoodImageLayer.Order),
+            (nameof(DisplacementSceneLayer), DisplacementSceneLayer.Order),
+            (nameof(ConflictSceneLayer), ConflictSceneLayer.Order),
+            (nameof(OutbreakSceneLayer), OutbreakSceneLayer.Order),
+            (nameof(LabelsOverlayLayer), LabelsOverlayLayer.Order),
+        ], host.Layers.Select(l => (l.GetType().Name, l.ZOrder)));
+        Assert.True(BordersImageLayer.Order < FoodImageLayer.Order && FoodImageLayer.Order < DisplacementSceneLayer.Order);
+        Assert.Equal(5, host.Layers.Count(l => l is IPickable));
+
+        // Food is shaded under the borders, above the night shade (so phase colours stay true at night).
+        var borders = Assert.IsAssignableFrom<IImageLayer>(host.Layers.OfType<BordersImageLayer>().Single().Current);
+        var food = Assert.IsAssignableFrom<IImageLayer>(host.Layers.OfType<FoodImageLayer>().Single().Current);
+        Assert.Equal(ImagePass.AboveNight, borders.Pass);
+        Assert.Equal(ImagePass.AboveNight, food.Pass);
+        Assert.True(food.Order < borders.Order);
+
+        // One frame draws the markers (the snapshot has a conflict, an outbreak and a displacement figure).
+        host.RenderFrame();
+        Assert.True(host.Layers.OfType<ConflictSceneLayer>().Single().MarkerCount > 0);
+        Assert.Equal(1, host.Layers.OfType<OutbreakSceneLayer>().Single().MarkerCount);
+        Assert.Equal(1, host.Layers.OfType<DisplacementSceneLayer>().Single().MarkerCount);
+
+        // The strip's toggles show and hide the layers.
+        rig.Vm.Layers.ShowConflict = false;
+        Assert.False(host.Layers.OfType<ConflictSceneLayer>().Single().IsVisible);
+        rig.Vm.Layers.ShowFood = false;
+        Assert.False(host.Layers.OfType<FoodImageLayer>().Single().IsVisible);
+        rig.Vm.Layers.ShowConflict = true;
+        Assert.True(host.Layers.OfType<ConflictSceneLayer>().Single().IsVisible);
+    });
+
+    [Fact]
+    public void ClickInSomalilandOpensSomalia() => StaAsync.Run(async () =>
+    {
+        var rig = await StartAsync();
+        var host = rig.Scene.Host!;
+        rig.Scene.LookAt(new GeoPosition(9.56, 44.06));   // Hargeisa
+        var hit = host.Pick(new Point(400, 300), hover: false);
+
+        Assert.NotNull(hit);
+        var pick = Assert.IsType<CountryPick>(hit.Item);
+        Assert.Equal("SOM", pick.Iso3);
+        Assert.Contains("Somalia", hit.Tooltip);
+        rig.Scene.Select(hit);
+        Assert.True(rig.Vm.Panel.IsOpen);
+        Assert.Equal("Somalia", rig.Vm.Panel.CountryName);
+
+        // A click over the sea closes the panel.
+        rig.Scene.LookAt(new GeoPosition(-30, -20));
+        Assert.Null(host.Pick(new Point(400, 300), hover: false));
+        rig.Scene.ClearSelection();
+        Assert.False(rig.Vm.Panel.IsOpen);
+    });
+
+    private sealed class BindingErrors : System.Diagnostics.TraceListener
+    {
+        public List<string> Lines { get; } = [];
+        public override void Write(string? message) { }
+        public override void WriteLine(string? message) { if (message is not null) Lines.Add(message); }
+    }
+
+    private static IEnumerable<T> Descendants<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
+            if (child is T t) yield return t;
+            foreach (var d in Descendants<T>(child)) yield return d;
+        }
+    }
+
+    /// <summary>The real window's XAML loads, lays out and binds with no binding errors (no launch: never shown).</summary>
+    [Fact]
+    public void MainWindowXamlLoadsAndBindsWithoutErrors() => StaAsync.Run(async () =>
+    {
+        var errors = new BindingErrors();
+        System.Diagnostics.PresentationTraceSources.Refresh();
+        System.Diagnostics.PresentationTraceSources.DataBindingSource.Listeners.Add(errors);
+        System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Warning;
+        try
+        {
+            var store = await SampleStore.LoadAsync();
+            var countries = CountryResolver.LoadDefault();
+            var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null);
+            var window = new MainWindow(vm, store, countries, new FixedClock(SampleStore.Now), new ListLog());
+            var root = (FrameworkElement)window.Content;
+            vm.Panel.Show("SDN", CrisisLayer.Food);
+            root.Measure(new Size(1200, 760));
+            root.Arrange(new Rect(0, 0, 1200, 760));
+            root.UpdateLayout();
+            await Task.Delay(50);   // the panel scrolls to its focused section at Loaded priority
+
+            var texts = Descendants<TextBlock>(root).Select(t => t.Text).ToList();
+            Assert.Contains("Sudan", texts);
+            Assert.Contains(CountryPanelViewModel.ConflictHeading, texts);
+            Assert.Contains(CountryPanelViewModel.DisplacementHeading, texts);
+            Assert.Contains(texts, t => t.StartsWith("Source: UNHCR, Mid-year 2026 figures", StringComparison.Ordinal));
+            Assert.All(vm.Legend.Lines, l => Assert.Contains(l.SourceLine, texts));
+            Assert.Contains(LayerStripViewModel.ComingNote, texts);
+            Assert.Contains(LegendViewModel.BoundaryNote, texts);
+            Assert.Equal(4, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four status dots
+            Assert.Empty(errors.Lines);
+
+            vm.Panel.Show("ISL");
+            root.UpdateLayout();
+            Assert.Contains(CountryPanelViewModel.NoCrisisText, Descendants<TextBlock>(root).Select(t => t.Text));
+            Assert.Empty(errors.Lines);
+        }
+        finally
+        {
+            System.Diagnostics.PresentationTraceSources.DataBindingSource.Listeners.Remove(errors);
+        }
+    });
+
+    [Fact]
+    public void MarkerHoverNamesSourceAndDate() => StaAsync.Run(async () =>
+    {
+        var rig = await StartAsync();
+        var host = rig.Scene.Host!;
+        rig.Scene.LookAt(new GeoPosition(15.5, 32.5));   // the first test conflict event
+        host.RenderFrame();
+        var hit = host.Pick(new Point(400, 300), hover: true);
+
+        Assert.NotNull(hit);
+        Assert.Equal(ConflictSceneLayer.LayerId, hit.LayerId);
+        Assert.Equal(new CountryPick("SDN", CrisisLayer.Conflict), hit.Item);
+        Assert.Equal("Sudan · armed conflict · 30 deaths · as of 22 Nov 2026", hit.Tooltip);
+    });
+}

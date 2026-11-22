@@ -1,0 +1,80 @@
+<UserControl x:Class="EarthRelief3D.App.Views.CountryPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:EarthRelief3D.App.Views"
+             xmlns:vm="clr-namespace:EarthRelief3D.App.ViewModels"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12" Width="380" Foreground="White">
+    <!-- DataContext: CountryPanelViewModel. The "What is happening" part of the panel (spec §9.1). -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="B2V"/>
+            <local:RowsConverter x:Key="Rows"/>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Border x:Name="Card" Background="#E6101624" CornerRadius="8" Padding="14,10"
+            Visibility="{Binding IsOpen, Converter={StaticResource B2V}}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                <Button DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="8,1" Content="×" FontSize="16"
+                        ToolTip="Close (Esc)" Command="{Binding CloseCommand}" VerticalAlignment="Top"/>
+                <TextBlock Text="{Binding CountryName}" FontWeight="SemiBold" FontSize="18" Margin="0,0,8,0"/>
+            </DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="What is happening" Foreground="#C8CDD8" FontSize="12" FontWeight="SemiBold"
+                       Margin="0,6,0,0"/>
+            <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" MaxHeight="560" Margin="0,4,0,0">
+                <StackPanel>
+                    <!-- No crisis: say so, and list the sources checked with their dates. -->
+                    <StackPanel Visibility="{Binding HasNoCrisis, Converter={StaticResource B2V}}" Margin="0,4,0,8">
+                        <TextBlock Text="{x:Static vm:CountryPanelViewModel.NoCrisisText}" FontWeight="SemiBold"/>
+                        <TextBlock Text="Sources checked:" Foreground="#A0AEC0" FontSize="13" Margin="0,6,0,2"/>
+                        <ItemsControl ItemsSource="{Binding SourcesChecked}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Foreground="#D5DCE8" FontSize="13" TextWrapping="Wrap" Margin="8,1,0,1"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <ItemsControl x:Name="SectionList" ItemsSource="{Binding Sections}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,4,0,10">
+                                    <TextBlock Text="{Binding Heading}" FontWeight="SemiBold" FontSize="15" Foreground="White" TextWrapping="Wrap"/>
+                                    <ItemsControl ItemsSource="{Binding Rows, Converter={StaticResource Rows}}" Margin="0,4,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="130"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Label}" Foreground="#A0AEC0" FontSize="13" TextWrapping="Wrap" Margin="0,0,8,0"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="White" FontSize="13" TextWrapping="Wrap"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Text="{Binding SourceLine}" Foreground="#9AA3B5" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                    <TextBlock Margin="0,2,0,0" FontSize="12"
+                                               Visibility="{Binding Link, Converter={x:Static local:NullToCollapsedConverter.Instance}}">
+                                        <Hyperlink Foreground="#7FB6FF" Click="OnSourceLinkClick" Tag="{Binding Link}">Source page ↗</Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Needs, getting help in and your one small step: coming in a later version." Foreground="#8A92A3"
+                               FontSize="12" Margin="0,2,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

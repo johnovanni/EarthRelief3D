@@ -1,0 +1,124 @@
+<UserControl x:Class="EarthRelief3D.App.Views.LayerStrip"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EarthRelief3D.App.ViewModels"
+             xmlns:p="clr-namespace:EarthRelief3D.App.Presentation"
+             HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12">
+    <!-- DataContext: LayerStripViewModel. The Crises group's four toggles, then the groups still to come (headers only). -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="B2V"/>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style x:Key="GroupHeader" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#C8CDD8"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Margin" Value="6,6,6,2"/>
+            </Style>
+
+            <!-- Layer toggle: the symbol is the Tag (drawn in the toggle's Foreground, the layer's colour), the label the Content. -->
+            <Style x:Key="LayerButton" TargetType="ToggleButton">
+                <Setter Property="Margin" Value="0,1"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="ToolTipService.InitialShowDelay" Value="250"/>
+                <Setter Property="ToolTipService.ShowDuration" Value="30000"/>
+                <Setter Property="ToolTipService.Placement" Value="Right"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="4,0" Height="32">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Icon" Text="{TemplateBinding Tag}" Width="26" FontSize="17"
+                                               TextAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
+                                    <ContentPresenter x:Name="Label" Margin="6,0,6,0" VerticalAlignment="Center"
+                                                      TextElement.Foreground="White" TextElement.FontSize="14"
+                                                      Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource B2V}}"/>
+                                    <TextBlock x:Name="Off" Text="off" Foreground="#9AA3B5" FontSize="12" Margin="0,0,6,0" Visibility="Collapsed"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#2E3A52"/>
+                                </Trigger>
+                                <!-- Off is shown in words too, not by dimming alone. -->
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter TargetName="Icon" Property="Opacity" Value="0.4"/>
+                                    <Setter TargetName="Label" Property="Opacity" Value="0.6"/>
+                                    <Setter TargetName="Off" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="CommandButton" TargetType="ToggleButton" BasedOn="{StaticResource LayerButton}">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="4,0" Height="32">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{TemplateBinding Tag}" Width="26" FontSize="17" TextAlignment="Center"/>
+                                    <ContentPresenter Margin="6,0,6,0" VerticalAlignment="Center" TextElement.Foreground="White"
+                                                      TextElement.FontSize="14"
+                                                      Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource B2V}}"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Background="#CC101624" CornerRadius="8" Padding="4">
+        <StackPanel>
+            <ToggleButton Style="{StaticResource CommandButton}" Tag="≡" Content="Layers"
+                          IsChecked="{Binding IsExpanded}" ToolTip="Show or hide the labels"/>
+
+            <TextBlock Style="{StaticResource GroupHeader}" Text="{x:Static vm:LayerStripViewModel.CrisesGroup}"
+                       Visibility="{Binding IsExpanded, Converter={StaticResource B2V}}"/>
+
+            <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding ConflictSymbol}" Content="Armed conflict"
+                          Foreground="{x:Static p:LayerStyle.ConflictBrush}" IsChecked="{Binding ShowConflict}"
+                          ToolTip="Armed conflict (UCDP): a dot at each event of a conflict with 25 or more deaths in a year. Bigger dots: more deaths in the conflict; lighter dots: newer events."/>
+            <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding FoodSymbol}" Content="Food crisis"
+                          Foreground="{x:Static p:LayerStyle.FoodBrush}" IsChecked="{Binding ShowFood}"
+                          ToolTip="Food crisis (IPC): countries shaded in the IPC's colour for the highest phase with people in it (Phase 3 Crisis, 4 Emergency, 5 Famine)."/>
+            <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding OutbreaksSymbol}" Content="Disease outbreaks"
+                          Foreground="{x:Static p:LayerStyle.OutbreakBrush}" IsChecked="{Binding ShowOutbreaks}"
+                          ToolTip="Disease outbreaks (WHO Disease Outbreak News): a cross at each country with a report in the last 90 days, labelled with the disease."/>
+            <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding DisplacementSymbol}" Content="People forced from home"
+                          Foreground="{x:Static p:LayerStyle.DisplacementBrush}" IsChecked="{Binding ShowDisplacement}"
+                          ToolTip="People forced from home (UNHCR): a ring at each country of origin; its area grows with the number of refugees, asylum-seekers and internally displaced people."/>
+
+            <!-- Later plans: headers only, they do nothing yet. -->
+            <ItemsControl ItemsSource="{Binding ComingGroups}" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="6,6,6,0" ToolTip="{Binding Note}">
+                            <TextBlock Text="{Binding Name}" Foreground="#8A92A3" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Note}" Foreground="#8A92A3" FontSize="11"
+                                       Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource B2V}}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </Border>
+</UserControl>

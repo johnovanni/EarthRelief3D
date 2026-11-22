@@ -1,6 +1,47 @@
 <Window x:Class="EarthRelief3D.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="EarthRelief3D" Height="720" Width="1100">
-    <Grid />
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:views="clr-namespace:EarthRelief3D.App.Views"
+        xmlns:status="clr-namespace:GlobeCore.Wpf.Status;assembly=GlobeCore.Wpf"
+        Title="EarthRelief3D" Height="760" Width="1200" Background="#04060E">
+    <!-- The globe, markers, overlay and camera input are wired by Controllers/SceneController. -->
+    <Grid x:Name="Root">
+        <!-- Left-drag rotates; Helix's other default gestures are off (as in EarthWatch3D). Home, double-click and the
+             wheel are the app's own (SceneController). -->
+        <helix:HelixViewport3D x:Name="Viewport" Background="#04060E"
+                               CameraRotationMode="Turntable" ModelUpDirection="0,0,1"
+                               ShowViewCube="False" ShowCoordinateSystem="False" ZoomAroundMouseDownPoint="False"
+                               IsHeadLightEnabled="False" ShowFrameRate="False"
+                               RotateGesture="LeftClick" RotateGesture2="{x:Null}"
+                               IsPanEnabled="False" PanGesture="{x:Null}" PanGesture2="{x:Null}"
+                               IsMoveEnabled="False" IsChangeFieldOfViewEnabled="False" ChangeFieldOfViewGesture="{x:Null}"
+                               ChangeLookAtGesture="{x:Null}" ZoomRectangleGesture="{x:Null}" ZoomExtentsGesture="{x:Null}"
+                               OrthographicToggleGesture="{x:Null}"
+                               ResetCameraGesture="{x:Null}" ResetCameraKeyGesture="{x:Null}"
+                               FrontViewGesture="{x:Null}" BackViewGesture="{x:Null}" LeftViewGesture="{x:Null}"
+                               RightViewGesture="{x:Null}" TopViewGesture="{x:Null}" BottomViewGesture="{x:Null}">
+            <helix:HelixViewport3D.Camera>
+                <PerspectiveCamera Position="0,-3,1" LookDirection="0,3,-1" UpDirection="0,0,1" FieldOfView="45"
+                                   NearPlaneDistance="0.01" FarPlaneDistance="100"/>
+            </helix:HelixViewport3D.Camera>
+            <ModelVisual3D>
+                <ModelVisual3D.Content>
+                    <AmbientLight Color="White"/>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+        </helix:HelixViewport3D>
+        <Canvas x:Name="Overlay" IsHitTestVisible="False"/>
+        <views:LayerStrip x:Name="Strip" DataContext="{Binding Layers}"/>
+        <views:CountryPanel x:Name="Panel" DataContext="{Binding Panel}"/>
+        <views:Legend x:Name="LegendCard" DataContext="{Binding Legend}"/>
+        <!-- Status dots per source (bottom right); the tooltip gives the last update or the error. -->
+        <Border x:Name="StatusCard" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12" Padding="8,2"
+                Background="#CC101624" CornerRadius="8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Sources" Foreground="#C8CDD8" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <status:StatusDotsView DataContext="{Binding Status}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>
