@@ -34,9 +34,15 @@ public sealed class UnhcrDisplacementFeed(FeedHttp http, CrisisStore store, IClo
             var totals = Sum(json);
             if (totals.Count == 0) continue;
 
-            var asOf = new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-            var citation = new SourceCitation("UNHCR", "Refugee Population Statistics", year.ToString(CultureInfo.InvariantCulture), TermsUrl,
-                "CC BY 4.0", "UNHCR Refugee Population Statistics Database", asOf > now ? now : asOf, now);
+            // R10: the API has no date field. UNHCR publishes mid-year figures (as of 30 June, out around November) and
+            // end-year figures (as of 31 December, out around mid-June the next year). The clock year therefore holds
+            // mid-year data; an earlier year holds end-year data only from 1 July of the following year. This is an
+            // inference from UNHCR's usual release pattern, not a field in the response. The clock is never the as-of date.
+            var endYear = year < now.Year && now >= new DateTime(year + 1, 7, 1, 0, 0, 0, DateTimeKind.Utc);
+            var asOf = endYear ? new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc) : new DateTime(year, 6, 30, 0, 0, 0, DateTimeKind.Utc);
+            var label = endYear ? $"End-year {year} figures" : $"Mid-year {year} figures";
+            var citation = new SourceCitation("UNHCR", label, year.ToString(CultureInfo.InvariantCulture), TermsUrl,
+                "CC BY 4.0", "UNHCR Refugee Population Statistics Database", asOf, now);
             var figures = new List<DisplacementFigure>();
             var skipped = 0;
             foreach (var (iso, t) in totals.OrderBy(kv => kv.Key, StringComparer.Ordinal))

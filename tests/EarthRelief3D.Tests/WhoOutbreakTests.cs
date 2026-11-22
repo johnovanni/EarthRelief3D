@@ -70,6 +70,7 @@ public class WhoOutbreakTests
     [InlineData("Marnet syndrome - Türkiye", "Marnet syndrome", "Türkiye")]
     [InlineData("Brellick cholera-like illness - occupied Palestinian territory", "Brellick cholera-like illness", "occupied Palestinian territory")]
     [InlineData("Tarvane influenza – Viet Nam – update 2", "Tarvane influenza", "Viet Nam")]
+    [InlineData("Z - Kenya; Uganda", "Z", "Kenya|Uganda")]
     [InlineData("Glenmoor plague - Madagascar", "Glenmoor plague", "Madagascar")]
     [InlineData("Only a disease", "Only a disease", "")]
     public void ParsesDiseaseAndPlaces(string title, string disease, string places)

@@ -71,4 +71,21 @@ public class UnhcrFeedTests
         Assert.Equal(3, h.Requests.Count);
         Assert.Empty(store.Snapshot.Displacement);
     }
+
+    [Theory]
+    [InlineData(2026, "2026-11-22", 2026, 6, 30, "Mid-year 2026 figures")]
+    [InlineData(2025, "2026-03-01", 2025, 6, 30, "Mid-year 2025 figures")]
+    [InlineData(2025, "2026-08-01", 2025, 12, 31, "End-year 2025 figures")]
+    public async Task AsOfFollowsTheReleaseRuleNotTheClock(int dataYear, string clock, int y, int m, int d, string label)
+    {
+        var now = DateTime.SpecifyKind(DateTime.Parse(clock, CultureInfo.InvariantCulture), DateTimeKind.Utc);
+        var h = new SampleHttpHandler();
+        h.MapText(UnhcrDisplacementFeed.UrlFor(now.Year).ToString(), "{\"items\":[]}");
+        h.Map(UnhcrDisplacementFeed.UrlFor(dataYear).ToString(), Samples.Path("unhcr_population_coo.json"));
+        var store = new CrisisStore();
+        await new UnhcrDisplacementFeed(new FeedHttp("test", h), store, new FixedClock(now), new ListLog()).RunOnceAsync(default);
+        var c = store.Snapshot.Displacement[0].Citation;
+        Assert.Equal(new DateTime(y, m, d, 0, 0, 0, DateTimeKind.Utc), c.AsOfUtc);
+        Assert.Equal(label, c.Dataset);
+    }
 }

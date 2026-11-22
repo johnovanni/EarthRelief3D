@@ -46,4 +46,18 @@ public class CountryDataTests
         try { Assert.Throws<InvalidDataException>(() => CountryResolver.ReadUnits(path)); }
         finally { File.Delete(path); }
     }
+
+    [Theory]
+    [InlineData("Guinea", "GIN")]
+    [InlineData("Guinea-Bissau", "GNB")]
+    [InlineData("Equatorial Guinea", "GNQ")]
+    [InlineData("Niger", "NER")]
+    [InlineData("Nigeria", "NGA")]
+    [InlineData("Sudan", "SDN")]
+    [InlineData("South Sudan", "SSD")]
+    public void SimilarNamesResolveToTheirOwnCountry(string name, string iso3)
+    {
+        var r = CountryResolver.Load(Data("country-aliases.json"), Data("country-units.json"));
+        Assert.Equal(iso3, r.Resolve(name)?.Iso3);
+    }
 }

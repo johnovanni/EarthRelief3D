@@ -40,7 +40,7 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **URL:** https://api.unhcr.org/population/v1/population/?year=2026&coo_all=true&limit=500 (one page: `maxPages` 1, 206 items). With `year=2025`: 208 items.
 - **Licence / attribution:** UNHCR Refugee Data Finder, CC BY 4.0 (from UNHCR's published terms; not stated in the API response, so confirm before release). Attribute: "UNHCR Refugee Population Statistics Database".
 - **Cadence:** UNHCR updates through the year (mid-year and annual releases).
-- **As-of field:** the item's `year`. The response has no timestamp; the retrieval date stands for freshness.
+- **As-of field:** the item's `year`; the response has no date. Rule R10 (an inference from UNHCR's usual releases, not a field): data for the clock year is mid-year, as of 30 June; an earlier year is end-year, as of 31 December, only from 1 July of the following year, otherwise 30 June of that year. The clock is never the as-of date; the retrieval date is kept separately.
 - **Checked fields:** `coo_iso, refugees, asylum_seekers, idps, year` are present (also `coo_name`, `coo`, `returned_refugees`, `returned_idps`, `stateless`, `ooc`, `oip`, `hst`).
 - **Differences and gotchas found:**
   - **2026 has items, so 2026 was captured** (the plan named 2025).

@@ -28,7 +28,7 @@ public static partial class WhoTitleParser
             cut = LastSeparator(title);
         }
         if (cut is not { } k) return (title, []);
-        var places = title[k.End..].Split(',').SelectMany(part => And().Split(part))
+        var places = title[k.End..].Split(',', ';').SelectMany(part => And().Split(part))
             .Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
         return (title[..k.Start].Trim(), places);
     }
