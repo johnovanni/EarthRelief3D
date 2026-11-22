@@ -28,4 +28,15 @@ public class TrendTests
         Assert.Equal(300, t.Recent);
         Assert.Equal(30, t.Previous);
     }
+
+    [Fact]
+    public void KeysInTheSameMonthAreSummed()
+    {
+        var last = new DateOnly(2026, 10, 1);
+        var data = Months(6, last, _ => 10);
+        data[new DateOnly(2026, 10, 15)] = 5;   // second key in the latest month
+        var t = Trend.FromMonths(data, last)!;
+        Assert.Equal(35, t.Recent);
+        Assert.Equal(30, t.Previous);
+    }
 }

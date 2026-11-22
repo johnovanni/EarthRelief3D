@@ -9,11 +9,11 @@ with the source name and its as-of date. If the two ever seem to disagree, the n
 
 ## Armed conflict (UCDP)
 
-The native measure is the **best-estimate number of deaths** UCDP records for the conflict in the last 12 months.
+The native measure is the **best-estimate number of deaths** UCDP records for the conflict. The band uses deaths in the last 12 months, which approximates UCDP's own crisis rule (25 or more best-estimate deaths in a calendar year).
 
 | Deaths in the last 12 months | Band |
 |---|---|
-| fewer than 25 | none: not shown as a crisis (UCDP's own 25-death threshold) |
+| fewer than 25 | none: not shown as a crisis |
 | 25 to 999 | 1 |
 | 1,000 to 9,999 | 2 |
 | 10,000 to 49,999 | 3 |

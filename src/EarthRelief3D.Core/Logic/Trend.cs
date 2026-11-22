@@ -12,7 +12,7 @@ public sealed record Trend(long Recent, long Previous, string Window)
     {
         var last = new DateOnly(latestCompleteMonth.Year, latestCompleteMonth.Month, 1);
         var months = new Dictionary<DateOnly, int>();
-        foreach (var (k, v) in byMonth) months[new DateOnly(k.Year, k.Month, 1)] = v;
+        foreach (var (k, v) in byMonth) { var key = new DateOnly(k.Year, k.Month, 1); months[key] = months.GetValueOrDefault(key) + v; }
         long recent = 0, previous = 0;
         for (var i = 0; i < 6; i++)
         {

@@ -39,7 +39,7 @@ public sealed class CrisisCache(AppDataRoot root, IAppLog log)
             if (Problem(dto) is { } problem) throw new JsonException("invalid record: " + problem);
             return new CrisisSnapshot(dto.Crises, dto.Displacement, dto.Unplaced);
         }
-        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException or ArgumentException or FormatException or InvalidOperationException)
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException or ArgumentException or FormatException or InvalidOperationException or NotSupportedException)
         {
             log.Warn("Crisis cache unreadable; deleting it", ex);
             Delete(file);

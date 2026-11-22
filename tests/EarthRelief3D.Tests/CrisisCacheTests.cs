@@ -60,4 +60,16 @@ public sealed class CrisisCacheTests : IDisposable
         File.WriteAllText(file, """{"SchemaVersion":1,"Crises":[null],"Displacement":[],"Unplaced":[]}""");
         Assert.Null(Cache().Load());
     }
+
+    [Theory]
+    [InlineData("""{"SchemaVersion":1,"Crises":[{"Id":"x"}],"Displacement":[],"Unplaced":[]}""")]
+    [InlineData("""{"SchemaVersion":1,"Crises":[{"$type":"zzz","Id":"x"}],"Displacement":[],"Unplaced":[]}""")]
+    public void BadDiscriminatorLoadsAsEmptyAndDeletesFile(string json)
+    {
+        var file = Cache().FilePath;
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, json);
+        Assert.Null(Cache().Load());
+        Assert.False(File.Exists(file));
+    }
 }
