@@ -48,6 +48,16 @@ body-agnostic, so a Moon app could use the same machinery for named regions. Ear
   `NaturalEarthLines.LandBoundaries()` are deleted before `country-index` merges: the rules are the app's data (B-3).
 - **R7:** a remembered rejection is stored with a fingerprint, the SHA-256 of the rules file bytes, the probes file bytes
   and GlobeCore's informational version. A different (or missing) fingerprint forgets the rejection; there is no expiry.
+- **R8:** during R5's 6-hour wait each run reports the failure again, so after three in a row the Borders dot turns red
+  (its tooltip gives the time of the next try) and about one WARN line is logged every 10 minutes. A failed download is
+  a real failure, and the release check in between is a few KB.
+- **R9:** any GlobeCore update (its version includes the commit hash) forgets a remembered rejection, so a rejected
+  release is fetched once more per update (about 6.2 MB). GlobeCore updates are rare.
+
+Rulings made while building: **R1** Tasks 3 and 4 ran in parallel (different repos, both depend only on Tasks 1-2).
+**R2** a rejected release is `FeedState.Attention` (amber, on the normal 24-hour interval, the reason in the tooltip),
+not a failure. **R3** every rule with a visible effect is described on screen (both EarthRelief3D rules in the legend,
+EarthWatch3D's Crimea rule in the Boundaries tooltip). The build record is `plan-2b-sdd-ledger.md` next to this plan.
 
 ## Global Constraints
 

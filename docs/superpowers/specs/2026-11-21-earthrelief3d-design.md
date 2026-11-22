@@ -144,6 +144,9 @@ Notes on the spec: §6's "last 12 months" for conflict is the UCDP window of abo
 would move the launch-option parser to GlobeCore; it stayed in the app (`src/EarthRelief3D.App/Diagnostics/LaunchOptions.cs`),
 and only the status dots moved (P2-6).
 
+Plan 2b (updatable boundaries, built 2026-11-22) has its own rulings, B-1 to B-9 and R1 to R9, in
+`docs/superpowers/plans/2026-11-22-plan-2b-boundaries.md`; they refine C16 and R15 above.
+
 ### Out of scope (for now)
 
 - Countries other than the US in the help panel (the data shape allows them, §9.4).
