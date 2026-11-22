@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media;
 using AstroCore.Earth;
 using EarthRelief3D.App.Presentation;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Imaging;
@@ -20,14 +21,14 @@ public sealed class BordersImageLayer : ImageLayer, IPickable
     public const string LayerId = "borders";
     public const int Order = 10;
 
-    private readonly IImageLayer _image;
+    private IImageLayer _image;
     private readonly CrisisStore _store;
-    private readonly CountryIndex _countries;
+    private readonly CountryResolver _countries;
     private readonly Func<DateTime> _nowUtc;
 
     /// <param name="coastAndBorders">The lines at the globe image's size (<see cref="RasterizeCoastAndBorders"/>).</param>
     /// <param name="nowUtc">The clock for the hover's date wording.</param>
-    public BordersImageLayer(SparseOverlay coastAndBorders, CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+    public BordersImageLayer(SparseOverlay coastAndBorders, CrisisStore store, CountryResolver countries, Func<DateTime> nowUtc)
         : base(LayerId, "Coastlines and borders", Order)
     {
         _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
@@ -40,7 +41,18 @@ public sealed class BordersImageLayer : ImageLayer, IPickable
 
     public ImagePass Pass => ImagePass.AboveNight;
 
-    public override IImageLayer? Current => _image;
+    public override IImageLayer? Current => Volatile.Read(ref _image);
+
+    /// <summary>
+    /// Swaps in the lines of a new boundary set (rasterized by the caller) and asks for a recompose. Any thread: the host
+    /// marshals the invalidation, and the layer instance in use is never changed, a new one replaces it.
+    /// </summary>
+    public void ReplaceLines(SparseOverlay coastAndBorders)
+    {
+        ArgumentNullException.ThrowIfNull(coastAndBorders);
+        Volatile.Write(ref _image, new SparseOverlayLayer(coastAndBorders, Pass, Order));
+        Invalidate();
+    }
 
     /// <summary>The coastlines and borders at the globe image's size, kept as line pixels only (UI or STA thread).</summary>
     public static SparseOverlay RasterizeCoastAndBorders(IEnumerable<IReadOnlyList<GeoPosition>> coast,
@@ -50,7 +62,7 @@ public sealed class BordersImageLayer : ImageLayer, IPickable
 
     public PickResult? HitTest(Point screen, Projector projector, bool hover)
     {
-        if (Picking.CountryAt(screen, projector, _countries) is not { } country) return null;
+        if (Picking.CountryAt(screen, projector, _countries.Index) is not { } country) return null;
         return new PickResult(LayerId, new CountryPick(country.Iso3, null),
             CrisisText.CountryHover(country.Name, country.Iso3, _store.Snapshot, _nowUtc()));
     }

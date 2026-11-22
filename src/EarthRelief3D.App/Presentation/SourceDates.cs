@@ -31,6 +31,9 @@ public static class SourceDates
     /// <summary>The four sources in strip order, by feed name; also the status dots' order.</summary>
     public static IReadOnlyList<string> SourceNames { get; } = ["UCDP", "IPC", "WHO", "UNHCR"];
 
+    /// <summary>The boundary update feed's name (GlobeCore's BoundaryUpdateFeed): the fifth status dot, after the four sources.</summary>
+    public const string BordersFeedName = "Borders";
+
     public static string NameOf(CrisisLayer layer) => SourceNames[(int)layer];
 
     /// <summary>What a checked source that has nothing for a country says: "none recorded", or for WHO "no reports in the last 90 days".</summary>

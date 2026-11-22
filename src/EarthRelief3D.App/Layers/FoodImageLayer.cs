@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Geo;
@@ -32,7 +33,8 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     private readonly int _width, _height;
     private readonly CrisisStore _store;
-    private readonly CountryIndex _countries;
+    private readonly CountryResolver _countries;
+    private int _boundaryVersion;
     private readonly StaWorker _sta;
     private readonly IAppLog _log;
     private readonly Func<bool> _isClosed;
@@ -41,7 +43,7 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     private IImageLayer? _current;
 
     /// <param name="nowUtc">The display clock: an analysis that has aged past 12 months is not shaded (P2-4).</param>
-    public FoodImageLayer(int width, int height, CrisisStore store, CountryIndex countries, StaWorker sta, IAppLog log, Func<bool> isClosed,
+    public FoodImageLayer(int width, int height, CrisisStore store, CountryResolver countries, StaWorker sta, IAppLog log, Func<bool> isClosed,
         Func<DateTime> nowUtc)
         : base(LayerId, "Food crisis", Order)
     {
@@ -89,12 +91,13 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     protected override async Task PrepareForComposeAsync()
     {
         var plan = Plan(_store.Snapshot.AsSeenAt(_nowUtc()).Crises);
-        var key = string.Join(";", plan.Select(p => p.Iso3 + ":" + p.Color));
+        int version = Volatile.Read(ref _boundaryVersion);   // before the index is read: a swap meanwhile makes the next compose rebuild
+        var key = version + "|" + string.Join(";", plan.Select(p => p.Iso3 + ":" + p.Color));
         if (key == _builtKey) return;
         try
         {
             int w = _width, h = _height;
-            var countries = _countries;
+            var countries = _countries.Index;
             var image = plan.Count == 0 ? null : await _sta.InvokeAsync(() => Rasterize(plan, countries, w, h));
             if (_isClosed()) return;
             _current = image is null ? null : new BitmapBlendLayer(image, Pass, ImageOrder);
@@ -110,7 +113,7 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     public PickResult? HitTest(Point screen, Projector projector, bool hover)
     {
-        if (Picking.CountryAt(screen, projector, _countries) is not { } country) return null;
+        if (Picking.CountryAt(screen, projector, _countries.Index) is not { } country) return null;
         var food = _store.Snapshot.AsSeenAt(_nowUtc()).ByCountry(country.Iso3).OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly)
             .OrderByDescending(f => f.HighestPhase).FirstOrDefault();
         return food is null ? null
@@ -119,6 +122,13 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     // Any thread: the host takes the request to the UI thread; the shading is rebuilt at the next compose.
     private void OnStoreChanged(object? sender, EventArgs e) => Invalidate();
+
+    /// <summary>The boundaries changed (any thread): the shading is drawn again from the new polygons at the next compose.</summary>
+    public void BoundariesChanged()
+    {
+        Interlocked.Increment(ref _boundaryVersion);
+        Invalidate();
+    }
 
     public void Close() => _store.Changed -= OnStoreChanged;
 }

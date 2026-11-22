@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Wpf.Layers;
@@ -24,7 +25,7 @@ public sealed class ConflictSceneLayer : CrisisSceneLayer
 
     private readonly List<(Point3D Centre, double RadiusPx, ConflictCrisis Crisis)> _dots = [];
 
-    public ConflictSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+    public ConflictSceneLayer(CrisisStore store, CountryResolver countries, Func<DateTime> nowUtc)
         : base(LayerId, "Armed conflict", Order, store, countries, nowUtc) { }
 
     /// <summary>0 for the last 3 months before <paramref name="asOfUtc"/>, 1 for the 3 before those, 2 for older.</summary>

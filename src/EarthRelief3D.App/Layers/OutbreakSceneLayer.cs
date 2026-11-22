@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Wpf.Layers;
@@ -24,7 +25,7 @@ public sealed class OutbreakSceneLayer : CrisisSceneLayer
 
     private readonly List<(Point3D Centre, string Iso3, IReadOnlyList<OutbreakCrisis> Reports)> _crosses = [];
 
-    public OutbreakSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+    public OutbreakSceneLayer(CrisisStore store, CountryResolver countries, Func<DateTime> nowUtc)
         : base(LayerId, "Disease outbreaks", Order, store, countries, nowUtc) { }
 
     protected override void Rebuild(CrisisSnapshot s, double worldPerPx)

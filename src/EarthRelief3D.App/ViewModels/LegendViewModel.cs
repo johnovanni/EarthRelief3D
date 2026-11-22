@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Store;
+using GlobeCore.Regions;
 
 namespace EarthRelief3D.App.ViewModels;
 
@@ -51,10 +52,12 @@ public sealed partial class LegendViewModel : ObservableObject
     [ObservableProperty] private IReadOnlyList<UnplacedLine> _unplaced = [];
     [ObservableProperty] private string _unplacedHeader = UnplacedTitle + " (0)";
     [ObservableProperty] private bool _hasUnplaced;
+    [ObservableProperty] private string _boundaryText = BoundaryNote;
 
     /// <param name="dispatcher">The UI thread's; store changes from other threads are queued onto it. Null: handled at once (tests).</param>
     /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
-    public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null)
+    public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null,
+        CurrentBoundaries? boundaries = null)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
@@ -62,6 +65,11 @@ public sealed partial class LegendViewModel : ObservableObject
         _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _store.Changed += OnStoreChanged;
         _layers.PropertyChanged += OnLayersChanged;
+        if (boundaries is not null)
+        {
+            BoundaryText = NoteFor(boundaries.Set);
+            boundaries.Changed += OnBoundariesChanged;   // feed thread
+        }
         Refresh();
     }
 
@@ -81,6 +89,20 @@ public sealed partial class LegendViewModel : ObservableObject
             .Select(u => new UnplacedLine(u.Title, $"{u.Source} · {u.Reason} · {CrisisText.Date(u.Citation.AsOfUtc)}"))];
         UnplacedHeader = $"{UnplacedTitle} ({Unplaced.Count})";
         HasUnplaced = Unplaced.Count > 0;
+    }
+
+    /// <summary>
+    /// The note under the legend (B-6): the edition of the boundaries in use and the rules applied to them, then the UN
+    /// sentence, e.g. "Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine (...). The boundaries ...".
+    /// </summary>
+    public static string NoteFor(BoundarySet set) => $"Borders: {set.Describe()}. {BoundaryNote}";
+
+    // Raised on the feed thread that swapped the set: the text is computed here and set on the UI thread.
+    private void OnBoundariesChanged(object? sender, BoundariesChangedEventArgs e)
+    {
+        var text = NoteFor(e.New);
+        if (_dispatcher is null || _dispatcher.CheckAccess()) BoundaryText = text;
+        else _dispatcher.BeginInvoke(() => BoundaryText = text);
     }
 
     public static string Measures(CrisisLayer layer) => layer switch

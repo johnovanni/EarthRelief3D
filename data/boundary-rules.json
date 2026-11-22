@@ -1,0 +1,25 @@
+{
+  // Boundary policy, applied by GlobeCore every time a boundary set is loaded (the bundled one, a stored one, a downloaded
+  // one). If a rule no longer matches the set exactly, that set is rejected, never half-applied. Every rule needs a reason.
+  "rules": [
+    {
+      "kind": "moveAdmin1",
+      "name": "moveAdmin1 UA-43",
+      "codes": ["UA-43", "UA-40"],
+      "from": "RUS",
+      "to": "UKR",
+      "expectParts": 1,
+      "expectLines": 1,
+      "description": "Crimea shown as part of Ukraine (UN General Assembly resolution 68/262)",
+      "reason": "UN practice (owner's decision Q3, EarthRelief3D ruling R15): UN General Assembly resolution 68/262 of 27 March 2014, Territorial integrity of Ukraine. Natural Earth's default admin-0 file draws Crimea and Sevastopol in Russia; their admin-1 polygons (UA-43, UA-40) move to Ukraine and the Perekop line, now internal, goes."
+    },
+    // No on-screen description: the legend note lists only the Crimea rule (keeps the note short; the reason is here and in the docs).
+    {
+      "kind": "mergeUnits",
+      "name": "mergeUnits SOL",
+      "units": ["SOL"],
+      "into": "SOM",
+      "reason": "Somaliland is not a separate unit in the UN humanitarian sources (UNHCR, WHO, IPC); its figures are Somalia's, so its polygon joins Somalia (C16)."
+    }
+  ]
+}

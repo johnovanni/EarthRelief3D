@@ -22,7 +22,8 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
   - Sizes: the downloads page is 138 KB of HTML; the untrimmed CSVs are 2 MB (monthly) and 13 MB (quarterly).
 - **Which country an event belongs to (ruling R14b, replacing R14):** UCDP's own `country` value, resolved through
   `data/country-aliases.json`. The event's coordinates (the Natural Earth 1:50m polygon that contains them, GlobeCore
-  `CountryIndex` with `data/country-units.json` applied) override it in only two cases:
+  `CountryIndex` of the live boundary set, with the rules in `data/boundary-rules.json` applied: Crimea in
+  Ukraine, Somaliland in Somalia) override it in only two cases:
   1. the point lies in a territory UCDP does not list as a country, kept with a reason per entry in
      `data/ucdp-territories.json` (it starts with PSE: UCDP codes events in Gaza and the West Bank under `Israel`; the map
      and panels show Palestine separately, owner ruling Q3, UN humanitarian units). The rule: if the containing polygon's
@@ -98,3 +99,23 @@ feed fails a test.
 
 The samples are from Nov 2026, so offline runs use `--display-time 2026-11-22T12:00:00Z`. The WHO sample has no report for
 Sudan, so Sudan's panel shows conflict, food crisis and displacement (three sections); that is what the samples hold.
+
+## Boundaries (Natural Earth, updatable; Plan 2b)
+
+- **Source:** Natural Earth 1:50m countries, land boundary lines and admin-1 (states and provinces), public domain. The program
+  ships edition 5.1.2 (2022-05-13) and, once a day, asks `https://api.github.com/repos/nvkelso/natural-earth-vector/releases/latest`
+  (GlobeCore's `BoundaryUpdateFeed`, the "Borders" status dot). Only a newer tag is downloaded (the three GeoJSON files from
+  `raw.githubusercontent.com`) and only after it passes validation; the last good set stays in
+  `%LOCALAPPDATA%\EarthRelief3D\cache\boundaries\<tag>\`. Natural Earth's latest release is still v5.1.2 (checked 2026-11-22),
+  so today nothing is downloaded.
+- **Rules (`data/boundary-rules.json`)** are the owner's boundary decisions, applied to every set that is loaded: Crimea and
+  Sevastopol move to Ukraine (UN General Assembly resolution 68/262; the Perekop line goes) and Somaliland (SOL) joins
+  Somalia (C16). Every rule has a reason. A set the rules do not fit exactly is rejected.
+- **Probes (`data/boundary-probes.json`)** are points that must stay in their country (Khartoum, Kyiv, Crimea, Sevastopol,
+  Fiji on both sides of the date line, Hargeisa, Gaza). **`data/ucdp-country-names.json`** lists the UCDP country strings
+  the app has met; with `data/country-aliases.json` they must all still resolve. A set that fails any of these is not used,
+  the Borders dot turns amber with the reason and the log has it.
+- **Aliases** (`data/country-aliases.json`) stay as the app's name matching (they are not boundary policy).
+- **On screen:** the legend's note names the edition and the rules in use, e.g. "Borders: Natural Earth 5.1.2 (2022-05-13);
+  Crimea shown as part of Ukraine (UN General Assembly resolution 68/262). The boundaries and names shown on this map do not imply official endorsement or acceptance by the
+  United Nations."

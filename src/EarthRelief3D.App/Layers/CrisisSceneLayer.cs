@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media.Media3D;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Wpf.Layers;
@@ -26,17 +27,20 @@ public abstract class CrisisSceneLayer : SceneLayer, IPickable
     private bool _closed;
 
     /// <param name="nowUtc">The display clock: the snapshot is judged at it (WHO's 90 days, IPC's 12 months).</param>
-    protected CrisisSceneLayer(string id, string title, int zOrder, CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+    protected CrisisSceneLayer(string id, string title, int zOrder, CrisisStore store, CountryResolver countries, Func<DateTime> nowUtc)
         : base(id, title, zOrder)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
-        Countries = countries ?? throw new ArgumentNullException(nameof(countries));
+        _resolver = countries ?? throw new ArgumentNullException(nameof(countries));
         _countryName = iso => Countries.ByIso3(iso)?.Name;
         _store.Changed += OnStoreChanged;
     }
 
-    protected CountryIndex Countries { get; }
+    private readonly CountryResolver _resolver;
+
+    /// <summary>The current countries (follows a boundary swap); take it once per operation.</summary>
+    protected CountryIndex Countries => _resolver.Index;
 
     /// <summary>The snapshot the markers were last built from, judged at the display time (UI thread); empty before the first update.</summary>
     protected CrisisSnapshot Snapshot { get; private set; } = CrisisSnapshot.Empty;
@@ -78,6 +82,13 @@ public abstract class CrisisSceneLayer : SceneLayer, IPickable
 
     // Any thread: only a flag crosses; the host marshals the invalidation to the UI thread.
     private void OnStoreChanged(object? sender, EventArgs e)
+    {
+        Volatile.Write(ref _dataDirty, 1);
+        Invalidate();
+    }
+
+    /// <summary>The boundaries changed (any thread): marker positions are taken from the new countries at the next update.</summary>
+    public void BoundariesChanged()
     {
         Volatile.Write(ref _dataDirty, 1);
         Invalidate();

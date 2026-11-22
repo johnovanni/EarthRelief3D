@@ -5,6 +5,7 @@ using System.Windows.Media.Media3D;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Wpf.Layers;
@@ -26,12 +27,12 @@ public sealed class LabelsOverlayLayer : OverlayLayer
 
     private readonly CrisisStore _store;
     private readonly LayerStripViewModel _layers;
-    private readonly CountryIndex _countries;
+    private readonly CountryResolver _countries;
     private readonly LabelOverlay _labels;
     private readonly Func<DateTime> _nowUtc;
 
     /// <param name="nowUtc">The display clock: the snapshot is judged at it (WHO's 90 days, IPC's 12 months).</param>
-    public LabelsOverlayLayer(CrisisStore store, LayerStripViewModel layers, CountryIndex countries, Canvas overlay, Func<DateTime> nowUtc)
+    public LabelsOverlayLayer(CrisisStore store, LayerStripViewModel layers, CountryResolver countries, Canvas overlay, Func<DateTime> nowUtc)
         : base(LayerId, "Country and disease labels", Order)
     {
         _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
@@ -65,12 +66,13 @@ public sealed class LabelsOverlayLayer : OverlayLayer
             foreach (var o in outbreaks) Note(o.CountryIso3, o.Disease);
         }
 
+        var index = _countries.Index;
         _labels.Begin();
         int placed = 0;
         var eye = (Vector3D)projector.Eye;
         foreach (var (iso, (kinds, diseases)) in byCountry.OrderByDescending(kv => kv.Value.Kinds).ThenBy(kv => kv.Key, StringComparer.Ordinal))
         {
-            if (_countries.ByIso3(iso) is not { } country) continue;
+            if (index.ByIso3(iso) is not { } country) continue;
             var p = MarkerMeshes.Above(country.LabelPoint, 1.0);
             var toEye = eye - (Vector3D)p;
             if (toEye.Length <= 0 || Vector3D.DotProduct((Vector3D)p, toEye) / toEye.Length < LimbCosine) continue;
@@ -91,6 +93,9 @@ public sealed class LabelsOverlayLayer : OverlayLayer
     }
 
     private void OnInputChanged(object? sender, EventArgs e) => Invalidate();   // any thread: the host marshals
+
+    /// <summary>The boundaries changed (any thread): the labels are placed again at the next render.</summary>
+    public void BoundariesChanged() => Invalidate();
 
     private void OnLayersChanged(object? sender, PropertyChangedEventArgs e) => Invalidate();
 

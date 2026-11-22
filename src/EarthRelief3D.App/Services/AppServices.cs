@@ -6,7 +6,9 @@ using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Feeds;
+using GlobeCore.Earth;
 using GlobeCore.Logging;
+using GlobeCore.Regions;
 using GlobeCore.Storage;
 using GlobeCore.Time;
 
@@ -19,20 +21,21 @@ namespace EarthRelief3D.App.Services;
 /// </summary>
 public sealed class AppServices : IDisposable
 {
-    /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s.</summary>
-    public static IReadOnlyList<string> FeedNames => SourceDates.SourceNames;
+    /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s (the four sources, then Borders).</summary>
+    public static IReadOnlyList<string> FeedNames { get; } = [.. SourceDates.SourceNames, SourceDates.BordersFeedName];
 
     private readonly CrisisCacheWriter _cacheWriter;
     private readonly FeedHttp _http;
     private readonly IAppLog _log;
     private bool _shutDown;
 
-    private AppServices(CrisisStore store, CrisisCache cache, CountryResolver countries, IReadOnlyList<IFeed> feeds,
+    private AppServices(CrisisStore store, CrisisCache cache, CountryResolver countries, CurrentBoundaries boundaries, IReadOnlyList<IFeed> feeds,
         FeedScheduler scheduler, MainViewModel main, bool cacheLoaded, FeedHttp http, IAppLog log)
     {
         Store = store;
         Cache = cache;
         Countries = countries;
+        Boundaries = boundaries;
         Feeds = feeds;
         Scheduler = scheduler;
         Main = main;
@@ -45,6 +48,9 @@ public sealed class AppServices : IDisposable
     public CrisisStore Store { get; }
     public CrisisCache Cache { get; }
     public CountryResolver Countries { get; }
+
+    /// <summary>The live boundary set (the bundled one, a stored newer one, or the one the Borders feed adopted).</summary>
+    public CurrentBoundaries Boundaries { get; }
     public IReadOnlyList<IFeed> Feeds { get; }
     public FeedScheduler Scheduler { get; }
     public MainViewModel Main { get; }
@@ -53,13 +59,14 @@ public sealed class AppServices : IDisposable
     public bool CacheLoaded { get; }
 
     /// <param name="dispatcher">The UI thread's dispatcher (null in tests: view models update at once).</param>
-    /// <param name="countries">Country names and units; the lists beside the program by default.</param>
     public static AppServices Create(AppDataRoot root, FeedHttp http, IClock clock, IAppLog log, ISettingsStore<AppSettings> settings,
-        Dispatcher? dispatcher, CountryResolver? countries = null)
+        Dispatcher? dispatcher)
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(http);
-        countries ??= CountryResolver.LoadDefault();
+        // The boundaries: the newest stored set that passes validation, else the bundled one, with the rules of dataoundary-rules.json.
+        var (boundaries, boundaryStore, validator, rules) = BoundaryData.Open(BoundaryData.DataDir, root.CacheDir, log);
+        var countries = new CountryResolver(boundaries, CountryResolver.ReadAliases(Path.Combine(BoundaryData.DataDir, CountryResolver.AliasesFile)));
         var store = new CrisisStore();
         var cache = new CrisisCache(root, log);
         var cached = cache.Load();
@@ -79,15 +86,17 @@ public sealed class AppServices : IDisposable
             new IpcNationalFeed(http, store, clock, log, countries),
             new WhoOutbreakFeed(http, store, clock, log, countries),
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
+            // Checks Natural Earth's releases once a day; a newer, valid set replaces the live one without a restart.
+            new BoundaryUpdateFeed(new NaturalEarthBoundarySource(http), rules, validator, boundaryStore, boundaries, log),
         ];
         if (!feeds.Select(f => f.Name).SequenceEqual(FeedNames)) throw new InvalidOperationException("Feed names and status dots differ.");
 
         var resolver = countries;
-        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow);
+        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke
-        return new AppServices(store, cache, countries, feeds, scheduler, main, cached is not null, http, log);
+        return new AppServices(store, cache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log);
     }
 
     /// <summary>Starts the feeds (each runs at once, then on its interval).</summary>

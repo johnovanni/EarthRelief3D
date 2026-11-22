@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media.Media3D;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Wpf.Layers;
@@ -32,7 +33,7 @@ public sealed class DisplacementSceneLayer : CrisisSceneLayer
     private readonly Func<DateTime> _nowUtc;
 
     /// <param name="nowUtc">The clock for the hover's date wording (no "as of" a date still to come).</param>
-    public DisplacementSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+    public DisplacementSceneLayer(CrisisStore store, CountryResolver countries, Func<DateTime> nowUtc)
         : base(LayerId, "People forced from home", Order, store, countries, nowUtc) =>
         _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
 

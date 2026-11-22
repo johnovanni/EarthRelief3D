@@ -1,0 +1,7 @@
+{
+  // UCDP "country" strings the app has met, which must keep resolving to a country whatever edition of the boundaries is
+  // in use (GlobeCore's BoundaryValidator name hook; the aliases in country-aliases.json are checked as well).
+  // The sample files' country column, and UCDP's own spellings that country-aliases.json names.
+  "names": ["DR Congo (Zaire)", "Haiti", "Myanmar (Burma)", "Sudan", "Ukraine", "Russia (Soviet Union)", "Yemen (North Yemen)",
+            "South Sudan", "Somalia", "Ethiopia", "Nigeria", "Syria", "Afghanistan", "Iraq", "Israel", "Mali", "Niger"]
+}

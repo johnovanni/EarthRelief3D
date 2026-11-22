@@ -13,6 +13,7 @@ using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Imaging;
 using GlobeCore.Logging;
+using GlobeCore.Regions;
 using GlobeCore.Time;
 using GlobeCore.Wpf.Camera;
 using GlobeCore.Wpf.Layers;
@@ -45,7 +46,7 @@ public sealed class SceneController
     private readonly MainViewModel _vm;
     private readonly Window _window;
     private readonly CrisisStore _store;
-    private readonly CountryIndex _countries;
+    private readonly CountryResolver _countries;
     private readonly IClock _clock;
     private readonly IAppLog _log;
     private readonly CameraAnimator _animator;
@@ -60,6 +61,8 @@ public sealed class SceneController
     private BordersImageLayer? _borders;
     private FoodImageLayer? _food;
     private bool _closed, _adjustingCamera;
+    private int _imageWidth, _imageHeight, _linesVersion;
+    private BoundarySet? _linesSet;   // the boundary set whose lines the borders layer shows
 
     /// <param name="overlay">The canvas over the viewport for the labels.</param>
     /// <param name="window">The window hosting the viewport: its Loaded, Closed, StateChanged and PreviewKeyDown events drive the scene.</param>
@@ -76,7 +79,7 @@ public sealed class SceneController
         _vm = vm ?? throw new ArgumentNullException(nameof(vm));
         _window = window ?? throw new ArgumentNullException(nameof(window));
         _store = store ?? throw new ArgumentNullException(nameof(store));
-        _countries = (countries ?? throw new ArgumentNullException(nameof(countries))).Index;
+        _countries = countries ?? throw new ArgumentNullException(nameof(countries));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
         _animator = new CameraAnimator(() => Camera);
@@ -121,9 +124,10 @@ public sealed class SceneController
                 SetView(camera, HomeView, FitDistanceForViewport(camera));
                 ApplyRotationSensitivity(camera);
             }
-            var (baseImage, lines) = await GlobeLoader.LoadAsync(GlobeImageWidth, _sta);
+            var loadSet = _countries.Boundaries.Set;
+            var (baseImage, lines) = await GlobeLoader.LoadAsync(GlobeImageWidth, _sta, loadSet);
             if (_closed) return;
-            _ = StartHostAsync(baseImage, lines);
+            _ = StartHostAsync(baseImage, lines, loadSet);
         }
         catch (OperationCanceledException) when (_closed) { }
         catch (Exception ex)
@@ -139,9 +143,12 @@ public sealed class SceneController
     /// Builds the host and the image layers on the loaded globe image and makes the first compose (LayerHost's start-up
     /// sequence). UI thread. Completes when the first compose is on the globe.
     /// </summary>
-    internal Task StartHostAsync(Bgra32Image baseImage, SparseOverlay coastAndBorders)
+    internal Task StartHostAsync(Bgra32Image baseImage, SparseOverlay coastAndBorders, BoundarySet? linesFrom = null)
     {
         var layers = _vm.Layers;
+        _imageWidth = baseImage.Width;
+        _imageHeight = baseImage.Height;
+        _linesSet = linesFrom ?? _countries.Boundaries.Set;
         _borders = new BordersImageLayer(coastAndBorders, _store, _countries, () => _clock.UtcNow);
         _food = new FoodImageLayer(baseImage.Width, baseImage.Height, _store, _countries, _sta, _log, () => _closed, () => _clock.UtcNow) { IsVisible = layers.ShowFood };
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
@@ -156,8 +163,44 @@ public sealed class SceneController
         host.IlluminationAt = utc => host.Body.IlluminationAt(utc, NightStrength, true);
         host.DisplayTimeUtc = _clock.UtcNow;
         var first = host.RecomposeNowAsync();
+        // From here a boundary swap redraws the borders, the food shading and the markers. A swap that came while the lines
+        // were loading is caught up now.
+        _countries.Changed += OnBoundariesChanged;
+        if (!ReferenceEquals(_countries.Boundaries.Set, _linesSet)) _ = RedrawBordersAsync();
         _timeTimer.Start();
         return first;
+    }
+
+    // Raised on the thread that swapped the boundaries (the feed's), after the resolver's index was rebuilt. The layers
+    // may be invalidated from any thread; the lines are rasterized on the STA worker.
+    private void OnBoundariesChanged(object? sender, EventArgs e)
+    {
+        if (_closed) return;
+        _displacement.BoundariesChanged();
+        _conflict.BoundariesChanged();
+        _outbreaks.BoundariesChanged();
+        _labels.BoundariesChanged();
+        _food?.BoundariesChanged();
+        _ = RedrawBordersAsync();
+    }
+
+    private async Task RedrawBordersAsync()
+    {
+        int version = Interlocked.Increment(ref _linesVersion);
+        try
+        {
+            var set = _countries.Boundaries.Set;
+            int w = _imageWidth, h = _imageHeight;
+            var lines = await _sta.InvokeAsync(() =>
+                BordersImageLayer.RasterizeCoastAndBorders(NaturalEarthLines.Coastlines(), NaturalEarthLines.LandBoundaries(set), w, h));
+            if (_closed || version != Volatile.Read(ref _linesVersion)) return;   // a newer swap redraws
+            _borders?.ReplaceLines(lines);
+            _linesSet = set;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            if (!_closed) _log.Error("The borders could not be redrawn for the new boundaries", ex);
+        }
     }
 
     private void OnFirstComposeDisplayed(object? sender, EventArgs e) => _firstCompose.TrySetResult();
@@ -320,6 +363,7 @@ public sealed class SceneController
         _viewport.PreviewMouseWheel -= OnPreviewMouseWheel;
         _viewport.PreviewMouseDown -= OnPreviewMouseDown;
         _vm.Layers.PropertyChanged -= OnLayerToggled;
+        _countries.Changed -= OnBoundariesChanged;
         _displacement.Close(); _conflict.Close(); _outbreaks.Close(); _labels.Close(); _food?.Close();
         _host?.Dispose();
         _sta.Dispose();

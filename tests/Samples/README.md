@@ -10,3 +10,7 @@ re-run the script. Retrieval date for every line below: 2026-11-22.
 - `ipc_national_wide_latest.csv`: the resource `ipc_global_national_wide_latest.csv` of that package (https://data.humdata.org/dataset/7a7e7428-b8d7-4d2e-91d3-19100500e016/resource/2e4f7475-105b-4fae-81f7-7c32076096b6/download/ipc_global_national_wide_latest.csv); CC0 / public domain; untrimmed (50 countries).
 - `unhcr_population_coo.json`: https://api.unhcr.org/population/v1/population/?year=2026&coo_all=true&limit=500 (year 2026 has 206 items, so 2026 was captured, not 2025); UNHCR Refugee Data Finder terms, CC BY 4.0 (not re-verified from the API response); untrimmed.
 - `who_don_synthetic.json`: **SYNTHETIC, invented by hand, contains no WHO text** (WHO content is CC BY-NC-SA and is never committed, ruling P2-5). Same JSON shape as https://www.who.int/api/news/diseaseoutbreaknews (OData object, `value` array); 6 items: a multi-country title, "Côte d'Ivoire", "Türkiye", "occupied Palestinian territory", an en dash separator, and one dated 2025-12-01 (older than 90 days before 2026-11-22). Licence: ours (MIT, with the repo).
+
+Borders (no file): `--offline-samples` answers GitHub's "latest release" request for the boundary update check with an inline
+`{"tag_name":"v5.1.2","published_at":"2022-05-13T00:00:00Z"}` (the edition the program ships), so nothing is downloaded and the
+Borders dot is green in every picture run.

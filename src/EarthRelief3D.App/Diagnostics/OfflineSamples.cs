@@ -1,5 +1,6 @@
 using System.IO;
 using EarthRelief3D.Core.Feeds;
+using GlobeCore.Earth;
 using GlobeCore.Feeds;
 using GlobeCore.Logging;
 
@@ -27,6 +28,9 @@ public static class OfflineSamples
     public const string UcdpQuarterlyUrl = "https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_01_26_09.csv";
     public const string IpcCsvUrl = "https://data.humdata.org/dataset/7a7e7428-b8d7-4d2e-91d3-19100500e016/resource/2e4f7475-105b-4fae-81f7-7c32076096b6/download/ipc_global_national_wide_latest.csv";
     public const string WhoUrlPrefix = "https://www.who.int/api/news/diseaseoutbreaknews";
+
+    /// <summary>What GitHub's "latest release" answer holds for the Borders feed in an offline run: the bundled edition, so no update.</summary>
+    public const string BordersLatestReleaseJson = "{\"tag_name\":\"v5.1.2\",\"published_at\":\"2022-05-13T00:00:00Z\"}";
 
     /// <summary>The prefix of the temporary data folders under %TEMP% (one per offline run, deleted on exit).</summary>
     public const string TempFolderPrefix = "EarthRelief3D-offline-";
@@ -87,6 +91,9 @@ public static class OfflineSamples
         Map(WhoUrlPrefix, "who_don_synthetic.json");
         // UNHCR: only the sample's year has items; any other year is a 404.
         Map(UnhcrDisplacementFeed.UrlFor(UnhcrSampleYear).ToString(), "unhcr_population_coo.json");
+        // Borders: the release check answers "latest is v5.1.2" (the edition the program ships), so nothing is downloaded and
+        // the dot shows the same state in every run. The text is inline: there is no sample file for it.
+        h.MapText(NaturalEarthBoundarySource.LatestReleaseUrl.ToString(), BordersLatestReleaseJson);
         return h;
     }
 }

@@ -57,7 +57,7 @@ public class AppStartupTests
 
             // One dot per source, grey until each reports.
             Assert.Equal(AppServices.FeedNames, vm.Status.Dots.Select(d => d.Name));
-            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR"], AppServices.FeedNames);
+            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "Borders"], AppServices.FeedNames);
             Assert.All(vm.Status.Dots, d => Assert.Equal(FeedState.NotStarted, d.State));
 
             // Every feed fails (no network): amber dots, and the cached data stays.
@@ -123,13 +123,13 @@ public class AppStartupTests
     private sealed record Rig(SceneController Scene, MainViewModel Vm, HelixViewport3D Viewport, CrisisStore Store);
 
     /// <summary>A SceneController in a window that is never shown, laid out by hand at 800x600, facing 0°N 0°E.</summary>
-    private static Rig NewScene()
+    private static Rig NewScene(CountryResolver? resolver = null)
     {
         var store = new CrisisStore();
         store.Load(TestData.Snap());
-        var countries = CountryResolver.LoadDefault();
+        var countries = resolver ?? CountryResolver.LoadDefault();
         var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null,
-            nowUtc: () => SampleStore.Now);
+            nowUtc: () => SampleStore.Now, boundaries: countries.Boundaries);
         var viewport = new HelixViewport3D
         {
             Camera = new PerspectiveCamera(new Point3D(3, 0, 0), new Vector3D(-3, 0, 0), new Vector3D(0, 0, 1), 45),
@@ -143,9 +143,9 @@ public class AppStartupTests
         return new Rig(scene, vm, viewport, store);
     }
 
-    private static async Task<Rig> StartAsync()
+    private static async Task<Rig> StartAsync(CountryResolver? resolver = null)
     {
-        var rig = NewScene();
+        var rig = NewScene(resolver);
         const int w = 64, h = 32;
         var baseImage = Bgra32Image.Create(w, h);
         Array.Fill(baseImage.Pixels, (byte)200);
@@ -194,6 +194,36 @@ public class AppStartupTests
         Assert.False(host.Layers.OfType<FoodImageLayer>().Single().IsVisible);
         rig.Vm.Layers.ShowConflict = true;
         Assert.True(host.Layers.OfType<ConflictSceneLayer>().Single().IsVisible);
+    });
+
+    [Fact]
+    public void SwapRebuildsResolverAndRedraws() => StaAsync.Run(async () =>
+    {
+        var resolver = BoundaryTests.FreshResolver();
+        var rig = await StartAsync(resolver);
+        var host = rig.Scene.Host!;
+        var borders = host.Layers.OfType<BordersImageLayer>().Single();
+        var food = host.Layers.OfType<FoodImageLayer>().Single();
+        var bordersBefore = borders.Current;
+        var foodBefore = food.Current;
+        Assert.NotNull(foodBefore);
+        Assert.Equal("LUX", resolver.Resolve("Luxembourg")?.Iso3);
+
+        // The feed thread swaps the set; nothing is awaited on the UI thread.
+        await Task.Run(() => resolver.Boundaries.Swap(BoundaryTests.NextEdition(resolver.Boundaries.Set)));
+
+        Assert.Equal("BEL", resolver.Resolve("Luxembourg")?.Iso3);   // the index is already the new one
+        Assert.Contains("9.9.9", rig.Vm.Legend.BoundaryText);
+        await StaAsync.WaitUntil(() => !ReferenceEquals(borders.Current, bordersBefore) && !ReferenceEquals(food.Current, foodBefore));
+        await StaAsync.WaitUntil(() => host.IsComposeIdle);
+        Assert.NotSame(bordersBefore, borders.Current);   // the lines were rasterized again from the new set
+        Assert.NotSame(foodBefore, food.Current);   // and so was the food shading, with no change in the data
+
+        // A click now resolves through the new index.
+        rig.Scene.LookAt(new GeoPosition(49.8, 6.1));   // Luxembourg
+        var hit = host.Pick(new Point(400, 300), hover: false);
+        Assert.NotNull(hit);
+        Assert.Equal("BEL", Assert.IsType<CountryPick>(hit.Item).Iso3);
     });
 
     [Fact]
@@ -249,7 +279,7 @@ public class AppStartupTests
         {
             var store = await SampleStore.LoadAsync();
             var countries = CountryResolver.LoadDefault();
-            var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null);
+            var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null, boundaries: countries.Boundaries);
             var window = new MainWindow(vm, store, countries, new FixedClock(SampleStore.Now), new ListLog());
             var root = (FrameworkElement)window.Content;
             vm.Panel.Show("SDN", CrisisLayer.Food);
@@ -265,8 +295,9 @@ public class AppStartupTests
             Assert.Contains(texts, t => t.StartsWith("Source: UNHCR, Mid-year 2026 figures", StringComparison.Ordinal));
             Assert.All(vm.Legend.Lines, l => Assert.Contains(l.SourceLine, texts));
             Assert.Contains(LayerStripViewModel.ComingNote, texts);
-            Assert.Contains(LegendViewModel.BoundaryNote, texts);
-            Assert.Equal(4, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four status dots
+            Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
+            Assert.Equal(5, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four sources and Borders
+            Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             Assert.Empty(errors.Lines);
 
             vm.Panel.Show("ISL");
