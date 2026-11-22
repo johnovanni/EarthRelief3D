@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <None Include="..\..\data\**" Link="data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EarthRelief3D.Core\EarthRelief3D.Core.csproj" />
     <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Wpf\GlobeCore.Wpf.csproj" />
     <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Earth\GlobeCore.Earth.csproj" />
