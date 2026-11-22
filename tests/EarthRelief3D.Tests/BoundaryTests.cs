@@ -48,13 +48,27 @@ public class BoundaryTests
         // Somalia's polygons now include Somaliland's, Ukraine's include Crimea's: more parts than Natural Earth's own file.
         Assert.True(r.ByIso3("UKR")!.Polygons.Count > 1);
 
-        // The shipped rules are the ones the set was built with, each with its reason, and the Crimea rule is listed on screen.
+        // The shipped rules are the ones the set was built with, each with its reason, and both are listed on screen.
         var rules = BoundaryData.Rules.Rules;
         Assert.Equal(["moveAdmin1", "mergeUnits"], rules.Select(x => x.Kind));
         Assert.All(rules, x => Assert.False(string.IsNullOrWhiteSpace(x.Reason)));
         Assert.Contains("68/262", rules[0].Reason);
         Assert.Contains("(C16)", rules[1].Reason);
-        Assert.Equal(["Crimea shown as part of Ukraine (UN General Assembly resolution 68/262)"], r.Boundaries.Set.RuleDescriptions);
+        Assert.Equal(["Crimea shown as part of Ukraine (UN General Assembly resolution 68/262)",
+            "Somaliland shown as part of Somalia (UN humanitarian data)"], r.Boundaries.Set.RuleDescriptions);
+    }
+
+    /// <summary>Ruling R3: every rule that changes what the user sees is named in the legend note.</summary>
+    [Fact]
+    public void EveryRuleWithAVisibleEffectIsNamedOnScreen()
+    {
+        var rules = BoundaryData.Rules.Rules;
+        Assert.NotEmpty(rules);
+        // moveAdmin1 and mergeUnits change the map, the picks, the shading and the panels; only an alias (name matching) is invisible.
+        var visible = rules.Where(x => x.Kind != "alias").ToList();
+        Assert.All(visible, x => Assert.False(string.IsNullOrWhiteSpace(x.Description), $"rule {x.Name} changes what the user sees but has no description"));
+        var note = LegendViewModel.NoteFor(CountryResolver.LoadDefault().Boundaries.Set);
+        foreach (var x in visible) Assert.Contains(x.Description!, note);
     }
 
     [Fact]
@@ -76,7 +90,8 @@ public class BoundaryTests
         var legend = new LegendViewModel(store, new LayerStripViewModel(new MemorySettingsStore()), nowUtc: () => SampleStore.Now,
             boundaries: current);
 
-        Assert.Equal("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine (UN General Assembly resolution 68/262). " + LegendViewModel.BoundaryNote, legend.BoundaryText);
+        Assert.Equal("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine (UN General Assembly resolution 68/262); "
+            + "Somaliland shown as part of Somalia (UN humanitarian data). " + LegendViewModel.BoundaryNote, legend.BoundaryText);
         Assert.EndsWith("do not imply official endorsement or acceptance by the United Nations.", legend.BoundaryText);
 
         // A swap changes the text (no dispatcher: at once).
@@ -141,7 +156,8 @@ public class BoundaryTests
     {
         var names = BoundaryData.ReadUcdpNames(Data(BoundaryData.UcdpNamesFile));
         var r = CountryResolver.LoadDefault();
-        foreach (var n in names) Assert.True(r.Resolve(n) is not null, $"UCDP country \"{n}\" does not resolve");
+        var lost = names.Where(n => r.Resolve(n) is null).ToList();
+        Assert.True(lost.Count == 0, "UCDP countries that do not resolve: " + string.Join("; ", lost));
         // The sample files' country column is all in the list.
         foreach (var n in new[] { "DR Congo (Zaire)", "Haiti", "Myanmar (Burma)", "Sudan", "Ukraine" }) Assert.Contains(n, names);
     }

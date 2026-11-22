@@ -115,7 +115,7 @@ Sudan, so Sudan's panel shows conflict, food crisis and displacement (three sect
   Fiji on both sides of the date line, Hargeisa, Gaza). **`data/ucdp-country-names.json`** lists the UCDP country strings
   the app has met; with `data/country-aliases.json` they must all still resolve. A set that fails any of these is not used,
   the Borders dot turns amber with the reason and the log has it.
-- **Aliases** (`data/country-aliases.json`) stay as the app's name matching (they are not boundary policy).
+- **Aliases** (`data/country-aliases.json`) stay as the app's name matching (they are not boundary policy). `Serbia (Yugoslavia)` is UCDP's own spelling of Serbia (it is in the Candidate GED files' `country` column), added when `ucdp-country-names.json` was built from those files by `tools/get-ucdp-country-names.ps1`.
 - **On screen:** the legend's note names the edition and the rules in use, e.g. "Borders: Natural Earth 5.1.2 (2022-05-13);
-  Crimea shown as part of Ukraine (UN General Assembly resolution 68/262). The boundaries and names shown on this map do not imply official endorsement or acceptance by the
+  Crimea shown as part of Ukraine (UN General Assembly resolution 68/262); Somaliland shown as part of Somalia (UN humanitarian data). The boundaries and names shown on this map do not imply official endorsement or acceptance by the
   United Nations."

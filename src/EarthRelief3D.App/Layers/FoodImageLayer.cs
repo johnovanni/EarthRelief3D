@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Media;
 using EarthRelief3D.App.Presentation;
-using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Feeds;
+using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Earth;
 using GlobeCore.Geo;
