@@ -99,7 +99,7 @@
                           ToolTip="Armed conflict (UCDP): a dot at each event of a conflict with 25 or more deaths in a year. Bigger dots: more deaths in the conflict; lighter dots: newer events."/>
             <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding FoodSymbol}" Content="Food crisis"
                           Foreground="{x:Static p:LayerStyle.FoodBrush}" IsChecked="{Binding ShowFood}"
-                          ToolTip="Food crisis (IPC): countries shaded in the IPC's colour for the highest phase with people in it (Phase 3 Crisis, 4 Emergency, 5 Famine)."/>
+                          ToolTip="Food crisis (IPC): countries shaded in the IPC's colour for the highest phase with people in it (Phase 3 Crisis, Phase 4 Emergency, Phase 5 Catastrophe/Famine)."/>
             <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding OutbreaksSymbol}" Content="Disease outbreaks"
                           Foreground="{x:Static p:LayerStyle.OutbreakBrush}" IsChecked="{Binding ShowOutbreaks}"
                           ToolTip="Disease outbreaks (WHO Disease Outbreak News): a cross at each country with a report in the last 90 days, labelled with the disease."/>

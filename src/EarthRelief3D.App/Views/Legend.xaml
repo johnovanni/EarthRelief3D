@@ -12,7 +12,7 @@
             <BooleanToVisibilityConverter x:Key="B2V"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Border Background="#CC101624" CornerRadius="8" Padding="10,8">
+    <Border Background="#F2101624" CornerRadius="8" Padding="10,8">
         <StackPanel>
             <TextBlock Text="Legend" FontWeight="SemiBold" FontSize="13" Foreground="#C8CDD8" Margin="0,0,0,4"/>
             <ItemsControl ItemsSource="{Binding Lines}">

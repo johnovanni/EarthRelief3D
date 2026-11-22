@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <None Include="..\Samples\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Samples" />
+    <None Include="..\SnapshotScenes\**" CopyToOutputDirectory="PreserveNewest" LinkBase="SnapshotScenes" />
   </ItemGroup>
 
   <ItemGroup>

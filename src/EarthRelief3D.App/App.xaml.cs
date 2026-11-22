@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using EarthRelief3D.App.Diagnostics;
 using EarthRelief3D.App.Services;
 using EarthRelief3D.App.Settings;
 using GlobeCore.Feeds;
@@ -22,12 +23,17 @@ public partial class App : Application
     private AppServices? _services;
     private CrashHandler? _crash;
     private bool _shutDown;
+    private string? _offlineRoot;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        var root = AppDataRoot.ForUser(AppInfo.Name,
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), PackageIdentity.FamilyName);
+        // Offline samples (a diagnostic run) keep the cache and settings in a temporary folder, so the user's own are not touched.
+        var options = LaunchOptions.Parse(e.Args);
+        var root = options.OfflineSamplesDir is not null
+            ? new AppDataRoot(_offlineRoot = Path.Combine(Path.GetTempPath(), OfflineSamples.TempFolderPrefix + Guid.NewGuid().ToString("N")))
+            : AppDataRoot.ForUser(AppInfo.Name,
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), PackageIdentity.FamilyName);
         // The log comes first (it always uses the real time and the usual folder).
         var log = _log = new FileLog(root.LogsDir, new SystemClock(), AppInfo.LogFilePrefix);
         log.Info($"{AppInfo.Name} {AppInfo.Version} starting" + (e.Args.Length > 0 ? " with " + string.Join(" ", e.Args) : ""));
@@ -41,6 +47,41 @@ public partial class App : Application
             else Dispatcher.BeginInvoke(() => ShowCrash(message));
         }, appName: AppInfo.Name);
         _crash.Install(this);
+        OfflineSamples.SweepStaleFolders(Path.GetTempPath(), DateTime.UtcNow, log);   // offline runs that were killed
+
+        // Diagnostic options: validated now, and the scenes read, before anything starts.
+        string? samplesDir = options.OfflineSamplesDir is { } dir ? Path.GetFullPath(dir) : null;
+        var problems = new List<string>();
+        if (options.Error is not null) problems.Add(options.Error);
+        if (samplesDir is not null)
+        {
+            if (!Directory.Exists(samplesDir)) problems.Add($"--offline-samples: the folder {samplesDir} does not exist.");
+            else if (OfflineSamples.Missing(samplesDir) is { Count: > 0 } missing)
+                problems.Add($"--offline-samples: {samplesDir} lacks {string.Join(", ", missing)}.");
+        }
+        if (options.TakesPictures && samplesDir is null) problems.Add("Taking pictures needs --offline-samples (the pictures use the sample data).");
+        IReadOnlyList<SnapshotScene>? scenes = null;
+        string? sceneOut = null;
+        if (options.SnapshotScenesFile is { } scenesFile)
+        {
+            try { scenes = SnapshotScenes.Load(Path.GetFullPath(scenesFile)); }
+            catch (FormatException ex) { problems.Add(ex.Message); }
+            sceneOut = options.SnapshotOutDir is { } od ? Path.GetFullPath(od) : null;
+        }
+        else if (options.SnapshotPath is { } snap)
+        {
+            var path = Path.GetFullPath(snap);
+            sceneOut = Path.GetDirectoryName(path) ?? ".";
+            scenes = [SnapshotScenes.FromOptions(options with { SnapshotPath = path }, options.DisplayTimeUtc ?? DateTime.UtcNow)];
+        }
+        if (problems.Count > 0)
+        {
+            var message = string.Join(Environment.NewLine, problems);
+            log.Error("Command line: " + message);
+            MessageBox.Show(message, AppInfo.Name + ": command line", MessageBoxButton.OK, MessageBoxImage.None);
+            Shutdown(2);
+            return;
+        }
 
         // The app must still start without its data folders: settings fall back to defaults, the cache to empty, and
         // failed writes are logged.
@@ -57,14 +98,28 @@ public partial class App : Application
 
         // Saves are debounced and written off the UI thread.
         _settings = new SettingsSaver<AppSettings>(new SettingsStore(root, log), log: log);
-        IClock clock = new SystemClock();
-        var http = new FeedHttp(AppInfo.UserAgent);
+        // A pictures run stands both clocks still so pictures repeat exactly: the feeds' clock (also the view models') at the
+        // first scene's time for the whole run, which keeps the feeds from running again; the display's at each scene's
+        // time. --display-time alone starts the app's clock at that time, then it runs on.
+        SettableClock? displayClock = scenes is null ? null : new SettableClock(scenes[0].DisplayTimeUtc);
+        IClock clock = scenes is not null ? new SettableClock(scenes[0].DisplayTimeUtc)
+            : options.DisplayTimeUtc is { } start ? new OffsetClock(new SystemClock()) { Offset = start - DateTime.UtcNow }
+            : new SystemClock();
+        if (samplesDir is not null) log.Info($"Offline samples from {samplesDir}; data folder {root.Root}");
+        var http = samplesDir is null ? new FeedHttp(AppInfo.UserAgent) : new FeedHttp(AppInfo.UserAgent, OfflineSamples.CreateHandler(samplesDir));
         var services = _services = AppServices.Create(root, http, clock, log, _settings, Dispatcher);
 
-        var window = new MainWindow(services.Main, services.Store, services.Countries, clock, log);
+        var window = new MainWindow(services.Main, services.Store, services.Countries, displayClock ?? clock, log);
+        if (samplesDir is not null) window.Title += " - SAMPLE DATA (offline)";   // sample data is never mistaken for live data
         window.Closed += (_, _) => ShutDownServices();
         MainWindow = window;
+        // Subscribed before the feeds start, so no first report is missed.
+        var dataReady = scenes is null ? Task.CompletedTask : SnapshotScenes.AllFeedsOkOnce(services.Scheduler, AppServices.FeedNames);
         services.Start();
+        if (scenes is not null && displayClock is not null && sceneOut is not null)
+            _ = SnapshotScenes.RunAsync(window, window.Scene, services.Main, scenes, displayClock, sceneOut, options.DelayMs, dataReady, log);
+        else if (options.OpenPanel is { } iso)
+            window.Loaded += (_, _) => services.Main.Panel.Show(iso);
         window.Show();
     }
 
@@ -85,6 +140,10 @@ public partial class App : Application
         Step("write the repeated-error counts", () => _crash?.FlushRepeats());
         _log?.Info($"{AppInfo.Name} exiting");
         _log?.Dispose();
+        if (_offlineRoot is not null)   // the offline run's temporary data folder, deleted last
+        {
+            try { Directory.Delete(_offlineRoot, recursive: true); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
     }
 
     private void Step(string what, Action action)

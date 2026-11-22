@@ -1,0 +1,9 @@
+{
+  "scenes": [
+    { "name": "africa",          "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [10, 25],   "layers": ["conflict", "food", "outbreaks", "displacement"] },
+    { "name": "pacific",         "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [-15, 180], "layers": ["outbreaks"] },
+    { "name": "sudan-panel",     "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [15, 30],   "layers": ["conflict", "food", "outbreaks", "displacement"], "panel": "SDN" },
+    { "name": "sudan-panel-food", "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [15, 30],  "layers": ["conflict", "food", "outbreaks", "displacement"], "panel": "SDN", "panelFocus": "displacement" },
+    { "name": "no-crisis-panel", "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [65, -19],  "layers": ["conflict", "food", "outbreaks", "displacement"], "panel": "ISL" }
+  ]
+}

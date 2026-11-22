@@ -37,3 +37,9 @@ The tooltip shows the disease, the report's title and its publication date.
 ## Displacement (UNHCR)
 
 Displacement figures are layer values, not crises, and have no band.
+
+## How a band is drawn
+
+Conflict dots keep a fixed size on screen: radius 2.5, 3.5, 4.5 and 5.5 pixels for bands 1 to 4, in one hue whose lightness
+shows the event's age (last 3 months, 3 to 6 months, older). Food shading uses the IPC phase colour (band = phase).
+Outbreak crosses are one size. Displacement rings are sized by the number of people, not by a band.

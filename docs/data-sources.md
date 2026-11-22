@@ -56,3 +56,22 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **As-of field:** `PublicationDate` (also `PublicationDateAndTime`, `LastModified`).
 - **Shape found:** `{"@odata.context": ..., "value": [ { Id, LastModified, PublicationDate, DateCreated, IncludeInSitemap, SystemSourceKey, UrlName, ItemDefaultUrl, Response, FurtherInformation, Summary, PublicationDateAndTime, TitleSuffix, UseOverrideTitle, Title, Epidemiology, OverrideTitle, Advice, Assessment, Overview, DonId, Provider } ]}`. The default order is oldest first, so ask for `$orderby=PublicationDate desc`.
 - **Gotchas found:** titles separate disease and place with a hyphen, an en dash, or a hyphen with no space before it; some items have `UseOverrideTitle` true with `OverrideTitle` set; `Overview` and `Summary` hold HTML. The synthetic sample mimics these (hyphen and en dash, a multi-country list, accented and territory names).
+
+## Offline samples (`--offline-samples`)
+
+The app's diagnostic handler (`src/EarthRelief3D.App/Diagnostics/OfflineSamples.cs`) maps each live URL to a file in
+`tests/Samples`; anything else is a 404. `OfflineSamplesTests` runs the four feeds through it, so a URL that changes in a
+feed fails a test.
+
+| Live URL | Sample file |
+|---|---|
+| https://ucdp.uu.se/downloads/ | `ucdp_downloads.html` |
+| https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_0_10.csv | `ucdp_candidate_monthly.csv` |
+| https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_01_26_09.csv | `ucdp_candidate_quarterly.csv` |
+| https://data.humdata.org/api/3/action/package_show?id=global-acute-food-insecurity-country-data | `hdx_ipc_package.json` |
+| the `ipc_global_national_wide_latest.csv` resource URL named in that package | `ipc_national_wide_latest.csv` |
+| https://www.who.int/api/news/diseaseoutbreaknews (any query) | `who_don_synthetic.json` (synthetic, no WHO text) |
+| https://api.unhcr.org/population/v1/population/?year=2026&coo_all=true&limit=500 | `unhcr_population_coo.json` |
+
+The samples are from Nov 2026, so offline runs use `--display-time 2026-11-22T12:00:00Z`. The WHO sample has no report for
+Sudan, so Sudan's panel shows conflict, food crisis and displacement (three sections); that is what the samples hold.

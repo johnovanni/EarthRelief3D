@@ -31,7 +31,12 @@
                 </ModelVisual3D.Content>
             </ModelVisual3D>
         </helix:HelixViewport3D>
-        <Canvas x:Name="Overlay" IsHitTestVisible="False"/>
+        <!-- A soft dark halo behind the labels, so the blue disease names read over land as well as sea. -->
+        <Canvas x:Name="Overlay" IsHitTestVisible="False">
+            <Canvas.Effect>
+                <DropShadowEffect ShadowDepth="0" BlurRadius="4" Color="Black" Opacity="1"/>
+            </Canvas.Effect>
+        </Canvas>
         <views:LayerStrip x:Name="Strip" DataContext="{Binding Layers}"/>
         <views:CountryPanel x:Name="Panel" DataContext="{Binding Panel}"/>
         <views:Legend x:Name="LegendCard" DataContext="{Binding Legend}"/>
