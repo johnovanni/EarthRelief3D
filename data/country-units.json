@@ -1,0 +1,6 @@
+{
+  "SOL": {
+    "into": "SOM",
+    "reason": "Somaliland is not a separate unit in the UN humanitarian sources (UNHCR, WHO, IPC); its figures are Somalia's, so its polygon joins Somalia (C16)."
+  }
+}
