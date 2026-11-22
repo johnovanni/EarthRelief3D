@@ -87,21 +87,28 @@ public static class BoundaryData
     }
 
     /// <summary>
+    /// The fingerprint GlobeCore keeps with a remembered rejection (<see cref="BoundaryUpdateFeed.Fingerprint"/>): of the
+    /// rules and probes files in <paramref name="dataDir"/>, as shipped, and of GlobeCore's version.
+    /// </summary>
+    public static string Fingerprint(string dataDir) => BoundaryUpdateFeed.Fingerprint(
+        File.ReadAllBytes(Path.Combine(dataDir, RulesFile)), File.ReadAllBytes(Path.Combine(dataDir, ProbesFile)));
+
+    /// <summary>
     /// The live boundaries: the newest stored set that is whole and passes validation, else the bundled set, both with
     /// the rules applied. <paramref name="cacheDir"/> is the app's cache folder; the sets live under <c>boundaries</c>.
+    /// Also the store, the validator, the rules and the rejection fingerprint, for the update feed.
     /// </summary>
-    public static (CurrentBoundaries Current, BoundaryStore Store, BoundaryValidator Validator, BoundaryRules Rules) Open(
+    public static (CurrentBoundaries Current, BoundaryStore Store, BoundaryValidator Validator, BoundaryRules Rules, string Fingerprint) Open(
         string dataDir, string cacheDir, IAppLog log)
     {
         var rules = ReadRules(Path.Combine(dataDir, RulesFile));
         var validator = CreateValidator(rules, dataDir);
         var store = new BoundaryStore(Path.Combine(cacheDir, "boundaries"));
-        // GlobeCore deletes a remembered rejection (rejected.json) in this folder after every successful check; it logs a warning
-        // when the folder is missing, so it exists from the start.
+        // The store's folder, where the feed keeps the sets it adopts and any remembered rejection (rejected.json).
         try { Directory.CreateDirectory(store.CacheDir); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { log.Warn("Could not create the boundaries cache folder", ex); }
         var current = new CurrentBoundaries(NaturalEarthBoundaries.Load(rules, store, validator, log), log);
         log.Info($"Boundaries in use: {current.Set.Describe()}");
-        return (current, store, validator, rules);
+        return (current, store, validator, rules, Fingerprint(dataDir));
     }
 }

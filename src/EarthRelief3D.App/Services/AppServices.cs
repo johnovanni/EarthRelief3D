@@ -64,8 +64,8 @@ public sealed class AppServices : IDisposable
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(http);
-        // The boundaries: the newest stored set that passes validation, else the bundled one, with the rules of dataoundary-rules.json.
-        var (boundaries, boundaryStore, validator, rules) = BoundaryData.Open(BoundaryData.DataDir, root.CacheDir, log);
+        // The boundaries: the newest stored set that passes validation, else the bundled one, with the rules of data\boundary-rules.json.
+        var (boundaries, boundaryStore, validator, rules, fingerprint) = BoundaryData.Open(BoundaryData.DataDir, root.CacheDir, log);
         var countries = new CountryResolver(boundaries, CountryResolver.ReadAliases(Path.Combine(BoundaryData.DataDir, CountryResolver.AliasesFile)));
         var store = new CrisisStore();
         var cache = new CrisisCache(root, log);
@@ -87,7 +87,9 @@ public sealed class AppServices : IDisposable
             new WhoOutbreakFeed(http, store, clock, log, countries),
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
             // Checks Natural Earth's releases once a day; a newer, valid set replaces the live one without a restart.
-            new BoundaryUpdateFeed(new NaturalEarthBoundarySource(http), rules, validator, boundaryStore, boundaries, log),
+            // A rejected release is remembered with the fingerprint of the rules and probes; an app update that changes
+            // them looks at that release again. After a failed download the feed waits 6 h (ruling R5).
+            new BoundaryUpdateFeed(new NaturalEarthBoundarySource(http), rules, validator, boundaryStore, boundaries, log, fingerprint),
         ];
         if (!feeds.Select(f => f.Name).SequenceEqual(FeedNames)) throw new InvalidOperationException("Feed names and status dots differ.");
 

@@ -149,6 +149,7 @@ public sealed class SceneController
         _imageWidth = baseImage.Width;
         _imageHeight = baseImage.Height;
         _linesSet = linesFrom ?? _countries.Boundaries.Set;
+        _vm.Legend.ShowBoundaries(_linesSet);   // the legend names the edition the lines are drawn from
         _borders = new BordersImageLayer(coastAndBorders, _store, _countries, () => _clock.UtcNow);
         _food = new FoodImageLayer(baseImage.Width, baseImage.Height, _store, _countries, _sta, _log, () => _closed, () => _clock.UtcNow) { IsVisible = layers.ShowFood };
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
@@ -196,6 +197,7 @@ public sealed class SceneController
             if (_closed || version != Volatile.Read(ref _linesVersion)) return;   // a newer swap redraws
             _borders?.ReplaceLines(lines);
             _linesSet = set;
+            _vm.Legend.ShowBoundaries(set);   // only now: a failed redraw keeps the old lines and the old legend
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

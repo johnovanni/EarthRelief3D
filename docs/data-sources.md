@@ -108,6 +108,9 @@ Sudan, so Sudan's panel shows conflict, food crisis and displacement (three sect
   `raw.githubusercontent.com`) and only after it passes validation; the last good set stays in
   `%LOCALAPPDATA%\EarthRelief3D\cache\boundaries\<tag>\`. Natural Earth's latest release is still v5.1.2 (checked 2026-11-22),
   so today nothing is downloaded.
+- **Download size:** adopting a new Natural Earth release downloads about 6.2 MB (countries 3.08 MB, lines 0.76 MB, admin-1
+  2.33 MB), once per release; the daily check is a few KB. A rejected release is not downloaded again (until the app's
+  rules or probes, or GlobeCore, change), and after a failed download the next try waits 6 hours.
 - **Rules (`data/boundary-rules.json`)** are the owner's boundary decisions, applied to every set that is loaded: Crimea and
   Sevastopol move to Ukraine (UN General Assembly resolution 68/262; the Perekop line goes) and Somaliland (SOL) joins
   Somalia (C16). Every rule has a reason. A set the rules do not fit exactly is rejected.

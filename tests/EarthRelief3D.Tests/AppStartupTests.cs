@@ -12,6 +12,7 @@ using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Feeds;
+using GlobeCore.Geo;
 using GlobeCore.Imaging;
 using GlobeCore.Storage;
 using GlobeCore.Wpf.Layers;
@@ -120,7 +121,7 @@ public class AppStartupTests
 
     // ---------------------------------------------------------------- the scene (STA)
 
-    private sealed record Rig(SceneController Scene, MainViewModel Vm, HelixViewport3D Viewport, CrisisStore Store);
+    private sealed record Rig(SceneController Scene, MainViewModel Vm, HelixViewport3D Viewport, CrisisStore Store, ListLog Log);
 
     /// <summary>A SceneController in a window that is never shown, laid out by hand at 800x600, facing 0°N 0°E.</summary>
     private static Rig NewScene(CountryResolver? resolver = null)
@@ -139,8 +140,9 @@ public class AppStartupTests
         var window = new Window { Content = grid };
         grid.Measure(new Size(800, 600));
         grid.Arrange(new Rect(0, 0, 800, 600));
-        var scene = new SceneController(viewport, overlay, vm, window, store, countries, new FixedClock(SampleStore.Now), new ListLog());
-        return new Rig(scene, vm, viewport, store);
+        var log = new ListLog();
+        var scene = new SceneController(viewport, overlay, vm, window, store, countries, new FixedClock(SampleStore.Now), log);
+        return new Rig(scene, vm, viewport, store, log);
     }
 
     private static async Task<Rig> StartAsync(CountryResolver? resolver = null)
@@ -213,8 +215,8 @@ public class AppStartupTests
         await Task.Run(() => resolver.Boundaries.Swap(BoundaryTests.NextEdition(resolver.Boundaries.Set)));
 
         Assert.Equal("BEL", resolver.Resolve("Luxembourg")?.Iso3);   // the index is already the new one
-        Assert.Contains("9.9.9", rig.Vm.Legend.BoundaryText);
         await StaAsync.WaitUntil(() => !ReferenceEquals(borders.Current, bordersBefore) && !ReferenceEquals(food.Current, foodBefore));
+        await StaAsync.WaitUntil(() => rig.Vm.Legend.BoundaryText.Contains("9.9.9"));   // named once its lines are drawn
         await StaAsync.WaitUntil(() => host.IsComposeIdle);
         Assert.NotSame(bordersBefore, borders.Current);   // the lines were rasterized again from the new set
         Assert.NotSame(foodBefore, food.Current);   // and so was the food shading, with no change in the data
@@ -225,6 +227,31 @@ public class AppStartupTests
         Assert.NotNull(hit);
         Assert.Equal("BEL", Assert.IsType<CountryPick>(hit.Item).Iso3);
     });
+
+    [Fact]
+    public void LegendKeepsTheDrawnEditionWhenTheRedrawFails() => StaAsync.Run(async () =>
+    {
+        var resolver = BoundaryTests.FreshResolver();
+        var rig = await StartAsync(resolver);
+        var drawn = rig.Vm.Legend.BoundaryText;
+        Assert.Contains("Natural Earth 5.1.2", drawn);
+
+        // A set whose lines cannot be rasterized: the borders drawn before stay, and so does the legend that names them.
+        var broken = BoundaryTests.NextEdition(resolver.Boundaries.Set) with { Lines = [new GeoLine(new UnreadablePoints())] };
+        await Task.Run(() => resolver.Boundaries.Swap(broken));
+        await StaAsync.WaitUntil(() => rig.Log.Lines.ToArray().Any(l => l.StartsWith("ERROR The borders could not be redrawn", StringComparison.Ordinal)));
+        Assert.Equal(drawn, rig.Vm.Legend.BoundaryText);
+        Assert.DoesNotContain("9.9.9", rig.Vm.Legend.BoundaryText);
+    });
+
+    /// <summary>Points that throw when read, so rasterizing the line fails.</summary>
+    private sealed class UnreadablePoints : IReadOnlyList<GeoPosition>
+    {
+        public GeoPosition this[int index] => throw new InvalidOperationException("unreadable point");
+        public int Count => 2;
+        public IEnumerator<GeoPosition> GetEnumerator() => throw new InvalidOperationException("unreadable points");
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     [Fact]
     public void ClickInSomalilandOpensSomalia() => StaAsync.Run(async () =>

@@ -65,11 +65,8 @@ public sealed partial class LegendViewModel : ObservableObject
         _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _store.Changed += OnStoreChanged;
         _layers.PropertyChanged += OnLayersChanged;
-        if (boundaries is not null)
-        {
-            BoundaryText = NoteFor(boundaries.Set);
-            boundaries.Changed += OnBoundariesChanged;   // feed thread
-        }
+        // The set in use at start; after a swap the scene calls ShowBoundaries once the new borders are drawn.
+        if (boundaries is not null) BoundaryText = NoteFor(boundaries.Set);
         Refresh();
     }
 
@@ -97,10 +94,15 @@ public sealed partial class LegendViewModel : ObservableObject
     /// </summary>
     public static string NoteFor(BoundarySet set) => $"Borders: {set.Describe()}. {BoundaryNote}";
 
-    // Raised on the feed thread that swapped the set: the text is computed here and set on the UI thread.
-    private void OnBoundariesChanged(object? sender, BoundariesChangedEventArgs e)
+    /// <summary>
+    /// Names <paramref name="set"/> in the note: called by the scene once the borders on the globe are drawn from it, so
+    /// the legend and the lines never name different editions (a failed redraw keeps both as they were). Any thread:
+    /// the text is computed here and set on the UI thread.
+    /// </summary>
+    public void ShowBoundaries(BoundarySet set)
     {
-        var text = NoteFor(e.New);
+        ArgumentNullException.ThrowIfNull(set);
+        var text = NoteFor(set);
         if (_dispatcher is null || _dispatcher.CheckAccess()) BoundaryText = text;
         else _dispatcher.BeginInvoke(() => BoundaryText = text);
     }

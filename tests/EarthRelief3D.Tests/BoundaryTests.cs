@@ -94,8 +94,11 @@ public class BoundaryTests
             + "Somaliland shown as part of Somalia (UN humanitarian data). " + LegendViewModel.BoundaryNote, legend.BoundaryText);
         Assert.EndsWith("do not imply official endorsement or acceptance by the United Nations.", legend.BoundaryText);
 
-        // A swap changes the text (no dispatcher: at once).
+        // A swap alone does not change the text: the scene names the new edition once its borders are drawn (no
+        // dispatcher: at once).
         current.Swap(NextEdition(current.Set));
+        Assert.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13)", legend.BoundaryText);
+        legend.ShowBoundaries(current.Set);
         Assert.StartsWith("Borders: Natural Earth 9.9.9 (2030-01-01); Crimea shown as part of Ukraine", legend.BoundaryText);
         Assert.EndsWith(LegendViewModel.BoundaryNote, legend.BoundaryText);
 
@@ -163,6 +166,19 @@ public class BoundaryTests
     }
 
     [Fact]
+    public void TheRejectionFingerprintIsOfTheShippedRulesAndProbes()
+    {
+        var expected = BoundaryUpdateFeed.Fingerprint(File.ReadAllBytes(Data(BoundaryData.RulesFile)), File.ReadAllBytes(Data(BoundaryData.ProbesFile)));
+        Assert.Equal(expected, BoundaryData.Fingerprint(BoundaryData.DataDir));
+        var tmp = Path.Combine(Path.GetTempPath(), "er3d-fp-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Assert.Equal(expected, BoundaryData.Open(BoundaryData.DataDir, tmp, new ListLog()).Fingerprint);
+        }
+        finally { try { Directory.Delete(tmp, recursive: true); } catch (IOException) { } }
+    }
+
+    [Fact]
     public async Task OfflineRunsAnswerTheBordersCheckWithTheBundledEdition()
     {
         // The offline handler (no network) tells the feed that v5.1.2 is the latest release, so the dot is green and
@@ -175,7 +191,8 @@ public class BoundaryTests
         {
             var set = NaturalEarthBoundaries.LoadBundled(rules);
             var feed = new BoundaryUpdateFeed(new NaturalEarthBoundarySource(http), rules,
-                BoundaryData.CreateValidator(rules, BoundaryData.DataDir), new BoundaryStore(tmp), new CurrentBoundaries(set), new ListLog());
+                BoundaryData.CreateValidator(rules, BoundaryData.DataDir), new BoundaryStore(tmp), new CurrentBoundaries(set), new ListLog(),
+                BoundaryData.Fingerprint(BoundaryData.DataDir));
             Assert.Equal("Borders", feed.Name);
             Assert.Equal(FeedRunResult.Ok, await feed.RunOnceAsync(default));
             Assert.Single(handler.Requests);
