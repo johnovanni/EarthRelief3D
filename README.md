@@ -11,8 +11,9 @@ open, key-free sources: armed conflict (UCDP), food crises (IPC), disease outbre
 ## Features
 
 - A 3D globe (GlobeCore) with country borders and a day/night shade.
-- **Armed conflict:** a dot per UCDP event of a conflict with 25 or more deaths in a calendar year; bigger dots for
-  more deaths in the conflict, lighter dots for newer events.
+- **Armed conflict:** a dot per UCDP event of a conflict with 25 or more deaths in a calendar year (counted over the
+  whole conflict); bigger dots for more deaths of that conflict in that country over the data window (band 1 at least),
+  lighter dots for newer events. Each event belongs to the country its coordinates are in.
 - **Food crisis:** each country with people in IPC Phase 3 or higher is shaded in the IPC's phase colour (Phase 3 Crisis,
   Phase 4 Emergency, Phase 5 Catastrophe/Famine).
 - **Disease outbreaks:** a cross at each country with a WHO Disease Outbreak News report in the last 90 days, labelled
@@ -48,7 +49,7 @@ itself to a PNG with WPF's `RenderTargetBitmap`):
 
 | Option | Meaning |
 |---|---|
-| `--offline-samples <dir>` | Answer every feed request from the sample files in `<dir>` (use `tests\Samples`). The cache and settings live in a temporary folder that is deleted on exit, and the window title says SAMPLE DATA. |
+| `--offline-samples <dir>` | Answer every feed request from the sample files in `<dir>` (use `tests\Samples`). The cache and settings live in a temporary folder that is deleted on exit (the log stays in the usual logs folder, `%LOCALAPPDATA%\EarthRelief3D\logs`), and the window title says SAMPLE DATA. |
 | `--display-time <ISO UTC>` | Start the app's clock at that time (the sample data is from Nov 2026: `2026-11-22T12:00:00Z`). |
 | `--snapshot-scenes <json> --snapshot-out <dir>` | Take one picture per scene, saved as `<dir>\<name>.png`, in one launch, then exit. Needs `--offline-samples`. Exit code 1 if any picture failed. |
 | `--snapshot <png>` | One picture, with `--look-at lat,lon`, `--layers conflict,food,outbreaks,displacement` (default all) and `--open-panel ISO3`. |

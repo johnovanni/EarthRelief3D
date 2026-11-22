@@ -108,6 +108,41 @@ the general public, starting with people in the United States, installing a pack
 | P1-21 | Final review F2: the twilight comes from the body: `IlluminationState.TwilightDeg` (default −12°) is used by the composer, and `Body.IlluminationAt(utc, nightStrength, drawTerminator)` builds the light from the body's sub-solar point and `SunLit` twilight. The layer host still has no light of its own: the app sets `IlluminationAt` (EarthWatch3D keeps its own, with the default −12°) | `SunLit(TwilightDeg)` was declared but never used; −12° composes exactly as before |
 | P1-22 | Final review F3: the Earth pack (`GlobeCore.Earth`) is `net10.0` with no UI, so no-UI projects (`EarthWatch3D.Core`, a future `EarthRelief3D.Core`) can use it; `EarthAssets.LoadBlueMarble` is gone and the WPF side decodes with `ImageConversions.DecodeToBgra32(EarthAssets.Open(EarthAssets.BlueMarbleFile), width)`. `EarthSphere` is removed from EarthWatch3D (`EarthBody.RadiusKm` instead) | Only the Blue Marble decode needed WPF; a WPF-side helper in GlobeCore.Wpf would have made the body-neutral library depend on the Earth pack |
 
+### Rulings made while building Plan 2 (for the owner to check)
+
+P2-1 to P2-8 were made while writing the Plan 2 plan; R1 to R16 while building it (the SDD ledger).
+
+| # | Ruling | Reason | Cost |
+|---|---|---|---|
+| P2-1 | Lat/lon stays `AstroCore.Earth.GeoPosition` in apps and GlobeCore's Geo, rasterizer and feed APIs; `SurfacePoint` only on the body-generic API (settles P1-18) | Both are east-positive; migrating every signature is churn with no behaviour gain | Two types that convert implicitly |
+| P2-2 | Plan 2 sources need no key or account: UCDP Candidate CSV downloads, IPC national figures from HDX, WHO Disease Outbreak News, the UNHCR population API; HDX HAPI waits | Checked live 2026-11-22; nothing waits on the owner | IPC areas and HAPI later |
+| P2-3 | Food crises are shown per country: shaded in the IPC colour of the highest phase with people in it; IPC area polygons move to Plan 3 | The national file has no areas; areas need an IPC key or OCHA boundaries | Coarser than §6's IPC areas (the rule itself is the owner's question, see R16) |
+| P2-4 | An IPC analysis whose current period ended more than 12 months ago is not a crisis; the panel lists it as the last analysis | An old analysis is not evidence of a current crisis (C11) | None |
+| P2-5 | The WHO test sample is synthetic (same shape, invented text); no WHO text is committed | C6: CC BY-NC-SA data is never committed | Tests do not use real titles |
+| P2-6 | GlobeCore.Wpf gets a generic status-dots view; EarthWatch3D switches to it in a later small plan | Keeps this plan off a shipped app | A temporary duplicate |
+| P2-7 | EarthRelief3D is a local git repo only, MIT, version 0.1.0 | Nothing is pushed without the owner's OK | None |
+| P2-8 | UCDP window: the newest quarterly cumulative Candidate file plus every later monthly file (about 9 to 12 months); trend = last 3 complete months against the 3 before | The downloads page carries only the current files; older releases need the yearly GED (hundreds of MB) | §6's "last 12 months" is really this 9-to-12-month window |
+| R1 | The controller ran `git init` and the `.gitignore` before Task 1, so the SDD workspace could exist | Workspace needed first | None |
+| R2 | GlobeCore's push, pull request and re-pin (Task 2 Step 5) run at the end with the owner | The plan says so | None |
+| R3 | `data/*.json` live at the repo root and are linked into Core's, the app's and the tests' outputs | One copy | None |
+| R4 | A launch option `--open-panel <ISO3>` (and the scenes' `panel` field) opens a country panel for the snapshot scenes | The sudan-panel and no-crisis-panel scenes need it | One more option |
+| R5 | The GlobeCore task does not touch EarthRelief3D; the controller pins the submodule | Avoids two writers in one repo | One controller commit |
+| R6 | Tasks 2 (GlobeCore) and 3 (Core model) ran in parallel | Different repos, no shared types | None |
+| R7 | GlobeCore's `LoadNaturalEarth` carries a small built-in alias list (Türkiye, Czechia, Cabo Verde, Timor-Leste, Burma, Ivory Coast, Swaziland) | Official renamings Natural Earth lacks; apps add more | List maintenance in GlobeCore |
+| R8 | Conflict bands 1 to 4 (boundaries 25, 1,000, 10,000, 50,000); band 5 is not used for conflict | The plan's four boundaries give four bands; bands only size markers | None |
+| R9 | The UCDP 25-deaths-a-year threshold is on the whole conflict (all countries); one crisis per country it has events in | C11 is about the conflict | A country's small share still gets a marker (band 1 at least) |
+| R10 | UNHCR as-of = 30 June of the data year ("Mid-year"), or 31 December ("End-year") once the clock is past 1 July of the next year; never the clock | The API has no date; UNHCR's release pattern | The label may lag a release by weeks |
+| R11 | Food shows "IPC analysis period <from>–<to> (analysed <date>)", and the legend's date is the newest Date of analysis | The period end is often in the future: never "as of" a future date | None |
+| R12 | Each feed records when it last ran successfully (also with nothing found); "not yet checked" vs "none recorded · checked <date>" | "No crisis" must not be said for a source never checked | A Core model change and a cache schema bump |
+| R13 | Task 7's own review was folded into the whole-branch final review | Same ground | One review fewer |
+| R14 | A UCDP event belongs to the country containing its coordinates (units applied); UCDP's country name only when the point is in no country; events with neither are listed as "Not placed on the map" | The map draws events where they are; fixes Gaza (UCDP: Israel) and gaps in UCDP's names | Border events can land in a neighbour's panel: in the samples 41 of 4,494 (Goma in Rwanda, Sumy oblast in Russia, ...), from the coarse 1:50m outlines |
+| R15 | Crimea and Sevastopol are part of Ukraine (owner's Q3: UN practice; UN GA resolution 68/262): GlobeCore moves Natural Earth's own admin-1 polygons from RUS to UKR as it reads the countries file, and drops the Perekop border line | Natural Earth's point-of-view files are 1:10m only and change many other countries | An asset and a fix-up in GlobeCore (also reaches EarthWatch3D's borders when it updates GlobeCore) |
+| R16 | The food panel and tooltip show the people in Phases 3, 4 and 5 ("Phase 5 Catastrophe/Famine"); the shading rule itself is the owner's question (recommended: IPC's 20% area rule) | A small Phase 5 count must not read as a country in famine | None until decided |
+
+Notes on the spec: §6's "last 12 months" for conflict is the UCDP window of about 9 to 12 months (P2-8). P1-4 said Plan 2
+would move the launch-option parser to GlobeCore; it stayed in the app (`src/EarthRelief3D.App/Diagnostics/LaunchOptions.cs`),
+and only the status dots moved (P2-6).
+
 ### Out of scope (for now)
 
 - Countries other than the US in the help panel (the data shape allows them, §9.4).

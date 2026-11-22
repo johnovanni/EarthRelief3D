@@ -12,14 +12,15 @@ namespace EarthRelief3D.Core.Feeds;
 /// <summary>
 /// Outbreaks from WHO Disease Outbreak News (the site's content API, no key). Any report in the last 90 days, measured
 /// against the injected clock, is an outbreak crisis (C11), one per country in its title. WHO text is CC BY-NC-SA, so it is
-/// only fetched at run time (C6). A reshaped document throws a <see cref="FeedFormatException"/> before the store is touched.
+/// only fetched at run time (C6). A reshaped document, or one not sorted newest first (the page holds only the newest 50),
+/// throws a <see cref="FeedFormatException"/> before the store is touched.
 /// </summary>
 public sealed class WhoOutbreakFeed(FeedHttp http, CrisisStore store, IClock clock, IAppLog log, CountryResolver? countries = null) : IFeed
 {
     public static readonly Uri ApiUrl = new("https://www.who.int/api/news/diseaseoutbreaknews?$top=50&$orderby=PublicationDate desc");
     public static readonly Uri PageUrl = new("https://www.who.int/emergencies/disease-outbreak-news");
     public const string Window = "90 days";
-    private static readonly TimeSpan WindowLength = TimeSpan.FromDays(90);
+    private static readonly TimeSpan WindowLength = OutbreakCrisis.Window;
 
     private readonly CountryResolver _countries = countries ?? CountryResolver.LoadDefault();
 
@@ -55,6 +56,7 @@ public sealed class WhoOutbreakFeed(FeedHttp http, CrisisStore store, IClock clo
         var unplaced = new List<UnplacedReport>();
         var cutoff = now - WindowLength;
         var items = 0;
+        DateTime? previous = null;
         foreach (var item in value.EnumerateArray())
         {
             string? Str(string n) => item.TryGetProperty(n, out var p) && p.ValueKind == JsonValueKind.String ? p.GetString() : null;
@@ -64,6 +66,9 @@ public sealed class WhoOutbreakFeed(FeedHttp http, CrisisStore store, IClock clo
                 || !DateTime.TryParse(Str("PublicationDate"), CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var published))
                 throw new FeedFormatException("a WHO item lacks Title, UrlName or PublicationDate");
+            // The query asks for the newest 50 first; in any other order the newest reports may be missing from the page.
+            if (previous is { } p0 && published > p0) throw new FeedFormatException("not sorted by publication date");
+            previous = published;
             if (published < cutoff) continue;
             items++;
             if (item.TryGetProperty("UseOverrideTitle", out var uo) && uo.ValueKind == JsonValueKind.True

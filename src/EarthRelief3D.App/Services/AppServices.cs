@@ -65,8 +65,12 @@ public sealed class AppServices : IDisposable
         var cached = cache.Load();
         if (cached is not null)
         {
-            store.Load(cached);
-            log.Info($"Crisis cache loaded: {cached.Crises.Count} crises, {cached.Displacement.Count} displacement figures, {cached.Unplaced.Count} unplaced reports");
+            // An old cache is judged now: WHO reports past 90 days are dropped and IPC analyses past 12 months marked stale.
+            // The view models and layers judge again at display time, so data that ages while the app runs is handled too.
+            var seen = cached.AsSeenAt(clock.UtcNow);
+            store.Load(seen);
+            log.Info($"Crisis cache loaded: {cached.Crises.Count} crises ({cached.Crises.Count - seen.Crises.Count} WHO reports past "
+                + $"{WhoOutbreakFeed.Window} left out), {cached.Displacement.Count} displacement figures, {cached.Unplaced.Count} unplaced reports");
         }
 
         IFeed[] feeds =

@@ -51,16 +51,52 @@ public sealed record ConflictCrisis(string Id, string CountryIso3, string Title,
     }
 }
 
+/// <summary>
+/// One country's IPC national analysis. Most are current-period figures: a crisis when Phase 3 or higher has people in it
+/// and the period ended within <see cref="StaleAfterMonths"/> months (P2-4). An analysis with no current-period figures
+/// but a projection is kept as a <see cref="ProjectionOnly"/> record: never a crisis marker, but not "no crisis" either.
+/// </summary>
+/// <param name="PeriodFrom">The current period's start; for a <see cref="ProjectionOnly"/> record, the projection's.</param>
+/// <param name="Phase3PlusPeople">People in Phase 3 or higher in that period (for a projection-only record, projected).</param>
+/// <param name="Phase3PlusShare">The same as a fraction (0.41) of the people analysed.</param>
+/// <param name="IsStale">The period ended more than <see cref="StaleAfterMonths"/> months before the feed ran; see also <see cref="IsStaleAt"/>.</param>
 public sealed record FoodCrisis(string Id, string CountryIso3, string Title, NativeSeverity Severity, int Band,
     DateTime? Began, Trend? Trend, IReadOnlyList<SourceCitation> Citations,
     int HighestPhase, long Phase3PlusPeople, double Phase3PlusShare, DateOnly PeriodFrom, DateOnly PeriodTo, bool IsStale)
     : Crisis(Id, CrisisKind.FoodCrisis, CountryIso3, Title, Severity, Band, Began, Trend, Citations)
 {
+    /// <summary>An analysis whose period ended more than this many months ago is not a current crisis (P2-4).</summary>
+    public const int StaleAfterMonths = 12;
+
+    /// <summary>People in Phase 3 (Crisis) in the current period (ruling R16); 0 when the file leaves it blank.</summary>
+    public long Phase3People { get; init; }
+
+    /// <summary>People in Phase 4 (Emergency) in the current period.</summary>
+    public long Phase4People { get; init; }
+
+    /// <summary>People in Phase 5 (Catastrophe/Famine) in the current period.</summary>
+    public long Phase5People { get; init; }
+
+    /// <summary>
+    /// The analysis has no current-period figures, only a projection (<see cref="ProjectionName"/>); the period and the
+    /// Phase 3+ figures are the projection's. Not a crisis marker, and not "no crisis" either.
+    /// </summary>
+    public bool ProjectionOnly { get; init; }
+
+    /// <summary>"first projection" or "second projection" for a <see cref="ProjectionOnly"/> record, else null.</summary>
+    public string? ProjectionName { get; init; }
+
+    /// <summary>Stale (P2-4) when judged at <paramref name="nowUtc"/>: a cached analysis ages while the app runs or waits.</summary>
+    public bool IsStaleAt(DateTime nowUtc) => IsStale || PeriodTo < DateOnly.FromDateTime(nowUtc).AddMonths(-StaleAfterMonths);
+
     public bool Equals(FoodCrisis? o) => base.Equals(o) && HighestPhase == o!.HighestPhase
         && Phase3PlusPeople == o.Phase3PlusPeople && Phase3PlusShare.Equals(o.Phase3PlusShare)
-        && PeriodFrom == o.PeriodFrom && PeriodTo == o.PeriodTo && IsStale == o.IsStale;
+        && PeriodFrom == o.PeriodFrom && PeriodTo == o.PeriodTo && IsStale == o.IsStale
+        && Phase3People == o.Phase3People && Phase4People == o.Phase4People && Phase5People == o.Phase5People
+        && ProjectionOnly == o.ProjectionOnly && ProjectionName == o.ProjectionName;
 
-    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), HighestPhase, Phase3PlusPeople, PeriodFrom, PeriodTo, IsStale);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), HighestPhase, Phase3PlusPeople, PeriodFrom, PeriodTo, IsStale,
+        HashCode.Combine(Phase3People, Phase4People, Phase5People, ProjectionOnly, ProjectionName));
 }
 
 public sealed record OutbreakCrisis(string Id, string CountryIso3, string Title, NativeSeverity Severity, int Band,
@@ -68,6 +104,12 @@ public sealed record OutbreakCrisis(string Id, string CountryIso3, string Title,
     string Disease, string DonId, DateTime PublishedUtc, Uri ReportUrl)
     : Crisis(Id, CrisisKind.Outbreak, CountryIso3, Title, Severity, Band, Began, Trend, Citations)
 {
+    /// <summary>A WHO Outbreak News report is a crisis for this long after it is published (C11).</summary>
+    public static readonly TimeSpan Window = TimeSpan.FromDays(90);
+
+    /// <summary>Still inside <see cref="Window"/> at <paramref name="nowUtc"/> (a cached report ages while the app runs or waits).</summary>
+    public bool IsCurrentAt(DateTime nowUtc) => PublishedUtc >= nowUtc - Window;
+
     public bool Equals(OutbreakCrisis? o) => base.Equals(o) && Disease == o!.Disease && DonId == o.DonId
         && PublishedUtc == o.PublishedUtc && ReportUrl == o.ReportUrl;
 

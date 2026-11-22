@@ -20,6 +20,17 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
 
     private static readonly TimeSpan CacheLife = TimeSpan.FromHours(24);
 
+    /// <summary>
+    /// One "Not placed on the map" line per UCDP country string whose events have coordinates in no country and a name the
+    /// index does not know (ruling R14).
+    /// </summary>
+    public static IReadOnlyList<UnplacedReport> Unplaced(UcdpReader.BuildResult result) => result.Citation is not { } cite ? [] :
+    [
+        .. result.Unplaced.Select(u => new UnplacedReport("UCDP", $"UCDP conflict events in \"{u.CountryName}\"",
+            FormattableString.Invariant($"{u.Events:N0} {(u.Events == 1 ? "event" : "events")} ({u.Deaths:N0} deaths) at a point in no country, ")
+            + $"and the country name \"{u.CountryName}\" is not recognised", cite)),
+    ];
+
     public string Name => "UCDP";
     public TimeSpan Interval => TimeSpan.FromHours(6);
 
@@ -55,10 +66,13 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
         // Cache only after every file parsed, so a failed run retries the files it did not finish.
         foreach (var (name, entry) in fresh) _cache[name] = entry;
         store.ReplaceKind(CrisisKind.ArmedConflict, result.Crises);
+        store.ReplaceUnplaced(Name, Unplaced(result));
         store.MarkChecked(Name, now);   // R12: checked, whatever was found
-        var names = result.UnresolvedNames.Count == 0 ? "" : ": " + string.Join(", ", result.UnresolvedNames);
+        var notPlaced = result.Unplaced.Count == 0 ? "none"
+            : string.Join(", ", result.Unplaced.Select(u => $"\"{u.CountryName}\" ({u.Events})"));
         log.Info($"UCDP: {result.Crises.Count} conflicts from {byId.Count} events in {files.All.Count()} files; "
-            + $"{result.SkippedUnresolved} events skipped (country not resolved{names}); {bad} unreadable rows");
+            + $"{result.MovedByLocation} events placed by their coordinates in another country than UCDP's country name, "
+            + $"{result.ByName} at sea or off a coast placed by the name; events not placed: {notPlaced}; {bad} unreadable rows");
         return FeedRunResult.Ok;
     }
 }

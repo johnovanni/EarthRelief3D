@@ -37,12 +37,49 @@ public static class CrisisText
     /// <summary>"Source: &lt;publisher&gt;, &lt;dataset&gt; · &lt;date text&gt;".</summary>
     public static string SourceLine(SourceCitation c, string dateText) => $"Source: {c.Publisher}, {c.Dataset} · {dateText}";
 
-    /// <summary>"IPC analysis period 1 Sep 2026–28 Feb 2027 (analysed Sep 2026)".</summary>
+    /// <summary>
+    /// "IPC analysis period 1 Sep 2026–28 Feb 2027 (analysed Sep 2026)"; for a projection-only record "IPC projection
+    /// period ... (analysed ...)".
+    /// </summary>
     public static string FoodDate(FoodCrisis f)
     {
-        var analysed = f.Citations.Count > 0 && !string.IsNullOrWhiteSpace(f.Citations[0].Version) ? $" (analysed {f.Citations[0].Version})" : "";
-        return "IPC analysis period " + Period(f.PeriodFrom, f.PeriodTo) + analysed;
+        var analysed = AnalysisDate(f) is { } v ? $" (analysed {v})" : "";
+        return (f.ProjectionOnly ? "IPC projection period " : "IPC analysis period ") + Period(f.PeriodFrom, f.PeriodTo) + analysed;
     }
+
+    /// <summary>The IPC "Date of analysis" ("Sep 2026"), or null when the file leaves it blank.</summary>
+    public static string? AnalysisDate(FoodCrisis f) =>
+        f.Citations.Count > 0 && !string.IsNullOrWhiteSpace(f.Citations[0].Version) ? f.Citations[0].Version : null;
+
+    /// <summary>
+    /// The panel line for an analysis with no current-period figures: "Sep 2026: projection only (1 Oct 2026–28 Feb 2027),
+    /// no current-period figures" (after the "IPC analysis" label).
+    /// </summary>
+    public static string ProjectionOnlyLine(FoodCrisis f) =>
+        (AnalysisDate(f) is { } v ? v + ": " : "") + $"projection only ({Period(f.PeriodFrom, f.PeriodTo)}), no current-period figures";
+
+    /// <summary>"projection only (1 Oct 2026–28 Feb 2027, analysed Sep 2026), no current-period figures" (sources-checked list).</summary>
+    public static string ProjectionOnlyNote(FoodCrisis f) =>
+        $"projection only ({Period(f.PeriodFrom, f.PeriodTo)}{(AnalysisDate(f) is { } v ? ", analysed " + v : "")}), no current-period figures";
+
+    /// <summary>"IPC: projection only (analysed Sep 2026)" (hover).</summary>
+    public static string ProjectionOnlyHover(FoodCrisis f) =>
+        "IPC: projection only" + (AnalysisDate(f) is { } v ? $" (analysed {v})" : "");
+
+    /// <summary>
+    /// The people in Phases 3, 4 and 5 of the current period (ruling R16), labelled "Phase 3 Crisis", "Phase 4 Emergency"
+    /// and "Phase 5 Catastrophe/Famine". Empty for a projection-only record.
+    /// </summary>
+    public static IReadOnlyList<(string Label, long People)> PhaseCounts(FoodCrisis f) => f.ProjectionOnly ? [] :
+    [
+        (LayerStyle.IpcPhaseLabel(3), f.Phase3People),
+        (LayerStyle.IpcPhaseLabel(4), f.Phase4People),
+        (LayerStyle.IpcPhaseLabel(5), f.Phase5People),
+    ];
+
+    /// <summary>"people in Phase 3 Crisis 14,316,494, Phase 4 Emergency 5,015,231, Phase 5 Catastrophe/Famine 134,808".</summary>
+    public static string PhaseCountsText(FoodCrisis f) =>
+        "people in " + string.Join(", ", PhaseCounts(f).Select(p => $"{p.Label} {Number(p.People)}"));
 
     /// <summary>The newest as-of time among a crisis's citations.</summary>
     public static DateTime NewestAsOf(Crisis c) => c.Citations.Count == 0 ? default : c.Citations.Max(x => x.AsOfUtc);
@@ -55,9 +92,12 @@ public static class CrisisText
     public static string ConflictHover(string country, ConflictCrisis c) =>
         $"{country} · {ConflictKind} · {c.Severity.Text} · {AsOf(NewestAsOf(c))}";
 
-    /// <summary>"Somalia · food crisis · Phase 4 Emergency · IPC analysis period ... (analysed Sep 2026)" (ruling R11: no "as of").</summary>
+    /// <summary>
+    /// "Somalia · food crisis · Phase 4 Emergency · people in Phase 3 Crisis 900,000, Phase 4 Emergency 280,000, Phase 5
+    /// Catastrophe/Famine 0 · IPC analysis period ... (analysed Sep 2026)" (ruling R11: no "as of"; R16: people per phase).
+    /// </summary>
     public static string FoodHover(string country, FoodCrisis f) =>
-        $"{country} · {FoodKind} · {LayerStyle.IpcPhaseLabel(f.HighestPhase)} · {FoodDate(f)}";
+        $"{country} · {FoodKind} · {LayerStyle.IpcPhaseLabel(f.HighestPhase)} · {PhaseCountsText(f)} · {FoodDate(f)}";
 
     /// <summary>"Kenya · disease outbreak · Zorvian fever · WHO, reported 18 Nov 2026".</summary>
     public static string OutbreakHover(string country, IReadOnlyList<OutbreakCrisis> reports)
@@ -74,11 +114,16 @@ public static class CrisisText
     /// The country under the mouse, with the sources and dates of what is recorded there:
     /// "Sudan · armed conflict, food crisis · UCDP (as of 31 Oct 2026), IPC (analysed Sep 2026) · click for details".
     /// With no crisis it uses the check times (ruling R12): "Iceland · no crisis recorded by these sources · checked 22 Nov
-    /// 2026 · ...", or "Iceland · not yet checked: UCDP, IPC, WHO, UNHCR · ..." while a source has never run.
+    /// 2026 · ...", or "Iceland · not yet checked: UCDP, IPC, WHO, UNHCR · ..." while a source has never run. An IPC
+    /// analysis with only a projection is never counted as "no crisis": "Guatemala · IPC: projection only (analysed Sep
+    /// 2026) · no crisis recorded by UCDP or WHO · checked ...". The snapshot is judged at <paramref name="nowUtc"/>
+    /// (WHO's 90 days, IPC's 12 months).
     /// </summary>
     public static string CountryHover(string country, string iso3, CrisisSnapshot s, DateTime nowUtc)
     {
+        s = s.AsSeenAt(nowUtc);
         var crises = s.ByCountry(iso3);
+        var projection = crises.OfType<FoodCrisis>().Where(f => f.ProjectionOnly).MaxBy(f => f.PeriodTo);
         var kinds = new List<string>();
         var sources = new List<string>();
         var conflicts = crises.OfType<ConflictCrisis>().ToList();
@@ -88,7 +133,7 @@ public static class CrisisText
             var newest = conflicts.SelectMany(c => c.Citations).MaxBy(c => c.AsOfUtc);
             sources.Add(newest is null ? "UCDP" : $"UCDP ({DataDate(newest, nowUtc)})");
         }
-        if (crises.OfType<FoodCrisis>().Where(f => !f.IsStale).MaxBy(f => f.PeriodTo) is { } food)
+        if (crises.OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly).MaxBy(f => f.PeriodTo) is { } food)
         {
             kinds.Add(FoodKind);
             var v = food.Citations.Count > 0 ? food.Citations[0].Version : null;
@@ -100,12 +145,21 @@ public static class CrisisText
             kinds.Add(OutbreakKind);
             sources.Add($"WHO (reported {Date(outbreaks.Max(o => o.PublishedUtc))})");
         }
-        if (kinds.Count > 0) return $"{country} · {string.Join(", ", kinds)} · {string.Join(", ", sources)} · {ClickForDetails}";
+        if (kinds.Count > 0)
+            return $"{country} · {string.Join(", ", kinds)} · {string.Join(", ", sources)}"
+                + (projection is null ? "" : " · " + ProjectionOnlyHover(projection)) + $" · {ClickForDetails}";
 
         var notChecked = SourceDates.Unchecked(s);
         var checkedNames = SourceDates.SourceNames.Where(n => s.CheckedUtc.ContainsKey(n)).ToList();
         var parts = new List<string> { country };
-        if (notChecked.Count == 0) parts.Add("no crisis recorded by these sources");
+        if (projection is not null)
+        {
+            // Not "no crisis": IPC has an analysis, only without current-period figures. UNHCR records no crises at all.
+            parts.Add(ProjectionOnlyHover(projection));
+            var others = new[] { "UCDP", "WHO" }.Where(checkedNames.Contains).ToList();
+            if (others.Count > 0) parts.Add("no crisis recorded by " + string.Join(" or ", others));
+        }
+        else if (notChecked.Count == 0) parts.Add("no crisis recorded by these sources");
         else if (checkedNames.Count > 0) parts.Add("none recorded by " + string.Join(", ", checkedNames));
         if (checkedNames.Count > 0) parts.Add(CheckedDates(s, checkedNames));
         if (notChecked.Count > 0) parts.Add("not yet checked: " + string.Join(", ", notChecked));

@@ -28,10 +28,13 @@ public sealed class LabelsOverlayLayer : OverlayLayer
     private readonly LayerStripViewModel _layers;
     private readonly CountryIndex _countries;
     private readonly LabelOverlay _labels;
+    private readonly Func<DateTime> _nowUtc;
 
-    public LabelsOverlayLayer(CrisisStore store, LayerStripViewModel layers, CountryIndex countries, Canvas overlay)
+    /// <param name="nowUtc">The display clock: the snapshot is judged at it (WHO's 90 days, IPC's 12 months).</param>
+    public LabelsOverlayLayer(CrisisStore store, LayerStripViewModel layers, CountryIndex countries, Canvas overlay, Func<DateTime> nowUtc)
         : base(LayerId, "Country and disease labels", Order)
     {
+        _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
         _countries = countries ?? throw new ArgumentNullException(nameof(countries));
@@ -45,7 +48,7 @@ public sealed class LabelsOverlayLayer : OverlayLayer
 
     public override void Render(Canvas overlay, Projector projector)
     {
-        var s = _store.Snapshot;
+        var s = _store.Snapshot.AsSeenAt(_nowUtc());
         var byCountry = new Dictionary<string, (int Kinds, List<string> Diseases)>(StringComparer.OrdinalIgnoreCase);
         void Note(string iso, string? disease = null)
         {
@@ -54,7 +57,7 @@ public sealed class LabelsOverlayLayer : OverlayLayer
             else if (!e.Diseases.Contains(disease)) e.Diseases.Add(disease);
         }
         if (_layers.ShowConflict) foreach (var iso in s.Crises.OfType<ConflictCrisis>().Select(c => c.CountryIso3).Distinct()) Note(iso);
-        if (_layers.ShowFood) foreach (var iso in s.Crises.OfType<FoodCrisis>().Where(f => !f.IsStale).Select(c => c.CountryIso3).Distinct()) Note(iso);
+        if (_layers.ShowFood) foreach (var iso in s.Crises.OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly).Select(c => c.CountryIso3).Distinct()) Note(iso);
         if (_layers.ShowOutbreaks)
         {
             var outbreaks = s.Crises.OfType<OutbreakCrisis>().OrderByDescending(o => o.PublishedUtc).ToList();

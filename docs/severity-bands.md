@@ -9,17 +9,24 @@ with the source name and its as-of date. If the two ever seem to disagree, the n
 
 ## Armed conflict (UCDP)
 
-The native measure is the **best-estimate number of deaths** UCDP records for the conflict. The band uses deaths in the data window (the newest quarterly file plus later monthly files, about 9 to 12 months, counted since the first month of the window; the panel says "since <month>"), which approximates UCDP's own crisis rule (25 or more best-estimate deaths in a calendar year).
+The native measure is the **best-estimate number of deaths** UCDP records. Two different counts are used:
 
-| Deaths in the window | Band |
+- **Whether there is a crisis** is decided per whole conflict: a UCDP conflict is a crisis when all its events, in every
+  country, reach 25 or more best-estimate deaths in a calendar year of the data window (C11, ruling R9).
+- **The band** is decided per (conflict, country): the deaths of that conflict's events in that country over the data
+  window (the newest quarterly file plus later monthly files, about 9 to 12 months, counted since the first month of the
+  window; the panel says "since <month>"). An event belongs to the country its coordinates are in (ruling R14).
+
+| That country's deaths in the conflict, in the window | Band |
 |---|---|
-| fewer than 25 | none: not shown as a crisis |
+| fewer than 25 (the conflict qualifies through its other countries) | 1 (minimum for a qualifying conflict) |
 | 25 to 999 | 1 |
 | 1,000 to 9,999 | 2 |
 | 10,000 to 49,999 | 3 |
 | 50,000 or more | 4 |
 
-Band 5 is not used for conflict. The figures are UCDP's candidate (not yet final) estimates and are often revised.
+A conflict that does not qualify has no crisis and no band in any country. Band 5 is not used for conflict. The figures
+are UCDP's candidate (not yet final) estimates and are often revised.
 
 ## Food crisis (IPC)
 

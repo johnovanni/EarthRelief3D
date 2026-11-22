@@ -37,3 +37,24 @@ Debug: **133 passed, 0 failed, 0 skipped** (109 before Task 7; Task 7 added 24 i
 
 3: the first baseline run (looked at, then tuned as above); the baseline run after the tuning; the repeat run. The last
 two are the ones the results above come from.
+
+## Final review fixes (2026-11-22)
+
+After the whole-branch review (findings I1 to I5, rulings R14 to R16 and the deferred small items):
+
+- Tests: `dotnet build EarthRelief3D.sln -c Release`: 0 warnings, 0 errors; `dotnet test` in Release: **163 passed,
+  0 failed, 0 skipped**. GlobeCore (branch `country-index`, now pinned at the Crimea commit): 322 passed, 0 warnings.
+- One app launch re-took the five scenes into `artifacts\snapshot-final`. PngDiff against the old baseline: `pacific`
+  identical; `africa`, `sudan-panel`, `sudan-panel-food` and `no-crisis-panel` differ, as expected:
+  - the legend's conflict line now says what the code does (band per conflict and country over the data window), so the
+    legend is one line taller;
+  - the food section of the Sudan panel lists the people in each phase (Phase 3 Crisis 14,316,494; Phase 4 Emergency
+    5,015,231; Phase 5 Catastrophe/Famine 134,808, as in the sample);
+  - Sudan's conflict deaths fall slightly (Government of Sudan vs SFA 3,937 to 3,921; SFA vs civilians 465 to 455),
+    because events are now placed by their coordinates (R14) and a few border events fall in Ethiopia, Libya and Egypt;
+  - for the same reason Russia, Libya and Egypt now carry conflict labels (border events from Ukraine's Sumy and Kharkiv
+    oblasts and Sudan's North Darfur; see the cost noted under R14 in `docs/data-sources.md`).
+  The new pictures were copied over `artifacts\snapshot-baseline`.
+- The offline run's log now stays in the usual logs folder; this run's log shows "IPC: 44 countries with people in
+  Phase 3 or higher (8 stale); 6 with a projection only" and "UCDP: ... 38 events placed by their coordinates in
+  another country than UCDP's country name, 42 at sea or off a coast placed by the name; events not placed: none".

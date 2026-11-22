@@ -73,11 +73,33 @@ public class WhoOutbreakTests
     [InlineData("Z - Kenya; Uganda", "Z", "Kenya|Uganda")]
     [InlineData("Glenmoor plague - Madagascar", "Glenmoor plague", "Madagascar")]
     [InlineData("Only a disease", "Only a disease", "")]
+    // Live titles also have no space before the dash ("Disease- Place"); a dash inside a word is not a separator.
+    [InlineData("X virus- Cambodia", "X virus", "Cambodia")]
+    [InlineData("cholera-like illness - Chad", "cholera-like illness", "Chad")]
+    [InlineData("Avian influenza A(H5N1)- Cambodia - update 3", "Avian influenza A(H5N1)", "Cambodia")]
+    [InlineData("COVID-19- Global", "COVID-19", "Global")]
+    [InlineData("cholera-like illness", "cholera-like illness", "")]
     public void ParsesDiseaseAndPlaces(string title, string disease, string places)
     {
         var (d, p) = WhoTitleParser.Parse(title);
         Assert.Equal(disease, d);
         Assert.Equal(places, string.Join("|", p));
+    }
+
+    [Fact]
+    public async Task NotNewestFirstIsAFormatChangeAndKeepsTheStore()
+    {
+        // The sample is newest first; swapping its first two items breaks the order the query asked for.
+        var doc = JsonDocument.Parse(Samples.Text(Sample));
+        var items = doc.RootElement.GetProperty("value").EnumerateArray().Select(i => i.GetRawText()).ToList();
+        (items[0], items[1]) = (items[1], items[0]);
+        var h = new SampleHttpHandler();
+        h.MapText("https://www.who.int/api/news/diseaseoutbreaknews", "{\"value\":[" + string.Join(",", items) + "]}");
+        var store = new CrisisStore();
+        var ex = await Assert.ThrowsAsync<FeedFormatException>(() =>
+            new WhoOutbreakFeed(new FeedHttp("test", h), store, new FixedClock(Now), new ListLog()).RunOnceAsync(default));
+        Assert.Equal("format changed: not sorted by publication date", ex.Message);
+        Assert.Same(CrisisSnapshot.Empty, store.Snapshot);
     }
 
     [Fact]

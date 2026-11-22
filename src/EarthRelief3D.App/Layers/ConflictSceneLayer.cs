@@ -24,7 +24,8 @@ public sealed class ConflictSceneLayer : CrisisSceneLayer
 
     private readonly List<(Point3D Centre, double RadiusPx, ConflictCrisis Crisis)> _dots = [];
 
-    public ConflictSceneLayer(CrisisStore store, CountryIndex countries) : base(LayerId, "Armed conflict", Order, store, countries) { }
+    public ConflictSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+        : base(LayerId, "Armed conflict", Order, store, countries, nowUtc) { }
 
     /// <summary>0 for the last 3 months before <paramref name="asOfUtc"/>, 1 for the 3 before those, 2 for older.</summary>
     public static int AgeBucket(DateTime eventUtc, DateTime asOfUtc)

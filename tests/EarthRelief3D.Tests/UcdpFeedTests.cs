@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Model;
@@ -61,16 +62,23 @@ public class UcdpFeedTests
         var (feed, store, log) = Make(http);
         Assert.Equal(FeedRunResult.Ok, await feed.RunOnceAsync(default));
 
-        // expected event counts per conflict, computed from the raw samples (an id in both files counts once)
+        // expected event counts per conflict, computed from the raw samples (an id in both files counts once). Ruling R14:
+        // an event is Sudan's when its point is in Sudan, or when it is in no country and UCDP's country is "Sudan".
+        var countries = CountryResolver.LoadDefault();
         var ids = new HashSet<string>();
         var expected = new Dictionary<string, int>();
         foreach (var name in new[] { "ucdp_candidate_monthly.csv", "ucdp_candidate_quarterly.csv" })
         {
             var rows = ReadSample(name);
             int iId = Array.IndexOf(rows[0], "id"), iCountry = Array.IndexOf(rows[0], "country"), iConf = Array.IndexOf(rows[0], "conflict_new_id");
+            int iLat = Array.IndexOf(rows[0], "latitude"), iLon = Array.IndexOf(rows[0], "longitude");
             foreach (var r in rows.Skip(1))
-                if (r[iCountry] == "Sudan" && ids.Add(r[iId]))
-                    expected[r[iConf]] = expected.GetValueOrDefault(r[iConf]) + 1;
+            {
+                if (!ids.Add(r[iId])) continue;
+                var at = new AstroCore.Earth.GeoPosition(double.Parse(r[iLat], CultureInfo.InvariantCulture), double.Parse(r[iLon], CultureInfo.InvariantCulture));
+                var iso = (countries.Find(at) ?? countries.Resolve(r[iCountry]))?.Iso3;
+                if (iso == "SDN") expected[r[iConf]] = expected.GetValueOrDefault(r[iConf]) + 1;
+            }
         }
 
         var sudan = store.Snapshot.Crises.OfType<ConflictCrisis>().Where(c => c.CountryIso3 == "SDN").ToList();
@@ -90,7 +98,7 @@ public class UcdpFeedTests
             for (var m = new DateOnly(2026, 1, 1); m <= new DateOnly(2026, 10, 1); m = m.AddMonths(1))
                 Assert.True(c.DeathsByMonth.ContainsKey(m), m.ToString());
         });
-        Assert.Single(log.Lines, l => l.Contains("UCDP") && l.Contains("events skipped"));
+        Assert.Single(log.Lines, l => l.Contains("UCDP") && l.Contains("events not placed"));
     }
 
     [Fact]
@@ -102,7 +110,8 @@ public class UcdpFeedTests
         var isos = store.Snapshot.Crises.Select(c => c.CountryIso3).ToHashSet();
         foreach (var iso in new[] { "COD", "MMR", "UKR", "HTI", "SDN" }) Assert.Contains(iso, isos);
         Assert.DoesNotContain("SSD", isos);
-        Assert.Contains(log.Lines, l => l.Contains("0 events skipped"));
+        Assert.Contains(log.Lines, l => l.Contains("events not placed: none"));
+        Assert.DoesNotContain(store.Snapshot.Unplaced, u => u.Source == "UCDP");
     }
 
     [Fact]

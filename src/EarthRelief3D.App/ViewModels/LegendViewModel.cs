@@ -67,9 +67,10 @@ public sealed partial class LegendViewModel : ObservableObject
 
     public void Refresh()
     {
-        var s = _store.Snapshot;
+        var now = _nowUtc();
+        var s = _store.Snapshot.AsSeenAt(now);   // WHO's 90 days and IPC's 12 months judged now, even for cached data
         var lines = new List<LegendLine>();
-        foreach (var summary in SourceDates.All(s, _nowUtc()))
+        foreach (var summary in SourceDates.All(s, now))
         {
             if (!_layers.IsShown(summary.Layer)) continue;
             lines.Add(new LegendLine(summary.Layer, LayerStyle.Symbol(summary.Layer), LayerStyle.SymbolColor(summary.Layer),
@@ -84,7 +85,7 @@ public sealed partial class LegendViewModel : ObservableObject
 
     public static string Measures(CrisisLayer layer) => layer switch
     {
-        CrisisLayer.Conflict => "Armed conflict: UCDP events with 25 or more deaths in a year in their conflict; dot size by the conflict's deaths band, colour by the event's age",
+        CrisisLayer.Conflict => "Armed conflict: UCDP events of conflicts with 25 or more deaths in a calendar year; dot size by the band of that conflict's deaths in the country over the data window, colour by the event's age",
         CrisisLayer.Food => "Food crisis: the highest IPC phase that has people in it (country shading)",
         CrisisLayer.Outbreaks => "Disease outbreaks: WHO Outbreak News reports in the last 90 days, at the country",
         CrisisLayer.Displacement => "People forced from home, by country of origin (refugees, asylum-seekers and internally displaced); ring area grows with the number",

@@ -33,7 +33,7 @@ public sealed class DisplacementSceneLayer : CrisisSceneLayer
 
     /// <param name="nowUtc">The clock for the hover's date wording (no "as of" a date still to come).</param>
     public DisplacementSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
-        : base(LayerId, "People forced from home", Order, store, countries) =>
+        : base(LayerId, "People forced from home", Order, store, countries, nowUtc) =>
         _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
 
     /// <summary>Ring radius in Earth radii for <paramref name="total"/> people: area ∝ total.</summary>

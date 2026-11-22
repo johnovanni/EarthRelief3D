@@ -35,8 +35,8 @@
                          "Not yet checked: ..." (ruling R12). -->
                     <TextBlock Text="{Binding Headline}" FontWeight="SemiBold" Margin="0,4,0,4"
                                Visibility="{Binding HasHeadline, Converter={StaticResource B2V}}"/>
-                    <!-- No crisis: the sources, each with the date it was checked. -->
-                    <StackPanel Visibility="{Binding HasNoCrisis, Converter={StaticResource B2V}}" Margin="0,0,0,8">
+                    <!-- No crisis (or only an IPC projection): the sources, each with the date it was checked. -->
+                    <StackPanel Visibility="{Binding ShowsSourcesChecked, Converter={StaticResource B2V}}" Margin="0,0,0,8">
                         <TextBlock Text="Sources:" Foreground="#A0AEC0" FontSize="13" Margin="0,2,0,2"/>
                         <ItemsControl ItemsSource="{Binding SourcesChecked}">
                             <ItemsControl.ItemTemplate>

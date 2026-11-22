@@ -48,16 +48,62 @@ public class IpcFeedTests
         Assert.Equal(CrisisKind.FoodCrisis, food.Kind);
     }
 
-    [Fact]
-    public async Task BlankCurrentPeriodIsSkippedAndLoggedOnce()
+    [Theory]
+    // The six rows with a blank current period, and the projection each one has (tests/Samples/ipc_national_wide_latest.csv).
+    [InlineData("CAF", "First projection", "first projection")]
+    [InlineData("HTI", "First projection", "first projection")]
+    [InlineData("NGA", "First projection", "first projection")]
+    [InlineData("GTM", "Second projection", "second projection")]
+    [InlineData("HND", "Second projection", "second projection")]
+    [InlineData("SSD", "Second projection", "second projection")]
+    public async Task BlankCurrentPeriodWithAProjectionIsKeptAsProjectionOnly(string iso3, string columns, string label)
     {
         var (http, _) = Samples.IpcHttp();
         var (feed, store, log) = Make(http);
         await feed.RunOnceAsync(default);
-        foreach (var iso in new[] { "CAF", "GTM", "HND", "HTI", "NGA", "SSD" })
-            Assert.DoesNotContain(store.Snapshot.Crises, c => c.CountryIso3 == iso);
-        Assert.Single(log.Lines, l => l.Contains("IPC") && l.Contains("no current period"));
+        var row = SampleRow(iso3);
+        Assert.Equal("", row["Current from"]);
+        var food = Assert.Single(store.Snapshot.Crises.OfType<FoodCrisis>(), c => c.CountryIso3 == iso3);
+        Assert.True(food.ProjectionOnly);
+        Assert.Equal(label, food.ProjectionName);
+        Assert.Equal(0, food.HighestPhase);
+        Assert.Equal(0, food.Band);
+        var lower = columns.ToLowerInvariant();
+        Assert.Equal(DateOnly.Parse(row[$"{columns} from"], CultureInfo.InvariantCulture), food.PeriodFrom);
+        Assert.Equal(DateOnly.Parse(row[$"{columns} to"], CultureInfo.InvariantCulture), food.PeriodTo);
+        Assert.Equal(L(row[$"Phase 3+ number {lower}"]), food.Phase3PlusPeople);
+        Assert.Equal(row["Date of analysis"], food.Citations[0].Version);
+        Assert.Single(log.Lines, l => l.Contains("IPC") && l.Contains("6 with a projection only") && l.Contains("0 rows skipped"));
         Assert.DoesNotContain(store.Snapshot.Crises, c => c.CountryIso3 is "UKR" or "MMR");
+    }
+
+    [Fact]
+    public async Task PhaseCountsAreRead()
+    {
+        var (http, _) = Samples.IpcHttp();
+        var (feed, store, _) = Make(http);
+        await feed.RunOnceAsync(default);
+        var sdn = SampleRow("SDN");
+        var food = store.Snapshot.Crises.OfType<FoodCrisis>().Single(c => c.CountryIso3 == "SDN");
+        Assert.Equal(L(sdn["Phase 3 number current"]), food.Phase3People);
+        Assert.Equal(L(sdn["Phase 4 number current"]), food.Phase4People);
+        Assert.Equal(L(sdn["Phase 5 number current"]), food.Phase5People);
+        Assert.False(food.ProjectionOnly);
+        Assert.Null(food.ProjectionName);
+    }
+
+    [Fact]
+    public async Task RowWithNeitherCurrentNorProjectionIsSkipped()
+    {
+        var (http, h) = Samples.IpcHttp();
+        var csv = Samples.Text("ipc_national_wide_latest.csv").Split('\n');
+        var header = csv[0].Split(',');
+        var blank = string.Join(",", header.Select(c => c switch { "Date of analysis" => "Sep 2026", "Country" => "GTM", _ => "" }));
+        h.MapText(Samples.IpcCsv, string.Join("\n", csv.Where(l => !l.Contains(",GTM,"))) .TrimEnd('\n') + "\n" + blank + "\n");
+        var (feed, store, log) = Make(http);
+        await feed.RunOnceAsync(default);
+        Assert.DoesNotContain(store.Snapshot.Crises, c => c.CountryIso3 == "GTM");
+        Assert.Single(log.Lines, l => l.Contains("5 with a projection only") && l.Contains("1 rows skipped"));
     }
 
     [Fact]

@@ -37,7 +37,8 @@ internal static class SampleStore
     public static string WhoWithSudan()
     {
         var root = JsonNode.Parse(Samples.Text("who_don_synthetic.json"))!;
-        root["value"]!.AsArray().Add(new JsonObject
+        // Inserted in date order (after the 18 Nov report): the feed requires the newest-first order the query asks for.
+        root["value"]!.AsArray().Insert(1, new JsonObject
         {
             ["Id"] = "test-sudan",
             ["Title"] = "Pellwick fever - Sudan",

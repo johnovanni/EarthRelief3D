@@ -77,10 +77,11 @@ public static class SourceDates
     }
 
     // IPC (ruling R11): the citation's as-of is the analysis period's end (often in the future), so the date shown is the
-    // newest "Date of analysis" (the citation's Version, such as "Sep 2026").
+    // newest "Date of analysis" (the citation's Version, such as "Sep 2026"). Projection-only analyses are left out: the
+    // layer shades current-period figures only, so its date must not come from a row it does not draw.
     private static SourceSummary Food(CrisisSnapshot s)
     {
-        var citations = s.Crises.OfType<FoodCrisis>().SelectMany(c => c.Citations).ToList();
+        var citations = s.Crises.OfType<FoodCrisis>().Where(c => !c.ProjectionOnly).SelectMany(c => c.Citations).ToList();
         var fallback = $"{IpcNationalReader.Publisher}, {IpcNationalReader.Dataset}";
         var check = CheckedOf(s, CrisisLayer.Food);
         if (citations.Count == 0) return new SourceSummary(CrisisLayer.Food, "IPC", "food crises", fallback, null, null, check);

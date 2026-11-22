@@ -30,16 +30,19 @@ public partial class App : Application
         base.OnStartup(e);
         // Offline samples (a diagnostic run) keep the cache and settings in a temporary folder, so the user's own are not touched.
         var options = LaunchOptions.Parse(e.Args);
+        var userRoot = AppDataRoot.ForUser(AppInfo.Name,
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), PackageIdentity.FamilyName);
         var root = options.OfflineSamplesDir is not null
             ? new AppDataRoot(_offlineRoot = Path.Combine(Path.GetTempPath(), OfflineSamples.TempFolderPrefix + Guid.NewGuid().ToString("N")))
-            : AppDataRoot.ForUser(AppInfo.Name,
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), PackageIdentity.FamilyName);
-        // The log comes first (it always uses the real time and the usual folder).
-        var log = _log = new FileLog(root.LogsDir, new SystemClock(), AppInfo.LogFilePrefix);
+            : userRoot;
+        // The log comes first. It always uses the real time and the user's usual logs folder, also in an offline or snapshot
+        // run, so it is kept when that run's temporary data folder is deleted at exit.
+        var logsDir = userRoot.LogsDir;
+        var log = _log = new FileLog(logsDir, new SystemClock(), AppInfo.LogFilePrefix);
         log.Info($"{AppInfo.Name} {AppInfo.Version} starting" + (e.Args.Length > 0 ? " with " + string.Join(" ", e.Args) : ""));
         // MessageBoxImage.None everywhere: Warning, Error and the other icons play a Windows sound, and the app must make
         // no sound at all (the owner's rule; spec anti-goals). The text says what happened instead.
-        void ShowCrash(string message) => MessageBox.Show(message + Environment.NewLine + Environment.NewLine + "Log folder: " + root.LogsDir,
+        void ShowCrash(string message) => MessageBox.Show(message + Environment.NewLine + Environment.NewLine + "Log folder: " + logsDir,
             AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.None);
         _crash = new CrashHandler(log, message =>
         {
@@ -89,7 +92,7 @@ public partial class App : Application
         {
             Directory.CreateDirectory(root.Root);
             Directory.CreateDirectory(root.CacheDir);
-            Directory.CreateDirectory(root.LogsDir);
+            Directory.CreateDirectory(logsDir);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -140,7 +143,7 @@ public partial class App : Application
         Step("write the repeated-error counts", () => _crash?.FlushRepeats());
         _log?.Info($"{AppInfo.Name} exiting");
         _log?.Dispose();
-        if (_offlineRoot is not null)   // the offline run's temporary data folder, deleted last
+        if (_offlineRoot is not null)   // the offline run's temporary cache and settings, deleted last (the log is elsewhere)
         {
             try { Directory.Delete(_offlineRoot, recursive: true); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
         }

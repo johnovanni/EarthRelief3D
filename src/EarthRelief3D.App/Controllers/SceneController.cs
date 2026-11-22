@@ -64,7 +64,7 @@ public sealed class SceneController
     /// <param name="overlay">The canvas over the viewport for the labels.</param>
     /// <param name="window">The window hosting the viewport: its Loaded, Closed, StateChanged and PreviewKeyDown events drive the scene.</param>
     /// <param name="countries">Names and polygons, units applied (picking, marker positions, food shading).</param>
-    /// <param name="clock">The display time (the night shade).</param>
+    /// <param name="clock">The display time (the night shade, and the time windows the layers are judged at).</param>
     public SceneController(HelixViewport3D viewport, Canvas overlay, MainViewModel vm, Window window, CrisisStore store,
                            CountryResolver countries, IClock clock, IAppLog? log = null)
     {
@@ -81,9 +81,9 @@ public sealed class SceneController
 
         _animator = new CameraAnimator(() => Camera);
         _displacement = new DisplacementSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowDisplacement };
-        _conflict = new ConflictSceneLayer(store, _countries) { IsVisible = vm.Layers.ShowConflict };
-        _outbreaks = new OutbreakSceneLayer(store, _countries) { IsVisible = vm.Layers.ShowOutbreaks };
-        _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay);
+        _conflict = new ConflictSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowConflict };
+        _outbreaks = new OutbreakSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowOutbreaks };
+        _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay, () => _clock.UtcNow);
         _timeTimer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher) { Interval = DisplayTimeInterval };
         _timeTimer.Tick += OnTimeTick;
 
@@ -143,7 +143,7 @@ public sealed class SceneController
     {
         var layers = _vm.Layers;
         _borders = new BordersImageLayer(coastAndBorders, _store, _countries, () => _clock.UtcNow);
-        _food = new FoodImageLayer(baseImage.Width, baseImage.Height, _store, _countries, _sta, _log, () => _closed) { IsVisible = layers.ShowFood };
+        _food = new FoodImageLayer(baseImage.Width, baseImage.Height, _store, _countries, _sta, _log, () => _closed, () => _clock.UtcNow) { IsVisible = layers.ShowFood };
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
         foreach (var b in HoverBlockers) host.HoverBlockers.Add(b);
         // Scene layers in draw order (WPF draws 3D children in order): rings under dots under crosses.

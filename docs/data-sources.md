@@ -20,6 +20,22 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
   - Some events carry placeholder names (`XXX490` in `conflict_name`/`side_a`/`side_b`; 6 of 457 monthly rows and 51 of 4,041 quarterly rows in the trim). Show them without inventing a name.
   - `type_of_violence` values seen: 1 (state-based), 2 (non-state), 3 (one-sided). `best`, `latitude` and `longitude` are never empty in the samples.
   - Sizes: the downloads page is 138 KB of HTML; the untrimmed CSVs are 2 MB (monthly) and 13 MB (quarterly).
+- **Which country an event belongs to (ruling R14):** the country whose Natural Earth 1:50m polygon (GlobeCore
+  `CountryIndex`, with `data/country-units.json` applied) contains the event's `latitude`/`longitude`, because that is
+  where the map draws it. UCDP's `country` name is used only when the point is in no country (at sea or just off a
+  coast). An event of a qualifying conflict that has neither is listed under "Not placed on the map" (source UCDP, the
+  country string, the number of events and deaths), never dropped. Why: UCDP's country names follow its own state list,
+  which has no Palestine, so events in Gaza can carry the country `Israel` (the final review's example; the trimmed
+  samples hold no such event, so a test uses a hand-made row); by their coordinates they go to the State of Palestine
+  (PSE). The crisis threshold is still counted over the whole conflict (R9).
+  - **Cost, measured on the trimmed samples** (4,494 distinct events): 41 events (0.9%) land in another country than
+    their `country` name. All 41 are within 4.7 km of the named country's 1:50m outline, and UCDP's own `adm_1` or
+    place description puts each of them in the named country, so these come from the coarse outlines, not from
+    cross-border events: 20 Ukraine events (Sumy and Kharkiv oblasts) fall in Russia; 9 in and near Goma (North Kivu,
+    DR Congo) in Rwanda; 3 DR Congo events (Ituri, North Kivu) in Uganda; 5 Sudan events (Blue Nile) in Ethiopia; 2
+    (North Darfur) in Libya and Egypt; 2 Myanmar events (Tanintharyi) in Thailand. 46 events are at sea or off a coast
+    and are placed by name (Ukraine 21, Myanmar 15, Haiti 10).
+    The dots are drawn at UCDP's coordinates either way; only the panel they are listed in changes.
 
 ## 2. IPC national figures via HDX (food insecurity)
 
@@ -30,7 +46,7 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **Checked columns (present):** `Date of analysis, Country, Total country population, Current from, Current to, Population analyzed current, Phase 3+ number current, Phase 3+ percentage current, Phase 1..5 number current, Phase 1..5 percentage current`, and the same for first and second projection.
 - **Differences and gotchas found:**
   - `Country` is an ISO3 code (AFG, COD, SDN, HTI...), not a name.
-  - Six countries have **no current period** (`Current from`/`Current to` and all current numbers blank): CAF, GTM, HND, HTI, NGA, SSD. HTI and CAF have a first projection only; the others have no projection either. They give no crisis marker.
+  - Six countries have **no current period** (`Current from`/`Current to` and all current numbers blank): CAF, GTM, HND, HTI, NGA, SSD. Each has a projection (checked in `tests/Samples/ipc_national_wide_latest.csv`, re-read 2026-11-22): CAF, HTI and NGA have a first projection and no second; GTM, HND and SSD have a second projection and no first. They give no crisis marker and no shading. The app keeps them as **projection-only** records: the panel says "IPC analysis <Date of analysis>: projection only (<from>–<to>), no current-period figures" with the projected Phase 3+ number, and neither the panel headline nor the hover calls such a country "no crisis recorded" (they say "IPC: projection only"). A row with neither a current period nor a projection would be skipped and counted in the log.
   - `Total country population` is `0` for AFG, NGA and TCD (unknown); do not divide by it.
   - Of the five trimmed UCDP countries only COD, HTI and SDN appear; Ukraine and Myanmar are not in the national file.
   - Stale analyses are present (e.g. AGO Jun 2021, ETH May 2021, SLV Aug 2021): see ruling P2-4.
@@ -45,7 +61,7 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **Differences and gotchas found:**
   - **2026 has items, so 2026 was captured** (the plan named 2025).
   - Number types are mixed: `refugees` and `idps` are strings (`"1234886"`), `asylum_seekers` is a JSON number in the first item; some values are `"-"` (not reported). Parse tolerantly.
-  - `total` is 0 in the paging block even though `items` is filled; use `maxPages` and the items instead.
+  - `total` in the paging block is an empty list (`"total": []`), not a count, even though `items` is filled; use `maxPages` and the items instead.
   - Sample values (2026): SDN idps 8,685,273; UKR refugees 5,191,571; MMR idps 3,948,628.
 
 ## 4. WHO Disease Outbreak News (outbreaks)
@@ -55,7 +71,7 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **Cadence:** irregular, a few reports per month.
 - **As-of field:** `PublicationDate` (also `PublicationDateAndTime`, `LastModified`).
 - **Shape found:** `{"@odata.context": ..., "value": [ { Id, LastModified, PublicationDate, DateCreated, IncludeInSitemap, SystemSourceKey, UrlName, ItemDefaultUrl, Response, FurtherInformation, Summary, PublicationDateAndTime, TitleSuffix, UseOverrideTitle, Title, Epidemiology, OverrideTitle, Advice, Assessment, Overview, DonId, Provider } ]}`. The default order is oldest first, so ask for `$orderby=PublicationDate desc`.
-- **Gotchas found:** titles separate disease and place with a hyphen, an en dash, or a hyphen with no space before it; some items have `UseOverrideTitle` true with `OverrideTitle` set; `Overview` and `Summary` hold HTML. The synthetic sample mimics these (hyphen and en dash, a multi-country list, accented and territory names).
+- **Gotchas found:** titles separate disease and place with a hyphen, an en dash, or a hyphen with no space before it; some items have `UseOverrideTitle` true with `OverrideTitle` set; `Overview` and `Summary` hold HTML. The synthetic sample mimics these (hyphen and en dash, a multi-country list, accented and territory names); the no-space form ("Disease- Place") is pinned by rows of `WhoOutbreakTests.ParsesDiseaseAndPlaces`, while a dash inside a word ("cholera-like") is not a separator. The feed reads only the newest 50 reports, so a response that is not newest first is treated as a format change ("format changed: not sorted by publication date").
 
 ## Offline samples (`--offline-samples`)
 

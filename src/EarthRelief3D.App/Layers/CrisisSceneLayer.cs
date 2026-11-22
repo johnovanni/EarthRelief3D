@@ -20,14 +20,17 @@ public abstract class CrisisSceneLayer : SceneLayer, IPickable
 
     private readonly CrisisStore _store;
     private readonly Func<string, string?> _countryName;
+    private readonly Func<DateTime> _nowUtc;
     private int _dataDirty = 1;
     private double _builtWorldPerPx = double.NaN;
     private bool _closed;
 
-    protected CrisisSceneLayer(string id, string title, int zOrder, CrisisStore store, CountryIndex countries)
+    /// <param name="nowUtc">The display clock: the snapshot is judged at it (WHO's 90 days, IPC's 12 months).</param>
+    protected CrisisSceneLayer(string id, string title, int zOrder, CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
         : base(id, title, zOrder)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
+        _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
         Countries = countries ?? throw new ArgumentNullException(nameof(countries));
         _countryName = iso => Countries.ByIso3(iso)?.Name;
         _store.Changed += OnStoreChanged;
@@ -35,7 +38,7 @@ public abstract class CrisisSceneLayer : SceneLayer, IPickable
 
     protected CountryIndex Countries { get; }
 
-    /// <summary>The snapshot the markers were last built from (UI thread); empty before the first update.</summary>
+    /// <summary>The snapshot the markers were last built from, judged at the display time (UI thread); empty before the first update.</summary>
     protected CrisisSnapshot Snapshot { get; private set; } = CrisisSnapshot.Empty;
 
     /// <summary>How many markers are drawn (tests, diagnostics).</summary>
@@ -53,7 +56,7 @@ public abstract class CrisisSceneLayer : SceneLayer, IPickable
         bool data = Interlocked.Exchange(ref _dataDirty, 0) == 1;
         bool rescale = double.IsNaN(_builtWorldPerPx) || wpp > _builtWorldPerPx * RescaleRatio || wpp * RescaleRatio < _builtWorldPerPx;
         if (!data && !rescale) return;
-        if (data) Snapshot = _store.Snapshot;
+        if (data) Snapshot = _store.Snapshot.AsSeenAt(_nowUtc());
         _builtWorldPerPx = wpp;
         Rebuild(Snapshot, wpp);
     }

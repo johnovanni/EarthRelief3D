@@ -169,8 +169,10 @@ public class CountryPanelViewModelTests
     {
         var c = TestData.Conflict();
         Assert.Equal("Sudan · armed conflict · 30 deaths · as of 22 Nov 2026", CrisisText.ConflictHover("Sudan", c));
-        Assert.Equal("Somalia · food crisis · Phase 4 Emergency · IPC analysis period 1 Apr 2026–31 Dec 2026 (analysed Sep 2026)",
-            CrisisText.FoodHover("Somalia", Food()));
+        var food = Food() with { Phase3People = 900_000, Phase4People = 300_000, Phase5People = 0 };
+        Assert.Equal("Somalia · food crisis · Phase 4 Emergency · people in Phase 3 Crisis 900,000, Phase 4 Emergency 300,000, "
+                     + "Phase 5 Catastrophe/Famine 0 · IPC analysis period 1 Apr 2026–31 Dec 2026 (analysed Sep 2026)",
+            CrisisText.FoodHover("Somalia", food));
         Assert.DoesNotContain("as of", CrisisText.FoodHover("Somalia", Food()));
     }
 

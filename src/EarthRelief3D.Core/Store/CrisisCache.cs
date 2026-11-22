@@ -10,8 +10,8 @@ namespace EarthRelief3D.Core.Store;
 public sealed class CrisisCache(AppDataRoot root, IAppLog log)
 {
     /// <summary>Raised whenever the saved shape or meaning of the records changes; an older file is discarded.
-    /// 2: the snapshot's per-source check times (ruling R12).</summary>
-    public const int SchemaVersion = 2;
+    /// 2: the snapshot's per-source check times (ruling R12). 3: IPC phase 3/4/5 counts (R16) and projection-only records.</summary>
+    public const int SchemaVersion = 3;
 
     private sealed record Dto(int SchemaVersion, List<Crisis> Crises, List<DisplacementFigure> Displacement, List<UnplacedReport> Unplaced,
         Dictionary<string, DateTime>? CheckedUtc);
@@ -24,14 +24,25 @@ public sealed class CrisisCache(AppDataRoot root, IAppLog log)
 
     public string FilePath => Path.Combine(root.CacheDir, "crises.json");
 
-    /// <summary>Null when missing. A wrong schema version, corrupt JSON or records with nulls the model forbids: file deleted, logged, treated as missing.</summary>
+    /// <summary>
+    /// Null when missing. A wrong schema version, corrupt JSON or records with nulls the model forbids: file deleted,
+    /// logged, treated as missing. A file that cannot be read just now (locked, for example while an antivirus scans it,
+    /// or access denied) is logged and kept: it is not bad, and the next start reads it.
+    /// </summary>
     public CrisisSnapshot? Load()
     {
         var file = FilePath;
         if (!File.Exists(file)) return null;
+        string text;
+        try { text = File.ReadAllText(file); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            log.Warn("Crisis cache could not be read now; keeping it for the next start", ex);
+            return null;
+        }
         try
         {
-            var dto = JsonSerializer.Deserialize<Dto>(File.ReadAllText(file), Options) ?? throw new JsonException("empty cache");
+            var dto = JsonSerializer.Deserialize<Dto>(text, Options) ?? throw new JsonException("empty cache");
             if (dto.SchemaVersion != SchemaVersion)
             {
                 log.Warn($"Crisis cache has schema version {dto.SchemaVersion}, not {SchemaVersion}; deleting it");
@@ -44,9 +55,9 @@ public sealed class CrisisCache(AppDataRoot root, IAppLog log)
                 CheckedUtc = new Dictionary<string, DateTime>(dto.CheckedUtc ?? [], StringComparer.Ordinal),
             };
         }
-        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException or ArgumentException or FormatException or InvalidOperationException or NotSupportedException)
+        catch (Exception ex) when (ex is JsonException or ArgumentException or FormatException or InvalidOperationException or NotSupportedException)
         {
-            log.Warn("Crisis cache unreadable; deleting it", ex);
+            log.Warn("Crisis cache malformed; deleting it", ex);
             Delete(file);
             return null;
         }

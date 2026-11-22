@@ -11,13 +11,18 @@ public class UcdpFeedFixTests
     private static readonly DateTime Now = new(2026, 11, 22, 0, 0, 0, DateTimeKind.Utc);
     private static readonly string[] Header = CsvReader.Read(new StringReader(Samples.Text("ucdp_candidate_monthly.csv"))).First();
 
-    private static string Row(int id, int best, string conflict, string country)
+    private static readonly (double Lat, double Lon) Khartoum = (15.5, 32.5), Juba = (4.85, 31.6);
+
+    // The point defaults to Khartoum; events are placed by their coordinates (R14), so another country needs its own point.
+    private static string Row(int id, int best, string conflict, string country, (double Lat, double Lon)? at = null)
     {
+        var (lat, lon) = at ?? (country == "South Sudan" ? Juba : Khartoum);
         var f = new string[Header.Length];
         Array.Fill(f, "");
         void Set(string col, string v) => f[Array.IndexOf(Header, col)] = v;
         Set("id", id.ToString()); Set("type_of_violence", "1"); Set("conflict_new_id", conflict); Set("conflict_name", "Test: A vs B");
-        Set("side_a", "A"); Set("side_b", "B"); Set("country", country); Set("latitude", "15.5"); Set("longitude", "32.5");
+        Set("side_a", "A"); Set("side_b", "B"); Set("country", country); Set("latitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Set("longitude", lon.ToString(System.Globalization.CultureInfo.InvariantCulture));
         Set("date_start", "2026-10-01 00:00:00.000"); Set("date_end", "2026-10-01 00:00:00.000"); Set("best", best.ToString());
         return string.Join(",", f);
     }
@@ -54,6 +59,46 @@ public class UcdpFeedFixTests
         Assert.Equal(3, ssd.Events.Sum(e => e.BestDeaths));   // each crisis holds only its own country's events
         Assert.Null(ssd.Began);
         Assert.Contains("since Oct 2026", ssd.Severity.Text);
+    }
+
+    [Fact]
+    // Ruling R14: an event belongs to the country its coordinates are in, whatever UCDP's `country` column says.
+    public async Task EventIsPlacedByItsCoordinates()
+    {
+        var gaza = (31.5, 34.45);   // Gaza City
+        Assert.Equal("PSE", CountryResolver.LoadDefault().Find(new AstroCore.Earth.GeoPosition(gaza.Item1, gaza.Item2))?.Iso3);   // the PSE polygon is in the index
+        var (feed, store, _, _) = Make(Csv(Row(1, 30, "9400", "Israel", gaza), Row(2, 5, "9400", "Israel", (32.08, 34.78))));   // and Tel Aviv
+        await feed.RunOnceAsync(default);
+        var byCountry = store.Snapshot.Crises.OfType<ConflictCrisis>().ToDictionary(c => c.CountryIso3);
+        Assert.Equal(30, byCountry["PSE"].Events.Sum(e => e.BestDeaths));
+        Assert.Equal(5, byCountry["ISR"].Events.Sum(e => e.BestDeaths));   // the conflict (35 deaths) qualifies as a whole (R9)
+        Assert.Empty(store.Snapshot.Unplaced);
+    }
+
+    [Fact]
+    public async Task EventAtSeaIsPlacedByNameOrListedAsUnplaced()
+    {
+        var sea = (20.0, 38.5);   // the middle of the Red Sea
+        Assert.Null(CountryResolver.LoadDefault().Find(new AstroCore.Earth.GeoPosition(sea.Item1, sea.Item2)));
+        var (feed, store, _, _) = Make(Csv(Row(1, 30, "9500", "Sudan"),
+            Row(2, 4, "9500", "Yemen (North Yemen)", sea),     // at sea, but the name is known: Yemen
+            Row(3, 7, "9500", "Atlantis", sea), Row(4, 2, "9500", "Atlantis", sea)));   // at sea and the name is unknown
+        await feed.RunOnceAsync(default);
+        var isos = store.Snapshot.Crises.OfType<ConflictCrisis>().Select(c => c.CountryIso3).Order().ToList();
+        Assert.Equal(["SDN", "YEM"], isos);
+        var u = Assert.Single(store.Snapshot.Unplaced);
+        Assert.Equal("UCDP", u.Source);
+        Assert.Contains("\"Atlantis\"", u.Title);
+        Assert.Equal("2 events (9 deaths) at a point in no country, and the country name \"Atlantis\" is not recognised", u.Reason);
+        Assert.Equal("CC BY 4.0", u.Citation.Licence);
+    }
+
+    [Fact]
+    public async Task UnplacedEventsOfAConflictBelowTheThresholdAreNotListed()
+    {
+        var (feed, store, _, _) = Make(Csv(Row(1, 30, "9100", "Sudan"), Row(2, 3, "9600", "Atlantis", (20.0, 38.5))));
+        await feed.RunOnceAsync(default);
+        Assert.Empty(store.Snapshot.Unplaced);   // 3 deaths: not a crisis, so nothing would be drawn anyway
     }
 
     [Fact]

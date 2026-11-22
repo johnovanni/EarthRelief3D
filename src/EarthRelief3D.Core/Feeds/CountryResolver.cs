@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AstroCore.Earth;
 using GlobeCore.Earth;
 
 namespace EarthRelief3D.Core.Feeds;
@@ -61,6 +62,9 @@ public sealed class CountryResolver
     public static CountryResolver LoadDefault() => DefaultResolver.Value;
 
     public Country? Resolve(string name) => Index.Resolve(name);
+
+    /// <summary>The country (units applied) that contains the point, or null over the sea.</summary>
+    public Country? Find(GeoPosition p) => Index.Find(p);
 
     public Country? ByIso3(string iso3) => Index.ByIso3(iso3);
 }

@@ -17,6 +17,35 @@ public sealed record CrisisSnapshot(IReadOnlyList<Crisis> Crises, IReadOnlyList<
     /// </summary>
     public IReadOnlyDictionary<string, DateTime> CheckedUtc { get; init; } = NoChecks;
 
+    /// <summary>
+    /// The snapshot as it should be shown at <paramref name="nowUtc"/>: WHO reports older than
+    /// <see cref="OutbreakCrisis.Window"/> are left out and IPC analyses past <see cref="FoodCrisis.StaleAfterMonths"/>
+    /// are marked stale, even when they were loaded from an old cache or the feeds have not run for a long time. Returns
+    /// this snapshot itself when nothing has aged.
+    /// </summary>
+    public CrisisSnapshot AsSeenAt(DateTime nowUtc)
+    {
+        var aged = false;
+        var crises = new List<Crisis>(Crises.Count);
+        foreach (var c in Crises)
+        {
+            switch (c)
+            {
+                case OutbreakCrisis o when !o.IsCurrentAt(nowUtc):
+                    aged = true;
+                    continue;
+                case FoodCrisis f when !f.IsStale && f.IsStaleAt(nowUtc):
+                    aged = true;
+                    crises.Add(f with { IsStale = true });
+                    continue;
+                default:
+                    crises.Add(c);
+                    break;
+            }
+        }
+        return aged ? this with { Crises = crises } : this;
+    }
+
     public IReadOnlyList<Crisis> ByCountry(string iso3) =>
         [.. Crises.Where(c => string.Equals(c.CountryIso3, iso3, StringComparison.OrdinalIgnoreCase))];
 

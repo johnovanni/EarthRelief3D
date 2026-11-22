@@ -24,7 +24,8 @@ public sealed class OutbreakSceneLayer : CrisisSceneLayer
 
     private readonly List<(Point3D Centre, string Iso3, IReadOnlyList<OutbreakCrisis> Reports)> _crosses = [];
 
-    public OutbreakSceneLayer(CrisisStore store, CountryIndex countries) : base(LayerId, "Disease outbreaks", Order, store, countries) { }
+    public OutbreakSceneLayer(CrisisStore store, CountryIndex countries, Func<DateTime> nowUtc)
+        : base(LayerId, "Disease outbreaks", Order, store, countries, nowUtc) { }
 
     protected override void Rebuild(CrisisSnapshot s, double worldPerPx)
     {

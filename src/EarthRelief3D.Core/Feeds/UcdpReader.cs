@@ -104,15 +104,27 @@ public static class UcdpReader
         return true;
     }
 
-    public sealed record BuildResult(List<ConflictCrisis> Crises, int SkippedUnresolved, IReadOnlyList<string> UnresolvedNames, DateTime? AsOfUtc);
+    /// <summary>UCDP events of a qualifying conflict that could not be put in any country, by UCDP's country string.</summary>
+    public sealed record UnplacedEvents(string CountryName, int Events, int Deaths);
+
+    /// <param name="ByName">Events placed by UCDP's country name because their point is in no country (sea, coast).</param>
+    /// <param name="MovedByLocation">Events whose point is in another country than UCDP's country name says (R14).</param>
+    public sealed record BuildResult(List<ConflictCrisis> Crises, IReadOnlyList<UnplacedEvents> Unplaced, int ByName, int MovedByLocation,
+        DateTime? AsOfUtc, SourceCitation? Citation);
 
     /// <summary>
-    /// Groups events (already de-duplicated by id) by UCDP conflict and country. A group is a crisis when its best-estimate
-    /// deaths reach 25 in any calendar year of the window (C11).
+    /// Groups events (already de-duplicated by id) by UCDP conflict and country. A conflict is a crisis when its
+    /// best-estimate deaths reach 25 in any calendar year of the window, counted over all its events (C11, ruling R9).
+    /// <para>
+    /// Ruling R14: each event belongs to the country that contains its coordinates (<see cref="CountryResolver.Find"/>,
+    /// units applied), because that is where the map draws it; UCDP's <c>country</c> name is used only when the point is in
+    /// no country (at sea or just off a coast). Events that still have no country are returned as
+    /// <see cref="BuildResult.Unplaced"/>, never dropped silently.
+    /// </para>
     /// </summary>
     public static BuildResult Build(IReadOnlyCollection<UcdpEvent> events, CountryResolver countries, string version, DateTime nowUtc, DateOnly latestComplete)
     {
-        if (events.Count == 0) return new BuildResult([], 0, [], null);
+        if (events.Count == 0) return new BuildResult([], [], 0, 0, null, null);
         var asOf = events.Max(e => e.EndUtc);
         var citation = new SourceCitation("Uppsala Conflict Data Program (UCDP)", Dataset, version,
             new Uri("https://ucdp.uu.se/downloads/"), "CC BY 4.0", Attribution, asOf, nowUtc);
@@ -126,15 +138,26 @@ public static class UcdpReader
             .Where(g => g.GroupBy(e => e.StartUtc.Year).Max(y => y.Sum(e => e.Best)) >= CrisisDeathsPerYear)
             .Select(g => g.Key).ToHashSet();
 
-        var skipped = 0;
-        var unresolved = new SortedSet<string>(StringComparer.Ordinal);
+        var unplaced = new SortedDictionary<string, (int Events, int Deaths)>(StringComparer.Ordinal);
+        int byName = 0, moved = 0;
         var groups = new Dictionary<(int Conflict, string Iso3), List<UcdpEvent>>();
-        var resolved = new Dictionary<string, Country?>();
+        var named = new Dictionary<string, Country?>();
         foreach (var e in events)
         {
-            if (!resolved.TryGetValue(e.Country, out var country)) resolved[e.Country] = country = countries.Resolve(e.Country);
-            if (country is null) { skipped++; unresolved.Add(e.Country); continue; }
             if (!qualifying.Contains(e.ConflictId)) continue;
+            if (!named.TryGetValue(e.Country, out var byCountryName)) named[e.Country] = byCountryName = countries.Resolve(e.Country);
+            var country = countries.Find(new GeoPosition(e.Lat, e.Lon));
+            if (country is null)
+            {
+                country = byCountryName;
+                if (country is not null) byName++;
+            }
+            else if (byCountryName is not null && byCountryName.Iso3 != country.Iso3) moved++;
+            if (country is null)
+            {
+                unplaced[e.Country] = unplaced.TryGetValue(e.Country, out var u) ? (u.Events + 1, u.Deaths + e.Best) : (1, e.Best);
+                continue;
+            }
             var key = (e.ConflictId, country.Iso3);
             if (!groups.TryGetValue(key, out var list)) groups[key] = list = [];
             list.Add(e);
@@ -160,6 +183,6 @@ public static class UcdpReader
                 Events: ordered.Select(e => new ConflictEvent(e.Id, e.StartUtc, new GeoPosition(e.Lat, e.Lon), e.Best, e.ViolenceType)).ToList(),
                 DeathsByMonth: byMonth));
         }
-        return new BuildResult(crises, skipped, [.. unresolved], asOf);
+        return new BuildResult(crises, [.. unplaced.Select(kv => new UnplacedEvents(kv.Key, kv.Value.Events, kv.Value.Deaths))], byName, moved, asOf, citation);
     }
 }

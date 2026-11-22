@@ -24,9 +24,13 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     public const string FoodHeading = "Food crisis";
     /// <summary>An IPC analysis whose period ended more than 12 months ago: listed, not a crisis (P2-4).</summary>
     public const string PastFoodHeading = "Food security: last IPC analysis";
+    /// <summary>An IPC analysis with no current-period figures, only a projection: listed, not a crisis and not "no crisis".</summary>
+    public const string ProjectionFoodHeading = "Food security: IPC projection only";
     public const string OutbreakHeading = "Disease outbreaks";
     public const string DisplacementHeading = "People forced from home";
     public const string NoCrisisText = "No crisis recorded by these sources";
+    /// <summary>The headline when the only IPC record is a projection and no other source records a crisis.</summary>
+    public const string ProjectionOnlyText = "IPC: projection only, no current-period figures; no crisis recorded by the other sources";
 
     private static readonly IReadOnlyList<PanelSection> NoSections = [];
     private readonly CrisisStore _store;
@@ -40,9 +44,12 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     [ObservableProperty] private string _countryName = "";
     [ObservableProperty] private IReadOnlyList<PanelSection> _sections = NoSections;
     [ObservableProperty] private bool _hasNoCrisis;
+    /// <summary>The list of sources checked is shown: no crisis, or only an IPC projection (which is not "no crisis").</summary>
+    [ObservableProperty] private bool _showsSourcesChecked;
     /// <summary>
     /// The line at the top (ruling R12): <see cref="NoCrisisText"/> when there is no crisis and every source has been
-    /// checked; "Not yet checked: &lt;sources&gt;" while any source has never run (with or without a crisis); otherwise empty.
+    /// checked (<see cref="ProjectionOnlyText"/> when IPC has only a projection); "Not yet checked: &lt;sources&gt;" while
+    /// any source has never run (with or without a crisis); otherwise empty.
     /// </summary>
     [ObservableProperty] private string _headline = "";
     [ObservableProperty] private bool _hasHeadline;
@@ -83,6 +90,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         Sections = NoSections;
         SourcesChecked = [];
         HasNoCrisis = false;
+        ShowsSourcesChecked = false;
         Headline = "";
         HasHeadline = false;
         FocusedSectionIndex = -1;
@@ -91,8 +99,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
 
     private void Build(string iso3)
     {
-        var s = _store.Snapshot;
         var now = _nowUtc();
+        var s = _store.Snapshot.AsSeenAt(now);   // WHO's 90 days and IPC's 12 months judged now, even for cached data
         var crises = s.ByCountry(iso3);
         var sections = new List<PanelSection>();
         var focusIndex = -1;
@@ -113,22 +121,26 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             .OrderByDescending(d => d.Year).FirstOrDefault();
         Add(displaced is null ? null : DisplacementSection(displaced, now), CrisisLayer.Displacement);
 
-        var noCrisis = conflicts.Count == 0 && outbreaks.Count == 0 && food is not { IsStale: false };
+        var currentCrisis = conflicts.Count > 0 || outbreaks.Count > 0 || food is { IsStale: false, ProjectionOnly: false };
+        var projectionOnly = !currentCrisis && food is { ProjectionOnly: true };
+        var noCrisis = !currentCrisis && !projectionOnly;
         Iso3 = iso3;
         CountryName = _nameOf(iso3) ?? iso3;
         Sections = sections;
         HasNoCrisis = noCrisis;
+        ShowsSourcesChecked = noCrisis || projectionOnly;
         var notChecked = SourceDates.Unchecked(s);
-        Headline = notChecked.Count > 0 ? SourceDates.NotCheckedHeadline(notChecked) : noCrisis ? NoCrisisText : "";
+        Headline = notChecked.Count > 0 ? SourceDates.NotCheckedHeadline(notChecked)
+            : noCrisis ? NoCrisisText : projectionOnly ? ProjectionOnlyText : "";
         HasHeadline = Headline.Length > 0;
-        SourcesChecked = noCrisis ? [.. SourceDates.All(s, now).Select(x => SourceCheckedLine(x, food, displaced, now))] : [];
+        SourcesChecked = ShowsSourcesChecked ? [.. SourceDates.All(s, now).Select(x => SourceCheckedLine(x, food, displaced, now))] : [];
         FocusedSectionIndex = focusIndex;
     }
 
     /// <summary>
     /// One source in a no-crisis country's list (ruling R12): "UCDP (armed conflict) · none recorded · checked 22 Nov 2026",
     /// "WHO (disease outbreaks) · no reports in the last 90 days · checked ...", what the source does have for the country
-    /// (a stale IPC analysis, UNHCR figures), or "· not yet checked".
+    /// (a stale IPC analysis, an IPC projection with no current figures, UNHCR figures), or "· not yet checked".
     /// </summary>
     public static string SourceCheckedLine(SourceSummary s, FoodCrisis? food, DisplacementFigure? displaced, DateTime nowUtc)
     {
@@ -136,6 +148,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         if (s.CheckedUtc is not { } checkedUtc) return $"{head} · {SourceDates.NotChecked}";
         var found = s.Layer switch
         {
+            CrisisLayer.Food when food is { ProjectionOnly: true } => CrisisText.ProjectionOnlyNote(food),
             CrisisLayer.Food when food is { IsStale: true } => $"no current crisis (last analysis {CrisisText.Period(food.PeriodFrom, food.PeriodTo)})",
             CrisisLayer.Displacement when displaced is not null => CrisisText.IsFuture(displaced.Citation, nowUtc)
                 ? displaced.Citation.Dataset
@@ -174,12 +187,25 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var cite = f.Citations.Count > 0 ? f.Citations[0]
             : new SourceCitation(IpcNationalReader.Publisher, IpcNationalReader.Dataset, null, IpcNationalReader.PageUrl, "CC0", IpcNationalReader.Attribution, default, default);
         var period = CrisisText.Period(f.PeriodFrom, f.PeriodTo);
+        if (f.ProjectionOnly)
+        {
+            List<(string, string)> projected =
+            [
+                ("IPC analysis", CrisisText.ProjectionOnlyLine(f)),
+                ("Projected in Phase 3 or higher", $"{CrisisText.Number(f.Phase3PlusPeople)} ({CrisisText.Percent(f.Phase3PlusShare)} of the people analysed; {f.ProjectionName ?? "projection"})"),
+                ("Note", "A projection is not current-period figures, so it is not shown as a current crisis"),
+            ];
+            if (f.IsStale) projected.Add(("Ended", "More than 12 months ago"));
+            return new PanelSection(ProjectionFoodHeading, projected, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url);
+        }
         List<(string, string)> rows = f.IsStale
             ? [("Last IPC analysis", period), ("Note", "Ended more than 12 months ago, so it is not shown as a current crisis")]
             :
             [
                 ("Highest phase", LayerStyle.IpcPhaseLabel(f.HighestPhase)),
                 ("People in Phase 3 or higher", $"{CrisisText.Number(f.Phase3PlusPeople)} ({CrisisText.Percent(f.Phase3PlusShare)} of the people analysed)"),
+                // R16: the number of people in each phase, so a small Phase 5 count is not read as a whole country in famine.
+                .. CrisisText.PhaseCounts(f).Select(p => ($"In {p.Label}", $"{CrisisText.Number(p.People)} people")),
                 ("Analysis period", period),
             ];
         return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url);

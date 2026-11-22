@@ -36,12 +36,16 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     private readonly StaWorker _sta;
     private readonly IAppLog _log;
     private readonly Func<bool> _isClosed;
+    private readonly Func<DateTime> _nowUtc;
     private string? _builtKey;
     private IImageLayer? _current;
 
-    public FoodImageLayer(int width, int height, CrisisStore store, CountryIndex countries, StaWorker sta, IAppLog log, Func<bool> isClosed)
+    /// <param name="nowUtc">The display clock: an analysis that has aged past 12 months is not shaded (P2-4).</param>
+    public FoodImageLayer(int width, int height, CrisisStore store, CountryIndex countries, StaWorker sta, IAppLog log, Func<bool> isClosed,
+        Func<DateTime> nowUtc)
         : base(LayerId, "Food crisis", Order)
     {
+        _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
         _width = width;
         _height = height;
         _store = store ?? throw new ArgumentNullException(nameof(store));
@@ -56,10 +60,13 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     public override IImageLayer? Current => _current;
 
-    /// <summary>The countries to shade and their IPC colours, by ISO3: the highest phase of each current (not stale) analysis.</summary>
+    /// <summary>
+    /// The countries to shade and their IPC colours, by ISO3: the highest phase of each current analysis (not stale, not
+    /// projection only).
+    /// </summary>
     public static IReadOnlyList<(string Iso3, Color Color)> Plan(IEnumerable<Crisis> crises) =>
     [
-        .. crises.OfType<FoodCrisis>().Where(f => !f.IsStale && f.HighestPhase is >= 3 and <= 5)
+        .. crises.OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly && f.HighestPhase is >= 3 and <= 5)
             .GroupBy(f => f.CountryIso3.ToUpperInvariant())
             .OrderBy(g => g.Key, StringComparer.Ordinal)
             .Select(g => (g.Key, LayerStyle.IpcPhaseColor(g.Max(f => f.HighestPhase)))),
@@ -81,7 +88,7 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     protected override async Task PrepareForComposeAsync()
     {
-        var plan = Plan(_store.Snapshot.Crises);
+        var plan = Plan(_store.Snapshot.AsSeenAt(_nowUtc()).Crises);
         var key = string.Join(";", plan.Select(p => p.Iso3 + ":" + p.Color));
         if (key == _builtKey) return;
         try
@@ -104,7 +111,7 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     public PickResult? HitTest(Point screen, Projector projector, bool hover)
     {
         if (Picking.CountryAt(screen, projector, _countries) is not { } country) return null;
-        var food = _store.Snapshot.ByCountry(country.Iso3).OfType<FoodCrisis>().Where(f => !f.IsStale)
+        var food = _store.Snapshot.AsSeenAt(_nowUtc()).ByCountry(country.Iso3).OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly)
             .OrderByDescending(f => f.HighestPhase).FirstOrDefault();
         return food is null ? null
             : new PickResult(LayerId, new CountryPick(country.Iso3, CrisisLayer.Food), CrisisText.FoodHover(country.Name, food));

@@ -5,7 +5,9 @@ namespace EarthRelief3D.Core.Feeds;
 /// <summary>Splits a Disease Outbreak News title ("Disease - Place, Place and Place") into disease and places.</summary>
 public static partial class WhoTitleParser
 {
-    [GeneratedRegex(@"\s[-–]\s")]
+    // A hyphen or en dash with a space after it; the space before is optional, because live titles also read
+    // "Disease- Place". A dash inside a word ("cholera-like", "COVID-19") has no space after it, so it is not a separator.
+    [GeneratedRegex(@"\s*[-–]\s+")]
     private static partial Regex Separator();
 
     [GeneratedRegex(@"^(update|situation update)\s*(no\.?\s*)?\d*$", RegexOptions.IgnoreCase)]
@@ -15,7 +17,7 @@ public static partial class WhoTitleParser
     private static partial Regex And();
 
     /// <summary>
-    /// Splits at the last " - " or " – ". A trailing "update 2" segment is a revision marker, not a place, so it is dropped
+    /// Splits at the last " - " or " – " (or "- ", "– "). A trailing "update 2" segment is a revision marker, not a place, so it is dropped
     /// first. With no separator the whole title is the disease and there are no places.
     /// </summary>
     public static (string Disease, IReadOnlyList<string> Places) Parse(string title)
