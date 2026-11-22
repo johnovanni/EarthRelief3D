@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <!-- The one version for every project (also used for the MSIX package). -->
+    <Version>0.1.0</Version>
+    <!-- One AstroCore copy per build: GlobeCore's projects (external\GlobeCore) use this app's external\AstroCore. -->
+    <AstroCoreRoot>$(MSBuildThisFileDirectory)external\AstroCore\</AstroCoreRoot>
+    <GlobeCoreRoot>$(MSBuildThisFileDirectory)external\GlobeCore\</GlobeCoreRoot>
+  </PropertyGroup>
+
+  <!--
+    Windows' 260-character path limit breaks builds when the solution lives in a very deep folder.
+    In that case only, redirect bin/obj to a short folder under %TEMP%. In a normal location
+    (e.g. C:\Users\you\source\repos\EarthRelief3D) the standard bin/obj folders are used.
+  -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Length) &gt; 110">
+    <_ShortBuildRoot>$([System.IO.Path]::GetTempPath())EarthRelief3D.build\</_ShortBuildRoot>
+    <BaseIntermediateOutputPath>$(_ShortBuildRoot)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(_ShortBuildRoot)bin\$(MSBuildProjectName)\</BaseOutputPath>
+  </PropertyGroup>
+</Project>

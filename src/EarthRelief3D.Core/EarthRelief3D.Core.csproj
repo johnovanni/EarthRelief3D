@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="$(AstroCoreRoot)src\AstroCore\AstroCore.csproj" />
+    <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore\GlobeCore.csproj" />
+    <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Earth\GlobeCore.Earth.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EarthRelief3D.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>EarthRelief3D.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>

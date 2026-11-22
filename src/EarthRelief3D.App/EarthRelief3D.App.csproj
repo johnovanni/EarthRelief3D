@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EarthRelief3D.Core\EarthRelief3D.Core.csproj" />
+    <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Wpf\GlobeCore.Wpf.csproj" />
+    <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Earth\GlobeCore.Earth.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EarthRelief3D.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>EarthRelief3D.App</RootNamespace>
+  </PropertyGroup>
+
+</Project>
