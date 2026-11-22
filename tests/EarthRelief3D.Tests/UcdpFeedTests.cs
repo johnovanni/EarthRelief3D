@@ -62,9 +62,10 @@ public class UcdpFeedTests
         var (feed, store, log) = Make(http);
         Assert.Equal(FeedRunResult.Ok, await feed.RunOnceAsync(default));
 
-        // expected event counts per conflict, computed from the raw samples (an id in both files counts once). Ruling R14:
-        // an event is Sudan's when its point is in Sudan, or when it is in no country and UCDP's country is "Sudan".
+        // expected event counts per conflict, computed from the raw samples (an id in both files counts once). Ruling R14b:
+        // UCDP's country name decides, unless the point is in a territory UCDP does not list (none near Sudan).
         var countries = CountryResolver.LoadDefault();
+        var territories = CountryResolver.LoadDefaultUcdpTerritories();
         var ids = new HashSet<string>();
         var expected = new Dictionary<string, int>();
         foreach (var name in new[] { "ucdp_candidate_monthly.csv", "ucdp_candidate_quarterly.csv" })
@@ -76,7 +77,7 @@ public class UcdpFeedTests
             {
                 if (!ids.Add(r[iId])) continue;
                 var at = new AstroCore.Earth.GeoPosition(double.Parse(r[iLat], CultureInfo.InvariantCulture), double.Parse(r[iLon], CultureInfo.InvariantCulture));
-                var iso = (countries.Find(at) ?? countries.Resolve(r[iCountry]))?.Iso3;
+                var iso = UcdpReader.PlaceOf(countries.Resolve(r[iCountry]), () => countries.Find(at), territories, out _)?.Iso3;
                 if (iso == "SDN") expected[r[iConf]] = expected.GetValueOrDefault(r[iConf]) + 1;
             }
         }
@@ -110,7 +111,8 @@ public class UcdpFeedTests
         var isos = store.Snapshot.Crises.Select(c => c.CountryIso3).ToHashSet();
         foreach (var iso in new[] { "COD", "MMR", "UKR", "HTI", "SDN" }) Assert.Contains(iso, isos);
         Assert.DoesNotContain("SSD", isos);
-        Assert.Contains(log.Lines, l => l.Contains("events not placed: none"));
+        Assert.Contains(log.Lines, l => l.Contains("0 events moved by their coordinates into a territory")
+                                        && l.Contains("0 with an unrecognised country name") && l.Contains("events not placed: none"));
         Assert.DoesNotContain(store.Snapshot.Unplaced, u => u.Source == "UCDP");
     }
 

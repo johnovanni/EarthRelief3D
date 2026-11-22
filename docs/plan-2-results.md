@@ -40,7 +40,8 @@ two are the ones the results above come from.
 
 ## Final review fixes (2026-11-22)
 
-After the whole-branch review (findings I1 to I5, rulings R14 to R16 and the deferred small items):
+After the whole-branch review (findings I1 to I5, rulings R14 to R16 and the deferred small items; R14 was then
+replaced by R14b, see the last part of this section):
 
 - Tests: `dotnet build EarthRelief3D.sln -c Release`: 0 warnings, 0 errors; `dotnet test` in Release: **163 passed,
   0 failed, 0 skipped**. GlobeCore (branch `country-index`, now pinned at the Crimea commit): 322 passed, 0 warnings.
@@ -58,3 +59,7 @@ After the whole-branch review (findings I1 to I5, rulings R14 to R16 and the def
 - The offline run's log now stays in the usual logs folder; this run's log shows "IPC: 44 countries with people in
   Phase 3 or higher (8 stale); 6 with a projection only" and "UCDP: ... 38 events placed by their coordinates in
   another country than UCDP's country name, 42 at sea or off a coast placed by the name; events not placed: none".
+- **R14b** (replaces R14): UCDP's country name decides, and coordinates override it only for a territory UCDP does not
+  list (PSE) or an unknown name. One more launch re-took the scenes; see the final-fix report for the PngDiff. With R14b
+  no sample event is placed outside the country UCDP names (0 of 4,494), so the Russia, Libya and Egypt conflict labels
+  and the Sudan death changes listed above are gone again.

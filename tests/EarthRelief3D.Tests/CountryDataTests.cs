@@ -27,6 +27,19 @@ public class CountryDataTests
     }
 
     [Fact]
+    public void EveryUcdpTerritoryIsKnownAndHasAReason()
+    {
+        var index = CountryIndex.LoadNaturalEarth();
+        var territories = CountryResolver.ReadTerritories(Data("ucdp-territories.json"));
+        Assert.Contains("PSE", territories);
+        foreach (var iso3 in territories) Assert.True(index.ByIso3(iso3) is not null, $"UCDP territory {iso3} unknown");
+        var path = Path.Combine(Path.GetTempPath(), $"territories-{Guid.NewGuid():N}.json");
+        File.WriteAllText(path, """{"PSE": {"reason": " "}}""");
+        try { Assert.Throws<InvalidDataException>(() => CountryResolver.ReadTerritories(path)); }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
     public void UnitsAreAppliedAndNamesStillResolve()
     {
         var r = CountryResolver.Load(Data("country-aliases.json"), Data("country-units.json"));

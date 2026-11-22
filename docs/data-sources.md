@@ -20,22 +20,29 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
   - Some events carry placeholder names (`XXX490` in `conflict_name`/`side_a`/`side_b`; 6 of 457 monthly rows and 51 of 4,041 quarterly rows in the trim). Show them without inventing a name.
   - `type_of_violence` values seen: 1 (state-based), 2 (non-state), 3 (one-sided). `best`, `latitude` and `longitude` are never empty in the samples.
   - Sizes: the downloads page is 138 KB of HTML; the untrimmed CSVs are 2 MB (monthly) and 13 MB (quarterly).
-- **Which country an event belongs to (ruling R14):** the country whose Natural Earth 1:50m polygon (GlobeCore
-  `CountryIndex`, with `data/country-units.json` applied) contains the event's `latitude`/`longitude`, because that is
-  where the map draws it. UCDP's `country` name is used only when the point is in no country (at sea or just off a
-  coast). An event of a qualifying conflict that has neither is listed under "Not placed on the map" (source UCDP, the
-  country string, the number of events and deaths), never dropped. Why: UCDP's country names follow its own state list,
-  which has no Palestine, so events in Gaza can carry the country `Israel` (the final review's example; the trimmed
-  samples hold no such event, so a test uses a hand-made row); by their coordinates they go to the State of Palestine
-  (PSE). The crisis threshold is still counted over the whole conflict (R9).
-  - **Cost, measured on the trimmed samples** (4,494 distinct events): 41 events (0.9%) land in another country than
-    their `country` name. All 41 are within 4.7 km of the named country's 1:50m outline, and UCDP's own `adm_1` or
-    place description puts each of them in the named country, so these come from the coarse outlines, not from
-    cross-border events: 20 Ukraine events (Sumy and Kharkiv oblasts) fall in Russia; 9 in and near Goma (North Kivu,
-    DR Congo) in Rwanda; 3 DR Congo events (Ituri, North Kivu) in Uganda; 5 Sudan events (Blue Nile) in Ethiopia; 2
-    (North Darfur) in Libya and Egypt; 2 Myanmar events (Tanintharyi) in Thailand. 46 events are at sea or off a coast
-    and are placed by name (Ukraine 21, Myanmar 15, Haiti 10).
-    The dots are drawn at UCDP's coordinates either way; only the panel they are listed in changes.
+- **Which country an event belongs to (ruling R14b, replacing R14):** UCDP's own `country` value, resolved through
+  `data/country-aliases.json`. The event's coordinates (the Natural Earth 1:50m polygon that contains them, GlobeCore
+  `CountryIndex` with `data/country-units.json` applied) override it in only two cases:
+  1. the point lies in a territory UCDP does not list as a country, kept with a reason per entry in
+     `data/ucdp-territories.json` (it starts with PSE: UCDP codes events in Gaza and the West Bank under `Israel`; the map
+     and panels show Palestine separately, owner ruling Q3, UN humanitarian units). The rule: if the containing polygon's
+     ISO3 is in that list and differs from the name's ISO3, the polygon's is used;
+  2. the country name does not resolve: the containing polygon's country is used. If the point is in no country either
+     (at sea), the event is listed under "Not placed on the map" (source UCDP, the country string, the number of events
+     and deaths), never dropped.
+
+  The crisis threshold is still counted over the whole conflict (R9). The dots are drawn at UCDP's coordinates either
+  way; only the panel an event is listed in depends on this rule.
+  - **Why not the coordinates everywhere (R14, withdrawn):** the 1:50m outlines are too coarse near borders. On the
+    trimmed samples (4,494 distinct events) R14 moved 41 events (0.9%) out of the country UCDP names, all within 4.7 km
+    of that country's 1:50m outline and all placed in that country by UCDP's own `adm_1` or place description: 20 Ukraine
+    events (Sumy and Kharkiv oblasts) into Russia, 9 in and near Goma (DR Congo) into Rwanda, 3 DR Congo events into
+    Uganda, 5 Sudan events (Blue Nile) into Ethiopia, 2 (North Darfur) into Libya and Egypt, and 2 Myanmar events
+    (Tanintharyi) into Thailand.
+  - **Checked under R14b** on the same samples: 0 events differ from UCDP's own country (the samples hold no event in a
+    listed territory and every country name resolves). The Gaza case is pinned by a hand-made row
+    (`UcdpFeedFixTests.GazaEventCodedIsraelGoesToPalestine`), the Sumy case by one of the 41 sample points
+    (`.SumyBorderEventCodedUkraineStaysInUkraine`).
 
 ## 2. IPC national figures via HDX (food insecurity)
 

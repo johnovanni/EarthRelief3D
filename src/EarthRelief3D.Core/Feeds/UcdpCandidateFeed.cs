@@ -11,18 +11,21 @@ namespace EarthRelief3D.Core.Feeds;
 /// run only downloads files it has not seen; the downloads page is read every run. A format change throws a
 /// <see cref="FeedFormatException"/> before the store is touched.
 /// </summary>
-public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock clock, IAppLog log, CountryResolver? countries = null) : IFeed
+/// <param name="territories">Units UCDP does not list as countries (ruling R14b); <c>data/ucdp-territories.json</c> by default.</param>
+public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock clock, IAppLog log, CountryResolver? countries = null,
+    IReadOnlySet<string>? territories = null) : IFeed
 {
     public static readonly Uri PageUrl = new("https://ucdp.uu.se/downloads/");
 
     private readonly CountryResolver _countries = countries ?? CountryResolver.LoadDefault();
+    private readonly IReadOnlySet<string> _territories = territories ?? CountryResolver.LoadDefaultUcdpTerritories();
     private readonly Dictionary<string, (List<UcdpEvent> Events, DateTime FetchedUtc)> _cache = new(StringComparer.Ordinal);
 
     private static readonly TimeSpan CacheLife = TimeSpan.FromHours(24);
 
     /// <summary>
-    /// One "Not placed on the map" line per UCDP country string whose events have coordinates in no country and a name the
-    /// index does not know (ruling R14).
+    /// One "Not placed on the map" line per UCDP country string whose name the index does not know and whose events have
+    /// coordinates in no country (ruling R14b).
     /// </summary>
     public static IReadOnlyList<UnplacedReport> Unplaced(UcdpReader.BuildResult result) => result.Citation is not { } cite ? [] :
     [
@@ -62,7 +65,7 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
         }
 
         if (byId.Count == 0) throw new FeedFormatException("no events in the UCDP files");
-        var result = UcdpReader.Build(byId.Values, _countries, files.Version, now, files.LatestCompleteMonth);
+        var result = UcdpReader.Build(byId.Values, _countries, _territories, files.Version, now, files.LatestCompleteMonth);
         // Cache only after every file parsed, so a failed run retries the files it did not finish.
         foreach (var (name, entry) in fresh) _cache[name] = entry;
         store.ReplaceKind(CrisisKind.ArmedConflict, result.Crises);
@@ -71,8 +74,9 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
         var notPlaced = result.Unplaced.Count == 0 ? "none"
             : string.Join(", ", result.Unplaced.Select(u => $"\"{u.CountryName}\" ({u.Events})"));
         log.Info($"UCDP: {result.Crises.Count} conflicts from {byId.Count} events in {files.All.Count()} files; "
-            + $"{result.MovedByLocation} events placed by their coordinates in another country than UCDP's country name, "
-            + $"{result.ByName} at sea or off a coast placed by the name; events not placed: {notPlaced}; {bad} unreadable rows");
+            + $"{result.ByTerritory} events moved by their coordinates into a territory UCDP does not list, "
+            + $"{result.ByLocation} with an unrecognised country name placed by their coordinates; events not placed: {notPlaced}; "
+            + $"{bad} unreadable rows");
         return FeedRunResult.Ok;
     }
 }

@@ -13,7 +13,8 @@ open, key-free sources: armed conflict (UCDP), food crises (IPC), disease outbre
 - A 3D globe (GlobeCore) with country borders and a day/night shade.
 - **Armed conflict:** a dot per UCDP event of a conflict with 25 or more deaths in a calendar year (counted over the
   whole conflict); bigger dots for more deaths of that conflict in that country over the data window (band 1 at least),
-  lighter dots for newer events. Each event belongs to the country its coordinates are in.
+  lighter dots for newer events. Each event belongs to the country UCDP names, except that events in a territory UCDP
+  does not list as a country (Gaza and the West Bank, coded Israel) belong to that territory.
 - **Food crisis:** each country with people in IPC Phase 3 or higher is shaded in the IPC's phase colour (Phase 3 Crisis,
   Phase 4 Emergency, Phase 5 Catastrophe/Famine).
 - **Disease outbreaks:** a cross at each country with a WHO Disease Outbreak News report in the last 90 days, labelled

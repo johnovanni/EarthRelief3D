@@ -13,7 +13,7 @@ public class UcdpFeedFixTests
 
     private static readonly (double Lat, double Lon) Khartoum = (15.5, 32.5), Juba = (4.85, 31.6);
 
-    // The point defaults to Khartoum; events are placed by their coordinates (R14), so another country needs its own point.
+    // The point defaults to Khartoum; South Sudan rows get Juba, so the rows stay consistent with their names.
     private static string Row(int id, int best, string conflict, string country, (double Lat, double Lon)? at = null)
     {
         var (lat, lon) = at ?? (country == "South Sudan" ? Juba : Khartoum);
@@ -62,16 +62,40 @@ public class UcdpFeedFixTests
     }
 
     [Fact]
-    // Ruling R14: an event belongs to the country its coordinates are in, whatever UCDP's `country` column says.
-    public async Task EventIsPlacedByItsCoordinates()
+    // Ruling R14b rule 1: a point in a territory UCDP does not list (PSE) overrides UCDP's country name.
+    public async Task GazaEventCodedIsraelGoesToPalestine()
     {
         var gaza = (31.5, 34.45);   // Gaza City
         Assert.Equal("PSE", CountryResolver.LoadDefault().Find(new AstroCore.Earth.GeoPosition(gaza.Item1, gaza.Item2))?.Iso3);   // the PSE polygon is in the index
+        Assert.Contains("PSE", CountryResolver.LoadDefaultUcdpTerritories());
         var (feed, store, _, _) = Make(Csv(Row(1, 30, "9400", "Israel", gaza), Row(2, 5, "9400", "Israel", (32.08, 34.78))));   // and Tel Aviv
         await feed.RunOnceAsync(default);
         var byCountry = store.Snapshot.Crises.OfType<ConflictCrisis>().ToDictionary(c => c.CountryIso3);
         Assert.Equal(30, byCountry["PSE"].Events.Sum(e => e.BestDeaths));
         Assert.Equal(5, byCountry["ISR"].Events.Sum(e => e.BestDeaths));   // the conflict (35 deaths) qualifies as a whole (R9)
+        Assert.Empty(store.Snapshot.Unplaced);
+    }
+
+    [Fact]
+    // R14b: UCDP's name wins over the coarse 1:50m outline near a border. One of the sample's Sumy oblast events (id and
+    // point from tests/Samples), coded Ukraine, whose point the 1:50m outline puts in Russia.
+    public async Task SumyBorderEventCodedUkraineStaysInUkraine()
+    {
+        var sumy = (52.18886, 34.03613);   // Seredyna-Buda community, Sumy oblast
+        Assert.Equal("RUS", CountryResolver.LoadDefault().Find(new AstroCore.Earth.GeoPosition(sumy.Item1, sumy.Item2))?.Iso3);
+        var (feed, store, _, _) = Make(Csv(Row(1, 30, "9700", "Ukraine", sumy)));
+        await feed.RunOnceAsync(default);
+        var c = Assert.Single(store.Snapshot.Crises.OfType<ConflictCrisis>());
+        Assert.Equal("UKR", c.CountryIso3);
+    }
+
+    [Fact]
+    // R14b rule 2: an unknown name is placed by the country containing the point.
+    public async Task UnknownNameOnLandUsesTheContainingCountry()
+    {
+        var (feed, store, _, _) = Make(Csv(Row(1, 30, "9800", "Atlantis")));   // Khartoum
+        await feed.RunOnceAsync(default);
+        Assert.Equal("SDN", Assert.Single(store.Snapshot.Crises.OfType<ConflictCrisis>()).CountryIso3);
         Assert.Empty(store.Snapshot.Unplaced);
     }
 
@@ -99,6 +123,24 @@ public class UcdpFeedFixTests
         var (feed, store, _, _) = Make(Csv(Row(1, 30, "9100", "Sudan"), Row(2, 3, "9600", "Atlantis", (20.0, 38.5))));
         await feed.RunOnceAsync(default);
         Assert.Empty(store.Snapshot.Unplaced);   // 3 deaths: not a crisis, so nothing would be drawn anyway
+    }
+
+    [Fact]
+    public void PlaceOfFollowsRulingR14b()
+    {
+        var r = CountryResolver.LoadDefault();
+        IReadOnlySet<string> t = new HashSet<string> { "PSE" };
+        Assert.Equal("UKR", UcdpReader.PlaceOf(r.ByIso3("UKR"), () => r.ByIso3("RUS"), t, out var h1)?.Iso3);
+        Assert.Equal(UcdpReader.Placement.Name, h1);
+        Assert.Equal("PSE", UcdpReader.PlaceOf(r.ByIso3("ISR"), () => r.ByIso3("PSE"), t, out var h2)?.Iso3);
+        Assert.Equal(UcdpReader.Placement.Territory, h2);
+        Assert.Equal("PSE", UcdpReader.PlaceOf(r.ByIso3("PSE"), () => r.ByIso3("PSE"), t, out var h3)?.Iso3);
+        Assert.Equal(UcdpReader.Placement.Name, h3);
+        Assert.Equal("SDN", UcdpReader.PlaceOf(null, () => r.ByIso3("SDN"), t, out var h4)?.Iso3);
+        Assert.Equal(UcdpReader.Placement.Location, h4);
+        Assert.Null(UcdpReader.PlaceOf(null, () => null, t, out var h5));
+        Assert.Equal(UcdpReader.Placement.None, h5);
+        Assert.Equal("ISR", UcdpReader.PlaceOf(r.ByIso3("ISR"), () => null, t, out _)?.Iso3);   // at sea: the name
     }
 
     [Fact]

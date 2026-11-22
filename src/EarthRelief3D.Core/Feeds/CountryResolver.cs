@@ -58,6 +58,27 @@ public sealed class CountryResolver
 
     private sealed record UnitEntry(string? Into, string? Reason);
 
+    /// <summary>
+    /// Reads <c>data/ucdp-territories.json</c> (<c>{"PSE": {"reason": "..."}}</c>): units that UCDP's country list does not
+    /// have, where an event's coordinates override UCDP's country name (ruling R14b). Every entry must say why.
+    /// </summary>
+    public static IReadOnlySet<string> ReadTerritories(string path)
+    {
+        var raw = JsonSerializer.Deserialize<Dictionary<string, TerritoryEntry>>(File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? throw new InvalidDataException($"{path} is empty");
+        foreach (var (iso3, e) in raw)
+            if (e is null || string.IsNullOrWhiteSpace(e.Reason)) throw new InvalidDataException($"UCDP territory \"{iso3}\" needs a \"reason\"");
+        return raw.Keys.Select(k => k.Trim().ToUpperInvariant()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private sealed record TerritoryEntry(string? Reason);
+
+    private static readonly Lazy<IReadOnlySet<string>> DefaultTerritories = new(() =>
+        ReadTerritories(Path.Combine(AppContext.BaseDirectory, "data", "ucdp-territories.json")));
+
+    /// <summary>The UCDP territories list shipped beside the program (<c>data/ucdp-territories.json</c>), loaded once.</summary>
+    public static IReadOnlySet<string> LoadDefaultUcdpTerritories() => DefaultTerritories.Value;
+
     /// <summary>The lists shipped beside the program (<c>data/</c>), loaded once.</summary>
     public static CountryResolver LoadDefault() => DefaultResolver.Value;
 

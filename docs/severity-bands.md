@@ -15,7 +15,7 @@ The native measure is the **best-estimate number of deaths** UCDP records. Two d
   country, reach 25 or more best-estimate deaths in a calendar year of the data window (C11, ruling R9).
 - **The band** is decided per (conflict, country): the deaths of that conflict's events in that country over the data
   window (the newest quarterly file plus later monthly files, about 9 to 12 months, counted since the first month of the
-  window; the panel says "since <month>"). An event belongs to the country its coordinates are in (ruling R14).
+  window; the panel says "since <month>"). An event belongs to the country UCDP names, or to a territory UCDP does not list when its point is there (ruling R14b).
 
 | That country's deaths in the conflict, in the window | Band |
 |---|---|
