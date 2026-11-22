@@ -40,6 +40,11 @@ two are the ones the results above come from.
 
 ## Final review fixes (2026-11-22)
 
+**Final state (after R14b):** EarthRelief3D `dotnet test` in Release: **167 passed, 0 failed, 0 skipped**, 0 warnings;
+GlobeCore (branch `country-index` at 68f9dc5): 322 passed. All five snapshot scenes match `artifacts\snapshot-baseline`.
+Sudan's conflict deaths are 3,937 (Government of Sudan vs SFA) and 465 (SFA vs civilians), as before R14. The bullets
+below record the intermediate R14 run and are kept for the history only.
+
 After the whole-branch review (findings I1 to I5, rulings R14 to R16 and the deferred small items; R14 was then
 replaced by R14b, see the last part of this section):
 
