@@ -49,6 +49,7 @@ public static class IpcNationalReader
     {
         var crises = new List<FoodCrisis>();
         var blank = 0;
+        var usable = 0;
         string[]? header = null;
         Dictionary<string, int> col = [];
         var staleBefore = DateOnly.FromDateTime(nowUtc).AddMonths(-12);
@@ -59,6 +60,7 @@ public static class IpcNationalReader
             string F(string n) => row[col[n]].Trim();
 
             if (!TryDate(F("Current from"), out var from) || !TryDate(F("Current to"), out var to)) { blank++; continue; }
+            usable++;
             var iso3 = F("Country").ToUpperInvariant();
             if (!TryLong(F("Phase 3+ number current"), out var people) || people <= 0) continue;
             var share = double.TryParse(F("Phase 3+ percentage current"), NumberStyles.Float, CultureInfo.InvariantCulture, out var s) ? s : 0;
@@ -78,6 +80,7 @@ public static class IpcNationalReader
                 PeriodFrom: from, PeriodTo: to, IsStale: to < staleBefore));
         }
         if (header is null) throw new FeedFormatException($"{ResourceName} is empty");
+        if (usable == 0) throw new FeedFormatException("no IPC row has a usable current period");
         return new Result(crises, blank);
     }
 

@@ -14,7 +14,7 @@ public sealed record UcdpFile(string Name, Uri Url, int EndYear, int EndMonth)
 }
 
 /// <summary>The files that make up the window (P2-8): the newest quarterly cumulative file and every monthly file after its end.</summary>
-public sealed record UcdpFiles(UcdpFile? Quarterly, IReadOnlyList<UcdpFile> MonthliesAfterQuarterly, string Version)
+public sealed record UcdpFiles(UcdpFile? Quarterly, IReadOnlyList<UcdpFile> MonthliesAfterQuarterly, string Version, DateOnly LatestCompleteMonth)
 {
     public IEnumerable<UcdpFile> All => Quarterly is null ? MonthliesAfterQuarterly : MonthliesAfterQuarterly.Prepend(Quarterly);
 }
@@ -55,7 +55,9 @@ public static class UcdpReader
         var after = monthlies.DistinctBy(f => f.Name).Where(f => quarterly is null || f.EndIndex > quarterly.EndIndex)
             .OrderBy(f => f.EndIndex).ToList();
         var newest = after.Count > 0 ? after[^1] : quarterly!;
-        return new UcdpFiles(quarterly, after, VersionOf(newest));
+        // Latest complete month = the release month in the newest file's name (v26_0_10 is October 2026), not the newest
+        // date_end: a monthly file also carries the first days of the following month, which are not a complete month.
+        return new UcdpFiles(quarterly, after, VersionOf(newest), new DateOnly(newest.EndYear, newest.EndMonth, 1));
     }
 
     /// <summary>"GEDEvent_v26_0_10.csv" gives "26.0.10"; the quarterly "GEDEvent_v26_01_26_09.csv" gives "26.01.26.09".</summary>
@@ -108,19 +110,21 @@ public static class UcdpReader
     /// Groups events (already de-duplicated by id) by UCDP conflict and country. A group is a crisis when its best-estimate
     /// deaths reach 25 in any calendar year of the window (C11).
     /// </summary>
-    public static BuildResult Build(IReadOnlyCollection<UcdpEvent> events, CountryResolver countries, string version, DateTime nowUtc)
+    public static BuildResult Build(IReadOnlyCollection<UcdpEvent> events, CountryResolver countries, string version, DateTime nowUtc, DateOnly latestComplete)
     {
         if (events.Count == 0) return new BuildResult([], 0, [], null);
         var asOf = events.Max(e => e.EndUtc);
         var citation = new SourceCitation("Uppsala Conflict Data Program (UCDP)", Dataset, version,
             new Uri("https://ucdp.uu.se/downloads/"), "CC BY 4.0", Attribution, asOf, nowUtc);
 
-        // Latest complete month: the as-of month if its last day has been reached, otherwise the month before.
         var asOfDay = DateOnly.FromDateTime(asOf);
         var asOfMonth = new DateOnly(asOfDay.Year, asOfDay.Month, 1);
-        var latestComplete = asOfDay.AddDays(1).Month != asOfDay.Month ? asOfMonth : asOfMonth.AddMonths(-1);
+        var lastMonth = asOfMonth > latestComplete ? asOfMonth : latestComplete;
         var firstMonth = events.Min(e => new DateOnly(e.StartUtc.Year, e.StartUtc.Month, 1));
-        var since12 = nowUtc.AddMonths(-12);
+        // C11 (ruling R9): the 25-deaths-in-a-calendar-year test is on the whole conflict, all countries together.
+        var qualifying = events.GroupBy(e => e.ConflictId)
+            .Where(g => g.GroupBy(e => e.StartUtc.Year).Max(y => y.Sum(e => e.Best)) >= CrisisDeathsPerYear)
+            .Select(g => g.Key).ToHashSet();
 
         var skipped = 0;
         var unresolved = new SortedSet<string>(StringComparer.Ordinal);
@@ -130,6 +134,7 @@ public static class UcdpReader
         {
             if (!resolved.TryGetValue(e.Country, out var country)) resolved[e.Country] = country = countries.Resolve(e.Country);
             if (country is null) { skipped++; unresolved.Add(e.Country); continue; }
+            if (!qualifying.Contains(e.ConflictId)) continue;
             var key = (e.ConflictId, country.Iso3);
             if (!groups.TryGetValue(key, out var list)) groups[key] = list = [];
             list.Add(e);
@@ -138,22 +143,19 @@ public static class UcdpReader
         var crises = new List<ConflictCrisis>();
         foreach (var (key, list) in groups.OrderBy(g => g.Key.Iso3).ThenBy(g => g.Key.Conflict))
         {
-            var peakYear = list.GroupBy(e => e.StartUtc.Year).Max(g => g.Sum(e => e.Best));
-            if (peakYear < CrisisDeathsPerYear) continue;
-
             var byMonth = new Dictionary<DateOnly, int>();
-            for (var m = firstMonth; m <= asOfMonth; m = m.AddMonths(1)) byMonth[m] = 0;
+            for (var m = firstMonth; m <= lastMonth; m = m.AddMonths(1)) byMonth[m] = 0;
             foreach (var e in list) byMonth[new DateOnly(e.StartUtc.Year, e.StartUtc.Month, 1)] += e.Best;
 
             var ordered = list.OrderBy(e => e.StartUtc).ThenBy(e => e.Id).ToList();
             var newest = ordered[^1];
-            var deaths12 = ordered.Where(e => e.StartUtc >= since12).Sum(e => e.Best);
-            var band = Math.Max(1, SeverityBands.ForConflict(deaths12));
+            var deaths = ordered.Sum(e => e.Best);   // deaths in the window, counted since its first month
+            var band = Math.Max(1, SeverityBands.ForConflict(deaths));
             var countryName = countries.ByIso3(key.Iso3)?.Name ?? key.Iso3;
             crises.Add(new ConflictCrisis(
                 Id: $"ucdp-{key.Conflict}-{key.Iso3}", CountryIso3: key.Iso3, Title: $"{countryName}: {newest.ConflictName}",
-                Severity: new NativeSeverity(deaths12, "best-estimate deaths, last 12 months", $"{deaths12:N0} deaths in the last 12 months"),
-                Band: band, Began: ordered[0].StartUtc, Trend: Trend.FromMonths(byMonth, latestComplete), Citations: [citation],
+                Severity: new NativeSeverity(deaths, "best-estimate deaths in the window", $"{deaths:N0} deaths since {firstMonth.ToString("MMM yyyy", CultureInfo.InvariantCulture)} (UCDP)"),
+                Band: band, Began: null, Trend: Trend.FromMonths(byMonth, latestComplete), Citations: [citation],
                 UcdpConflictId: key.Conflict, SideA: newest.SideA, SideB: newest.SideB,
                 Events: ordered.Select(e => new ConflictEvent(e.Id, e.StartUtc, new GeoPosition(e.Lat, e.Lon), e.Best, e.ViolenceType)).ToList(),
                 DeathsByMonth: byMonth));

@@ -9,9 +9,9 @@ with the source name and its as-of date. If the two ever seem to disagree, the n
 
 ## Armed conflict (UCDP)
 
-The native measure is the **best-estimate number of deaths** UCDP records for the conflict. The band uses deaths in the last 12 months, which approximates UCDP's own crisis rule (25 or more best-estimate deaths in a calendar year).
+The native measure is the **best-estimate number of deaths** UCDP records for the conflict. The band uses deaths in the data window (the newest quarterly file plus later monthly files, about 9 to 12 months, counted since the first month of the window; the panel says "since <month>"), which approximates UCDP's own crisis rule (25 or more best-estimate deaths in a calendar year).
 
-| Deaths in the last 12 months | Band |
+| Deaths in the window | Band |
 |---|---|
 | fewer than 25 | none: not shown as a crisis |
 | 25 to 999 | 1 |

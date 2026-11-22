@@ -113,4 +113,21 @@ public class IpcFeedTests
         Assert.StartsWith("format changed:", e.Message);
         Assert.Equal(before, store.Snapshot.Crises.Count);
     }
+
+    [Fact]
+    public async Task NoUsableCurrentPeriodIsFormatChangedAndKeepsData()
+    {
+        var (http, h) = Samples.IpcHttp();
+        var (feed, store, _) = Make(http);
+        await feed.RunOnceAsync(default);
+        var before = store.Snapshot.Crises.Count;
+        var header = CsvReader.Read(new StringReader(Samples.Text("ipc_national_wide_latest.csv"))).First();
+        var row = new string[header.Length];
+        Array.Fill(row, "");
+        row[Array.IndexOf(header, "Country")] = "SDN";
+        h.MapText(Samples.IpcCsv, string.Join(",", header) + "\n" + string.Join(",", row) + "\n");
+        var e = await Assert.ThrowsAsync<FeedFormatException>(() => feed.RunOnceAsync(default));
+        Assert.StartsWith("format changed:", e.Message);
+        Assert.Equal(before, store.Snapshot.Crises.Count);
+    }
 }

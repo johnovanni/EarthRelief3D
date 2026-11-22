@@ -16,7 +16,9 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
     public static readonly Uri PageUrl = new("https://ucdp.uu.se/downloads/");
 
     private readonly CountryResolver _countries = countries ?? CountryResolver.LoadDefault();
-    private readonly Dictionary<string, List<UcdpEvent>> _cache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (List<UcdpEvent> Events, DateTime FetchedUtc)> _cache = new(StringComparer.Ordinal);
+
+    private static readonly TimeSpan CacheLife = TimeSpan.FromHours(24);
 
     public string Name => "UCDP";
     public TimeSpan Interval => TimeSpan.FromHours(6);
@@ -29,22 +31,29 @@ public sealed class UcdpCandidateFeed(FeedHttp http, CrisisStore store, IClock c
         // Quarterly first, so the later monthly release of an event id replaces it.
         var byId = new Dictionary<long, UcdpEvent>();
         var bad = 0;
-        var fresh = new Dictionary<string, List<UcdpEvent>>();
+        var fresh = new Dictionary<string, (List<UcdpEvent>, DateTime)>();
+        var now = clock.UtcNow;
+        // The newest monthly file and the quarterly file get revised under the same name, so they expire; older monthlies do not.
+        var newestMonthly = files.MonthliesAfterQuarterly.Count > 0 ? files.MonthliesAfterQuarterly[^1].Name : null;
         foreach (var file in files.All)
         {
-            if (!_cache.TryGetValue(file.Name, out var events))
+            var volatileFile = file.Name == newestMonthly || file.Name == files.Quarterly?.Name;
+            List<UcdpEvent> events;
+            if (_cache.TryGetValue(file.Name, out var hit) && !(volatileFile && now - hit.FetchedUtc >= CacheLife)) events = hit.Events;
+            else
             {
                 var bytes = await http.GetBytesAsync(file.Url, ct).ConfigureAwait(false);
                 var (parsed, badRows) = UcdpReader.ReadEvents(bytes, file.Name);
-                fresh[file.Name] = events = parsed;
+                fresh[file.Name] = (events = parsed, now);
                 bad += badRows;
             }
             foreach (var e in events) byId[e.Id] = e;
         }
 
-        var result = UcdpReader.Build(byId.Values, _countries, files.Version, clock.UtcNow);
+        if (byId.Count == 0) throw new FeedFormatException("no events in the UCDP files");
+        var result = UcdpReader.Build(byId.Values, _countries, files.Version, now, files.LatestCompleteMonth);
         // Cache only after every file parsed, so a failed run retries the files it did not finish.
-        foreach (var (name, events) in fresh) _cache[name] = events;
+        foreach (var (name, entry) in fresh) _cache[name] = entry;
         store.ReplaceKind(CrisisKind.ArmedConflict, result.Crises);
         var names = result.UnresolvedNames.Count == 0 ? "" : ": " + string.Join(", ", result.UnresolvedNames);
         log.Info($"UCDP: {result.Crises.Count} conflicts from {byId.Count} events in {files.All.Count()} files; "
