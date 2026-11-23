@@ -1,6 +1,6 @@
-# Data sources (Plan 2)
+# Data sources (Plan 2 and Plan 3)
 
-Checked live on 2026-11-22 with `tools/fetch-samples.ps1` (User-Agent `EarthRelief3D/0.1.0 (+https://github.com/johnovanni/EarthRelief3D)`).
+Sections 1 to 4 (Plan 2) were checked live on 2026-11-22 and sections 5 to 10 (Plan 3) on 2026-11-23, with `tools/fetch-samples.ps1` (User-Agent `EarthRelief3D/0.1.0 (+https://github.com/johnovanni/EarthRelief3D)`).
 No source needs a key or an account. Samples are in `tests/Samples` (see its README).
 
 ## 1. UCDP Georeferenced Event Dataset, Candidate (conflict events)
@@ -104,6 +104,109 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **As-of field:** `PublicationDate` (also `PublicationDateAndTime`, `LastModified`).
 - **Shape found:** `{"@odata.context": ..., "value": [ { Id, LastModified, PublicationDate, DateCreated, IncludeInSitemap, SystemSourceKey, UrlName, ItemDefaultUrl, Response, FurtherInformation, Summary, PublicationDateAndTime, TitleSuffix, UseOverrideTitle, Title, Epidemiology, OverrideTitle, Advice, Assessment, Overview, DonId, Provider } ]}`. The default order is oldest first, so ask for `$orderby=PublicationDate desc`.
 - **Gotchas found:** titles separate disease and place with a hyphen, an en dash, or a hyphen with no space before it; some items have `UseOverrideTitle` true with `OverrideTitle` set; `Overview` and `Summary` hold HTML. The synthetic sample mimics these (hyphen and en dash, a multi-country list, accented and territory names); the no-space form ("Disease- Place") is pinned by rows of `WhoOutbreakTests.ParsesDiseaseAndPlaces`, while a dash inside a word ("cholera-like") is not a separator. The feed reads only the newest 50 reports, so a response that is not newest first is treated as a format change ("format changed: not sorted by publication date").
+
+## 5. WHO Global Health Observatory OData (water, sanitation and health-care coverage; Plan 3)
+
+Checked live 2026-11-23 (User-Agent as above). Samples: `tests/Samples/gho_wsh_water_basic.json`, `gho_wsh_sanitation_basic.json`, `gho_uhc_index.json`.
+
+- **URLs:** base `https://ghoapi.azureedge.net/api/` (one constant in the app). Indicators:
+  - `WSH_WATER_BASIC`: "Population using at least basic drinking-water services (%)", 14,875 rows, 8.8 MB, 2000 to 2024;
+  - `WSH_SANITATION_BASIC`: "Population using at least basic sanitation services (%)", 14,697 rows, 8.8 MB, 2000 to 2024;
+  - `UHC_INDEX_REPORTED`: "UHC Service Coverage Index (SDG 3.8.1)", 5,160 rows, 2.9 MB, 2000 to 2023 (latest year 2023, not 2024).
+  - Names come from `/api/Indicator?$filter=IndicatorCode in (...)`. A whole indicator is one response (no paging).
+- **Licence / attribution:** WHO's data terms (https://data.who.int/about/data/terms-and-conditions, read 2026-11-23) say the datasets are provided under CC BY 4.0 "unless specifically indicated otherwise", with additional terms: do not de-anonymise or misrepresent the data; do not state or imply that WHO endorses the user or the output; no use of WHO's name or emblem without written approval; disputes go to conciliation, then UNCITRAL arbitration. Citation: use the attribution in the metadata, and if there is none, the form `World Health Organization {YEAR} data.who.int, {ITEM_NAME} [{ITEM_TYPE}]. {URL} (Accessed on {ACCESS DATE})`. The app shows: "World Health Organization, Global Health Observatory: <indicator name>, <year>; CC BY 4.0; retrieved <date>".
+  - **Open question for the owner:** those terms are on data.who.int. The GHO OData page (https://www.who.int/data/gho/info/gho-odata-api) states no licence, and WHO's "Permissions and licensing" page (https://www.who.int/about/policies/publishing/copyright) names CC BY-NC-SA 3.0 IGO for WHO publications. Nothing we found says which applies to GHO API rows. GHO and data.who.int are "driven by a single underlying data source" (WHO's legacy page), so CC BY 4.0 is the likelier reading, but until the owner confirms, treat it under C6 (the committed samples are a 15-country extract of public statistics; delete them if the answer is NC-SA).
+- **Deprecation (checked):** https://www.who.int/data/gho/legacy says "The current GHO OData API will be deprecated near the end of 2025" and lists "GHO OData API (deprecated end of 2025)" next to "World Health Data Hub OData API (available, end of 2025)". The second link is `href="#"`: **no successor URL is published**. On 2026-11-23 the old API still answers (HTTP 200), so keep it, keep the base URL in one constant, and treat a failure as "source unavailable".
+- **Cadence:** WHO updates when estimates are published (WASH: JMP update; UHC: biennial). Every row's `Date` in the sample is 2026-01-23.
+- **As-of field:** `TimeDim` (the year of the estimate). The row's `Date` is when WHO loaded the row, not the as-of date.
+- **Checked columns (present):** `SpatialDim` (ISO3 when `SpatialDimType` is COUNTRY), `TimeDim` (number), `NumericValue` (double), `Dim1`. Also `Value` (rounded text), `Low` and `High` (always null here), `ParentLocationCode`, `DataSourceDim` (null).
+- **Differences and gotchas found:**
+  - Rows include `SpatialDimType` `REGION` and `GLOBAL` (UHC also `WORLDBANKREGION`, `WORLDBANKINCOMEGROUP`): keep only `COUNTRY` (226 country codes in the water file).
+  - WASH rows come three times per country and year in `Dim1`: `RESIDENCEAREATYPE_TOTL`, `_URB`, `_RUR`. Use `_TOTL`. `UHC_INDEX_REPORTED` has `Dim1` null.
+  - Years differ by country: the USA has `_TOTL` water rows for 20 of the 25 years (its `_URB` has 25). Take each country's newest year, not a fixed year.
+  - `Value` is the rounded text ("65"), `NumericValue` the exact double (64.89171295). Use `NumericValue`.
+  - Latest values in the sample (`_TOTL`), water 2024: SDN 64.9, YEM 75.0, AFG 80.8, NER 53.4, TCD 52.2, ISL 100, USA 99.98, CHN 96.1, PSE 98.8. UHC 2023: SDN 48, YEM 43, AFG 42, NER 39, TCD 26, ISL 90, USA 88, CHN 85, PSE 65.
+  - "Share of people without at least basic sanitation, 2024" is 100 minus the file's value; the legend must say so.
+- **Samples are synthetic (ruling R5, as P2-5 for WHO DON):** the three `gho_*.json` files hold **invented values** in the exact shape of the live answer checked on 2026-11-23 (`@odata.context`, a `value` array, the same field names and types). 15 countries (SDN, YEM, AFG, NER, TCD, ISL, USA, CHN, PSE, SOM, SSD, UKR, HTI, COD, MMR), three years each (USA's WASH rows skip 2023, a gap like the live data's), `RESIDENCEAREATYPE_TOTL` rows plus one `_URB` and one `_RUR` series for SDN so the filter can be tested; UHC has `Dim1` null. Each file is about 25 to 30 KB. Real GHO rows are fetched live by the app. `tools/fetch-samples.ps1` does not write GHO data into `tests/Samples`: it only fetches the live answer to a scratch folder to check that the fields are still there. (The "Latest values in the sample" line above describes the live answer, not the files.)
+
+## 6. OCHA Humanitarian Needs Overview, national, via HDX (people in need; Plan 3)
+
+Checked live 2026-11-23. Samples: `tests/Samples/hdx_hno_package.json`, `hpc_hno_2026.csv`.
+
+- **URL:** https://data.humdata.org/api/3/action/package_show?id=global-hpc-hno ("Global Humanitarian Programme Cycle, Humanitarian Needs", organisation "OCHA Humanitarian Programme Cycle Tools (HPC Tools)"). Read the 2026 file's URL from the package. Its resource is named **"Global HPC HNO 2026 CSV"** (not `hpc_hno_2026.csv`; that is the last part of its URL), 6,682 bytes (6.7 KB). Siblings "Global HPC HNO 2025 CSV" (27 MB) and 2024 (32 MB) are not used.
+- **Licence / attribution:** CKAN `license_id` `cc-by-igo` ("Creative Commons Attribution for Intergovernmental Organisations (CC BY-IGO)", http://creativecommons.org/licenses/by/3.0/igo/legalcode). `dataset_source`: "Humanitarian partners". The package has no attribution text of its own. The app shows: "OCHA Humanitarian Programme Cycle Tools (HPC Tools), via HDX: Global HPC HNO 2026; CC BY-IGO".
+- **Cadence:** `data_update_frequency` 365 (yearly). The 2026 file's `last_modified` is 2026-02-13; the package `dataset_date` is `[2024-01-01 TO 2026-12-31]`.
+- **As-of field:** none per row. The year is in the file's name (2026) and its `last_modified` (2026-02-13) says when it was loaded. Say "Humanitarian Needs Overview 2026 (file loaded 2026-02-13)", never today's date.
+- **Checked columns (all 10 present):** `Country ISO3, Description, Cluster, Category, Population, In Need, Targeted, Affected, Reached, Info`. `Category`, `Affected`, `Reached` and `Info` are empty in all 134 rows.
+- **Cluster codes (all five present):** `ALL` (20 rows, one per country), `FSC` (11), `WSH` (11), `SHL` (11), `HEA` (11). Others: `EDU, NUT, PRO, CCM, MPC, MS, PRO-CPN, PRO-GBV, PRO-MIN, PRO-HLP`.
+- **Differences and gotchas found:**
+  - **Only 20 countries:** AFG, BFA, CAF, CMR, COD, COL, HTI, MLI, MMR, MOZ, NER, NGA, SDN, SOM, SSD, SYR, TCD, UKR, VEN, YEM.
+  - **SDN and YEM have only the `ALL` row** (no FSC, WSH, SHL or HEA split); so do BFA, CMR, COL, MLI, NER, SYR and VEN. Eleven countries have FSC and WSH: AFG, CAF, COD, HTI, MMR, MOZ, NGA, SOM, SSD, TCD, UKR. A cluster with no row means "not reported in this file", never zero.
+  - `Description` is free text in the country's language (French for CAF, COD and HTI: "Sécurité alimentaire", "EPAH"); use `Cluster`.
+  - `ALL` rows are described as "Final", "Final caseload", "Plan caseload", "GHO Estimates" and so on. The `GHO Estimates` rows (BFA, CMR, COL, MLI, NER, SYR, VEN, YEM) are not from a country's own Humanitarian Needs Overview: show `Description` beside the figure.
+  - `Population` is filled only on the `ALL` row. Cluster rows have `In Need` and `Targeted` only (a few `In Need` cells are blank, e.g. `MPC`).
+  - `PRO` repeats within CAF, COD, MOZ, TCD and UKR (sub-sector rows sharing a cluster code). The five codes the app reads have no repeats in this file; reject a repeat rather than add it.
+  - UTF-8 without BOM, comma separated, quoted where needed.
+- **User-Agent:** HDX accepted the app's own User-Agent for the package and the CSV (HTTP 200), and also plain `curl`'s default User-Agent, on 2026-11-23. The earlier finding that HDX needs a browser-like User-Agent was **not reproduced**. Keep sending the project's own and treat a 403 as "source unavailable".
+
+## 7. IPC acute food insecurity, per-country areas, via HDX (Plan 3)
+
+Checked live 2026-11-23. Samples: `tests/Samples/hdx_ipc_nga_package.json`, `ipc_nga.geojson` (trimmed), `ipc_nga_national_long_latest.csv`, `hdx_ipc_nogeo_package.json`.
+
+- **Datasets:** each country has its own dataset on HDX, organisation `ipc` ("Integrated Food Security Phase Classification (IPC)"), e.g. https://data.humdata.org/api/3/action/package_show?id=nigeria-acute-food-insecurity-country-data. Dataset names use long country names (`democratic-republic-of-the-congo-`, `state-of-palestine-`, `cote-d-ivoire-`, `united-republic-of-tanzania-`, and both `eswatini-` and an old `kingdom-of-eswatini-`), so **do not build the id from a name**: query by group.
+- **CKAN query that finds a country's GeoJSON (decided for Task 4):**
+  `GET https://data.humdata.org/api/3/action/package_search?fq=organization:ipc AND groups:<iso3 lower-case>&rows=10&fl=name,license_id,res_name,res_url`
+  (URL-encode the `fq`.) Take the package whose `res_name` list holds exactly `ipc_<iso3 lower-case>.geojson` and read that file's URL from the entry of `res_url` at the same position; ignore the other packages. Checked on 2026-11-23: `groups:cod`, `pse`, `sdn`, `civ` return the country package plus `ipc-country-data` (an archive with only `All Countries-2017-2023.xlsx` and no GeoJSON); `groups:ukr` and `groups:mmr` return 0 packages (no IPC data at all: "no areas"). Group codes are ISO3 in lower case. `package_show?id=<name>` gives the same resources with `size` and `last_modified` once the name is known.
+- **Coverage on 2026-11-23:** 56 packages in the organisation: 52 country groups have an `ipc_<iso3>.geojson`; the other four packages are `global-acute-food-insecurity-country-data` (group `world`), `ipc-country-data` (the xlsx archive), `lac-region-tri-national-acute-food-insecurity-country-data` (one xlsx, groups GTM, HND, SLV) and the old `kingdom-of-eswatini-acute-food-insecurity-country-data` (2017 to 2024, no GeoJSON, same group `swz` as the current `eswatini-...` dataset that has `ipc_swz.geojson`). **No current country dataset lacks a GeoJSON,** so the no-areas sample (`hdx_ipc_nogeo_package.json`) is the stale Eswatini duplicate, and the "no package at all" case is `groups:ukr`. A reader must choose by resource name, never take the first package.
+- **Licence / attribution:** all 56 packages have `license_id` `other-pd-nr` ("Public Domain / No restrictions (CC0)"). `dataset_source`: "National IPC Technical Working Group". The app shows: "Integrated Food Security Phase Classification (IPC), via HDX; National IPC Technical Working Group, analysis <Date of analysis>" (credit is a courtesy, not required).
+- **Cadence:** `data_update_frequency` -2 (as needed). Nigeria `last_modified` 2026-10-12; Sudan and Yemen 2026-10-05.
+- **Resources per country dataset:** `ipc_<iso3>.geojson` (Nigeria: 795 features, 1,873,647 bytes) and `ipc_<iso3>_{national,level1,area}_{long,wide}[_latest].csv`.
+- **GeoJSON feature properties (identical keys on every feature; checked on NGA, SDN, YEM and HTI; no `crs`, no feature `id`, degrees):** `aar_id, confidence_level, ipc_period, overall_phase, population_min, population_percentage_min, justification, prolonged_crisis, population_phase_worse, population_percentage_phase_worse, anl_id, admin_type, title, view_level, hide_settlement_labels, hide_area_labels, hide_area_borders, show_area_popups, color, estimated_population` and `phase1_population, phase1_percent, phase1_color` through `phase5_...`. `overall_phase` is 0 to 5 (0: no classification). `aar_id`, `anl_id`, `estimated_population` and `population_min` are strings; the phase populations are numbers.
+- **Which property identifies the analysis and its period (decides P3-2 and Task 4):**
+  - **Analysis: `anl_id`** (string). One value per file: Nigeria `87143447` (all 795 features), Sudan `87143417`, Yemen `87143419`, Haiti `87143410`. `aar_id` is the unique id of one area's result (no duplicates), not of the analysis.
+  - **Period kind: `ipc_period`**, one letter on every feature: `C` (current) in Sudan (196 areas) and Yemen (118); `P` (projection) in Nigeria (795) and Haiti (30). It does not say first or second projection.
+  - **The validity period (from, to) and the date of analysis are NOT in the GeoJSON:** no property carries them. They are in the same dataset's CSVs: `ipc_<iso3>_national_long_latest.csv` (one analysis for the country: `Date of analysis, Country, Total country population, Validity period, From, To, Phase, Number, Percentage`; Nigeria: "Mar 2026", `first projection`, 2026-06-01 to 2026-08-31) and `ipc_<iso3>_area_wide_latest.csv` (one row per area: `Date of analysis`, `Current from/to`, `First projection from/to`, `Second projection from/to`; join on `Area` = GeoJSON `title`).
+  - Nigeria: all 736 area rows carry "Mar 2026" and the first projection 2026-06-01 to 2026-08-31; 59 of the 795 GeoJSON titles have no area row; for 531 of the 736 the CSV's Phase 3 count equals `phase3_population` (the rest differ or are blank). Sudan: "Jan 2026", current 2026-02-01 to 2026-05-31, first projection 2026-06-01 to 2026-09-30, second projection 2026-10-01 to 2027-01-31; all 196 titles match; the GeoJSON's `C` areas are the current period, which had **already ended on 2026-11-23**.
+  - Consequence for Task 4: the GeoJSON alone cannot tell the period; the country's `ipc_<iso3>_national_long_latest.csv` (or the area CSV) must be fetched with it, its `Date of analysis` compared with the national record R17 uses, and a `P` set matched to "first" or "second" projection through the CSV (Nigeria's lists only the first). If the dates can't be matched, keep R17 and log why. This is a fourth download per country, not a field of the GeoJSON.
+- **Other gotchas found:**
+  - Geometry types are mixed: Nigeria has 761 Polygon, 13 MultiPolygon and **21 Point** features (`admin_type` still says `polygon`; the points are IDP settlements such as "Bama IDPs"). Never treat a point as an area.
+  - Areas with `overall_phase` 0 are present (Nigeria 220 of 795): not shaded, and not "no crisis". Nigeria's phases: 0 (220), 2 (374), 3 (185), 4 (16).
+  - Phase colours are in the data (`color`, `phaseN_color`); the app uses its own IPC colours.
+  - `title` is unique in each file but is an area name, not a p-code; there are no p-codes (as the plan said).
+- **Sample trim (ruling R1, one-off script kept outside the repo):** 40 Nigeria features (2 Point, 2 MultiPolygon, 36 Polygon; `overall_phase` 0 (6), 2 (12), 3 (13), 4 (9)) picked with a fixed random seed; Douglas-Peucker simplification at 0.004 degrees, coordinates rounded to 3 decimals, properties untouched; 62,798 bytes. `tools/fetch-samples.ps1 -Set Plan3` saves the full download to `.downloads/` (git-ignored) but does not trim it.
+
+## 8. FAOSTAT Suite of Food Security Indicators (undernourishment and energy supply; Plan 3, bundled in Task 6)
+
+Checked 2026-11-23 by a download into a scratch folder (nothing in the repo).
+
+- **URL:** https://bulks-faostat.fao.org/production/Food_Security_Data_E_All_Data_(Normalized).zip : 2,199,068 bytes (2.1 MB), `Last-Modified` 2026-11-23. FAO's catalogue (https://bulks-faostat.fao.org/production/datasets_E.xml) lists it as dataset `FS`, "Food Security and Nutrition: Suite of Food Security Indicators", `DateUpdate` 2026-11-23, 286,185 rows.
+- **Zip contents:** the normalised CSV (52 MB), `..._AreaCodes.csv`, `..._Elements.csv`, `..._Flags.csv`, `..._ItemCodes.csv`.
+- **Licence / attribution:** FAO's database terms (https://www.fao.org/contact-us/terms/db-terms-of-use/en/, read 2026-11-23): datasets are CC BY 4.0 unless their metadata says otherwise; users may not state that FAO has approved or endorsed their use. Citation format: `FAO. [year of last update]. [Name of database: Name of dataset]. Accessed on [date]. [URL] Licence: CC-BY-4.0.` The app shows, for example: "FAO. 2026. FAOSTAT: Suite of Food Security Indicators. Accessed on 23 November 2026. Licence: CC-BY-4.0."
+- **Cadence / as-of:** updated several times a year (this file 2026-11-23). The as-of is the row's `Year`, not the file date.
+- **Checked columns:** `Area Code, Area Code (M49), Area, Item Code, Item, Element Code, Element, Year Code, Year, Unit, Value, Flag, Note`.
+- **Gotchas found:**
+  - **Latin-1**, quoted fields. `Area Code (M49)` carries a leading apostrophe (`'004`; Sudan `'729`, Yemen `'887`, "China, mainland" `'156`).
+  - `Year` is a single year (`2025`) for annual items and a three-year range text (`2022-2024`, `2023-2025`) for "(3-year average)" items; `Year Code` is `20222024` for the range.
+  - Items for the plan: `210041` "Prevalence of undernourishment (percent) (3-year average)" and `21010` "Average dietary energy supply adequacy (percent) (3-year average)"; the newest range is 2023-2025. `Flag` values: E (estimated), X (international organisation figure), O (missing), Q, A, L.
+  - Aggregates (regions, income groups) share the `Area` list: drop them (Task 6, ruling P3-11).
+
+## 9. US EIA International bulk file (oil production; Plan 3, bundled in Task 6)
+
+Checked 2026-11-23 with HEAD requests and the reuse page only; the file was not downloaded.
+
+- **URL:** https://www.eia.gov/opendata/bulk/INTL.zip : HTTP 200, 24,714,575 bytes (24.7 MB), `Last-Modified` 2026-11-19. The bulk-files page (https://www.eia.gov/opendata/bulk/) answered 403 to the app's User-Agent, so its text was not read; the zip needs no key.
+- **Licence / attribution:** https://www.eia.gov/about/copyrights_reuse.php (read 2026-11-23): US government publications are in the public domain; a user "should use an acknowledgment, which includes the publication date", for example "Source: U.S. Energy Information Administration (Oct 2008)." The app shows: "Source: U.S. Energy Information Administration (<month and year>)". The page warns that material EIA gets from private contributors may be protected; the INTL series are EIA's own.
+- **As-of:** the series year; the file's `Last-Modified` (2026-11-19) gives the publication date to quote.
+
+## 10. WRI Aqueduct 4.0 country rankings (water stress; Plan 3, bundled in Task 6)
+
+Checked 2026-11-23 by a download into a scratch folder (nothing in the repo).
+
+- **URL:** https://files.wri.org/aqueduct/aqueduct-4-0-country-rankings.zip : 12,790,153 bytes (12.8 MB), `Last-Modified` 2023-08-07. Landing page: https://www.wri.org/data/aqueduct-40-country-rankings (dated 16 August 2023). The zip holds one workbook, `Aqueduct40_rankings_download_Y2023M07D05/Aqueduct40_rankings_download_Y2023M07D05.xlsx` (13.8 MB), with sheets `Read Me, country_baseline, country_future, province_baseline, province_future`.
+- **Licence: not confirmed.** The Read Me sheet states no licence. WRI's two landing pages say only "License: Creative Commons", with no version and no link. The plan expected the Read Me to give the version; it does not. Task 6 must not write CC BY 4.0 in the manifest: record "Creative Commons (version not stated by WRI), checked 2026-11-23", and ask WRI (the Read Me links an Aqueduct User Question form) or keep the layer to a link until WRI answers.
+- **Attribution text (Read Me sheet, "Citations"):** "Kuzma, S., M.F.P. Bierkens, S. Lakshman, T. Luo, L. Saccoccia, E. H. Sutanudjaja, and R. Van Beek. 2023. Aqueduct 4.0: Updated decision-relevant global water risk indicators. Technical Note. Washington, DC: World Resources Institute. Available online at: doi.org/10.46830/writn.23.00061." The sheet also credits GADM 3.6 for the boundaries. The data cover the baseline 1979 to 2019 and projections for 2030, 2050 and 2080.
+- **Cautions in the Read Me (repeat in the legend's note):** the indicators cannot be measured directly and have not been validated; interbasin transfers are not modelled; the 2023 data should be compared with the 2019 release only with caution.
+- **Checked columns of `country_baseline` (the header strings are present in the workbook):** `gid_0, name_0, indicator_name, weight, score, score_ranked, cat, label, un_region, wb_region`; `bws` and weight `Tot` (also `Dom, Ind, Irr`) occur. `gid_0` is ISO3; `label` is the category text (for example "Low (<10%)", "Medium - High (0.6-0.8)").
 
 ## Offline samples (`--offline-samples`)
 
