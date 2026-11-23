@@ -116,5 +116,5 @@ and a phase bar in the panel; see the spec and `docs/data-sources.md`).
   band); the Sudan panel says "of 47,535,794 people analysed (the phase numbers add up to 30 more)"; the legend's food
   line is two lines longer (the rule's last clause and the faint-tint key).
 - App launches: 2 (the snapshot run and the repeat).
-- The baseline is **not yet replaced**: `artifacts\snapshot-baseline` still holds the pictures from before R17. The owner
-  decides whether `artifacts\snapshot-food-r2` becomes the baseline.
+- The baseline was replaced on 2026-11-23, with the owner's OK: the five pictures from `artifacts\snapshot-food-r2` were
+  copied over `artifacts\snapshot-baseline` (byte-identical copies, checked).
