@@ -3,6 +3,7 @@
   Run from anywhere:  pwsh tools/fetch-samples.ps1            (all)
                       pwsh tools/fetch-samples.ps1 -Set Plan3  (only the Plan 3 samples: GHO, HNO, IPC packages)
                       pwsh tools/fetch-samples.ps1 -Set Plan2  (only the Plan 2 samples)
+  Needs PowerShell 7.5 or later (the GHO check uses ConvertFrom-Json -DateKind String).
   Sends only the User-Agent below; nothing identifying the person who runs it.
   The WHO sample is NOT fetched: WHO text is CC BY-NC-SA and never goes into the repo (tests/Samples/who_don_synthetic.json is hand-made).
 #>
@@ -100,6 +101,7 @@ try {
     Save-File $geo.url "$downloads\ipc_nga.geojson"
     Write-Host "IPC NGA GeoJSON (full, 795 areas) saved to .downloads; tests/Samples/ipc_nga.geojson is trimmed by hand/one-off script (R1), NOT by this script"
     $natRes = $ipcPkg.result.resources | Where-Object { $_.name -eq 'ipc_nga_national_long_latest.csv' } | Select-Object -First 1
+    if (-not $natRes) { throw 'IPC Nigeria package has no ipc_nga_national_long_latest.csv' }
     Save-File $natRes.url "$out\ipc_nga_national_long_latest.csv"
     $nogeoText = Get-Text 'https://data.humdata.org/api/3/action/package_show?id=kingdom-of-eswatini-acute-food-insecurity-country-data'
     [System.IO.File]::WriteAllText("$out\hdx_ipc_nogeo_package.json", $nogeoText, $utf8)
