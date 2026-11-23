@@ -1,3 +1,4 @@
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.Settings;
@@ -176,6 +177,28 @@ public class LegendViewModelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
         layers.Shading = ShadingLayer.Water;
         Assert.Equal("Share of people without at least basic drinking water, 2024", Assert.Single(legend.Entries).Measures);
+    }
+
+    [Fact]
+    public async Task ShelterSaysFileLoadedAndGhoSaysEstimateYearNeverAsOf()
+    {
+        var indicators = new IndicatorStore();
+        var crises = new CrisisStore();
+        var clock = new FixedClock(T);
+        await new HnoFeed(Samples.HnoHttp().Http, indicators, crises, clock, new ListLog()).RunOnceAsync(default);
+        await new GhoFeed(Samples.GhoHttp().Http, indicators, crises, clock, new ListLog()).RunOnceAsync(default);
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
+
+        layers.Shading = ShadingLayer.ShelterNeed;
+        var shelter = Assert.Single(legend.Entries);
+        Assert.Equal("file loaded 13 Feb 2026", shelter.AsOf);
+        Assert.DoesNotContain("as of", shelter.SourceLine);
+
+        layers.Shading = ShadingLayer.Water;
+        var water = Assert.Single(legend.Entries);
+        Assert.Equal("estimate year 2024", water.AsOf);
+        Assert.DoesNotContain("as of", water.SourceLine);
     }
 
     [Fact]

@@ -132,7 +132,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         Add(displaced is null ? null : DisplacementSection(displaced, now), CrisisLayer.Displacement);
 
         // The needs sections follow the crisis ones. They are not crises: the headline rules below ignore them.
-        if (_indicators is not null) sections.AddRange(NeedsSections(_indicators.Snapshot, iso3, now));
+        if (_indicators is not null) sections.AddRange(NeedsSections(_indicators.Snapshot, _store.Snapshot.CheckedUtc, iso3, now));
 
         var currentCrisis = conflicts.Count > 0 || outbreaks.Count > 0 || food is { IsStale: false, ProjectionOnly: false };
         var projectionOnly = !currentCrisis && food is { ProjectionOnly: true };
@@ -268,12 +268,12 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     /// humanitarian plan's rows (or the statement that no plan lists the country). A series not loaded says "Data not loaded
     /// yet"; a value the map would not shade (no class) is "No figure", the same <see cref="CountryValueLayer.HasFigure"/> rule.
     /// </summary>
-    private static IEnumerable<PanelSection> NeedsSections(IndicatorSnapshot snap, string iso3, DateTime now)
+    private static IEnumerable<PanelSection> NeedsSections(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3, DateTime now)
     {
         var rows = new List<(string, string)>();
         var cites = new List<SourceCitation>();
         foreach (var (layer, label) in new[]
-                 { (ShadingLayer.Water, "No basic drinking water"), (ShadingLayer.Sanitation, "No basic sanitation"), (ShadingLayer.Health, "Health services not covered") })
+                 { (ShadingLayer.Water, "Without at least basic drinking water"), (ShadingLayer.Sanitation, "Without at least basic sanitation"), (ShadingLayer.Health, "Health services not covered") })
         {
             if (snap.Get(LayerCatalog.SeriesId(layer)) is not { } series) { rows.Add((label, LayerCatalog.NotLoaded)); continue; }
             var scale = ShadingScales.For(layer);
@@ -286,20 +286,20 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         const string ghoPublisher = "World Health Organization, Global Health Observatory";
         var newest = cites.MaxBy(c => c.AsOfUtc);
         var ghoLine = newest is null
-            ? $"Source: {ghoPublisher} · {(rows.Any(r => r.Item2 == LayerCatalog.NotLoaded) ? LayerCatalog.NotLoaded : "no figure for this country")}"
-            : $"Source: {newest.Publisher}, Global Health Observatory · {CrisisText.DataDate(newest, now)} (each figure shows its own year)";
+            ? $"Source: {ghoPublisher} · {(rows.Any(r => r.Item2 == LayerCatalog.NotLoaded) ? LayerCatalog.NotLoaded : "no figure for this country")} · {CheckedText(checkedUtc, GhoFeed.FeedName)}"
+            : $"Source: {newest.Publisher}, Global Health Observatory · {CrisisText.DataDate(newest, now)}, newest (each figure shows its own year)";
         yield return new PanelSection(BasicNeedsHeading, rows, ghoLine, newest?.Url ?? GhoFeed.PageUrl);
 
-        yield return PlanSection(snap, iso3, now);
+        yield return PlanSection(snap, checkedUtc, iso3, now);
     }
 
-    private static PanelSection PlanSection(IndicatorSnapshot snap, string iso3, DateTime now)
+    private static PanelSection PlanSection(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3, DateTime now)
     {
         if (snap.Needs.Count == 0)
             return new PanelSection("People in need (UN humanitarian plan)", [("People in need", LayerCatalog.NotLoaded)],
-                $"Source: {HnoFeed.Publisher} · {LayerCatalog.NotLoaded}", HnoFeed.PageUrl);
+                $"Source: {HnoFeed.Publisher} · {LayerCatalog.NotLoaded} · {CheckedText(checkedUtc, HnoFeed.FeedName)}", HnoFeed.PageUrl);
         var any = snap.Needs[0];
-        var source = $"Source: {any.Citation.Publisher}, {any.Citation.Dataset} · file loaded {CrisisText.Date(any.Citation.AsOfUtc)}";
+        var source = $"Source: {any.Citation.Publisher}, {any.Citation.Dataset} · {CrisisText.DataDate(any.Citation, now)}";
         var mine = snap.NeedsOf(iso3);
         if (mine.Count == 0)
             return new PanelSection($"No UN humanitarian needs plan for {any.PlanYear} lists this country", [], source, any.Citation.Url);
@@ -315,6 +315,10 @@ public sealed partial class CountryPanelViewModel : ObservableObject
                 ? basis + ": not from this country's own needs overview" : basis));
         return new PanelSection($"People in need (UN humanitarian plan {any.PlanYear})", rows, source, any.Citation.Url);
     }
+
+    /// <summary>"checked 23 Nov 2026" from the feed's last successful run, or "not yet checked".</summary>
+    private static string CheckedText(IReadOnlyDictionary<string, DateTime> checkedUtc, string feed) =>
+        checkedUtc.TryGetValue(feed, out var t) ? SourceDates.Checked(t) : SourceDates.NotChecked;
 
     private static string NeedValue(HumanitarianNeed n)
     {

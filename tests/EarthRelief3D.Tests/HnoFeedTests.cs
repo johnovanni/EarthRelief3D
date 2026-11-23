@@ -127,6 +127,29 @@ public class HnoFeedTests
     }
 
     [Fact]
+    public async Task AResourceWithoutLastModifiedIsFormatChanged()
+    {
+        // The package's own date is not the file's load date, so it is not used in its place.
+        var node = System.Text.Json.Nodes.JsonNode.Parse(Samples.Text("hdx_hno_package.json"))!;
+        foreach (var r in node["result"]!["resources"]!.AsArray()) r!.AsObject().Remove("last_modified");
+        var h = new SampleHttpHandler();
+        h.MapText(HnoFeed.PackageUrl.ToString(), node.ToJsonString());
+        h.Map(Samples.HnoCsv2026, Samples.Path("hpc_hno_2026.csv"));
+        var ind = new IndicatorStore();
+        var ex = await Assert.ThrowsAsync<FeedFormatException>(() => Make(new FeedHttp("test", h), ind).RunOnceAsync(default));
+        Assert.StartsWith("format changed:", ex.Message);
+        Assert.Contains("last_modified", ex.Message);
+        Assert.Empty(ind.Snapshot.Needs);
+    }
+
+    [Fact]
+    public async Task TheCitationSaysTheDateIsTheFilesLoadDate()
+    {
+        var ind = await Loaded();
+        Assert.Equal(CitationDate.FileLoaded, Row(ind, "AFG", "ALL").Citation.DateMeaning);
+    }
+
+    [Fact]
     public async Task FallsBackToThePreviousYearWhenTheNewOneIsNotThereYet()
     {
         var (http, h) = Samples.HnoHttp();

@@ -67,7 +67,8 @@ public sealed class HnoFeed(FeedHttp http, IndicatorStore indicators, CrisisStor
             {
                 if (!r.TryGetProperty("url", out var u) || !Uri.TryCreate(u.GetString(), UriKind.Absolute, out var uri)) continue;
                 if (!string.Equals(Path.GetFileName(uri.AbsolutePath), FileName(year), StringComparison.OrdinalIgnoreCase)) continue;
-                var loaded = Utc(r, "last_modified") ?? Utc(result, "last_modified")
+                // The file's own load date only: the package's date is another thing and is never called "file loaded".
+                var loaded = Utc(r, "last_modified")
                     ?? throw new FeedFormatException($"the {FileName(year)} resource has no last_modified date");
                 return (year, uri, loaded);
             }
@@ -90,7 +91,7 @@ public sealed class HnoFeed(FeedHttp http, IndicatorStore indicators, CrisisStor
         var fileName = FileName(year);
         var yearText = year.ToString(CultureInfo.InvariantCulture);
         var citation = new SourceCitation(Publisher, $"Global HPC HNO {year}", yearText, PageUrl, "CC BY-IGO",
-            $"{Publisher}: Global HPC HNO {year}; CC BY-IGO", loadedUtc, now);
+            $"{Publisher}: Global HPC HNO {year}; CC BY-IGO", loadedUtc, now, CitationDate.FileLoaded);
 
         var needs = new List<HumanitarianNeed>();
         var unplaced = new List<UnplacedReport>();

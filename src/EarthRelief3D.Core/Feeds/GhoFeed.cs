@@ -86,7 +86,7 @@ public sealed class GhoFeed(FeedHttp http, IndicatorStore indicators, CrisisStor
             series.Add(new IndicatorSeries(ind.SeriesId, ind.Measures, ind.Unit, values));
         }
 
-        foreach (var s in series) indicators.Replace(s.Id, s);
+        indicators.ReplaceAll(series);   // one write: the three series change together
         var unplaced = new List<UnplacedReport>();
         foreach (var (iso, codes) in notPlaced)
         {
@@ -104,7 +104,7 @@ public sealed class GhoFeed(FeedHttp http, IndicatorStore indicators, CrisisStor
         Publisher, $"Global Health Observatory: {ind.Title}", year.ToString(CultureInfo.InvariantCulture), PageUrl, "CC BY 4.0",
         $"World Health Organization, Global Health Observatory: {ind.Title}, {year}; CC BY 4.0; retrieved {now.ToString("d MMM yyyy", CultureInfo.InvariantCulture)}",
         new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc),   // TimeDim is the estimate's year; the row's own Date is when WHO loaded it
-        now);
+        now, CitationDate.EstimateYear);
 
     /// <summary>Each country's newest year and its value (the percentage WHO publishes), from one indicator's answer.</summary>
     private static Dictionary<string, (int Year, double Access)> Latest(Indicator ind, string json, int clockYear)

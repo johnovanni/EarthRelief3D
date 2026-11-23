@@ -65,6 +65,24 @@ public sealed class IndicatorStore
         });
     }
 
+    /// <summary>Replaces several series in one write (one change event), as a feed's indicators arrive together.</summary>
+    public bool ReplaceAll(IReadOnlyList<IndicatorSeries> series)
+    {
+        ArgumentNullException.ThrowIfNull(series);
+        return _store.Write(s =>
+        {
+            var all = new Dictionary<string, IndicatorSeries>(s.Series, StringComparer.Ordinal);
+            var changed = false;
+            foreach (var x in series)
+            {
+                if (s.Get(x.Id) is { } old && old.Equals(x)) continue;
+                all[x.Id] = x;
+                changed = true;
+            }
+            return changed ? s with { Series = all } : null;
+        });
+    }
+
     /// <summary>
     /// Replaces the HNO rows and the series derived from them in one write, so the map and the panel never see the new rows
     /// with the old shares. A write that changes nothing raises no event.

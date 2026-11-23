@@ -34,12 +34,13 @@ public class NeedsPanelTests
         Assert.Equal("Basic needs", basic.Heading);
         // The three GHO values as the map shows them (the share without), each with its year and source.
         Assert.Equal(
-            [("No basic drinking water", "77.9% of people (2024, WHO GHO)"),
-             ("No basic sanitation", "6.6% of people (2024, WHO GHO)"),
+            [("Without at least basic drinking water", "77.9% of people (2024, WHO GHO)"),
+             ("Without at least basic sanitation", "6.6% of people (2024, WHO GHO)"),
              ("Health services not covered", "57 points (2023, WHO GHO; 100 minus the UHC service coverage index)")],
             basic.Rows);
         Assert.StartsWith("Source: World Health Organization, Global Health Observatory", basic.SourceLine);
-        Assert.Contains("as of 31 Dec 2024", basic.SourceLine);
+        Assert.Contains("estimate year 2024", basic.SourceLine);
+        Assert.DoesNotContain("as of", basic.SourceLine);
         Assert.NotNull(basic.Link);
 
         // Sudan has the ALL row only (R7): the total, and no invented cluster rows.
@@ -113,9 +114,30 @@ public class NeedsPanelTests
         panel.Show("SDN");
         var basic = Section(panel, CountryPanelViewModel.BasicNeedsHeading);
         Assert.All(basic.Rows, r => Assert.Equal("Data not loaded yet", r.Value));
-        Assert.Contains("Data not loaded yet", basic.SourceLine);
+        Assert.EndsWith("Data not loaded yet · not yet checked", basic.SourceLine);
         var plan = Assert.Single(panel.Sections, s => s.Heading.StartsWith("People in need", StringComparison.Ordinal));
         Assert.Equal("Data not loaded yet", plan.Rows[0].Value);
+        Assert.EndsWith("Data not loaded yet · not yet checked", plan.SourceLine);
+
+        // Once the source has been checked, its date is on the line.
+        var crises = new CrisisStore();
+        crises.MarkChecked("WHO GHO", Now.AddDays(-1));
+        crises.MarkChecked("UN HNO", Now);
+        var checkedPanel = new CountryPanelViewModel(crises, _ => "Sudan", nowUtc: () => Now, indicators: new IndicatorStore());
+        checkedPanel.Show("SDN");
+        Assert.EndsWith("Data not loaded yet · checked 22 Nov 2026", Section(checkedPanel, CountryPanelViewModel.BasicNeedsHeading).SourceLine);
+        Assert.EndsWith("Data not loaded yet · checked 23 Nov 2026",
+            Assert.Single(checkedPanel.Sections, s => s.Heading.StartsWith("People in need", StringComparison.Ordinal)).SourceLine);
+    }
+
+    [Fact]
+    public async Task NoFigureForThisCountryCarriesTheCheckedDate()
+    {
+        var crises = new CrisisStore();
+        crises.MarkChecked("WHO GHO", Now);
+        var panel = new CountryPanelViewModel(crises, _ => "Greenland", nowUtc: () => Now, indicators: await Loaded());
+        panel.Show("GRL");
+        Assert.EndsWith("no figure for this country · checked 23 Nov 2026", Section(panel, CountryPanelViewModel.BasicNeedsHeading).SourceLine);
     }
 
     [Fact]

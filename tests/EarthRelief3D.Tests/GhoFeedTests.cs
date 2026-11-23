@@ -62,6 +62,19 @@ public class GhoFeedTests
     }
 
     [Fact]
+    public async Task TheThreeSeriesArriveInOneWrite()
+    {
+        var ind = new IndicatorStore();
+        var changes = 0;
+        ind.Changed += (_, _) => changes++;
+        await Make(Samples.GhoHttp().Http, ind).RunOnceAsync(default);
+        Assert.Equal(1, changes);
+        Assert.Equal(3, ind.Snapshot.Series.Count);
+        // Year-only data: the citation says so, and the day is never shown.
+        Assert.Equal(EarthRelief3D.Core.Model.CitationDate.EstimateYear, ind.Snapshot.Get("gho.water")!.For("SDN")!.Citation.DateMeaning);
+    }
+
+    [Fact]
     public async Task AValueAbove100IsClampedAtZeroWithoutAccess()
     {
         var h = new SampleHttpHandler();

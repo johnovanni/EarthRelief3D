@@ -290,7 +290,12 @@ public static class CrisisText
     /// A citation's date: "as of &lt;date&gt;"; or, while that date is still in the future (UNHCR's current-year figures are
     /// as of 30 June and come out before it), "retrieved &lt;date&gt;": never "as of" a date that has not come yet.
     /// </summary>
-    public static string DataDate(SourceCitation c, DateTime nowUtc) => IsFuture(c, nowUtc) ? "retrieved " + Date(c.RetrievedUtc) : AsOf(c.AsOfUtc);
+    public static string DataDate(SourceCitation c, DateTime nowUtc) => c.DateMeaning switch
+    {
+        CitationDate.FileLoaded => "file loaded " + Date(c.AsOfUtc),
+        CitationDate.EstimateYear => "estimate year " + c.AsOfUtc.Year.ToString(Inv),
+        _ => IsFuture(c, nowUtc) ? "retrieved " + Date(c.RetrievedUtc) : AsOf(c.AsOfUtc),
+    };
 
     /// <summary>True when the citation's as-of date has not come yet.</summary>
     public static bool IsFuture(SourceCitation c, DateTime nowUtc) => c.AsOfUtc > nowUtc;
