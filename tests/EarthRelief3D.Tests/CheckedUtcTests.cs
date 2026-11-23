@@ -58,7 +58,7 @@ public sealed class CheckedUtcTests : IDisposable
     [Fact]
     public void SchemaOneCacheIsDiscarded()
     {
-        Assert.Equal(3, CrisisCache.SchemaVersion);
+        Assert.Equal(4, CrisisCache.SchemaVersion);
         var file = Cache().FilePath;
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, """{"SchemaVersion":1,"Crises":[],"Displacement":[],"Unplaced":[]}""");

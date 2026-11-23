@@ -10,8 +10,9 @@ namespace EarthRelief3D.Core.Store;
 public sealed class CrisisCache(AppDataRoot root, IAppLog log)
 {
     /// <summary>Raised whenever the saved shape or meaning of the records changes; an older file is discarded.
-    /// 2: the snapshot's per-source check times (ruling R12). 3: IPC phase 3/4/5 counts (R16) and projection-only records.</summary>
-    public const int SchemaVersion = 3;
+    /// 2: the snapshot's per-source check times (ruling R12). 3: IPC phase 3/4/5 counts (R16) and projection-only records.
+    /// 4: IPC people analysed, Phase 1 and 2 counts and the blank-cell mask (R17).</summary>
+    public const int SchemaVersion = 4;
 
     private sealed record Dto(int SchemaVersion, List<Crisis> Crises, List<DisplacementFigure> Displacement, List<UnplacedReport> Unplaced,
         Dictionary<string, DateTime>? CheckedUtc);

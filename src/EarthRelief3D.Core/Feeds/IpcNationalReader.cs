@@ -93,9 +93,15 @@ public static class IpcNationalReader
                 Citations: [Cite(to)], HighestPhase: highest, Phase3PlusPeople: people, Phase3PlusShare: Share(F("Phase 3+ percentage current")),
                 PeriodFrom: from, PeriodTo: to, IsStale: to < staleBefore)
             {
+                // R17: the denominator of the 20% rule and the five counts of the panel's phase bar.
+                PopulationAnalysed = Count(F("Population analyzed current")),
+                Phase1People = Count(F("Phase 1 number current")),
+                Phase2People = Count(F("Phase 2 number current")),
                 Phase3People = Count(F("Phase 3 number current")),
                 Phase4People = Count(F("Phase 4 number current")),
                 Phase5People = Count(F("Phase 5 number current")),
+                UnreportedPhases = Enumerable.Range(1, 5).Where(p => !TryLong(F($"Phase {p} number current"), out _))
+                    .Aggregate(0, (mask, p) => mask | (1 << (p - 1))),
             });
         }
         if (header is null) throw new FeedFormatException($"{ResourceName} is empty");

@@ -68,6 +68,18 @@ public sealed record FoodCrisis(string Id, string CountryIso3, string Title, Nat
     /// <summary>An analysis whose period ended more than this many months ago is not a current crisis (P2-4).</summary>
     public const int StaleAfterMonths = 12;
 
+    /// <summary>
+    /// "Population analyzed current": the people the current analysis covers, the denominator of IPC's 20% rule (R17); 0
+    /// when the file leaves it blank.
+    /// </summary>
+    public long PopulationAnalysed { get; init; }
+
+    /// <summary>People in Phase 1 (Minimal) in the current period (R17's phase bar); 0 when the file leaves it blank.</summary>
+    public long Phase1People { get; init; }
+
+    /// <summary>People in Phase 2 (Stressed) in the current period; 0 when the file leaves it blank.</summary>
+    public long Phase2People { get; init; }
+
     /// <summary>People in Phase 3 (Crisis) in the current period (ruling R16); 0 when the file leaves it blank.</summary>
     public long Phase3People { get; init; }
 
@@ -76,6 +88,15 @@ public sealed record FoodCrisis(string Id, string CountryIso3, string Title, Nat
 
     /// <summary>People in Phase 5 (Catastrophe/Famine) in the current period.</summary>
     public long Phase5People { get; init; }
+
+    /// <summary>
+    /// The phases whose current-period number the file leaves blank: bit (p - 1) for Phase p. Their count is then 0, and
+    /// the panel says "not reported" rather than 0. 0 (the default) when every phase has a number.
+    /// </summary>
+    public int UnreportedPhases { get; init; }
+
+    /// <summary>The file gives a number (perhaps 0) for <paramref name="phase"/> (1 to 5) in the current period.</summary>
+    public bool IsReported(int phase) => (UnreportedPhases & (1 << (phase - 1))) == 0;
 
     /// <summary>
     /// The analysis has no current-period figures, only a projection (<see cref="ProjectionName"/>); the period and the
@@ -93,10 +114,13 @@ public sealed record FoodCrisis(string Id, string CountryIso3, string Title, Nat
         && Phase3PlusPeople == o.Phase3PlusPeople && Phase3PlusShare.Equals(o.Phase3PlusShare)
         && PeriodFrom == o.PeriodFrom && PeriodTo == o.PeriodTo && IsStale == o.IsStale
         && Phase3People == o.Phase3People && Phase4People == o.Phase4People && Phase5People == o.Phase5People
-        && ProjectionOnly == o.ProjectionOnly && ProjectionName == o.ProjectionName;
+        && ProjectionOnly == o.ProjectionOnly && ProjectionName == o.ProjectionName
+        && PopulationAnalysed == o.PopulationAnalysed && Phase1People == o.Phase1People && Phase2People == o.Phase2People
+        && UnreportedPhases == o.UnreportedPhases;
 
     public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), HighestPhase, Phase3PlusPeople, PeriodFrom, PeriodTo, IsStale,
-        HashCode.Combine(Phase3People, Phase4People, Phase5People, ProjectionOnly, ProjectionName));
+        HashCode.Combine(Phase3People, Phase4People, Phase5People, ProjectionOnly, ProjectionName),
+        HashCode.Combine(PopulationAnalysed, Phase1People, Phase2People, UnreportedPhases));
 }
 
 public sealed record OutbreakCrisis(string Id, string CountryIso3, string Title, NativeSeverity Severity, int Band,
