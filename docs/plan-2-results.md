@@ -68,3 +68,33 @@ replaced by R14b, see the last part of this section):
   list (PSE) or an unknown name. One more launch re-took the scenes; see the final-fix report for the PngDiff. With R14b
   no sample event is placed outside the country UCDP names (0 of 4,494), so the Russia, Libya and Egypt conflict labels
   and the Sudan death changes listed above are gone again.
+
+## Food shading (2026-11-23)
+
+The owner decided R16's question: ruling **R17** (IPC's 20% rule per country, an outline for a worse phase with people,
+and a phase bar in the panel; see the spec and `docs/data-sources.md`).
+
+- Tests: `dotnet build EarthRelief3D.sln -c Release`: 0 warnings, 0 errors; `dotnet test` in Release: **210 passed,
+  0 failed, 0 skipped** (178 before).
+- Counts with the sample file (judged 2026-11-22): 36 current analyses (8 more are stale). 7 are shaded Phase 3 Crisis:
+  AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline, SDN with a Phase 5 outline. 29 are only outlined: 19 in Phase
+  4's colour, 10 in Phase 3's. None reaches 20% in Phase 4 or higher, so nothing is shaded Phase 4 or 5 (before R17,
+  all 36 were shaded, Sudan Phase 5 and Somalia and Afghanistan Phase 4). Pakistan (19.7%, which the file rounds to 0.2)
+  is outlined only.
+- Snapshots: the five scenes into `artifacts\snapshot-food`. PngDiff against the old `artifacts\snapshot-baseline`:
+  `pacific` identical (no IPC rows there); `africa`, `sudan-panel`, `sudan-panel-food` and `no-crisis-panel` differ, as
+  expected (the shading, the outlines and the taller legend; the panel's food section).
+- Repeat check: the scenes again into `artifacts\snapshot-food-2`; **PngDiff: all five identical** (exit code 0).
+- Seen in the pictures: Sudan orange (Phase 3) with a dark-red (Phase 5) band just inside its border, clearly darker than
+  the bright-red Phase 4 outlines of Yemen, Somalia and the West African countries, which are now outlined only; the legend
+  with the rule, the outline key (a red ring) and the famine note; the Sudan panel's "Country shading" and "Outline" rows,
+  the phase bar with its "worst 20%" marker in the Phase 3 segment, the caption "The line falls in Phase 3, so Sudan is
+  shaded Crisis, with a Phase 5 outline." and the five phase rows (Phase 5: 134,808, 0.3%). The dateline seam cannot be
+  seen with these samples (no IPC row for Fiji or Russia); it rests on `FoodMapTests`.
+- Tuned after the first look: the outline was first drawn centred on the border, 2 px wide; it was thin, half hidden
+  under the border line, and two outlined neighbours overwrote each other on their shared border. It is now a band about
+  2.5 px wide just inside each country's edge (about 2 px show beside the border line). The bar's caption did not wrap (an implicit TextBlock style
+  does not reach into a template) and was cut off; it now wraps.
+- App launches: 3 (the first snapshot run, the run after tuning, the repeat run). The last two are the ones above.
+- Not done in this task: copying the new pictures over `artifacts\snapshot-baseline` (the copy was refused by the
+  session's permission check). Copy `artifacts\snapshot-food\*.png` over it to make them the baseline.

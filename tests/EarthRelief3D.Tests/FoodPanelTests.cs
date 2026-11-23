@@ -179,6 +179,16 @@ public class FoodPanelTests
     // ---------------------------------------------------------------- the legend
 
     [Fact]
+    public void LayerStripTooltipUsesTheLegendsWording()
+    {
+        var xaml = System.IO.File.ReadAllText(System.IO.Path.Combine(Repo.Root(), "src", "EarthRelief3D.App", "Views", "LayerStrip.xaml"));
+        Assert.Contains("ToolTip=\"{x:Static vm:LegendViewModel.FoodTooltip}\"", xaml);
+        Assert.DoesNotContain("highest phase with people", xaml);
+        Assert.Equal("Food crisis (IPC): " + LegendViewModel.FoodRule, LegendViewModel.FoodTooltip);
+        Assert.Equal("Food crisis: " + LegendViewModel.FoodRule, LegendViewModel.Measures(CrisisLayer.Food));
+    }
+
+    [Fact]
     public void LegendDescribesTheRuleTheOutlineAndTheFamineNote()
     {
         Assert.Equal("Food crisis: the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "

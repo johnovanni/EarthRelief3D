@@ -117,12 +117,25 @@ public class FoodMapTests
         var fill = LayerStyle.IpcPhaseColor(3);
         byte[] Pixel(Bgra32 image, int x, int y) => image.Pixels.AsSpan((y * w + x) * 4, 4).ToArray();
 
-        // Outline only: the edge in the outline colour, fully opaque; nothing inside.
+        // Outline only: a band just inside the edge, in the outline colour, fully opaque; nothing further inside or outside.
         var only = new Bgra32(FoodImageLayer.RasterizeAreas([(SplitSquare(), null, outline)], w, h));
-        Assert.Equal(new byte[] { outline.B, outline.G, outline.R, 255 }, Pixel(only, X(175), Y(10)));
+        byte[] solid = [outline.B, outline.G, outline.R, 255];
+        Assert.Equal(solid, Pixel(only, X(175), Y(10)));        // the first row inside the top edge
+        Assert.Equal(solid, Pixel(only, X(175), Y(10) + 1));
+        Assert.Equal(0, Pixel(only, X(175), Y(10) - 1)[3]);     // the row outside it
+        Assert.Equal(solid, Pixel(only, X(170), Y(0)));         // the first column inside the left edge
+        Assert.Equal(0, Pixel(only, X(170) - 1, Y(0))[3]);      // the column outside it
         Assert.Equal(0, Pixel(only, X(175), Y(0))[3]);
         // No line along the dateline (the last column, between the top and bottom edges).
         for (int y = Y(8); y <= Y(-8); y++) Assert.Equal(0, Pixel(only, w - 1, y)[3]);
+
+        // Two neighbours outlined in different phases: each colour stays on its own side of the shared border.
+        GeoPolygon Square(double west) => new(
+            [[new GeoPosition(10, west), new GeoPosition(10, west + 10), new GeoPosition(-10, west + 10), new GeoPosition(-10, west)]]);
+        var four = LayerStyle.IpcPhaseColor(4);
+        var pair = new Bgra32(FoodImageLayer.RasterizeAreas([(Square(0), null, outline), (Square(10), null, four)], w, h));
+        Assert.Equal(solid, Pixel(pair, X(10) - 1, Y(0)));
+        Assert.Equal(new byte[] { four.B, four.G, four.R, 255 }, Pixel(pair, X(10), Y(0)));
 
         // Fill and outline: the fill inside, the outline over the fill's own edge.
         var both = new Bgra32(FoodImageLayer.RasterizeAreas([(SplitSquare(), fill, outline)], w, h));

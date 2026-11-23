@@ -49,6 +49,11 @@ public sealed partial class LegendViewModel : ObservableObject
     public const string OutlineKeyLabel = "Outline: people in a worse phase";
     /// <summary>Under the food keys (R17): the shading is not IPC's famine classification.</summary>
     public const string FamineNote = "A country shaded Phase 5 is not an IPC famine classification, which also needs malnutrition and death-rate data.";
+    /// <summary>The food layer's rule (R17), one wording for the legend line and the layer strip's tooltip.</summary>
+    public const string FoodRule = "the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
+        + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase.";
+    /// <summary>The layer strip's tooltip for the food toggle.</summary>
+    public const string FoodTooltip = "Food crisis (IPC): " + FoodRule;
 
     private readonly CrisisStore _store;
     private readonly LayerStripViewModel _layers;
@@ -119,8 +124,7 @@ public sealed partial class LegendViewModel : ObservableObject
     public static string Measures(CrisisLayer layer) => layer switch
     {
         CrisisLayer.Conflict => "Armed conflict: UCDP events of conflicts with 25 or more deaths in a calendar year; dot size by the band of that conflict's deaths in the country over the data window, colour by the event's age",
-        CrisisLayer.Food => "Food crisis: the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
-            + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase.",
+        CrisisLayer.Food => "Food crisis: " + FoodRule,
         CrisisLayer.Outbreaks => "Disease outbreaks: WHO Outbreak News reports in the last 90 days, at the country",
         CrisisLayer.Displacement => "People forced from home, by country of origin (refugees, asylum-seekers and internally displaced); ring area grows with the number",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),

@@ -58,6 +58,19 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
   - `Total country population` is `0` for AFG, NGA and TCD (unknown); do not divide by it.
   - Of the five trimmed UCDP countries only COD, HTI and SDN appear; Ukraine and Myanmar are not in the national file.
   - Stale analyses are present (e.g. AGO Jun 2021, ETH May 2021, SLV Aug 2021): see ruling P2-4.
+  - The percentage columns are rounded to two decimals (PAK: 10,553,872 of 53,441,149 people analysed is 19.7%, given as
+    `0.2`). The shading never uses them; it uses the exact counts.
+- **Shading rule (ruling R17, the owner's decision of 2026-11-23):** each country with a current analysis is shaded by
+  IPC's "20% rule" for area classification, applied here to the whole country (our adaptation; the national file has no
+  areas): the worst phase p (5, 4 or 3) such that the people in Phase p or higher are at least 20% of the people analysed.
+  The denominator is `Population analyzed current`; when it is blank, the sum of the Phase 1 to 5 current numbers; when
+  that is 0 too, the share is unknown and the country is not shaded. Phases 1 and 2 are never shaded. The country also
+  gets an outline in the colour of the worst phase from 3 to 5 that has people in it, when that phase is worse than the
+  shading (or nothing is shaded). Stale and projection-only records are neither shaded nor outlined. The panel shows the
+  five phases as a stacked bar with a "worst 20%" marker. A country shaded Phase 5 is not an IPC famine classification,
+  which also needs malnutrition and death-rate data. With the sample file (judged on 2026-11-22): 36 current analyses;
+  7 are shaded Phase 3 (AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline; SDN with a Phase 5 outline); 29 are only
+  outlined (19 in Phase 4's colour, 10 in Phase 3's); none reaches 20% in Phase 4 or higher.
 
 ## 3. UNHCR Refugee Data Finder population API (displacement)
 

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using AstroCore.Earth;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Feeds;
@@ -69,10 +70,11 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     public override IImageLayer? Current => _current;
 
     /// <summary>
-    /// The outline's width in pixels of the layer's image (the globe image, 4096 wide): about 2 px, fully opaque, drawn over
-    /// the fill (R17).
+    /// The outline's width in pixels of the layer's image (the globe image, 4096 wide), fully opaque, drawn over the fill
+    /// (R17): a band this wide just inside the country's edge. The 1 px border line drawn above covers half a pixel of it,
+    /// so about 2 px show.
     /// </summary>
-    public const double OutlineWidthPx = 2.0;
+    public const double OutlineWidthPx = 2.5;
 
     /// <summary>
     /// The countries to draw, by ISO3, with their fill and outline colours from <see cref="IpcAreaRule.MapStyle"/> (stale
@@ -112,7 +114,8 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     /// <summary>
     /// The fills (GlobeCore's area rasterizer, raised by <see cref="FillBoost"/>), then the outlines over them in one image:
-    /// <see cref="OutlineWidthPx"/> wide and opaque, without the artificial edges along ±180°. STA thread.
+    /// opaque bands <see cref="OutlineWidthPx"/> wide just inside each country's edge, without the artificial edges along
+    /// ±180°. STA thread.
     /// </summary>
     public static Bgra32Image RasterizeAreas(IReadOnlyList<(GeoPolygon Polygon, Color? Fill, Color? Outline)> areas, int width, int height)
     {
@@ -121,13 +124,67 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
         for (int i = 3; i < px.Length; i += 4)
             if (px[i] is > 0 and < 255) px[i] = (byte)Math.Min(255, Math.Round(px[i] * FillBoost));
 
-        var outlines = areas.Where(a => a.Outline is not null).GroupBy(a => a.Outline!.Value)
-            .Select(g => ((IEnumerable<IReadOnlyList<GeoPosition>>)g.SelectMany(a => OutlineLines(a.Polygon)).ToList(), g.Key))
-            .ToList();
-        if (outlines.Count == 0) return image;
-        var lines = LineRasterizer.Rasterize(outlines, width, height, OutlineWidthPx);
-        Over(image.Pixels, lines.Pixels);
+        var outlined = areas.Where(a => a.Outline is not null).Select(a => (a.Polygon, a.Outline!.Value)).ToList();
+        if (outlined.Count == 0) return image;
+        Over(image.Pixels, RasterizeOutlines(outlined, width, height));
         return image;
+    }
+
+    /// <summary>
+    /// Each polygon's outline as a band just inside its edge: a pen twice <see cref="OutlineWidthPx"/> wide along the edges
+    /// (<see cref="OutlineLines"/>, so not along ±180°), clipped to the polygon. Inside, so two neighbours outlined in
+    /// different phases each keep their colour on their own side of the shared border, and the 1 px border line drawn above
+    /// covers little of it. Straight-alpha BGRA pixels. STA thread.
+    /// </summary>
+    private static byte[] RasterizeOutlines(IReadOnlyList<(GeoPolygon Polygon, Color Color)> areas, int width, int height)
+    {
+        Point P(GeoPosition g) => new((g.LongitudeDeg + 180) / 360 * width, (90 - g.LatitudeDeg) / 180 * height);
+        var visual = new DrawingVisual();
+        var pens = new Dictionary<Color, Pen>();
+        using (var dc = visual.RenderOpen())
+        {
+            foreach (var (polygon, color) in areas)
+            {
+                if (!pens.TryGetValue(color, out var pen))
+                {
+                    var brush = new SolidColorBrush(color);
+                    brush.Freeze();
+                    pens[color] = pen = new Pen(brush, 2 * OutlineWidthPx) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
+                    pen.Freeze();
+                }
+                var clip = new StreamGeometry { FillRule = FillRule.EvenOdd };
+                using (var ctx = clip.Open())
+                    foreach (var ring in polygon.Rings)
+                    {
+                        if (ring.Count < 3) continue;
+                        ctx.BeginFigure(P(ring[0]), true, true);
+                        for (int i = 1; i < ring.Count; i++) ctx.LineTo(P(ring[i]), true, false);
+                    }
+                clip.Freeze();
+                var edges = new StreamGeometry();
+                using (var ctx = edges.Open())
+                    foreach (var line in OutlineLines(polygon))
+                    {
+                        ctx.BeginFigure(P(line[0]), false, false);
+                        for (int i = 1; i < line.Count; i++) ctx.LineTo(P(line[i]), true, false);
+                    }
+                edges.Freeze();
+                dc.PushClip(clip);
+                dc.DrawGeometry(null, pen, edges);
+                dc.Pop();
+            }
+        }
+        var rtb = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+        rtb.Render(visual);
+        var px = new byte[checked(width * height * 4)];
+        rtb.CopyPixels(px, width * 4, 0);
+        for (int i = 0; i < px.Length; i += 4)   // premultiplied -> straight alpha, as the composer expects
+        {
+            byte a = px[i + 3];
+            if (a is 0 or 255) continue;
+            for (int c = 0; c < 3; c++) px[i + c] = (byte)Math.Min(255, (px[i + c] * 255 + a / 2) / a);
+        }
+        return px;
     }
 
     /// <summary>
