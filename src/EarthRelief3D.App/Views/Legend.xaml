@@ -3,13 +3,69 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:EarthRelief3D.App.ViewModels"
              HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="12" MaxWidth="560" Foreground="White">
-    <!-- DataContext: LegendViewModel. One line per visible layer: symbol, what it measures, source and as-of date. -->
+    <!-- DataContext: LegendViewModel. One line per visible layer: symbol, what it measures, source and as-of date (the crisis
+         lines, then the Plan 3 entries). -->
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="B2V"/>
+
+            <!-- One legend line (a LegendLine or a LegendEntry): symbol, what it measures, its keys, a note, source and as-of. -->
+            <DataTemplate x:Key="LineTemplate">
+                <Grid Margin="0,3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontSize="16" VerticalAlignment="Top"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="{Binding Measures}" Foreground="White" FontSize="13" TextWrapping="Wrap"/>
+                        <ItemsControl ItemsSource="{Binding Keys}" Margin="0,2,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,1,10,1">
+                                        <!-- A filled swatch; for the food outline (R17) a ring in the outline's colour; for the faint tint (round 2) a ring around a faint fill;
+                                             for "no figure: not shaded" (P3-7) an empty box with a thin grey edge. -->
+                                        <Rectangle Width="12" Height="12" RadiusX="2" RadiusY="2" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <Rectangle.Style>
+                                                <Style TargetType="Rectangle">
+                                                    <Setter Property="Fill" Value="{Binding Brush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOutline}" Value="True">
+                                                            <Setter Property="Fill" Value="{x:Null}"/>
+                                                            <Setter Property="Stroke" Value="{Binding Brush}"/>
+                                                            <Setter Property="StrokeThickness" Value="2.5"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsFaint}" Value="True">
+                                                            <Setter Property="Fill" Value="{Binding FaintBrush}"/>
+                                                            <Setter Property="Stroke" Value="{Binding Brush}"/>
+                                                            <Setter Property="StrokeThickness" Value="1.5"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsNone}" Value="True">
+                                                            <Setter Property="Fill" Value="{x:Null}"/>
+                                                            <Setter Property="Stroke" Value="{Binding Brush}"/>
+                                                            <Setter Property="StrokeThickness" Value="1"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Rectangle.Style>
+                                        </Rectangle>
+                                        <TextBlock Text="{Binding Label}" Foreground="#D5DCE8" FontSize="12" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{Binding Note}" Foreground="#C8CDD8" FontSize="12" TextWrapping="Wrap" Margin="0,1,0,1"
+                                   Visibility="{Binding HasNote, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="{Binding SourceLine}" Foreground="#9AA3B5" FontSize="12" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
     <Border Background="#F2101624" CornerRadius="8" Padding="10,8">
@@ -17,57 +73,9 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <TextBlock Text="Legend" FontWeight="SemiBold" FontSize="13" Foreground="#C8CDD8" Margin="0,0,0,4"/>
-            <ItemsControl ItemsSource="{Binding Lines}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0,3">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="24"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontSize="16" VerticalAlignment="Top"/>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{Binding Measures}" Foreground="White" FontSize="13" TextWrapping="Wrap"/>
-                                <ItemsControl ItemsSource="{Binding Keys}" Margin="0,2,0,0">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Margin="0,1,10,1">
-                                                <!-- A filled swatch; for the food outline (R17) a ring in the outline's colour; for the faint tint (round 2) a ring around a faint fill. -->
-                                                <Rectangle Width="12" Height="12" RadiusX="2" RadiusY="2" Margin="0,0,5,0" VerticalAlignment="Center">
-                                                    <Rectangle.Style>
-                                                        <Style TargetType="Rectangle">
-                                                            <Setter Property="Fill" Value="{Binding Brush}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsOutline}" Value="True">
-                                                                    <Setter Property="Fill" Value="{x:Null}"/>
-                                                                    <Setter Property="Stroke" Value="{Binding Brush}"/>
-                                                                    <Setter Property="StrokeThickness" Value="2.5"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsFaint}" Value="True">
-                                                                    <Setter Property="Fill" Value="{Binding FaintBrush}"/>
-                                                                    <Setter Property="Stroke" Value="{Binding Brush}"/>
-                                                                    <Setter Property="StrokeThickness" Value="1.5"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Rectangle.Style>
-                                                </Rectangle>
-                                                <TextBlock Text="{Binding Label}" Foreground="#D5DCE8" FontSize="12" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <TextBlock Text="{Binding Note}" Foreground="#C8CDD8" FontSize="12" TextWrapping="Wrap" Margin="0,1,0,1"
-                                           Visibility="{Binding HasNote, Converter={StaticResource B2V}}"/>
-                                <TextBlock Text="{Binding SourceLine}" Foreground="#9AA3B5" FontSize="12" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Lines}" ItemTemplate="{StaticResource LineTemplate}"/>
+            <!-- Plan 3: the shading that is on (unless food) and the marker layers the crisis lines do not cover. -->
+            <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource LineTemplate}"/>
 
             <!-- The flyout: reports the source published that could not be put on the map. -->
             <ToggleButton x:Name="UnplacedButton" Style="{x:Null}" Margin="0,6,0,0" HorizontalAlignment="Left" Background="Transparent"

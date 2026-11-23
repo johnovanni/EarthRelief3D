@@ -73,6 +73,59 @@ public sealed class MarkerMeshes
         Quad(n, e1, e2, -armHalfWidth, -armLength, armHalfWidth, armLength, height);   // north-south bar
     }
 
+    /// <summary>A filled square, <paramref name="half"/> from the centre to each side, its sides east-west and north-south.</summary>
+    public void AddSquare(GeoPosition at, double half, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        Quad(n, e1, e2, -half, -half, half, half, height);
+    }
+
+    /// <summary>A square outline: <paramref name="half"/> to the outer edge, bars <paramref name="width"/> wide, a hole inside.</summary>
+    public void AddSquareOutline(GeoPosition at, double half, double width, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        double i = Math.Max(0, half - width);
+        Quad(n, e1, e2, -half, -half, half, -i, height);   // south bar
+        Quad(n, e1, e2, -half, i, half, half, height);     // north bar
+        Quad(n, e1, e2, -half, -i, -i, i, height);         // west bar
+        Quad(n, e1, e2, i, -i, half, i, height);           // east bar
+    }
+
+    /// <summary>A filled diamond: points <paramref name="radius"/> from the centre to the east, north, west and south.</summary>
+    public void AddDiamond(GeoPosition at, double radius, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        int e = Add(On(n, e1, e2, radius, 0, height));
+        int no = Add(On(n, e1, e2, 0, radius, height));
+        int w = Add(On(n, e1, e2, -radius, 0, height));
+        int s = Add(On(n, e1, e2, 0, -radius, height));
+        Tri(e, no, w);
+        Tri(e, w, s);
+    }
+
+    /// <summary>
+    /// A hollow triangle pointing north: corners <paramref name="radius"/> from the centre, sides <paramref name="width"/>
+    /// wide (measured square to each side), a hole inside.
+    /// </summary>
+    public void AddTriangleOutline(GeoPosition at, double radius, double width, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        double inner = Math.Max(0, radius - 2 * width);   // the inradius is half the circumradius
+        int first = _positions.Count;
+        for (int k = 0; k < 3; k++)
+        {
+            double t = Math.PI / 2 + 2 * Math.PI * k / 3, c = Math.Cos(t), s = Math.Sin(t);   // counter-clockwise
+            Add(On(n, e1, e2, radius * c, radius * s, height));
+            Add(On(n, e1, e2, inner * c, inner * s, height));
+        }
+        for (int k = 0; k < 3; k++)
+        {
+            int v = first + 2 * k, u = v + 1, v2 = first + 2 * ((k + 1) % 3), u2 = v2 + 1;
+            Tri(v, v2, u2);
+            Tri(v, u2, u);
+        }
+    }
+
     public MeshGeometry3D ToMesh()
     {
         var mesh = new MeshGeometry3D { Positions = _positions, TriangleIndices = _indices };

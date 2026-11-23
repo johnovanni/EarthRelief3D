@@ -22,6 +22,14 @@ namespace EarthRelief3D.App.Diagnostics;
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
                                    string? PanelFocus = null)
 {
+    /// <summary>The shading the scene names ("food", "water", ...; at most one), or none.</summary>
+    public ShadingLayer Shading => Layers.Select(n => LayerCatalog.TryParse(n, out var sh, out _) ? sh : null)
+        .FirstOrDefault(sh => sh is not null) ?? ShadingLayer.None;
+
+    /// <summary>The marker layers the scene names ("conflict", "camps", "power", ...), in enum order.</summary>
+    public IReadOnlyList<MarkerLayer> Markers => [.. Layers.Select(n => LayerCatalog.TryParse(n, out _, out var m) ? m : null)
+        .OfType<MarkerLayer>().Distinct().Order()];
+
     /// <summary>The layer a <see cref="PanelFocus"/> name stands for.</summary>
     public CrisisLayer? FocusLayer => PanelFocus?.ToLowerInvariant() switch
     {
@@ -75,8 +83,10 @@ public static class SnapshotScenes
                 }
                 var layers = e.TryGetProperty("layers", out var ls)
                     ? ls.EnumerateArray().Select(x => (x.GetString() ?? "").ToLowerInvariant()).ToArray() : [];
-                if (layers.FirstOrDefault(l => !LaunchOptions.LayerNames.Contains(l)) is { } bad)
-                    throw new FormatException($"Scene {name}: '{bad}' is not a layer. Use any of {string.Join(", ", LaunchOptions.LayerNames)}.");
+                if (layers.FirstOrDefault(l => !LaunchOptions.AllLayerNames.Contains(l)) is { } bad)
+                    throw new FormatException($"Scene {name}: '{bad}' is not a layer. Use any of {string.Join(", ", LaunchOptions.AllLayerNames)}.");
+                if (LaunchOptions.ShadingsIn(layers) is { Count: > 1 } two)
+                    throw new FormatException($"Scene {name}: only one shading layer can be on at a time, not {string.Join(" and ", two)}.");
                 string? panel = e.TryGetProperty("panel", out var pn) && pn.ValueKind == JsonValueKind.String ? pn.GetString() : null;
                 if (panel is not null && !LaunchOptions.IsIso3(panel))
                     throw new FormatException($"Scene {name}: panel '{panel}' is not a three-letter country code.");
@@ -128,10 +138,7 @@ public static class SnapshotScenes
                 {
                     await dataReady.WaitAsync(DataTimeout);   // a timeout is a failure: the picture would lack data
                     displayClock.Now = s.DisplayTimeUtc;      // stands still until the next scene
-                    var layers = vm.Layers;
-                    bool On(string n) => s.Layers.Contains(n, StringComparer.OrdinalIgnoreCase);
-                    layers.ShowConflict = On("conflict"); layers.ShowFood = On("food");
-                    layers.ShowOutbreaks = On("outbreaks"); layers.ShowDisplacement = On("displacement");
+                    vm.Layers.SetLayers(s.Shading, s.Markers);
                     if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
                     scene.LookAt(s.LookAt ?? SceneController.HomeView);

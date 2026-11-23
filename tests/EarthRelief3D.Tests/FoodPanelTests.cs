@@ -328,7 +328,10 @@ public class FoodPanelTests
     public void LayerStripTooltipUsesTheLegendsWording()
     {
         var xaml = System.IO.File.ReadAllText(System.IO.Path.Combine(Repo.Root(), "src", "EarthRelief3D.App", "Views", "LayerStrip.xaml"));
-        Assert.Contains("ToolTip=\"{x:Static vm:LegendViewModel.FoodTooltip}\"", xaml);
+        // Plan 3: the strip's toggles are items of its view model (LayerToggle), each bound to its Tooltip; food's is the legend's wording.
+        Assert.Contains("ToolTip=\"{Binding Tooltip}\"", xaml);
+        var strip = new LayerStripViewModel(new MemorySettingsStore());
+        Assert.Equal(LegendViewModel.FoodTooltip, strip.Groups.SelectMany(g => g.Toggles).Single(t => t.Id == "food").Tooltip);
         Assert.DoesNotContain("highest phase with people", xaml);
         Assert.Equal("Food crisis (IPC): " + LegendViewModel.FoodRule, LegendViewModel.FoodTooltip);
         Assert.Equal("Food crisis: " + LegendViewModel.FoodRule, LegendViewModel.Measures(CrisisLayer.Food));

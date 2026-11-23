@@ -5,8 +5,22 @@ namespace EarthRelief3D.App.Presentation;
 /// <summary>The four crisis layers of Plan 2, in the order the strip, the legend and the panel list them.</summary>
 public enum CrisisLayer { Conflict, Food, Outbreaks, Displacement }
 
+/// <summary>
+/// The country shadings (Plan 3, P3-6): one shows at a time across all groups. Food is the IPC shading of Plan 2 (R17);
+/// the others are country values on a sequential scale (P3-7, <see cref="ShadingScales"/>).
+/// </summary>
+public enum ShadingLayer { None, Food, Water, Sanitation, Health, Hunger, ShelterNeed, OilProduction, WaterStress }
+
+/// <summary>The marker layers (Plan 3, P3-6): any number show at once (they stack).</summary>
+public enum MarkerLayer { Conflict, Outbreaks, Displacement, Atrocities, Camps, PowerPlants, OilGasFields, SteelPlants }
+
 /// <summary>The second cue after colour (C8): each layer has its own shape.</summary>
-public enum MarkerShape { Dot, Area, Cross, Ring }
+/// <remarks>
+/// Plan 3 adds the hollow triangle (atrocities, Task 5), the filled square (prison camps), the disc with a dark edge
+/// (power plants, filled by fuel group in Task 7: the edge keeps it apart from conflict's plain dots when both are on),
+/// the diamond (oil and gas fields) and the square outline (steel plants).
+/// </remarks>
+public enum MarkerShape { Dot, Area, Cross, Ring, TriangleOutline, Square, EdgedDisc, Diamond, SquareOutline }
 
 /// <summary>Colours, shapes and legend symbols of the crisis layers. Colour-blind safe, with shape as a second cue (C8).</summary>
 public static class LayerStyle
@@ -105,13 +119,21 @@ public static class LayerStyle
     };
 
     /// <summary>The legend's and the strip's symbol for the layer's shape.</summary>
-    public static string Symbol(CrisisLayer layer) => Shape(layer) switch
+    public static string Symbol(CrisisLayer layer) => Symbol(Shape(layer));
+
+    /// <summary>The legend's and the strip's symbol for a shape.</summary>
+    public static string Symbol(MarkerShape shape) => shape switch
     {
         MarkerShape.Dot => "●",
         MarkerShape.Area => "▰",
         MarkerShape.Cross => "✚",
         MarkerShape.Ring => "◯",
-        _ => throw new ArgumentOutOfRangeException(nameof(layer)),
+        MarkerShape.TriangleOutline => "△",
+        MarkerShape.Square => "■",
+        MarkerShape.EdgedDisc => "◉",
+        MarkerShape.Diamond => "◆",
+        MarkerShape.SquareOutline => "□",
+        _ => throw new ArgumentOutOfRangeException(nameof(shape)),
     };
 
     /// <summary>The colour the legend draws the layer's symbol in.</summary>
@@ -122,5 +144,71 @@ public static class LayerStyle
         CrisisLayer.Outbreaks => OutbreakColor,
         CrisisLayer.Displacement => DisplacementColor,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
+    };
+
+    // ---------------------------------------------------------------- Plan 3: marker layers and shadings
+    //
+    // Okabe–Ito colours, as the Plan 2 markers, each kept to one layer: yellow for prison camps, orange for power plants
+    // (Task 7 colours them by fuel group; this is the legend's default), vermillion for oil and gas fields, bluish green
+    // for steel plants. Atrocities: #F2F2F2 with a dark edge (Task 5).
+
+    /// <summary>Atrocity glyphs (Task 5): near white, with a dark edge.</summary>
+    public static Color AtrocityColor { get; } = Color.FromRgb(0xF2, 0xF2, 0xF2);
+    public static Color CampColor { get; } = Color.FromRgb(0xF0, 0xE4, 0x42);
+    public static Color PowerPlantColor { get; } = Color.FromRgb(0xE6, 0x9F, 0x00);
+    public static Color OilGasColor { get; } = Color.FromRgb(0xD5, 0x5E, 0x00);
+    public static Color SteelColor { get; } = Color.FromRgb(0x00, 0x9E, 0x73);
+    /// <summary>The dark edge of an edged disc (power plants) and of the atrocity triangle.</summary>
+    public static Color MarkerEdgeColor { get; } = Color.FromRgb(0x20, 0x20, 0x20);
+
+    /// <summary>The marker layer that stands for a Plan 2 crisis layer (food is a shading, not a marker).</summary>
+    public static MarkerLayer? MarkerOf(CrisisLayer layer) => layer switch
+    {
+        CrisisLayer.Conflict => MarkerLayer.Conflict,
+        CrisisLayer.Outbreaks => MarkerLayer.Outbreaks,
+        CrisisLayer.Displacement => MarkerLayer.Displacement,
+        _ => null,
+    };
+
+    public static MarkerShape Shape(MarkerLayer layer) => layer switch
+    {
+        MarkerLayer.Conflict => Shape(CrisisLayer.Conflict),
+        MarkerLayer.Outbreaks => Shape(CrisisLayer.Outbreaks),
+        MarkerLayer.Displacement => Shape(CrisisLayer.Displacement),
+        MarkerLayer.Atrocities => MarkerShape.TriangleOutline,
+        MarkerLayer.Camps => MarkerShape.Square,
+        MarkerLayer.PowerPlants => MarkerShape.EdgedDisc,
+        MarkerLayer.OilGasFields => MarkerShape.Diamond,
+        MarkerLayer.SteelPlants => MarkerShape.SquareOutline,
+        _ => throw new ArgumentOutOfRangeException(nameof(layer)),
+    };
+
+    public static string Symbol(MarkerLayer layer) => Symbol(Shape(layer));
+
+    /// <summary>The marker layer's colour: its markers', and the legend's and strip's symbol.</summary>
+    public static Color SymbolColor(MarkerLayer layer) => layer switch
+    {
+        MarkerLayer.Conflict => SymbolColor(CrisisLayer.Conflict),
+        MarkerLayer.Outbreaks => SymbolColor(CrisisLayer.Outbreaks),
+        MarkerLayer.Displacement => SymbolColor(CrisisLayer.Displacement),
+        MarkerLayer.Atrocities => AtrocityColor,
+        MarkerLayer.Camps => CampColor,
+        MarkerLayer.PowerPlants => PowerPlantColor,
+        MarkerLayer.OilGasFields => OilGasColor,
+        MarkerLayer.SteelPlants => SteelColor,
+        _ => throw new ArgumentOutOfRangeException(nameof(layer)),
+    };
+
+    /// <summary>Every shading is an area ("▰").</summary>
+    public static string Symbol(ShadingLayer layer) => layer == ShadingLayer.None
+        ? throw new ArgumentOutOfRangeException(nameof(layer)) : Symbol(MarkerShape.Area);
+
+    /// <summary>The shading's symbol colour: IPC Phase 3 for food, otherwise its scale's fourth class (the group's colours).</summary>
+    public static Color SymbolColor(ShadingLayer layer) => layer switch
+    {
+        ShadingLayer.None => throw new ArgumentOutOfRangeException(nameof(layer)),
+        ShadingLayer.Food => SymbolColor(CrisisLayer.Food),
+        ShadingLayer.WaterStress => ShadingScales.For(layer).Colors[4],   // class 0 is the arid grey: the same fourth colour of YlGnBu
+        _ => ShadingScales.For(layer).Colors[3],
     };
 }

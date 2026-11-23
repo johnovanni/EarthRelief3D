@@ -22,8 +22,12 @@ public partial class MainWindow : Window
         Strip.SizeChanged += (_, _) => FitLegend();
     }
 
+    /// <summary>The share of the window's height the layer strip may take before it scrolls (Plan 3's groups are long).</summary>
+    public const double StripShare = 0.62;
+
     private void FitLegend()
     {
+        Strip.MaxHeight = Math.Max(200, Root.ActualHeight * StripShare - Strip.Margin.Top - Strip.Margin.Bottom);
         double above = Strip.ActualHeight + Strip.Margin.Top + Strip.Margin.Bottom + LegendCard.Margin.Top + LegendCard.Margin.Bottom;
         LegendCard.MaxHeight = Math.Max(120, Root.ActualHeight - above);
     }

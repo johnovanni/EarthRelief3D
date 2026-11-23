@@ -15,8 +15,9 @@ using GlobeCore.Time;
 namespace EarthRelief3D.App.Services;
 
 /// <summary>
-/// Everything below the window (the composition root's non-UI part, so tests can build it): the crisis store filled from
-/// the cache, the cache writer, the four feeds and their scheduler, and the view models wired to them. Feed status
+/// Everything below the window (the composition root's non-UI part, so tests can build it): the crisis store and the
+/// country-value store (Plan 3) filled from their caches, the cache writers, the feeds and their scheduler, and the view
+/// models wired to them. Feed status
 /// changes arrive on the scheduler's threads; the status dots queue them onto the dispatcher.
 /// </summary>
 public sealed class AppServices : IDisposable
@@ -24,16 +25,19 @@ public sealed class AppServices : IDisposable
     /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s (the four sources, then Borders).</summary>
     public static IReadOnlyList<string> FeedNames { get; } = [.. SourceDates.SourceNames, SourceDates.BordersFeedName];
 
-    private readonly CrisisCacheWriter _cacheWriter;
+    private readonly CacheWriter _cacheWriter;
+    private readonly CacheWriter _indicatorWriter;
     private readonly FeedHttp _http;
     private readonly IAppLog _log;
     private bool _shutDown;
 
-    private AppServices(CrisisStore store, CrisisCache cache, CountryResolver countries, CurrentBoundaries boundaries, IReadOnlyList<IFeed> feeds,
-        FeedScheduler scheduler, MainViewModel main, bool cacheLoaded, FeedHttp http, IAppLog log)
+    private AppServices(CrisisStore store, CrisisCache cache, IndicatorStore indicators, IndicatorCache indicatorCache, CountryResolver countries,
+        CurrentBoundaries boundaries, IReadOnlyList<IFeed> feeds, FeedScheduler scheduler, MainViewModel main, bool cacheLoaded, FeedHttp http, IAppLog log)
     {
         Store = store;
         Cache = cache;
+        Indicators = indicators;
+        IndicatorCache = indicatorCache;
         Countries = countries;
         Boundaries = boundaries;
         Feeds = feeds;
@@ -42,11 +46,17 @@ public sealed class AppServices : IDisposable
         CacheLoaded = cacheLoaded;
         _http = http;
         _log = log;
-        _cacheWriter = new CrisisCacheWriter(store, cache, log);
+        _cacheWriter = new CacheWriter(h => store.Changed += h, h => store.Changed -= h, cache.FilePath, () => cache.Save(store.Snapshot), log);
+        _indicatorWriter = new CacheWriter(h => indicators.Changed += h, h => indicators.Changed -= h, indicatorCache.FilePath,
+            () => indicatorCache.Save(indicators.Snapshot), log);
     }
 
     public CrisisStore Store { get; }
     public CrisisCache Cache { get; }
+
+    /// <summary>The country-value series (Plan 3 shadings), shared with the view models and the scene.</summary>
+    public IndicatorStore Indicators { get; }
+    public IndicatorCache IndicatorCache { get; }
     public CountryResolver Countries { get; }
 
     /// <summary>The live boundary set (the bundled one, a stored newer one, or the one the Borders feed adopted).</summary>
@@ -80,6 +90,15 @@ public sealed class AppServices : IDisposable
                 + $"{WhoOutbreakFeed.Window} left out), {cached.Displacement.Count} displacement figures, {cached.Unplaced.Count} unplaced reports");
         }
 
+        // The country-value series of the last run, shown at once (offline too) with their own dates.
+        var indicators = new IndicatorStore();
+        var indicatorCache = new IndicatorCache(root, log);
+        if (indicatorCache.Load() is { } cachedSeries)
+        {
+            indicators.Load(cachedSeries);
+            log.Info($"Indicator cache loaded: {cachedSeries.Series.Count} series");
+        }
+
         IFeed[] feeds =
         [
             new UcdpCandidateFeed(http, store, clock, log, countries),
@@ -94,11 +113,11 @@ public sealed class AppServices : IDisposable
         if (!feeds.Select(f => f.Name).SequenceEqual(FeedNames)) throw new InvalidOperationException("Feed names and status dots differ.");
 
         var resolver = countries;
-        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries);
+        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries, indicators);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke
-        return new AppServices(store, cache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log);
+        return new AppServices(store, cache, indicators, indicatorCache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log);
     }
 
     /// <summary>Starts the feeds (each runs at once, then on its interval).</summary>
@@ -112,6 +131,8 @@ public sealed class AppServices : IDisposable
         Step("stop the feed scheduler", Scheduler.Stop);
         Step("stop the cache writer", _cacheWriter.Dispose);
         Step("save the crisis cache", _cacheWriter.SaveNow);
+        Step("stop the indicator cache writer", _indicatorWriter.Dispose);
+        Step("save the indicator cache", _indicatorWriter.SaveNow);
     }
 
     public void Dispose()
@@ -127,26 +148,36 @@ public sealed class AppServices : IDisposable
     }
 }
 
-/// <summary>Saves the store to the cache a short while after it changes (changes in a burst save once), and on demand.</summary>
-public sealed class CrisisCacheWriter : IDisposable
+/// <summary>
+/// Saves a store to its cache file a short while after it changes (changes in a burst save once), and on demand: the
+/// crisis store and the country-value store each have one.
+/// </summary>
+public sealed class CacheWriter : IDisposable
 {
     public static readonly TimeSpan Delay = TimeSpan.FromSeconds(2);
 
-    private readonly CrisisStore _store;
-    private readonly CrisisCache _cache;
+    private readonly Action<EventHandler> _unsubscribe;
+    private readonly string _filePath;
+    private readonly Action _save;
     private readonly IAppLog _log;
     private readonly Timer _timer;
     private readonly object _gate = new();
     private readonly object _saveGate = new();   // the timer's save and SaveNow never write the file at once
     private bool _dirty, _disposed;
 
-    public CrisisCacheWriter(CrisisStore store, CrisisCache cache, IAppLog log)
+    /// <param name="subscribe">Adds a handler to the store's Changed event.</param>
+    /// <param name="unsubscribe">Removes it.</param>
+    /// <param name="filePath">The cache file, whose folder is made before a save.</param>
+    /// <param name="save">Saves the store's current snapshot (the cache logs its own failures).</param>
+    public CacheWriter(Action<EventHandler> subscribe, Action<EventHandler> unsubscribe, string filePath, Action save, IAppLog log)
     {
-        _store = store;
-        _cache = cache;
-        _log = log;
+        ArgumentNullException.ThrowIfNull(subscribe);
+        _unsubscribe = unsubscribe ?? throw new ArgumentNullException(nameof(unsubscribe));
+        _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+        _save = save ?? throw new ArgumentNullException(nameof(save));
+        _log = log ?? throw new ArgumentNullException(nameof(log));
         _timer = new Timer(_ => SaveIfDirty());
-        _store.Changed += OnChanged;
+        subscribe(OnChanged);
     }
 
     private void OnChanged(object? sender, EventArgs e)
@@ -175,8 +206,8 @@ public sealed class CrisisCacheWriter : IDisposable
     {
         try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(_cache.FilePath)!);
-            _cache.Save(_store.Snapshot);   // logs its own failures
+            Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
+            _save();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -190,7 +221,7 @@ public sealed class CrisisCacheWriter : IDisposable
         {
             if (_disposed) return;
             _disposed = true;
-            _store.Changed -= OnChanged;
+            _unsubscribe(OnChanged);
         }
         _timer.Dispose();
     }

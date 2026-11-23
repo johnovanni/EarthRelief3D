@@ -1,11 +1,21 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using EarthRelief3D.App.Presentation;
 using GlobeCore.Logging;
 using GlobeCore.Storage;
 
 namespace EarthRelief3D.App.Settings;
 
-/// <summary>What the app remembers between runs (settings.json in the data folder). Every crisis layer is on by default.</summary>
+/// <summary>
+/// What the app remembers between runs (settings.json in the data folder). By default the food shading and the three
+/// Plan 2 crisis markers are on, as in Plan 2.
+/// <para>
+/// Plan 3 keeps the four Plan 2 flags, so a Plan 2 file still reads: with no <see cref="Shading"/> in the file,
+/// <see cref="ShowFood"/> gives it (food or none); with no <see cref="Markers"/>, the three marker flags give them. A
+/// save writes both, kept in step, so an older copy of the app still reads the file.
+/// </para>
+/// </summary>
 public sealed record AppSettings
 {
     public bool ShowConflict { get; init; } = true;
@@ -14,12 +24,30 @@ public sealed record AppSettings
     public bool ShowDisplacement { get; init; } = true;
     /// <summary>The layer strip shows text labels beside its icons.</summary>
     public bool LayerStripExpanded { get; init; } = true;
+
+    /// <summary>The one shading shown (P3-6); null in a Plan 2 file (then <see cref="ShowFood"/> says).</summary>
+    public ShadingLayer? Shading { get; init; }
+
+    /// <summary>The marker layers shown (they stack); null in a Plan 2 file (then the three Plan 2 flags say).</summary>
+    public IReadOnlyList<MarkerLayer>? Markers { get; init; }
+
+    /// <summary>The shading to show: <see cref="Shading"/>, or for a Plan 2 file food when <see cref="ShowFood"/>, else none.</summary>
+    [JsonIgnore]
+    public ShadingLayer EffectiveShading => Shading ?? (ShowFood ? ShadingLayer.Food : ShadingLayer.None);
+
+    /// <summary>The marker layers to show, in enum order: <see cref="Markers"/>, or for a Plan 2 file its three flags.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<MarkerLayer> EffectiveMarkers => Markers is { } m
+        ? [.. m.Distinct().Order()]
+        : [.. new[] { (MarkerLayer.Conflict, ShowConflict), (MarkerLayer.Outbreaks, ShowOutbreaks), (MarkerLayer.Displacement, ShowDisplacement) }
+            .Where(x => x.Item2).Select(x => x.Item1)];
 }
 
 /// <summary>Reads and writes <see cref="AppSettings"/>; defaults when the file is missing or unreadable (logged).</summary>
 public sealed class SettingsStore(AppDataRoot root, IAppLog log) : ISettingsStore<AppSettings>
 {
-    private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
+    // Layers are written by name, so a later reordering of the enums cannot change a saved choice.
+    private static readonly JsonSerializerOptions Options = new() { WriteIndented = true, Converters = { new JsonStringEnumConverter() } };
 
     public AppSettings Load()
     {

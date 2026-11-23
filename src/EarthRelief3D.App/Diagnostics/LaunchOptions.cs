@@ -1,5 +1,6 @@
 using System.Globalization;
 using AstroCore.Earth;
+using EarthRelief3D.App.Presentation;
 
 namespace EarthRelief3D.App.Diagnostics;
 
@@ -10,8 +11,9 @@ namespace EarthRelief3D.App.Diagnostics;
 /// time (it then runs on in real time, or stands still in a snapshot run);
 /// <c>--snapshot-scenes &lt;json&gt; --snapshot-out &lt;dir&gt;</c> (with <c>--offline-samples</c>) takes one picture per scene in the
 /// JSON file, saved as <c>&lt;dir&gt;\&lt;name&gt;.png</c>, in one launch;
-/// <c>--snapshot &lt;png&gt;</c> takes one picture, with <c>--look-at lat,lon</c>, <c>--layers</c> (comma list of conflict, food,
-/// outbreaks, displacement; default all) and <c>--open-panel ISO3</c> as the scene's camera, layers and country panel;
+/// <c>--snapshot &lt;png&gt;</c> takes one picture, with <c>--look-at lat,lon</c>, <c>--layers</c> (comma list of
+/// <see cref="AllLayerNames"/>, at most one shading; default conflict, food, outbreaks, displacement) and
+/// <c>--open-panel ISO3</c> as the scene's camera, layers and country panel;
 /// <c>--delay-ms N</c> waits N ms after the data has been drawn before each picture (default 1500).
 /// Unknown arguments are ignored; a missing or bad value is reported in <see cref="Error"/>, one line per problem.
 /// </summary>
@@ -22,7 +24,15 @@ public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? D
                                    int DelayMs = LaunchOptions.DefaultDelayMs, string? Error = null)
 {
     public const int DefaultDelayMs = 1500;
+    /// <summary>The Plan 2 layers: the default of <c>--layers</c>, and the names a <c>panelFocus</c> may use.</summary>
     public static readonly string[] LayerNames = ["conflict", "food", "outbreaks", "displacement"];
+
+    /// <summary>Every layer a scene or <c>--layers</c> may name: the shadings (one at a time) and the marker layers.</summary>
+    public static IReadOnlyList<string> AllLayerNames => LayerCatalog.AllNames;
+
+    /// <summary>The shading layers among <paramref name="names"/>, in the order given.</summary>
+    public static IReadOnlyList<string> ShadingsIn(IEnumerable<string> names) =>
+        [.. names.Where(n => LayerCatalog.TryParse(n, out var sh, out _) && sh is not null).Distinct(StringComparer.OrdinalIgnoreCase)];
     public const string DisplayTimeExample = "2026-11-22T12:00:00Z";
 
     private static readonly string[] UtcFormats =
@@ -72,12 +82,14 @@ public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? D
                     else errors.Add($"--look-at: '{p}' is not a latitude,longitude pair in degrees (latitude -90 to 90, longitude -180 to 180, east positive), for example 15,30.");
                     break;
                 case "--layers":
-                    if (Value(args, ref i, errors, "a comma list from " + string.Join(", ", LayerNames)) is not { } list) break;
+                    if (Value(args, ref i, errors, "a comma list from " + string.Join(", ", AllLayerNames)) is not { } list) break;
                     var names = list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                                     .Select(n => n.ToLowerInvariant()).ToList();
-                    var bad = names.Where(n => !LayerNames.Contains(n)).ToList();
+                    var bad = names.Where(n => !AllLayerNames.Contains(n)).ToList();
                     if (names.Count == 0 || bad.Count > 0)
-                        errors.Add($"--layers: '{(bad.Count > 0 ? string.Join(", ", bad) : list)}' is not a layer. Use any of {string.Join(", ", LayerNames)}.");
+                        errors.Add($"--layers: '{(bad.Count > 0 ? string.Join(", ", bad) : list)}' is not a layer. Use any of {string.Join(", ", AllLayerNames)}.");
+                    else if (ShadingsIn(names) is { Count: > 1 } two)
+                        errors.Add($"--layers: only one shading layer can be on at a time, not {string.Join(" and ", two)}.");
                     else layers = names;
                     break;
                 case "--open-panel":

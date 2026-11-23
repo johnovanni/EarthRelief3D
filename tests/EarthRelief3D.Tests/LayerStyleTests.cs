@@ -47,6 +47,58 @@ public class LayerStyleTests
     }
 
     [Fact]
+    public void EveryMarkerLayerHasItsOwnShapeSymbolAndColour()
+    {
+        // C8: colour plus shape. Marker layers stack (P3-6), so no two may share a shape.
+        var markers = Enum.GetValues<MarkerLayer>();
+        Assert.Equal(markers.Length, markers.Select(LayerStyle.Shape).Distinct().Count());
+        Assert.Equal(markers.Length, markers.Select(LayerStyle.Symbol).Distinct().Count());
+        Assert.DoesNotContain(markers, m => LayerStyle.Shape(m) == MarkerShape.Area);
+        // The crisis markers keep their Plan 2 looks.
+        Assert.Equal(LayerStyle.Symbol(CrisisLayer.Conflict), LayerStyle.Symbol(MarkerLayer.Conflict));
+        Assert.Equal(LayerStyle.SymbolColor(CrisisLayer.Outbreaks), LayerStyle.SymbolColor(MarkerLayer.Outbreaks));
+        Assert.Equal(LayerStyle.Shape(CrisisLayer.Displacement), LayerStyle.Shape(MarkerLayer.Displacement));
+        Assert.Equal(Color.FromRgb(0xF2, 0xF2, 0xF2), LayerStyle.SymbolColor(MarkerLayer.Atrocities));   // Task 5's glyph colour
+        Assert.Equal(MarkerShape.TriangleOutline, LayerStyle.Shape(MarkerLayer.Atrocities));
+        Assert.Equal(MarkerShape.Square, LayerStyle.Shape(MarkerLayer.Camps));
+        Assert.Equal(MarkerShape.Diamond, LayerStyle.Shape(MarkerLayer.OilGasFields));
+        Assert.Equal(MarkerShape.SquareOutline, LayerStyle.Shape(MarkerLayer.SteelPlants));
+        // Every shading layer is an area, drawn in its group's colours; food keeps the IPC colour.
+        Assert.All(Enum.GetValues<ShadingLayer>().Where(l => l != ShadingLayer.None), l => Assert.Equal("▰", LayerStyle.Symbol(l)));
+        Assert.Equal(LayerStyle.SymbolColor(CrisisLayer.Food), LayerStyle.SymbolColor(ShadingLayer.Food));
+        Assert.Equal(ShadingScales.For(ShadingLayer.Water).Colors[3], LayerStyle.SymbolColor(ShadingLayer.Water));
+    }
+
+    [Fact]
+    public void NewMarkerMeshesHaveTheirShapes() => StaAsync.Sta(() =>
+    {
+        var at = new GeoPosition(0, 0);
+        static double Off(Point3D p) => Math.Sqrt(p.Y * p.Y + p.Z * p.Z) / ((Vector3D)p).Length;
+        var square = MarkerMeshes.Build(m => m.AddSquare(at, 0.01, 1.002));
+        var outline = MarkerMeshes.Build(m => m.AddSquareOutline(at, 0.01, 0.002, 1.002));
+        var diamond = MarkerMeshes.Build(m => m.AddDiamond(at, 0.01, 1.002));
+        var triangle = MarkerMeshes.Build(m => m.AddTriangleOutline(at, 0.01, 0.002, 1.002));
+        // A square reaches its corners on the diagonals; a diamond reaches its points on the axes.
+        Assert.Contains(square.Positions, p => Math.Abs(p.Y) > 0.0099 && Math.Abs(p.Z) > 0.0099);
+        Assert.Contains(diamond.Positions, p => Math.Abs(p.Y) > 0.0099 && Math.Abs(p.Z) < 1e-6);
+        Assert.DoesNotContain(diamond.Positions, p => Math.Abs(p.Y) > 0.006 && Math.Abs(p.Z) > 0.006);
+        // Outlines have a hole: nothing at the centre.
+        Assert.All(outline.Positions, p => Assert.True(Off(p) > 0.007));
+        Assert.All(triangle.Positions, p => Assert.True(Off(p) > 0.003));
+        foreach (var mesh in new[] { square, outline, diamond, triangle })
+        {
+            Assert.All(mesh.Positions, p => Assert.Equal(1.002, ((Vector3D)p).Length, 9));
+            for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+            {
+                var a = mesh.Positions[mesh.TriangleIndices[i]];
+                var b = mesh.Positions[mesh.TriangleIndices[i + 1]];
+                var c = mesh.Positions[mesh.TriangleIndices[i + 2]];
+                Assert.True(Vector3D.CrossProduct(b - a, c - a).X > 0, "triangle faces outward");
+            }
+        }
+    });
+
+    [Fact]
     public void MarkerMeshesHaveTheirShapes() => StaAsync.Sta(() =>
     {
         var at = new GeoPosition(0, 0);   // the +X axis: tangent plane is Y (east) and Z (north)

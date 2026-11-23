@@ -104,6 +104,28 @@ public class SnapshotScenesTests
     }
 
     [Fact]
+    public void ScenesNameThePlan3LayersWithOneShadingAtMost()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """{"scenes":[{"name":"w","displayTimeUtc":"2026-11-22T12:00:00Z","layers":["water","power","Conflict"]}]}""");
+            var s = Assert.Single(SnapshotScenes.Load(path));
+            Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Water, s.Shading);
+            Assert.Equal([EarthRelief3D.App.Presentation.MarkerLayer.Conflict, EarthRelief3D.App.Presentation.MarkerLayer.PowerPlants], s.Markers);
+            File.WriteAllText(path, """{"scenes":[{"name":"w","displayTimeUtc":"2026-11-22T12:00:00Z","layers":["water","food"]}]}""");
+            Assert.Contains("one shading layer", Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message);
+        }
+        finally { File.Delete(path); }
+        // The Plan 2 names still mean what they did.
+        var old = SnapshotScenes.Load(ScenesFile)[0];
+        Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Food, old.Shading);
+        Assert.Equal(3, old.Markers.Count);
+        Assert.Null(LaunchOptions.Parse(["--layers", "oil,steel,camps"]).Error);
+        Assert.NotNull(LaunchOptions.Parse(["--layers", "oil,hunger"]).Error);
+    }
+
+    [Fact]
     public void ASingleSnapshotBecomesOneScene()
     {
         var o = LaunchOptions.Parse(["--snapshot", @"C:\tmp\sudan.png", "--open-panel", "SDN"]);

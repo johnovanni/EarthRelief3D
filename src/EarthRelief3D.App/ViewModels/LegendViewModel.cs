@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Regions;
@@ -11,7 +12,8 @@ namespace EarthRelief3D.App.ViewModels;
 /// <summary>One colour key under a legend line ("Phase 4 Emergency", "last 3 months").</summary>
 /// <param name="IsOutline">Drawn as an outline sample (a ring), not a filled swatch: the food layer's outline (R17).</param>
 /// <param name="IsFaint">Drawn as a ring around a faint fill: the food layer's faint tint and outline (round 2).</param>
-public sealed record LegendKey(string Label, Color Color, bool IsOutline = false, bool IsFaint = false)
+/// <param name="IsNone">Drawn as an empty box with a thin grey edge: "no figure: not shaded" under a country-value shading.</param>
+public sealed record LegendKey(string Label, Color Color, bool IsOutline = false, bool IsFaint = false, bool IsNone = false)
 {
     /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
@@ -23,6 +25,23 @@ public sealed record LegendKey(string Label, Color Color, bool IsOutline = false
 /// <summary>One visible layer: its symbol, what it measures, the source and the as-of date.</summary>
 /// <param name="Note">A short note under the keys (food: Phase 5 shading is not a famine classification); null for none.</param>
 public sealed record LegendLine(CrisisLayer Layer, string Symbol, Color Color, string Measures, string Source, string AsOf,
+    IReadOnlyList<LegendKey> Keys, string? Note = null)
+{
+    public bool HasNote => Note is not null;
+
+    /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
+    public SolidColorBrush Brush => LayerStyle.Frozen(Color);
+
+    /// <summary>"&lt;publisher&gt;, &lt;dataset&gt; · &lt;as of&gt;", the line under the measure.</summary>
+    public string SourceLine => $"{Source} · {AsOf}";
+}
+
+/// <summary>
+/// One visible Plan 3 layer (a country-value shading, or a marker layer the crisis lines do not cover): its symbol, what it
+/// measures (with the year), the source and the as-of date, or "Data not loaded yet" (ruling R2).
+/// </summary>
+/// <param name="Id">The layer's name ("water", "power").</param>
+public sealed record LegendEntry(string Id, string Symbol, Color Color, string Measures, string Source, string AsOf,
     IReadOnlyList<LegendKey> Keys, string? Note = null)
 {
     public bool HasNote => Note is not null;
@@ -61,14 +80,22 @@ public sealed partial class LegendViewModel : ObservableObject
         + "a faint tint with an outline alone means some people are in that phase, but no phase covers 20%.";
     /// <summary>The layer strip's tooltip for the food toggle.</summary>
     public const string FoodTooltip = "Food crisis (IPC): " + FoodRule;
+    /// <summary>The last key under a country-value shading (P3-7): a country with no figure is not filled.</summary>
+    public const string NoFigureKeyLabel = "no figure: not shaded";
+    /// <summary>A layer whose data is not loaded yet (ruling R2).</summary>
+    public const string NotLoaded = LayerCatalog.NotLoaded;
 
     private readonly CrisisStore _store;
+    private readonly IndicatorStore? _indicators;
+    private readonly MarkerDataStore? _markerData;
     private readonly LayerStripViewModel _layers;
     private readonly Dispatcher? _dispatcher;
     private readonly Func<DateTime> _nowUtc;
     private int _refreshPending;
 
     [ObservableProperty] private IReadOnlyList<LegendLine> _lines = [];
+    /// <summary>The visible Plan 3 layers, after the crisis lines: atrocities and camps, the shading (unless food), the resource markers.</summary>
+    [ObservableProperty] private IReadOnlyList<LegendEntry> _entries = [];
     [ObservableProperty] private IReadOnlyList<UnplacedLine> _unplaced = [];
     [ObservableProperty] private string _unplacedHeader = UnplacedTitle + " (0)";
     [ObservableProperty] private bool _hasUnplaced;
@@ -76,14 +103,20 @@ public sealed partial class LegendViewModel : ObservableObject
 
     /// <param name="dispatcher">The UI thread's; store changes from other threads are queued onto it. Null: handled at once (tests).</param>
     /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
+    /// <param name="indicators">The country-value series the shadings draw (none: every shading says "Data not loaded yet").</param>
+    /// <param name="markerData">The point sets of the marker layers drawn from lists (none: those say "Data not loaded yet").</param>
     public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null,
-        CurrentBoundaries? boundaries = null)
+        CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
         _dispatcher = dispatcher;
         _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
+        _indicators = indicators;
+        _markerData = markerData;
         _store.Changed += OnStoreChanged;
+        if (_indicators is not null) _indicators.Changed += OnStoreChanged;
+        if (_markerData is not null) _markerData.Changed += OnMarkerDataChanged;
         _layers.PropertyChanged += OnLayersChanged;
         // The set in use at start; after a swap the scene calls ShowBoundaries once the new borders are drawn.
         if (boundaries is not null) BoundaryText = NoteFor(boundaries.Set);
@@ -103,6 +136,7 @@ public sealed partial class LegendViewModel : ObservableObject
                 summary.Layer == CrisisLayer.Food ? FamineNote : null));
         }
         Lines = lines;
+        Entries = BuildEntries(now);
         Unplaced = [.. s.Unplaced.OrderByDescending(u => u.Citation.AsOfUtc)
             .Select(u => new UnplacedLine(u.Title, $"{u.Source} · {u.Reason} · {CrisisText.Date(u.Citation.AsOfUtc)}"))];
         UnplacedHeader = $"{UnplacedTitle} ({Unplaced.Count})";
@@ -151,9 +185,69 @@ public sealed partial class LegendViewModel : ObservableObject
 
     private void OnLayersChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(LayerStripViewModel.ShowConflict) or nameof(LayerStripViewModel.ShowFood)
-            or nameof(LayerStripViewModel.ShowOutbreaks) or nameof(LayerStripViewModel.ShowDisplacement)) Refresh();
+        if (LayerStripViewModel.IsLayerProperty(e.PropertyName)) Refresh();
     }
+
+    // ---------------------------------------------------------------- Plan 3 entries
+
+    private List<LegendEntry> BuildEntries(DateTime now)
+    {
+        var entries = new List<LegendEntry>();
+        foreach (var m in LayerCatalog.CrisisMarkersAdded)
+            if (_layers.IsShown(m)) entries.Add(MarkerEntry(m, now));
+        if (_layers.Shading is not ShadingLayer.None and not ShadingLayer.Food) entries.Add(ShadingEntry(_layers.Shading, now));
+        foreach (var m in LayerCatalog.ResourceMarkers)
+            if (_layers.IsShown(m)) entries.Add(MarkerEntry(m, now));
+        return entries;
+    }
+
+    /// <summary>
+    /// A shading's entry: "&lt;measures&gt;, &lt;year&gt;", one key per class and "no figure: not shaded", and the newest
+    /// citation's source and as-of date; or, with no series yet, the layer's own wording and "Data not loaded yet".
+    /// </summary>
+    private LegendEntry ShadingEntry(ShadingLayer layer, DateTime now)
+    {
+        string id = LayerCatalog.Id(layer), symbol = LayerStyle.Symbol(layer);
+        var color = LayerStyle.SymbolColor(layer);
+        if (_indicators?.Snapshot.Get(LayerCatalog.SeriesId(layer)) is not { } series)
+            return new LegendEntry(id, symbol, color, LayerCatalog.DefaultMeasures(layer), LayerCatalog.SourceName(layer), NotLoaded, []);
+        var scale = ShadingScales.For(layer);
+        var values = series.Values.Where(v => !double.IsNaN(v.Value) || v.Qualifier is not null).ToList();
+        var newest = values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
+        var measures = values.Count == 0 ? series.Measures : $"{series.Measures}, {YearText(values.Select(v => v.Year))}";
+        IReadOnlyList<LegendKey> keys =
+        [
+            .. scale.ClassLabels.Select((label, i) => new LegendKey(label, scale.Colors[i])),
+            new LegendKey(NoFigureKeyLabel, NoFigureColor, IsNone: true),
+        ];
+        return newest is null
+            ? new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), "no figures in the data", keys)
+            : new LegendEntry(id, symbol, color, measures, $"{newest.Publisher}, {newest.Dataset}", CrisisText.DataDate(newest, now), keys);
+    }
+
+    /// <summary>The edge of the "no figure" key.</summary>
+    public static Color NoFigureColor { get; } = Color.FromRgb(0x9A, 0xA3, 0xB5);
+
+    /// <summary>"2024", or "2019–2024 (each country's latest year)" when the countries' latest years differ.</summary>
+    public static string YearText(IEnumerable<int> years)
+    {
+        var list = years.ToList();
+        int min = list.Min(), max = list.Max();
+        return min == max ? max.ToString(System.Globalization.CultureInfo.InvariantCulture) : $"{min}–{max} (each country's latest year)";
+    }
+
+    /// <summary>A Plan 3 marker layer's entry: what it shows, and its source and as-of date, or "Data not loaded yet".</summary>
+    private LegendEntry MarkerEntry(MarkerLayer layer, DateTime now)
+    {
+        string id = LayerCatalog.Id(layer), symbol = LayerStyle.Symbol(layer), measures = LayerCatalog.Measures(layer);
+        var color = LayerStyle.SymbolColor(layer);
+        if (_markerData?.Get(layer) is not { } set)
+            return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), NotLoaded, []);
+        var c = set.Citation;
+        return new LegendEntry(id, symbol, color, measures, $"{c.Publisher}, {c.Dataset}", CrisisText.DataDate(c, now), [], set.Filter);
+    }
+
+    private void OnMarkerDataChanged(object? sender, MarkerLayer layer) => OnStoreChanged(sender, EventArgs.Empty);
 
     // Raised on the writing (feed) thread: only a flag crosses, and the store is read on the UI thread.
     private void OnStoreChanged(object? sender, EventArgs e)

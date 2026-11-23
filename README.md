@@ -53,7 +53,7 @@ itself to a PNG with WPF's `RenderTargetBitmap`):
 | `--offline-samples <dir>` | Answer every feed request from the sample files in `<dir>` (use `tests\Samples`). The cache and settings live in a temporary folder that is deleted on exit (the log stays in the usual logs folder, `%LOCALAPPDATA%\EarthRelief3D\logs`), and the window title says SAMPLE DATA. |
 | `--display-time <ISO UTC>` | Start the app's clock at that time (the sample data is from Nov 2026: `2026-11-22T12:00:00Z`). |
 | `--snapshot-scenes <json> --snapshot-out <dir>` | Take one picture per scene, saved as `<dir>\<name>.png`, in one launch, then exit. Needs `--offline-samples`. Exit code 1 if any picture failed. |
-| `--snapshot <png>` | One picture, with `--look-at lat,lon`, `--layers conflict,food,outbreaks,displacement` (default all) and `--open-panel ISO3`. |
+| `--snapshot <png>` | One picture, with `--look-at lat,lon`, `--layers` (a comma list: at most one shading of food, water, sanitation, health, hunger, shelter, oil, waterstress, and any of the markers conflict, outbreaks, displacement, atrocities, camps, power, oilgas, steel; default `conflict,food,outbreaks,displacement`) and `--open-panel ISO3`. Scenes files take the same names. |
 | `--delay-ms N` | Wait N ms after the data is drawn before each picture (default 1500). |
 
 A scenes file (`tests/SnapshotScenes/scenes.json`) is

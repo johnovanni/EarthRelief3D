@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using AstroCore.Astronomy;
 using AstroCore.Earth;
 using EarthRelief3D.App.Layers;
+using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
@@ -25,8 +26,9 @@ namespace EarthRelief3D.App.Controllers;
 
 /// <summary>
 /// Owns the 3D scene (as EarthWatch3D's SceneController). Once the Blue Marble is loaded it builds GlobeCore's
-/// <see cref="LayerHost"/> on <see cref="EarthBody.Instance"/> with the borders and the food shading in the image, the
-/// displacement rings, conflict dots and outbreak crosses in the scene and the labels on the overlay, following the
+/// <see cref="LayerHost"/> on <see cref="EarthBody.Instance"/> with the borders, the food shading and the Plan 3 country-value
+/// shadings in the image, the displacement rings, conflict dots, outbreak crosses and the Plan 3 point markers in the scene
+/// and the labels on the overlay, following the
 /// LayerHost start-up sequence: add the layers, set <see cref="LayerHost.IlluminationAt"/> (night strength 0.6) and
 /// <see cref="LayerHost.DisplayTimeUtc"/>, then <see cref="LayerHost.RecomposeNowAsync"/> once. It wires the layer strip's
 /// toggles to the layers, a click to the country panel, and keeps the camera rules, input and animation.
@@ -57,9 +59,11 @@ public sealed class SceneController
     private readonly ConflictSceneLayer _conflict;
     private readonly OutbreakSceneLayer _outbreaks;
     private readonly LabelsOverlayLayer _labels;
+    private readonly IReadOnlyList<PointMarkerLayer> _points;
     private LayerHost? _host;
     private BordersImageLayer? _borders;
     private FoodImageLayer? _food;
+    private IReadOnlyList<CountryValueLayer> _shadings = [];
     private bool _closed, _adjustingCamera;
     private int _imageWidth, _imageHeight, _linesVersion;
     private BoundarySet? _linesSet;   // the boundary set whose lines the borders layer shows
@@ -87,6 +91,9 @@ public sealed class SceneController
         _conflict = new ConflictSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowConflict };
         _outbreaks = new OutbreakSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowOutbreaks };
         _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay, () => _clock.UtcNow);
+        // Plan 3: the marker layers drawn from lists; empty until their data is loaded (ruling R2).
+        var markerData = vm.MarkerData;
+        _points = [.. PointMarkerLayer.Layers.Select(m => new PointMarkerLayer(m, () => markerData.Items(m), _log) { IsVisible = vm.Layers.IsShown(m) })];
         _timeTimer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher) { Interval = DisplayTimeInterval };
         _timeTimer.Tick += OnTimeTick;
 
@@ -98,6 +105,8 @@ public sealed class SceneController
         _viewport.PreviewMouseWheel += OnPreviewMouseWheel;
         _viewport.PreviewMouseDown += OnPreviewMouseDown;
         _vm.Layers.PropertyChanged += OnLayerToggled;
+        _vm.Indicators.Changed += OnIndicatorsChanged;
+        _vm.MarkerData.Changed += OnMarkerDataChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;   // static event: unsubscribed in OnClosed
     }
 
@@ -152,10 +161,15 @@ public sealed class SceneController
         _vm.Legend.ShowBoundaries(_linesSet);   // the legend names the edition the lines are drawn from
         _borders = new BordersImageLayer(coastAndBorders, _store, _countries, () => _clock.UtcNow);
         _food = new FoodImageLayer(baseImage.Width, baseImage.Height, _store, _countries, _sta, _log, () => _closed, () => _clock.UtcNow) { IsVisible = layers.ShowFood };
+        // Plan 3: one country-value layer per shading of the Needs and Resources groups; only the chosen one is visible (P3-6).
+        var indicators = _vm.Indicators;
+        _shadings = [.. CountryValueLayer.Layers.Select(l => new CountryValueLayer(l, () => indicators.Snapshot.Get(LayerCatalog.SeriesId(l)),
+            ShadingScales.For(l), baseImage.Width, baseImage.Height, _countries, _sta, _log, () => _closed) { IsVisible = layers.IsShown(l) })];
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
         foreach (var b in HoverBlockers) host.HoverBlockers.Add(b);
-        // Scene layers in draw order (WPF draws 3D children in order): rings under dots under crosses.
-        foreach (var layer in new GlobeLayer[] { _borders, _food, _displacement, _conflict, _outbreaks, _labels }) host.Add(layer);
+        // Scene layers in draw order (WPF draws 3D children in order): rings under dots under crosses, then the point markers.
+        GlobeLayer[] all = [_borders, _food, .. _shadings, _displacement, _conflict, _outbreaks, .. _points, _labels];
+        foreach (var layer in all) host.Add(layer);
         host.FirstComposeDisplayed += OnFirstComposeDisplayed;
         host.WhenFirstComposeDisplayed.ContinueWith(t => _firstCompose.TrySetException(t.Exception!.InnerExceptions),
             CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
@@ -182,6 +196,7 @@ public sealed class SceneController
         _outbreaks.BoundariesChanged();
         _labels.BoundariesChanged();
         _food?.BoundariesChanged();
+        foreach (var l in _shadings) l.BoundariesChanged();
         _ = RedrawBordersAsync();
     }
 
@@ -214,14 +229,25 @@ public sealed class SceneController
 
     private void OnLayerToggled(object? sender, PropertyChangedEventArgs e)
     {
+        if (!LayerStripViewModel.IsLayerProperty(e.PropertyName)) return;
         var l = _vm.Layers;
-        switch (e.PropertyName)
-        {
-            case nameof(LayerStripViewModel.ShowConflict): _conflict.IsVisible = l.ShowConflict; break;
-            case nameof(LayerStripViewModel.ShowOutbreaks): _outbreaks.IsVisible = l.ShowOutbreaks; break;
-            case nameof(LayerStripViewModel.ShowDisplacement): _displacement.IsVisible = l.ShowDisplacement; break;
-            case nameof(LayerStripViewModel.ShowFood): if (_food is not null) _food.IsVisible = l.ShowFood; break;
-        }
+        _conflict.IsVisible = l.ShowConflict;
+        _outbreaks.IsVisible = l.ShowOutbreaks;
+        _displacement.IsVisible = l.ShowDisplacement;
+        foreach (var p in _points) p.IsVisible = l.IsShown(p.Which);
+        if (_food is not null) _food.IsVisible = l.ShowFood;
+        foreach (var s in _shadings) s.IsVisible = l.IsShown(s.Which);
+    }
+
+    // Any thread (the feeds'): the layers only ask the host for a recompose or an update.
+    private void OnIndicatorsChanged(object? sender, EventArgs e)
+    {
+        foreach (var s in _shadings) s.DataChanged();
+    }
+
+    private void OnMarkerDataChanged(object? sender, MarkerLayer layer)
+    {
+        foreach (var p in _points) if (p.Which == layer) p.DataChanged();
     }
 
     // ---------------------------------------------------------------- selection
@@ -234,6 +260,7 @@ public sealed class SceneController
     internal void Select(PickResult hit)
     {
         if (hit.Item is CountryPick pick) _vm.Panel.Show(pick.Iso3, pick.Focus);
+        else if (hit.Item is PointPick { Point.CountryIso3: { } iso }) _vm.Panel.Show(iso);
     }
 
     /// <summary>A click over the sea or space closes the panel.</summary>
@@ -365,6 +392,8 @@ public sealed class SceneController
         _viewport.PreviewMouseWheel -= OnPreviewMouseWheel;
         _viewport.PreviewMouseDown -= OnPreviewMouseDown;
         _vm.Layers.PropertyChanged -= OnLayerToggled;
+        _vm.Indicators.Changed -= OnIndicatorsChanged;
+        _vm.MarkerData.Changed -= OnMarkerDataChanged;
         _countries.Changed -= OnBoundariesChanged;
         _displacement.Close(); _conflict.Close(); _outbreaks.Close(); _labels.Close(); _food?.Close();
         _host?.Dispose();

@@ -1,3 +1,4 @@
+using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.Settings;
 using EarthRelief3D.App.ViewModels;
@@ -124,5 +125,75 @@ public class LegendViewModelTests
         Assert.Equal("UNHCR, Mid-year 2027 figures", line.Source);
         Assert.Equal("retrieved 22 Nov 2026", line.AsOf);
         Assert.DoesNotContain("as of", line.SourceLine);
+    }
+
+    // ---------------------------------------------------------------- Plan 3: shading and the new marker layers
+
+    [Fact]
+    public void ShadingLegendNamesMeasureYearClassesAndSource()
+    {
+        var indicators = new IndicatorStore();
+        indicators.Replace("gho.water", CountryValueLayerTests.Water(
+            new CountryValue("SDN", 40, 2024, CountryValueLayerTests.Gho), new CountryValue("ISL", 0, 2024, CountryValueLayerTests.Gho)));
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
+        Assert.Empty(legend.Entries);   // food is the shading: its line is the crisis line
+
+        layers.Shading = ShadingLayer.Water;
+        Assert.DoesNotContain(legend.Lines, l => l.Layer == CrisisLayer.Food);   // only the shading that is on
+        var e = Assert.Single(legend.Entries);
+        Assert.Equal("water", e.Id);
+        Assert.Equal("Share of people without at least basic drinking water, 2024", e.Measures);
+        var scale = ShadingScales.For(ShadingLayer.Water);
+        Assert.Equal([.. scale.ClassLabels, LegendViewModel.NoFigureKeyLabel], e.Keys.Select(k => k.Label));
+        Assert.Equal("no figure: not shaded", LegendViewModel.NoFigureKeyLabel);
+        Assert.True(e.Keys[^1].IsNone);
+        Assert.Equal(scale.Colors, e.Keys.Take(5).Select(k => k.Color));
+        Assert.Equal("World Health Organization, Global Health Observatory · as of 23 Jan 2026", e.SourceLine);
+
+        // Mixed years say so; a change in the store reaches the legend.
+        indicators.Replace("gho.water", CountryValueLayerTests.Water(
+            new CountryValue("SDN", 40, 2022, CountryValueLayerTests.Gho), new CountryValue("ISL", 0, 2024, CountryValueLayerTests.Gho)));
+        Assert.Equal("Share of people without at least basic drinking water, 2022–2024 (each country's latest year)", Assert.Single(legend.Entries).Measures);
+
+        layers.ShowFood = true;
+        Assert.Empty(legend.Entries);
+        Assert.Contains(legend.Lines, l => l.Layer == CrisisLayer.Food);
+    }
+
+    [Fact]
+    public void LayersWithoutDataSayNotLoadedYet()
+    {
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T);
+        layers.Shading = ShadingLayer.Hunger;
+        layers.Show(MarkerLayer.PowerPlants, true);
+        layers.Show(MarkerLayer.Atrocities, true);
+
+        Assert.Equal(["atrocities", "hunger", "power"], legend.Entries.Select(e => e.Id));
+        Assert.All(legend.Entries, e =>
+        {
+            Assert.Equal(LegendViewModel.NotLoaded, e.AsOf);
+            Assert.Empty(e.Keys);
+            Assert.False(string.IsNullOrWhiteSpace(e.Measures));
+            Assert.False(string.IsNullOrWhiteSpace(e.Source));
+        });
+        Assert.Equal("Data not loaded yet", LegendViewModel.NotLoaded);
+    }
+
+    [Fact]
+    public void AMarkerLayerWithDataNamesItsSourceAndDate()
+    {
+        var markers = new MarkerDataStore();
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, markerData: markers);
+        layers.Show(MarkerLayer.Camps, true);
+        Assert.Equal(LegendViewModel.NotLoaded, Assert.Single(legend.Entries).AsOf);
+
+        var cite = Cite("HRNK", new DateTime(2024, 5, 1, 0, 0, 0, DateTimeKind.Utc), dataset: "Imagery reports");
+        markers.Replace(MarkerLayer.Camps, new PointSet([], cite, "documented sites with published coordinates"));
+        var e = Assert.Single(legend.Entries);
+        Assert.Equal("HRNK, Imagery reports · as of 1 May 2024", e.SourceLine);
+        Assert.Equal("documented sites with published coordinates", e.Note);
     }
 }

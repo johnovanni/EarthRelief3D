@@ -92,9 +92,17 @@ public class AppStartupTests
                 Assert.Equal("Not yet checked: UCDP, IPC, WHO, UNHCR", services.Main.Panel.Headline);
                 Assert.All(services.Main.Legend.Lines, l => Assert.Equal(LegendViewModel.NotChecked, l.AsOf));
                 services.Store.Load(TestData.Snap());
+                Assert.Null(services.Indicators.Snapshot.Get("gho.water"));
+                services.Indicators.Replace("gho.water", CountryValueLayerTests.Water(new CountryValue("SDN", 40, 2024, CountryValueLayerTests.Gho)));
+                Assert.Same(services.Indicators, services.Main.Indicators);
                 services.Shutdown();
             }
             Assert.Equal(TestData.Snap(), new CrisisCache(root, new ListLog()).Load());
+            // The country values are cached too, and the next start shows them at once.
+            Assert.Equal(40, new IndicatorCache(root, new ListLog()).Load()!.Get("gho.water")!.For("SDN")!.Value);
+            using (var again = AppServices.Create(root, new FeedHttp("test", new SampleHttpHandler()), new FixedClock(SampleStore.Now), new ListLog(),
+                       new MemorySettingsStore(), dispatcher: null))
+                Assert.Equal(40, again.Indicators.Snapshot.Get("gho.water")!.For("SDN")!.Value);
         }
         finally { Delete(root); }
     }
@@ -169,13 +177,21 @@ public class AppStartupTests
         [
             (nameof(BordersImageLayer), BordersImageLayer.Order),
             (nameof(FoodImageLayer), FoodImageLayer.Order),
+            // Plan 3: one country-value layer per shading of the Needs and Resources groups (one shown at a time).
+            .. CountryValueLayer.Layers.Select(l => (nameof(CountryValueLayer), CountryValueLayer.OrderOf(l))),
             (nameof(DisplacementSceneLayer), DisplacementSceneLayer.Order),
             (nameof(ConflictSceneLayer), ConflictSceneLayer.Order),
             (nameof(OutbreakSceneLayer), OutbreakSceneLayer.Order),
+            // Plan 3: the marker layers drawn from lists (camps, power plants, oil and gas fields, steel plants).
+            .. PointMarkerLayer.Layers.Select(l => (nameof(PointMarkerLayer), PointMarkerLayer.OrderOf(l))),
             (nameof(LabelsOverlayLayer), LabelsOverlayLayer.Order),
         ], host.Layers.Select(l => (l.GetType().Name, l.ZOrder)));
         Assert.True(BordersImageLayer.Order < FoodImageLayer.Order && FoodImageLayer.Order < DisplacementSceneLayer.Order);
-        Assert.Equal(5, host.Layers.Count(l => l is IPickable));
+        Assert.Equal(5 + CountryValueLayer.Layers.Count + PointMarkerLayer.Layers.Count, host.Layers.Count(l => l is IPickable));
+        Assert.Equal(7, CountryValueLayer.Layers.Count);
+        Assert.Equal([MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants], PointMarkerLayer.Layers);
+        Assert.All(host.Layers.OfType<CountryValueLayer>(), l => Assert.False(l.IsVisible));   // food is today's shading
+        Assert.All(host.Layers.OfType<PointMarkerLayer>(), l => Assert.False(l.IsVisible));
 
         // Food is shaded under the borders, above the night shade (so phase colours stay true at night).
         var borders = Assert.IsAssignableFrom<IImageLayer>(host.Layers.OfType<BordersImageLayer>().Single().Current);
@@ -297,6 +313,53 @@ public class AppStartupTests
         Assert.Contains("not shaded (no phase covers 20%) · faint Phase 4 tint and outline: some people are in Phase 4", hit.Tooltip);
     });
 
+    [Fact]
+    public void ShadingAndMarkerTogglesDriveThePlan3Layers() => StaAsync.Run(async () =>
+    {
+        var rig = await StartAsync();
+        var host = rig.Scene.Host!;
+        var food = host.Layers.OfType<FoodImageLayer>().Single();
+        var water = host.Layers.OfType<CountryValueLayer>().Single(l => l.Which == ShadingLayer.Water);
+        Assert.Equal("water", water.Id);
+
+        // One shading at a time: water on, food off.
+        rig.Vm.Layers.Shading = ShadingLayer.Water;
+        Assert.True(water.IsVisible);
+        Assert.False(food.IsVisible);
+        Assert.Single(host.Layers.OfType<ImageLayer>(), l => l.IsVisible && l is not BordersImageLayer);
+        await StaAsync.WaitUntil(() => host.IsComposeIdle);
+        Assert.Null(water.Current);   // R2: no data yet, nothing drawn
+
+        rig.Vm.Indicators.Replace("gho.water", CountryValueLayerTests.Water(new CountryValue("SOM", 45, 2024, CountryValueLayerTests.Gho)));
+        await StaAsync.WaitUntil(() => water.Current is not null && host.IsComposeIdle);
+        rig.Scene.LookAt(new GeoPosition(5, 46));   // inside Somalia
+        var hit = host.Pick(new Point(400, 300), hover: true);
+        Assert.NotNull(hit);
+        Assert.Equal("water", hit.LayerId);
+        Assert.Equal("Somalia · Share of people without at least basic drinking water, 2024: 45.0% · WHO GHO", hit.Tooltip);
+        Assert.Equal(new CountryPick("SOM", null), hit.Item);
+
+        // Markers stack: camps on with conflict; a click on a camp opens its country's panel.
+        var camps = host.Layers.OfType<PointMarkerLayer>().Single(l => l.Which == MarkerLayer.Camps);
+        rig.Vm.Layers.Show(MarkerLayer.Camps, true);
+        Assert.True(camps.IsVisible);
+        Assert.True(host.Layers.OfType<ConflictSceneLayer>().Single().IsVisible);
+        rig.Vm.MarkerData.Replace(MarkerLayer.Camps, new PointSet(
+            [new PointItem(new GeoPosition(5, 46), 6, "Camp · test row", "SOM")], TestData.Cite("Test")));
+        host.RenderFrame();
+        Assert.Equal(1, camps.MarkerCount);
+        var campHit = host.Pick(new Point(400, 300), hover: false);
+        Assert.NotNull(campHit);
+        Assert.Equal("camps", campHit.LayerId);
+        rig.Scene.Select(campHit);
+        Assert.True(rig.Vm.Panel.IsOpen);
+        Assert.Equal("Somalia", rig.Vm.Panel.CountryName);
+
+        rig.Vm.Layers.ShowFood = true;
+        Assert.False(water.IsVisible);
+        Assert.True(food.IsVisible);
+    });
+
     private sealed class BindingErrors : System.Diagnostics.TraceListener
     {
         public List<string> Lines { get; } = [];
@@ -342,6 +405,10 @@ public class AppStartupTests
             Assert.Contains(texts, t => t.StartsWith("Source: UNHCR, Mid-year 2026 figures", StringComparison.Ordinal));
             Assert.All(vm.Legend.Lines, l => Assert.Contains(l.SourceLine, texts));
             Assert.Contains(LayerStripViewModel.ComingNote, texts);
+            // Plan 3: the Needs and Resources groups list their layers.
+            Assert.Contains("Needs", texts);
+            Assert.Contains("Water", texts);
+            Assert.Contains("Steel plants", texts);
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
             Assert.Equal(5, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four sources and Borders
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
