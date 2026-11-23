@@ -162,6 +162,23 @@ public class LegendViewModelTests
     }
 
     [Fact]
+    public void ShadingYearIsFromEachCountrysNewestFigure()
+    {
+        // Sudan has 2022 and 2024; the map shows 2024, so the legend says 2024, not 2022–2024. A value with no figure
+        // (below the first break) does not count either.
+        var indicators = new IndicatorStore();
+        indicators.Replace("gho.water", CountryValueLayerTests.Water(
+            new CountryValue("SDN", 60, 2022, CountryValueLayerTests.Gho with { AsOfUtc = T.AddYears(-3) }),
+            new CountryValue("SDN", 40, 2024, CountryValueLayerTests.Gho),
+            new CountryValue("ISL", 0, 2024, CountryValueLayerTests.Gho),
+            new CountryValue("TCD", -1, 2019, CountryValueLayerTests.Gho)));
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
+        layers.Shading = ShadingLayer.Water;
+        Assert.Equal("Share of people without at least basic drinking water, 2024", Assert.Single(legend.Entries).Measures);
+    }
+
+    [Fact]
     public void LayersWithoutDataSayNotLoadedYet()
     {
         var layers = new LayerStripViewModel(new MemorySettingsStore());

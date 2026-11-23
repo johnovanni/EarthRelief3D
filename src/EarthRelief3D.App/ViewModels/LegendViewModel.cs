@@ -212,7 +212,9 @@ public sealed partial class LegendViewModel : ObservableObject
         if (_indicators?.Snapshot.Get(LayerCatalog.SeriesId(layer)) is not { } series)
             return new LegendEntry(id, symbol, color, LayerCatalog.DefaultMeasures(layer), LayerCatalog.SourceName(layer), NotLoaded, []);
         var scale = ShadingScales.For(layer);
-        var values = series.Values.Where(v => !double.IsNaN(v.Value) || v.Qualifier is not null).ToList();
+        // Each country's newest figure, as the layer shows it (IndicatorSeries.For), and only figures it shows.
+        var values = series.Values.Select(v => v.Iso3.ToUpperInvariant()).Distinct()
+            .Select(iso => series.For(iso)!).Where(v => CountryValueLayer.HasFigure(v, scale)).ToList();
         var newest = values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
         var measures = values.Count == 0 ? series.Measures : $"{series.Measures}, {YearText(values.Select(v => v.Year))}";
         IReadOnlyList<LegendKey> keys =

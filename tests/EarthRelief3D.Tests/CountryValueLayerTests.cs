@@ -83,6 +83,29 @@ public class CountryValueLayerTests
     }
 
     [Fact]
+    public void AValueBelowTheFirstBreakIsNoFigure() => StaAsync.Sta(() =>
+    {
+        // WRI writes -9999 for "no data"; a slightly negative 100 − x is no figure either: no pixels, and the tooltip says so.
+        var countries = CountryResolver.LoadDefault().Index;
+        var scale = ShadingScales.For(ShadingLayer.WaterStress);
+        var cite = Gho with { Publisher = "World Resources Institute", Dataset = "Aqueduct 4.0 country rankings" };
+        var series = new IndicatorSeries("wri.bws", "Baseline water stress", "category",
+            [new CountryValue("ISL", -9999, 2019, cite), new CountryValue("IRQ", 4, 2019, cite)]);
+        var plan = CountryValueLayer.Plan(series, scale);
+        Assert.Equal([new ShadedCountry("IRQ", scale.Colors[5])], plan);
+        var image = CountryValueLayer.Rasterize(plan, countries, 1440, 720);
+        Assert.Equal(0, Alpha(image, countries.ByIso3("ISL")!.LabelPoint));
+        Assert.True(Alpha(image, countries.ByIso3("IRQ")!.LabelPoint) > 0);
+        Assert.Equal("Iceland · No figure from WRI Aqueduct for the baseline water stress: not shaded",
+            CountryValueLayer.Tooltip(ShadingLayer.WaterStress, "Iceland", "ISL", series, scale));
+        Assert.False(CountryValueLayer.HasFigure(series.For("ISL")!, scale));
+
+        var water = Water(new CountryValue("SDN", -0.2, 2024, Gho));
+        Assert.Empty(CountryValueLayer.Plan(water, WaterScale));
+        Assert.Contains("No figure from WHO GHO", CountryValueLayer.Tooltip(ShadingLayer.Water, "Sudan", "SDN", water, WaterScale));
+    });
+
+    [Fact]
     public void LargeNumbersAreGroupedWithTheirUnit()
     {
         var scale = ShadingScales.For(ShadingLayer.OilProduction);

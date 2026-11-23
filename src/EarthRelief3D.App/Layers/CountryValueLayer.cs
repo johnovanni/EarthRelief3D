@@ -19,7 +19,8 @@ public sealed record ShadedCountry(string Iso3, Color Color);
 /// A country-value shading (Plan 3, P3-7: water, sanitation, health care, hunger, shelter need, oil production, water
 /// stress): each country with a figure in the series is filled in its class colour, the way the food layer fills (GlobeCore's
 /// area rasterizer raised by <see cref="FoodImageLayer.FillBoost"/>), above the night shade and under the borders. A
-/// country with no figure is not filled, and its tooltip says "No figure from &lt;source&gt;", so "no figure" never looks
+/// country with no figure (none in the series, or one below the first break: <see cref="HasFigure"/>) is not filled,
+/// and its tooltip says "No figure from &lt;source&gt;", so "no figure" never looks
 /// like "low need". While the series is not loaded nothing is drawn (ruling R2). Only one shading shows at a time (P3-6).
 /// <para>
 /// The store's Changed (feed threads) only asks for a recompose (<see cref="DataChanged"/>); the shading is rasterized on
@@ -113,9 +114,21 @@ public sealed class CountryValueLayer : ImageLayer, IPickable
     {
         if (series is null) return null;
         var source = LayerCatalog.SourceName(which);
-        if (series.For(iso3) is not { } v || (double.IsNaN(v.Value) && v.Qualifier is null))
+        if (series.For(iso3) is not { } v || !HasFigure(v, scale))
             return $"{countryName} · No figure from {source} for the {LayerCatalog.LowerFirst(series.Measures)}: not shaded";
         return $"{countryName} · {series.Measures}, {v.Year}: {ValueText(v, series.Unit, scale)} · {source}";
+    }
+
+    /// <summary>
+    /// True when <paramref name="v"/> is a figure the map shows: the source qualified it (FAO's "&lt;2.5"), or it falls in
+    /// a class of <paramref name="scale"/>. A value below the first break (WRI's -9999 "no data", a slightly negative
+    /// 100 − x) or not a number is no figure: not filled, and the tooltip says "No figure from …".
+    /// </summary>
+    public static bool HasFigure(CountryValue v, ShadingScale scale)
+    {
+        ArgumentNullException.ThrowIfNull(v);
+        ArgumentNullException.ThrowIfNull(scale);
+        return v.Qualifier is not null || scale.ClassOf(v.Value) is not null;
     }
 
     /// <summary>
