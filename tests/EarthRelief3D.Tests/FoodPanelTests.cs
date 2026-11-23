@@ -37,11 +37,29 @@ public class FoodPanelTests
         var somalia = Dated(FoodMapTests.Counts("SOM", 1000, 400, 200, 150, 250, 0));
         Assert.StartsWith("SOM · food crisis · shaded Phase 4 Emergency (20% rule) · people in Phase 3 Crisis 150, ", CrisisText.FoodHover("SOM", somalia));
         var outlined = FoodMapTests.Counts("PAK", 1000, 600, 250, 100, 50, 0);
-        Assert.StartsWith("Pakistan · food crisis · not shaded (under 20%) · worst phase with people: Phase 4 Emergency · people in ",
+        // Outline-only countries (round 2): the faint tint and outline, in the same words as the panel.
+        Assert.StartsWith("Pakistan · food crisis · not shaded (no phase covers 20%) · faint Phase 4 tint and outline: some people are in Phase 4 · people in ",
             CrisisText.FoodHover("Pakistan", outlined));
         var unknown = TestData.Food() with { HighestPhase = 3 };
-        Assert.StartsWith("Somalia · food crisis · not shaded (share unknown) · worst phase with people: Phase 3 Crisis · ",
+        Assert.StartsWith("Somalia · food crisis · not shaded (share unknown) · faint Phase 3 tint and outline: some people are in Phase 3 · ",
             CrisisText.FoodHover("Somalia", unknown));
+    }
+
+    [Fact]
+    public void CountryHoverUsesTheLatestRecordLikeTheMapAndThePanel()
+    {
+        var current = Dated(FoodMapTests.Counts("SOM", 1000, 400, 200, 150, 250, 0)) with { PeriodTo = new DateOnly(2026, 9, 30) };
+        var projection = current with { ProjectionOnly = true, ProjectionName = "first projection", HighestPhase = 0, PeriodTo = new DateOnly(2027, 1, 31) };
+        var store = new CrisisStore();
+        store.Load(new CrisisSnapshot([current, projection], [], []));
+        var hover = CrisisText.CountryHover("Somalia", "SOM", store.Snapshot, Now);
+        Assert.Contains("IPC: projection only", hover);
+        Assert.DoesNotContain(CrisisText.FoodKind, hover);
+        // The other way round: the current analysis is the latest.
+        store.Load(new CrisisSnapshot([current with { PeriodTo = new DateOnly(2027, 3, 31) }, projection], [], []));
+        hover = CrisisText.CountryHover("Somalia", "SOM", store.Snapshot, Now);
+        Assert.Contains(CrisisText.FoodKind, hover);
+        Assert.DoesNotContain("projection only", hover);
     }
 
     // ---------------------------------------------------------------- the panel
@@ -60,8 +78,9 @@ public class FoodPanelTests
 
         var bar = Assert.IsType<PhaseBar>(food.Bar);
         Assert.True(bar.HasBar);
-        // The sample's five phases add up to 30 more than the people analysed: the sum is D, and the text says so.
-        Assert.Equal("of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed)", bar.OfAnalysed);
+        // The sample's five phases add up to 30 more than the people analysed (rounding, under 1%): the sum is D for the
+        // arithmetic, and the text names the people analysed and the small difference.
+        Assert.Equal("of 47,535,794 people analysed (the phase numbers add up to 30 more)", bar.OfAnalysed);
         Assert.Equal("The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", bar.Caption);
         Assert.Equal(
         [
@@ -76,7 +95,7 @@ public class FoodPanelTests
         Assert.Equal([1, 2, 3, 4, 5], bar.Segments.Select(s => s.Phase));   // nothing outside the five phases
         Assert.Null(bar.Note);   // shaded Phase 3: no famine note
         // The same facts as text for screen readers, people as well as shares: colour is never the only carrier.
-        Assert.Equal("IPC phase bar for Sudan, of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed): "
+        Assert.Equal("IPC phase bar for Sudan, of 47,535,794 people analysed (the phase numbers add up to 30 more): "
                      + "Phase 1 Minimal 25.4%, 12,069,469 people; Phase 2 Stressed 33.7%, 15,999,822 people; Phase 3 Crisis 30.1%, 14,316,494 people; "
                      + "Phase 4 Emergency 10.6%, 5,015,231 people; Phase 5 Catastrophe/Famine 0.3%, 134,808 people. A dashed line marks the worst 20%. "
                      + "The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", bar.AutomationName);
@@ -104,9 +123,12 @@ public class FoodPanelTests
     [Fact]
     public void SumLargerThanAnalysedIsTheDenominatorAndTheMarkerAgrees()
     {
-        var f = FoodMapTests.Counts("SOM", 900, 500, 200, 100, 150, 50);   // the phases add up to 1,000
-        var bar = FoodSectionOf(f).Bar!;
+        var f = FoodMapTests.Counts("SOM", 900, 500, 200, 100, 150, 50);   // the phases add up to 1,000: 11% more, not rounding
+        var food = FoodSectionOf(f);
+        var bar = food.Bar!;
         Assert.Equal("of 1,000 people (the five phases add up to more than the 900 people analysed)", bar.OfAnalysed);
+        // M4: the share names the total it is of.
+        Assert.Contains(("People in Phase 3 or higher", "300 (30.0% of the 1,000 people in the five phases)"), food.Rows);
         Assert.Equal([1, 2, 3, 4, 5], bar.Segments.Select(s => s.Phase));
         Assert.Equal(4, MarkerPhase(bar));   // 20% in Phase 4 or higher, exactly
         Assert.Equal(4, IpcAreaRule.Classify(f).LinePhase);
@@ -119,7 +141,7 @@ public class FoodPanelTests
         // 15 of 100 analysed in a reported phase: the share is known, but even Phase 1 or higher is under 20%.
         var f = FoodMapTests.Counts("SOM", 100, 0, 0, 10, 5, 0) with { UnreportedPhases = 0b00011 };
         var bar = FoodSectionOf(f).Bar!;
-        Assert.Equal("No phase reaches the worst 20%, so Somalia is not shaded, with a Phase 4 outline.", bar.Caption);
+        Assert.Equal("No phase reaches the worst 20%, so Somalia is not shaded, with a faint Phase 4 tint and outline.", bar.Caption);
         Assert.Null(MarkerPhase(bar));   // the marker is in the "not in a reported phase" piece
         Assert.Null(IpcAreaRule.Classify(f).LinePhase);
         // Without an outline.
@@ -136,10 +158,22 @@ public class FoodPanelTests
         Assert.Contains(("Country shading", "Phase 3 Crisis (IPC's 20% rule)"), food.Rows);
         var bar = food.Bar!;
         Assert.False(bar.HasBar);
-        Assert.Equal("The per-phase numbers are not reported, but 25.0% of the people analysed are in Phase 3 or higher, so Somalia is shaded Crisis.",
-            bar.Caption);
+        Assert.Equal("The per-phase numbers are not reported, but 250 people (25.0% of the people analysed) are in Phase 3 or higher, "
+                     + "so Somalia is shaded Crisis.", bar.Caption);
         Assert.DoesNotContain("line", bar.Caption, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("dashed", bar.AutomationName, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void APhase3PlusFigureAboveAllThePeopleAnalysedIsNotShownAsOver100Percent()
+    {
+        // M1: inconsistent data, 150 in Phase 3 or higher of 100 analysed.
+        var f = TestData.Food() with { HighestPhase = 3, PopulationAnalysed = 100, Phase3PlusPeople = 150, UnreportedPhases = 0b11111 };
+        var food = FoodSectionOf(f);
+        Assert.Contains(("People in Phase 3 or higher", "150 (more than all the people analysed: the file's numbers disagree)"), food.Rows);
+        Assert.Equal("The per-phase numbers are not reported, but 150 people (more than all the people analysed: the file's numbers disagree) "
+                     + "are in Phase 3 or higher, so Somalia is shaded Crisis.", food.Bar!.Caption);
+        Assert.DoesNotContain("150.0%", food.Bar!.AutomationName);
     }
 
     [Fact]
@@ -174,8 +208,13 @@ public class FoodPanelTests
     public void NotShadedCountrySaysSoAndNamesTheOutline()
     {
         var food = FoodSectionOf(FoodMapTests.Counts("PAK", 1000, 600, 250, 100, 50, 0));
-        Assert.Contains(("Country shading", "Not shaded: no phase covers 20% of the people analysed"), food.Rows);
-        Assert.Equal("The line falls in Phase 2, so Pakistan is not shaded, with a Phase 4 outline.", food.Bar!.Caption);
+        Assert.Contains(("Country shading", "Not shaded (no phase covers 20% of the people); faint Phase 4 tint and outline: some people are in Phase 4"),
+            food.Rows);
+        Assert.DoesNotContain(food.Rows, r => r.Label == "Outline");   // said in the shading row
+        Assert.Equal("The line falls in Phase 2, so Pakistan is not shaded, with a faint Phase 4 tint and outline.", food.Bar!.Caption);
+        // Nobody in Phase 3 or higher (not a crisis record in practice): no tint, no outline.
+        var none = FoodSectionOf(FoodMapTests.Counts("PAK", 1000, 600, 400, 0, 0, 0));
+        Assert.Contains(("Country shading", "Not shaded (no phase covers 20% of the people)"), none.Rows);
         var shadedNoOutline = FoodSectionOf(FoodMapTests.Counts("SOM", 1000, 400, 200, 150, 250, 0));
         Assert.Equal("The line falls in Phase 4, so Somalia is shaded Emergency.", shadedNoOutline.Bar!.Caption);
         Assert.DoesNotContain(shadedNoOutline.Rows, r => r.Label == "Outline");
@@ -195,20 +234,26 @@ public class FoodPanelTests
     [Fact]
     public void AnalysedBlankUsesThePhaseSumAndSaysSo()
     {
-        var bar = FoodSectionOf(FoodMapTests.Counts("SOM", 0, 600, 150, 200, 50, 0)).Bar!;
-        Assert.Equal("of 1,000 people analysed (the sum of the five phases; the file gives no total)", bar.OfAnalysed);
+        var food = FoodSectionOf(FoodMapTests.Counts("SOM", 0, 600, 150, 200, 50, 0));
+        Assert.Equal("of 1,000 people analysed (the sum of the five phases; the file gives no total)", food.Bar!.OfAnalysed);
+        Assert.Contains(("People in Phase 3 or higher", "250 (25.0% of the 1,000 people in the five phases)"), food.Rows);
     }
 
     [Fact]
     public void NoCountsMeansShareUnknown()
     {
         var food = FoodSectionOf(TestData.Food() with { HighestPhase = 3 });
-        Assert.Contains(("Country shading", "Not shaded: share unknown (the file gives no number of people analysed)"), food.Rows);
+        Assert.Contains(("Country shading", "Not shaded (share unknown: the file gives no number of people analysed); "
+                                            + "faint Phase 3 tint and outline: some people are in Phase 3"), food.Rows);
         var bar = food.Bar!;
         Assert.False(bar.HasBar);
         Assert.Equal("share unknown", bar.OfAnalysed);
-        Assert.Equal("Share unknown: neither the people analysed nor the per-phase numbers are reported, so Somalia is not shaded, "
-                     + "with a Phase 3 outline.", bar.Caption);
+        // M3: the Phase 3+ figure is reported; say what is and is not.
+        Assert.Equal("Share unknown: the file gives 1,200,000 people in Phase 3 or higher, but not the people analysed or the per-phase numbers, "
+                     + "so Somalia is not shaded, with a faint Phase 3 tint and outline.", bar.Caption);
+        // With no Phase 3+ figure either (not a crisis record in practice), neither is reported.
+        var nothing = FoodSectionOf(TestData.Food() with { HighestPhase = 3, Phase3PlusPeople = 0 }).Bar!;
+        Assert.StartsWith("Share unknown: neither the people analysed nor the per-phase numbers are reported, so Somalia is not shaded", nothing.Caption);
         Assert.All(bar.Rows, r => Assert.Equal("", r.Percent));
         Assert.Equal(5, bar.Rows.Count);
     }
@@ -293,16 +338,19 @@ public class FoodPanelTests
     public void LegendDescribesTheRuleTheOutlineAndTheFamineNote()
     {
         Assert.Equal("Food crisis: the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
-                     + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase.",
+                     + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase; "
+                     + "a faint tint with an outline alone means some people are in that phase, but no phase covers 20%.",
             LegendViewModel.Measures(CrisisLayer.Food));
         var store = new CrisisStore();
         store.Load(new CrisisSnapshot([Dated(FoodMapTests.Sudan())], [], []));
         var legend = new LegendViewModel(store, new LayerStripViewModel(new MemorySettingsStore()), nowUtc: () => Now);
         var food = legend.Lines.Single(l => l.Layer == CrisisLayer.Food);
-        Assert.Equal(["Phase 3 Crisis", "Phase 4 Emergency", "Phase 5 Catastrophe/Famine", LegendViewModel.OutlineKeyLabel],
+        Assert.Equal(["Phase 3 Crisis", "Phase 4 Emergency", "Phase 5 Catastrophe/Famine", LegendViewModel.OutlineKeyLabel, LegendViewModel.FaintKeyLabel],
             food.Keys.Select(k => k.Label));
-        Assert.True(food.Keys[^1].IsOutline);
-        Assert.DoesNotContain(food.Keys.SkipLast(1), k => k.IsOutline);
+        Assert.Equal("Faint tint and outline: some people are in this phase, but no phase covers 20%", LegendViewModel.FaintKeyLabel);
+        Assert.True(food.Keys[^2].IsOutline);
+        Assert.True(food.Keys[^1].IsFaint);
+        Assert.DoesNotContain(food.Keys.SkipLast(2), k => k.IsOutline || k.IsFaint);
         Assert.Equal("A country shaded Phase 5 is not an IPC famine classification, which also needs malnutrition and death-rate data.",
             food.Note);
         Assert.All(legend.Lines.Where(l => l.Layer != CrisisLayer.Food), l => Assert.Null(l.Note));

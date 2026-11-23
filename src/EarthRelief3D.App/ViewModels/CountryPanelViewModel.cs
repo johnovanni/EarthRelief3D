@@ -210,9 +210,10 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         else
         {
             rows = [("Country shading", CrisisText.FoodShading(c))];
-            if (c.OutlinePhase is { } o) rows.Add(("Outline", $"{LayerStyle.IpcPhaseLabel(o)}: some people are in this phase"));
+            // A shaded country's worse-phase outline; an outline-only country's tint and outline are in the shading row.
+            if (c.ShadedPhase is not null && c.OutlinePhase is { } o) rows.Add(("Outline", $"{LayerStyle.IpcPhaseLabel(o)}: some people are in this phase"));
             rows.Add(("People in Phase 3 or higher", CrisisText.Number(c.Phase3PlusPeople)
-                + (c.ShareKnown ? $" ({CrisisText.FoodPercent(c.Phase3PlusShare)} of the people analysed)" : " (share unknown)")));
+                + (c.ShareKnown ? $" ({CrisisText.ShareOf(f, c, c.Phase3PlusShare)})" : " (share unknown)")));
             rows.Add(("Analysis period", period));
         }
         return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url, bar);

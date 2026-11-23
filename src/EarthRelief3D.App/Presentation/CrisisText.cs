@@ -89,16 +89,45 @@ public static class CrisisText
     /// <summary>What a blank cell in the IPC file is called on screen (never 0).</summary>
     public const string NotReported = "not reported";
 
-    /// <summary>The panel's "Country shading" row: "Phase 3 Crisis (IPC's 20% rule)", or why the country is not shaded.</summary>
-    public static string FoodShading(IpcAreaClass c) =>
-        c.ShadedPhase is { } p ? $"{LayerStyle.IpcPhaseLabel(p)} (IPC's 20% rule)"
-        : c.ShareKnown ? "Not shaded: no phase covers 20% of the people analysed"
-        : "Not shaded: share unknown (the file gives no number of people analysed)";
+    /// <summary>
+    /// The faint tint of an outline-only country (owner's decision, round 2), one wording for the panel, the hover and the
+    /// caption: "faint Phase 4 tint and outline: some people are in Phase 4".
+    /// </summary>
+    public static string FaintText(int phase) => $"faint Phase {phase} tint and outline: some people are in Phase {phase}";
 
-    /// <summary>The tooltip's words for the shading: "shaded Phase 3 Crisis (20% rule)", "not shaded (under 20%)" or "not shaded (share unknown)".</summary>
+    /// <summary>
+    /// The panel's "Country shading" row: "Phase 3 Crisis (IPC's 20% rule)"; or "Not shaded (no phase covers 20% of the
+    /// people)", followed for an outline-only country by "; faint Phase 4 tint and outline: some people are in Phase 4".
+    /// </summary>
+    public static string FoodShading(IpcAreaClass c)
+    {
+        if (c.ShadedPhase is { } p) return $"{LayerStyle.IpcPhaseLabel(p)} (IPC's 20% rule)";
+        var why = c.ShareKnown ? "Not shaded (no phase covers 20% of the people)"
+            : "Not shaded (share unknown: the file gives no number of people analysed)";
+        return c.FaintPhase is { } f ? $"{why}; {FaintText(f)}" : why;
+    }
+
+    /// <summary>
+    /// The tooltip's words for the shading: "shaded Phase 3 Crisis (20% rule)", "not shaded (no phase covers 20%)" or
+    /// "not shaded (share unknown)".
+    /// </summary>
     public static string FoodShadingShort(IpcAreaClass c) =>
         c.ShadedPhase is { } p ? $"shaded {LayerStyle.IpcPhaseLabel(p)} (20% rule)"
-        : c.ShareKnown ? "not shaded (under 20%)" : "not shaded (share unknown)";
+        : c.ShareKnown ? "not shaded (no phase covers 20%)" : "not shaded (share unknown)";
+
+    /// <summary>The phase sum is D only because the file's numbers are rounded: it exceeds the people analysed by at most 1%.</summary>
+    public static bool IsRoundingGap(FoodCrisis f, IpcAreaClass c) =>
+        c.Source == IpcDenominator.PhaseSumLarger && (c.PhaseSum - f.PopulationAnalysed) * 100 <= f.PopulationAnalysed;
+
+    /// <summary>
+    /// A share of D in words, naming the total it is of: "41.0% of the people analysed" (D is the people analysed, or the
+    /// phase sum only through rounding); "25.0% of the 1,000 people in the five phases" (D is the phase sum); over 100%
+    /// (inconsistent numbers): "more than all the people analysed: the file's numbers disagree".
+    /// </summary>
+    public static string ShareOf(FoodCrisis f, IpcAreaClass c, double share) =>
+        share > 1 + 1e-9 ? "more than all the people analysed: the file's numbers disagree"
+        : c.Source == IpcDenominator.Analysed || IsRoundingGap(f, c) ? $"{FoodPercent(share)} of the people analysed"
+        : $"{FoodPercent(share)} of the {Number(c.Denominator)} people in the five phases";
 
     /// <summary>
     /// A food share to one decimal ("30.1%"), so a small phase is not shown as 0%: "under 0.1%" for a share above 0 that
@@ -111,13 +140,16 @@ public static class CrisisText
 
     /// <summary>
     /// What the shares are of, naming the denominator D (R17): "of 47,535,794 people analysed"; "of N people analysed (the
-    /// sum of the five phases; the file gives no total)"; "of N people (the five phases add up to more than the M people
-    /// analysed)"; "share unknown" with no denominator.
+    /// sum of the five phases; the file gives no total)"; for a sum up to 1% over the people analysed (rounding; D is the
+    /// sum for the arithmetic) "of 47,535,794 people analysed (the phase numbers add up to 30 more)"; for a bigger gap "of N
+    /// people (the five phases add up to more than the M people analysed)"; "share unknown" with no denominator.
     /// </summary>
     public static string OfAnalysed(FoodCrisis f, IpcAreaClass c) => c.Source switch
     {
         IpcDenominator.Analysed => $"of {Number(c.Denominator)} people analysed",
         IpcDenominator.PhaseSum => $"of {Number(c.Denominator)} people analysed (the sum of the five phases; the file gives no total)",
+        IpcDenominator.PhaseSumLarger when IsRoundingGap(f, c) =>
+            $"of {Number(f.PopulationAnalysed)} people analysed (the phase numbers add up to {Number(c.PhaseSum - f.PopulationAnalysed)} more)",
         IpcDenominator.PhaseSumLarger =>
             $"of {Number(c.Denominator)} people (the five phases add up to more than the {Number(f.PopulationAnalysed)} people analysed)",
         _ => "share unknown",
@@ -136,15 +168,19 @@ public static class CrisisText
     public static string BarCaption(string country, FoodCrisis f, IpcAreaClass c)
     {
         string lead;
-        if (!c.ShareKnown) lead = "Share unknown: neither the people analysed nor the per-phase numbers are reported";
+        if (!c.ShareKnown)
+            lead = c.Phase3PlusPeople > 0
+                ? $"Share unknown: the file gives {Number(c.Phase3PlusPeople)} people in Phase 3 or higher, but not the people analysed or the per-phase numbers"
+                : "Share unknown: neither the people analysed nor the per-phase numbers are reported";
         else if (!c.CanStack)
             lead = (c.PhaseSum == 0 ? "The per-phase numbers are" : "The Phase 3 to 5 numbers are")
-                   + $" not reported, but {FoodPercent(c.Phase3PlusShare)} of the people analysed are in Phase 3 or higher";
+                   + $" not reported, but {Number(c.Phase3PlusPeople)} people ({ShareOf(f, c, c.Phase3PlusShare)}) are in Phase 3 or higher";
         else if (c.LinePhase is { } p) lead = $"The line falls in Phase {p}";
         else lead = "No phase reaches the worst 20%";
         if (f.IsStale) return $"{lead}. This analysis ended more than {FoodCrisis.StaleAfterMonths} months ago, so {country} is not shaded.";
         var shading = c.ShadedPhase is { } s ? $"is shaded {LayerStyle.IpcPhaseName(s)}" : "is not shaded";
-        var outline = c.OutlinePhase is { } o ? $", with a Phase {o} outline" : "";
+        var outline = c.FaintPhase is { } t ? $", with a faint Phase {t} tint and outline"
+            : c.OutlinePhase is { } o ? $", with a Phase {o} outline" : "";
         return $"{lead}, so {country} {shading}{outline}.";
     }
 
@@ -168,7 +204,8 @@ public static class CrisisText
     public static string FoodHover(string country, FoodCrisis f)
     {
         var c = IpcAreaRule.Classify(f);
-        var worse = c.OutlinePhase is { } o ? $" · worst phase with people: {LayerStyle.IpcPhaseLabel(o)}" : "";
+        var worse = c.FaintPhase is { } t ? $" · {FaintText(t)}"
+            : c.OutlinePhase is { } o ? $" · worst phase with people: {LayerStyle.IpcPhaseLabel(o)}" : "";
         return $"{country} · {FoodKind} · {FoodShadingShort(c)}{worse} · {PhaseCountsText(f)} · {FoodDate(f)}";
     }
 
@@ -196,7 +233,9 @@ public static class CrisisText
     {
         s = s.AsSeenAt(nowUtc);
         var crises = s.ByCountry(iso3);
-        var projection = crises.OfType<FoodCrisis>().Where(f => f.ProjectionOnly).MaxBy(f => f.PeriodTo);
+        // One food record per country, the latest, as the map, the panel and the food hover use (M5).
+        var latestFood = FoodCrisis.Latest(crises.OfType<FoodCrisis>());
+        var projection = latestFood is { ProjectionOnly: true } ? latestFood : null;
         var kinds = new List<string>();
         var sources = new List<string>();
         var conflicts = crises.OfType<ConflictCrisis>().ToList();
@@ -206,7 +245,7 @@ public static class CrisisText
             var newest = conflicts.SelectMany(c => c.Citations).MaxBy(c => c.AsOfUtc);
             sources.Add(newest is null ? "UCDP" : $"UCDP ({DataDate(newest, nowUtc)})");
         }
-        if (crises.OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly).MaxBy(f => f.PeriodTo) is { } food)
+        if (latestFood is { IsStale: false, ProjectionOnly: false } food)
         {
             kinds.Add(FoodKind);
             var v = food.Citations.Count > 0 ? food.Citations[0].Version : null;

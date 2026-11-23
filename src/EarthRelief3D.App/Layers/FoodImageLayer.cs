@@ -16,7 +16,10 @@ using GlobeCore.Wpf.Rendering;
 namespace EarthRelief3D.App.Layers;
 
 /// <summary>One country on the food layer: its fill colour (the 20% rule's phase) and its outline colour (a worse phase with people).</summary>
-public sealed record FoodArea(string Iso3, Color? Fill, Color? Outline);
+public sealed record FoodArea(string Iso3, Color? Fill, Color? Outline, Color? Faint = null);
+
+/// <summary>One polygon to draw: its fill, its outline, and its faint tint (an outline-only country, owner's decision round 2).</summary>
+public sealed record FoodPolygon(GeoPolygon Polygon, Color? Fill, Color? Outline, Color? Faint);
 
 /// <summary>
 /// Food crises (IPC national figures, ruling P2-3, shading rule R17): each country with a current analysis is shaded in the
@@ -37,6 +40,11 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     public const int ImageOrder = 5;
     /// <summary>The rasterizer fills at 35%; the IPC colours are raised to about 60% so the phases read on Blue Marble.</summary>
     public const double FillBoost = 153.0 / 89.0;
+    /// <summary>
+    /// The faint tint's opacity (46 of 255, about 18%): about 30% of a shaded fill's (153, about 60%), so an outline-only
+    /// country reads as tinted but never as shaded (owner's decision, round 2).
+    /// </summary>
+    public const int FaintAlpha = 46;
 
     private readonly int _width, _height;
     private readonly CrisisStore _store;
@@ -88,10 +96,11 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
             .GroupBy(f => f.CountryIso3.ToUpperInvariant())
             .OrderBy(g => g.Key, StringComparer.Ordinal)
             .Select(g => (Iso3: g.Key, Style: IpcAreaRule.MapStyle(FoodCrisis.Latest(g)!)))
-            .Where(x => x.Style.Shaded is not null || x.Style.Outline is not null)
-            .Select(x => new FoodArea(x.Iso3, x.Style.Shaded is { } s ? LayerStyle.IpcPhaseColor(s) : null,
-                x.Style.Outline is { } o ? LayerStyle.IpcPhaseColor(o) : null)),
+            .Where(x => !x.Style.IsEmpty)
+            .Select(x => new FoodArea(x.Iso3, PhaseColor(x.Style.Shaded), PhaseColor(x.Style.Outline), PhaseColor(x.Style.Faint))),
     ];
+
+    private static Color? PhaseColor(int? phase) => phase is { } p ? LayerStyle.IpcPhaseColor(p) : null;
 
     /// <summary>
     /// The width of <paramref name="polygon"/>'s outline band in image pixels: <see cref="OutlineWidthPx"/>, narrowed to a
@@ -108,35 +117,52 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
         return Math.Max(1.0, Math.Min(OutlineWidthPx, Math.Min(w, h) / 4));
     }
 
-    /// <summary>The key of what is drawn: the boundary version and every country's fill and outline (a change rebuilds the image).</summary>
+    /// <summary>The key of what is drawn: the boundary version and every country's fill, outline and faint tint (a change rebuilds the image).</summary>
     public static string BuildKey(int boundaryVersion, IReadOnlyList<FoodArea> plan) =>
-        boundaryVersion + "|" + string.Join(";", plan.Select(p => $"{p.Iso3}:{p.Fill}/{p.Outline}"));
+        boundaryVersion + "|" + string.Join(";", plan.Select(p => $"{p.Iso3}:{p.Fill}/{p.Outline}/{p.Faint}"));
 
     /// <summary>Draws the plan's countries (their polygons from <paramref name="countries"/>) at the image's size. STA thread.</summary>
     public static Bgra32Image Rasterize(IReadOnlyList<FoodArea> plan, CountryIndex countries, int width, int height)
     {
-        var areas = new List<(GeoPolygon, Color?, Color?)>();
+        var areas = new List<FoodPolygon>();
         foreach (var a in plan)
             if (countries.ByIso3(a.Iso3) is { } c)
-                foreach (var poly in c.Polygons) areas.Add((poly, a.Fill, a.Outline));
+                foreach (var poly in c.Polygons) areas.Add(new FoodPolygon(poly, a.Fill, a.Outline, a.Faint));
         return RasterizeAreas(areas, width, height);
     }
 
+    /// <summary>Fills and outlines with no faint tint (see the <see cref="FoodPolygon"/> overload).</summary>
+    public static Bgra32Image RasterizeAreas(IReadOnlyList<(GeoPolygon Polygon, Color? Fill, Color? Outline)> areas, int width, int height) =>
+        RasterizeAreas([.. areas.Select(a => new FoodPolygon(a.Polygon, a.Fill, a.Outline, null))], width, height);
+
     /// <summary>
-    /// The fills (GlobeCore's area rasterizer, raised by <see cref="FillBoost"/>), then the outlines over them in one image:
-    /// opaque bands <see cref="OutlineWidthPx"/> wide just inside each country's edge, without the artificial edges along
-    /// ±180°. STA thread.
+    /// The fills (GlobeCore's area rasterizer, raised by <see cref="FillBoost"/>) and the faint tints (the same, lowered to
+    /// <see cref="FaintAlpha"/>), then the outlines over them in one image: opaque bands up to <see cref="OutlineWidthPx"/>
+    /// wide just inside each country's edge, without the artificial edges along ±180°. STA thread.
     /// </summary>
-    public static Bgra32Image RasterizeAreas(IReadOnlyList<(GeoPolygon Polygon, Color? Fill, Color? Outline)> areas, int width, int height)
+    public static Bgra32Image RasterizeAreas(IReadOnlyList<FoodPolygon> areas, int width, int height)
     {
+        ArgumentNullException.ThrowIfNull(areas);
         var image = AreaRasterizer.Rasterize([.. areas.Where(a => a.Fill is not null).Select(a => (a.Polygon, a.Fill!.Value))], width, height);
         var px = image.Pixels;
         for (int i = 3; i < px.Length; i += 4)
             if (px[i] is > 0 and < 255) px[i] = (byte)Math.Min(255, Math.Round(px[i] * FillBoost));
 
+        var faint = areas.Where(a => a.Faint is not null).Select(a => (a.Polygon, a.Faint!.Value)).ToList();
+        if (faint.Count > 0)
+        {
+            // The area rasterizer fills at 89 (35%); the tint keeps that coverage and is lowered to FaintAlpha. Countries do
+            // not overlap, so the tints go over the fills without mixing.
+            var tint = AreaRasterizer.Rasterize(faint, width, height);
+            var tp = tint.Pixels;
+            for (int i = 3; i < tp.Length; i += 4)
+                if (tp[i] is > 0 and < 255) tp[i] = (byte)Math.Min(255, Math.Round(tp[i] * (FaintAlpha / 89.0)));
+            Over(px, tp);
+        }
+
         var outlined = areas.Where(a => a.Outline is not null).Select(a => (a.Polygon, a.Outline!.Value)).ToList();
         if (outlined.Count == 0) return image;
-        Over(image.Pixels, RasterizeOutlines(outlined, width, height));
+        Over(px, RasterizeOutlines(outlined, width, height));
         return image;
     }
 

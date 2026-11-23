@@ -10,10 +10,14 @@ namespace EarthRelief3D.App.ViewModels;
 
 /// <summary>One colour key under a legend line ("Phase 4 Emergency", "last 3 months").</summary>
 /// <param name="IsOutline">Drawn as an outline sample (a ring), not a filled swatch: the food layer's outline (R17).</param>
-public sealed record LegendKey(string Label, Color Color, bool IsOutline = false)
+/// <param name="IsFaint">Drawn as a ring around a faint fill: the food layer's faint tint and outline (round 2).</param>
+public sealed record LegendKey(string Label, Color Color, bool IsOutline = false, bool IsFaint = false)
 {
     /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
+
+    /// <summary>The faint tint's brush: the colour at the map's faint opacity (computed, not part of equality).</summary>
+    public SolidColorBrush FaintBrush => LayerStyle.Frozen(Color.FromArgb((byte)Layers.FoodImageLayer.FaintAlpha, Color.R, Color.G, Color.B));
 }
 
 /// <summary>One visible layer: its symbol, what it measures, the source and the as-of date.</summary>
@@ -47,11 +51,14 @@ public sealed partial class LegendViewModel : ObservableObject
     public const string BoundaryNote = "The boundaries and names shown on this map do not imply official endorsement or acceptance by the United Nations.";
     /// <summary>The food layer's outline key (R17), drawn as a ring in Phase 4's colour.</summary>
     public const string OutlineKeyLabel = "Outline: people in a worse phase";
+    /// <summary>The food layer's faint tint key (owner's decision, round 2), drawn as a faint fill in a ring of Phase 4's colour.</summary>
+    public const string FaintKeyLabel = "Faint tint and outline: some people are in this phase, but no phase covers 20%";
     /// <summary>Under the food keys (R17): the shading is not IPC's famine classification.</summary>
     public const string FamineNote = CrisisText.FamineNote;
     /// <summary>The food layer's rule (R17), one wording for the legend line and the layer strip's tooltip.</summary>
     public const string FoodRule = "the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
-        + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase.";
+        + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase; "
+        + "a faint tint with an outline alone means some people are in that phase, but no phase covers 20%.";
     /// <summary>The layer strip's tooltip for the food toggle.</summary>
     public const string FoodTooltip = "Food crisis (IPC): " + FoodRule;
 
@@ -137,6 +144,7 @@ public sealed partial class LegendViewModel : ObservableObject
         [
             .. Enumerable.Range(3, 3).Select(p => new LegendKey(LayerStyle.IpcPhaseLabel(p), LayerStyle.IpcPhaseColor(p))),
             new LegendKey(OutlineKeyLabel, LayerStyle.IpcPhaseColor(4), IsOutline: true),
+            new LegendKey(FaintKeyLabel, LayerStyle.IpcPhaseColor(4), IsFaint: true),
         ],
         _ => [],
     };

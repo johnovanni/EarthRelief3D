@@ -5,6 +5,7 @@ using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Model;
 using GlobeCore.Geo;
+using GlobeCore.Imaging;
 
 namespace EarthRelief3D.Tests;
 
@@ -38,7 +39,7 @@ public class FoodMapTests
         var plan = FoodImageLayer.Plan([sdn, som, pak, stale, projected, TestData.Conflict()]);
         Assert.Equal(
         [
-            new FoodArea("PAK", null, LayerStyle.IpcPhaseColor(4)),
+            new FoodArea("PAK", null, LayerStyle.IpcPhaseColor(4), Faint: LayerStyle.IpcPhaseColor(4)),
             new FoodArea("SDN", LayerStyle.IpcPhaseColor(3), LayerStyle.IpcPhaseColor(5)),
             new FoodArea("SOM", LayerStyle.IpcPhaseColor(4), null),
         ], plan);
@@ -51,8 +52,8 @@ public class FoodMapTests
         // The newer one decides both colours together (not the worst fill of one and the worst outline of the other).
         var newer = Counts("SOM", 1000, 300, 200, 400, 50, 50) with { PeriodTo = new DateOnly(2027, 1, 31) };
         var older = Counts("SOM", 1000, 400, 200, 150, 250, 0) with { PeriodTo = new DateOnly(2026, 6, 30) };
-        Assert.Equal((3, 5), IpcAreaRule.MapStyle(newer));
-        Assert.Equal((4, null), IpcAreaRule.MapStyle(older));
+        Assert.Equal(new IpcMapStyle(3, 5, null), IpcAreaRule.MapStyle(newer));
+        Assert.Equal(new IpcMapStyle(4, null, null), IpcAreaRule.MapStyle(older));
         var expected = new FoodArea("SOM", LayerStyle.IpcPhaseColor(3), LayerStyle.IpcPhaseColor(5));
         Assert.Equal([expected], FoodImageLayer.Plan([older, newer]));
         Assert.Equal([expected], FoodImageLayer.Plan([newer, older]));
@@ -93,7 +94,7 @@ public class FoodMapTests
         var plan = FoodImageLayer.Plan(s.Crises);
         Assert.Contains(new FoodArea("SDN", LayerStyle.IpcPhaseColor(3), LayerStyle.IpcPhaseColor(5)), plan);
         // Pakistan: 19.7% in Phase 3 or higher (the file rounds it to 0.2): an outline only.
-        Assert.Contains(new FoodArea("PAK", null, LayerStyle.IpcPhaseColor(4)), plan);
+        Assert.Contains(new FoodArea("PAK", null, LayerStyle.IpcPhaseColor(4), Faint: LayerStyle.IpcPhaseColor(4)), plan);
         // Every current analysis in the sample is either filled or outlined.
         Assert.All(plan, a => Assert.True(a.Fill is not null || a.Outline is not null));
     }
@@ -106,7 +107,45 @@ public class FoodMapTests
         Assert.NotEqual(FoodImageLayer.BuildKey(1, [a]), FoodImageLayer.BuildKey(1, [a with { Outline = null }]));
         Assert.NotEqual(FoodImageLayer.BuildKey(1, [a]), FoodImageLayer.BuildKey(2, [a]));
         Assert.Equal(FoodImageLayer.BuildKey(1, [a]), FoodImageLayer.BuildKey(1, [a with { }]));
+        var faint = new FoodArea("PAK", null, LayerStyle.IpcPhaseColor(4), LayerStyle.IpcPhaseColor(4));
+        Assert.NotEqual(FoodImageLayer.BuildKey(1, [faint]), FoodImageLayer.BuildKey(1, [faint with { Faint = null }]));
     }
+
+    [Fact]
+    public void PlanGivesTheFaintTintOnlyToOutlineOnlyCountries()
+    {
+        var plan = FoodImageLayer.Plan([Sudan(), Counts("PAK", 1000, 600, 250, 100, 50, 0), Counts("SOM", 1000, 400, 200, 150, 250, 0)]);
+        Assert.Equal(
+        [
+            new FoodArea("PAK", null, LayerStyle.IpcPhaseColor(4), LayerStyle.IpcPhaseColor(4)),
+            new FoodArea("SDN", LayerStyle.IpcPhaseColor(3), LayerStyle.IpcPhaseColor(5), null),
+            new FoodArea("SOM", LayerStyle.IpcPhaseColor(4), null, null),
+        ], plan);
+    }
+
+    [Fact]
+    public void AFaintTintIsAboutAThirdAsOpaqueAsAShadedFill() => StaAsync.Sta(() =>
+    {
+        const int w = 720, h = 360;
+        var color = LayerStyle.IpcPhaseColor(4);
+        int Inside(Bgra32Image image) => image.Pixels[((Y(0) * w) + X(5)) * 4 + 3];
+        int X(double lon) => (int)((lon + 180) / 360 * w);
+        int Y(double lat) => (int)((90 - lat) / 180 * h);
+        var square = new GeoPolygon([[new GeoPosition(10, 0), new GeoPosition(10, 10), new GeoPosition(-10, 10), new GeoPosition(-10, 0)]]);
+        int shaded = Inside(FoodImageLayer.RasterizeAreas([new FoodPolygon(square, color, null, null)], w, h));
+        var faintImage = FoodImageLayer.RasterizeAreas([new FoodPolygon(square, null, color, color)], w, h);
+        int faint = Inside(faintImage);
+        Assert.InRange(shaded, 140, 170);
+        Assert.True(faint > 0 && faint < shaded, $"faint {faint}, shaded {shaded}");
+        Assert.InRange(faint / (double)shaded, 0.2, 0.4);
+        Assert.Equal(FoodImageLayer.FaintAlpha, faint);
+        // In the outline's colour, and the outline is still drawn opaque just inside the edge.
+        int i = ((Y(0) * w) + X(5)) * 4;
+        Assert.InRange(faintImage.Pixels[i], color.B - 3, color.B + 3);   // premultiplied rendering rounds a little
+        Assert.InRange(faintImage.Pixels[i + 1], color.G - 3, color.G + 3);
+        Assert.InRange(faintImage.Pixels[i + 2], color.R - 3, color.R + 3);
+        Assert.Equal(255, faintImage.Pixels[((Y(0) * w) + X(0)) * 4 + 3]);
+    });
 
     // A square split at +180 degrees, as Natural Earth splits Fiji and Russia: the edge along the meridian is not a border.
     private static GeoPolygon SplitSquare() => new(

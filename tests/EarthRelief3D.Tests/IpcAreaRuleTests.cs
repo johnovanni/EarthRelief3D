@@ -151,11 +151,26 @@ public class IpcAreaRuleTests
     public void StaleAndProjectionOnlyRecordsAreNeitherShadedNorOutlinedOnTheMap()
     {
         var sudan = F(47_535_794, 12_069_469, 15_999_822, 14_316_494, 5_015_231, 134_808, highest: 5);
-        Assert.Equal((3, 5), IpcAreaRule.MapStyle(sudan));
-        Assert.Equal((null, null), IpcAreaRule.MapStyle(sudan with { IsStale = true }));
-        Assert.Equal((null, null), IpcAreaRule.MapStyle(sudan with { ProjectionOnly = true, ProjectionName = "first projection", HighestPhase = 0 }));
+        Assert.Equal(new IpcMapStyle(3, 5, null), IpcAreaRule.MapStyle(sudan));
+        Assert.Equal(IpcMapStyle.None, IpcAreaRule.MapStyle(sudan with { IsStale = true }));
+        Assert.Equal(IpcMapStyle.None, IpcAreaRule.MapStyle(sudan with { ProjectionOnly = true, ProjectionName = "first projection", HighestPhase = 0 }));
         // The stale record still has its classification (the panel's bar for the past analysis).
         Assert.Equal(3, IpcAreaRule.Classify(sudan with { IsStale = true }).ShadedPhase);
+    }
+
+    [Fact]
+    public void OnlyAnOutlineOnlyCountryGetsTheFaintTint()
+    {
+        // Owner's decision (round 2): some people in Phase 3 or worse but no phase covers 20% -> a faint tint in the
+        // outline's phase, with the outline. A shaded country gets no faint tint, whatever its outline.
+        Assert.Equal(new IpcMapStyle(null, 4, 4), IpcAreaRule.MapStyle(F(1000, 600, 250, 100, 50, 0, highest: 4)));
+        Assert.Equal(new IpcMapStyle(null, 3, 3), IpcAreaRule.MapStyle(F(1000, 700, 200, 100, 0, 0)));
+        Assert.Equal(new IpcMapStyle(3, 5, null), IpcAreaRule.MapStyle(F(1000, 300, 200, 400, 50, 50, highest: 5)));
+        Assert.Equal(new IpcMapStyle(4, null, null), IpcAreaRule.MapStyle(F(1000, 400, 200, 150, 250, 0, highest: 4)));
+        // Share unknown, Phase 3+ people: not shaded, so the faint tint with the outline.
+        Assert.Equal(new IpcMapStyle(null, 3, 3), IpcAreaRule.MapStyle(F(0, 0, 0, 0, 0, 0) with { Phase3PlusPeople = 1_200_000 }));
+        // Stale: nothing.
+        Assert.Equal(IpcMapStyle.None, IpcAreaRule.MapStyle(F(1000, 600, 250, 100, 50, 0, highest: 4) with { IsStale = true }));
     }
 
     [Fact]
@@ -200,7 +215,7 @@ public class IpcAreaRuleTests
         Assert.Equal(5_015_231, sdn.Phase4People);
         Assert.Equal(134_808, sdn.Phase5People);
         Assert.Equal(0, sdn.UnreportedPhases);
-        Assert.Equal((3, 5), IpcAreaRule.MapStyle(sdn));
+        Assert.Equal(new IpcMapStyle(3, 5, null), IpcAreaRule.MapStyle(sdn));
     }
 
     [Fact]

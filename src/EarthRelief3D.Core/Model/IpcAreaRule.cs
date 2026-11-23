@@ -33,6 +33,12 @@ public sealed record IpcAreaClass
     public int? OutlinePhase { get; init; }
 
     /// <summary>
+    /// The faint tint's phase: <see cref="OutlinePhase"/> when nothing is shaded ("outline only": some people in Phase 3 or
+    /// worse, but no phase covers 20%); null for a shaded country.
+    /// </summary>
+    public int? FaintPhase => ShadedPhase is null ? OutlinePhase : null;
+
+    /// <summary>
     /// D: the people analysed when that is at least the sum of the five phases; the sum when it is larger or the people
     /// analysed is blank; 0 when neither is known ("share unknown").
     /// </summary>
@@ -165,14 +171,27 @@ public static class IpcAreaRule
     }
 
     /// <summary>
-    /// What the map draws for <paramref name="f"/>: the fill phase and the outline phase. Stale and projection-only records
-    /// are neither shaded nor outlined (P2-4).
+    /// What the map draws for <paramref name="f"/>: the fill phase, the outline phase, and the faint tint (the outline's
+    /// phase, for a country that has an outline but no shaded phase). Stale and projection-only records are neither shaded
+    /// nor outlined (P2-4).
     /// </summary>
-    public static (int? Shaded, int? Outline) MapStyle(FoodCrisis f)
+    public static IpcMapStyle MapStyle(FoodCrisis f)
     {
         ArgumentNullException.ThrowIfNull(f);
-        if (f.IsStale || f.ProjectionOnly) return (null, null);
+        if (f.IsStale || f.ProjectionOnly) return IpcMapStyle.None;
         var c = Classify(f);
-        return (c.ShadedPhase, c.OutlinePhase);
+        return new IpcMapStyle(c.ShadedPhase, c.OutlinePhase, c.FaintPhase);
     }
+}
+
+/// <summary>
+/// The map's drawing of one country (R17). <paramref name="Faint"/> (owner's decision, round 2): a country with people in
+/// Phase 3 or worse but no phase covering 20% gets a faint tint in its outline's phase, with the outline; a shaded country
+/// never gets one.
+/// </summary>
+public readonly record struct IpcMapStyle(int? Shaded, int? Outline, int? Faint)
+{
+    public static IpcMapStyle None => default;
+
+    public bool IsEmpty => Shaded is null && Outline is null && Faint is null;
 }

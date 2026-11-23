@@ -286,7 +286,7 @@ public class AppStartupTests
         // 15% in Phase 3 or higher, some in Phase 4: no fill, a Phase 4 outline (R17).
         rig.Store.Load(new CrisisSnapshot([FoodMapTests.Counts("SOM", 1000, 600, 250, 100, 50, 0)], [], []));
         await StaAsync.WaitUntil(() => host.IsComposeIdle);
-        Assert.Equal([new FoodArea("SOM", null, LayerStyle.IpcPhaseColor(4))], FoodImageLayer.Plan(rig.Store.Snapshot.Crises));
+        Assert.Equal([new FoodArea("SOM", null, LayerStyle.IpcPhaseColor(4), Faint: LayerStyle.IpcPhaseColor(4))], FoodImageLayer.Plan(rig.Store.Snapshot.Crises));
         Assert.NotNull(host.Layers.OfType<FoodImageLayer>().Single().Current);
 
         rig.Scene.LookAt(new GeoPosition(5, 46));   // inside Somalia, away from its edges
@@ -294,7 +294,7 @@ public class AppStartupTests
         Assert.NotNull(hit);
         Assert.Equal(FoodImageLayer.LayerId, hit.LayerId);
         Assert.Equal(new CountryPick("SOM", CrisisLayer.Food), hit.Item);
-        Assert.Contains("not shaded (under 20%)", hit.Tooltip);
+        Assert.Contains("not shaded (no phase covers 20%) · faint Phase 4 tint and outline: some people are in Phase 4", hit.Tooltip);
     });
 
     private sealed class BindingErrors : System.Diagnostics.TraceListener
@@ -348,14 +348,14 @@ public class AppStartupTests
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));
             Assert.True(bar.ActualWidth > 200);
-            Assert.StartsWith("IPC phase bar for Sudan, of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed): ",
+            Assert.StartsWith("IPC phase bar for Sudan, of 47,535,794 people analysed (the phase numbers add up to 30 more): ",
                 System.Windows.Automation.AutomationProperties.GetName(bar));
             Assert.Contains("The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", texts);
             // The caption wraps inside the panel (implicit TextBlock styles do not reach into the bar's template).
             var caption = Descendants<TextBlock>(root).Single(t => t.Text.StartsWith("The line falls in", StringComparison.Ordinal));
             Assert.Equal(TextWrapping.Wrap, caption.TextWrapping);
             Assert.True(caption.ActualHeight > 1.5 * caption.FontSize * 1.2, $"caption height {caption.ActualHeight}: one line, cut off");
-            Assert.Contains("People by IPC phase, of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed)", texts);
+            Assert.Contains("People by IPC phase, of 47,535,794 people analysed (the phase numbers add up to 30 more)", texts);
             Assert.Contains("Phase 5 Catastrophe/Famine", texts);
             Assert.Contains(LegendViewModel.FamineNote, texts);
             Assert.Empty(errors.Lines);
