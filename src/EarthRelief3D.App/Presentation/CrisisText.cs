@@ -77,9 +77,60 @@ public static class CrisisText
         (LayerStyle.IpcPhaseLabel(5), f.Phase5People),
     ];
 
-    /// <summary>"people in Phase 3 Crisis 14,316,494, Phase 4 Emergency 5,015,231, Phase 5 Catastrophe/Famine 134,808".</summary>
+    /// <summary>
+    /// "people in Phase 3 Crisis 14,316,494, Phase 4 Emergency 5,015,231, Phase 5 Catastrophe/Famine 134,808" ("not
+    /// reported" for a blank cell).
+    /// </summary>
     public static string PhaseCountsText(FoodCrisis f) =>
-        "people in " + string.Join(", ", PhaseCounts(f).Select(p => $"{p.Label} {Number(p.People)}"));
+        "people in " + string.Join(", ", PhaseCounts(f).Select((p, i) => $"{p.Label} {(f.IsReported(i + 3) ? Number(p.People) : NotReported)}"));
+
+    // ---------------------------------------------------------------- the 20% rule in words (R17; one wording everywhere)
+
+    /// <summary>What a blank cell in the IPC file is called on screen (never 0).</summary>
+    public const string NotReported = "not reported";
+
+    /// <summary>The panel's "Country shading" row: "Phase 3 Crisis (IPC's 20% rule)", or why the country is not shaded.</summary>
+    public static string FoodShading(IpcAreaClass c) =>
+        c.ShadedPhase is { } p ? $"{LayerStyle.IpcPhaseLabel(p)} (IPC's 20% rule)"
+        : c.ShareKnown ? "Not shaded: no phase covers 20% of the people analysed"
+        : "Not shaded: share unknown (the file gives no number of people analysed)";
+
+    /// <summary>The tooltip's words for the shading: "shaded Phase 3 Crisis (20% rule)", "not shaded (under 20%)" or "not shaded (share unknown)".</summary>
+    public static string FoodShadingShort(IpcAreaClass c) =>
+        c.ShadedPhase is { } p ? $"shaded {LayerStyle.IpcPhaseLabel(p)} (20% rule)"
+        : c.ShareKnown ? "not shaded (under 20%)" : "not shaded (share unknown)";
+
+    /// <summary>
+    /// A food share to one decimal ("30.1%"), so a small phase is not shown as 0%: "under 0.1%" for a share above 0 that
+    /// would round to 0.0%, and "0%" for none.
+    /// </summary>
+    public static string FoodPercent(double fraction) =>
+        fraction <= 0 ? "0%"
+        : fraction < 0.0005 ? "under 0.1%"
+        : Math.Round(fraction * 100, 1, MidpointRounding.AwayFromZero).ToString("0.0", Inv) + "%";
+
+    /// <summary>
+    /// "of 47,535,794 people analysed"; with the phase sum as the denominator, "of N people analysed (the sum of the five
+    /// phases; the file gives no total)"; "share unknown" with no denominator.
+    /// </summary>
+    public static string OfAnalysed(FoodCrisis f, IpcAreaClass c) =>
+        !c.ShareKnown ? "share unknown"
+        : f.PopulationAnalysed > 0 ? $"of {Number(c.Denominator)} people analysed"
+        : $"of {Number(c.Denominator)} people analysed (the sum of the five phases; the file gives no total)";
+
+    /// <summary>
+    /// The bar's caption: "The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline." (or "... is not
+    /// shaded ..."; "Share unknown, so ..."; for a past analysis, "... but this analysis ended more than 12 months ago, so
+    /// &lt;country&gt; is not shaded.").
+    /// </summary>
+    public static string BarCaption(string country, FoodCrisis f, IpcAreaClass c)
+    {
+        var line = c.LinePhase is { } p ? $"The line falls in Phase {p}" : "Share unknown";
+        if (f.IsStale) return $"{line}, but this analysis ended more than {FoodCrisis.StaleAfterMonths} months ago, so {country} is not shaded.";
+        var shading = c.ShadedPhase is { } s ? $"is shaded {LayerStyle.IpcPhaseName(s)}" : "is not shaded";
+        var outline = c.OutlinePhase is { } o ? $", with a Phase {o} outline" : "";
+        return $"{line}, so {country} {shading}{outline}.";
+    }
 
     /// <summary>The newest as-of time among a crisis's citations.</summary>
     public static DateTime NewestAsOf(Crisis c) => c.Citations.Count == 0 ? default : c.Citations.Max(x => x.AsOfUtc);
@@ -93,11 +144,17 @@ public static class CrisisText
         $"{country} · {ConflictKind} · {c.Severity.Text} · {AsOf(NewestAsOf(c))}";
 
     /// <summary>
-    /// "Somalia · food crisis · Phase 4 Emergency · people in Phase 3 Crisis 900,000, Phase 4 Emergency 280,000, Phase 5
-    /// Catastrophe/Famine 0 · IPC analysis period ... (analysed Sep 2026)" (ruling R11: no "as of"; R16: people per phase).
+    /// "Sudan · food crisis · shaded Phase 3 Crisis (20% rule) · worst phase with people: Phase 5 Catastrophe/Famine · people
+    /// in Phase 3 Crisis 14,316,494, Phase 4 Emergency 5,015,231, Phase 5 Catastrophe/Famine 134,808 · IPC analysis period
+    /// ... (analysed Jan 2026)" (R11: no "as of"; R16: people per phase; R17: the 20% rule, then the outline's phase when
+    /// it is worse). GlobeCore's tooltip is text only, so the phase bar is in the panel, not here.
     /// </summary>
-    public static string FoodHover(string country, FoodCrisis f) =>
-        $"{country} · {FoodKind} · {LayerStyle.IpcPhaseLabel(f.HighestPhase)} · {PhaseCountsText(f)} · {FoodDate(f)}";
+    public static string FoodHover(string country, FoodCrisis f)
+    {
+        var c = IpcAreaRule.Classify(f);
+        var worse = c.OutlinePhase is { } o ? $" · worst phase with people: {LayerStyle.IpcPhaseLabel(o)}" : "";
+        return $"{country} · {FoodKind} · {FoodShadingShort(c)}{worse} · {PhaseCountsText(f)} · {FoodDate(f)}";
+    }
 
     /// <summary>"Kenya · disease outbreak · Zorvian fever · WHO, reported 18 Nov 2026".</summary>
     public static string OutbreakHover(string country, IReadOnlyList<OutbreakCrisis> reports)

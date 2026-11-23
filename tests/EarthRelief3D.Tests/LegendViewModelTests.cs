@@ -59,7 +59,8 @@ public class LegendViewModelTests
             Assert.False(string.IsNullOrWhiteSpace(l.Source));
         });
         // The food legend names each phase it shows, with the phase number.
-        Assert.Equal(["Phase 3 Crisis", "Phase 4 Emergency", "Phase 5 Catastrophe/Famine"], Line(CrisisLayer.Food).Keys.Select(k => k.Label));
+        Assert.Equal(["Phase 3 Crisis", "Phase 4 Emergency", "Phase 5 Catastrophe/Famine", LegendViewModel.OutlineKeyLabel],
+            Line(CrisisLayer.Food).Keys.Select(k => k.Label));
         // Brushes are made once per colour, not on every read.
         Assert.Same(Line(CrisisLayer.Food).Brush, Line(CrisisLayer.Food).Brush);
         Assert.Same(Line(CrisisLayer.Food).Keys[0].Brush, Line(CrisisLayer.Food).Keys[0].Brush);

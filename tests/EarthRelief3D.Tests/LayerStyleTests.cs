@@ -77,15 +77,7 @@ public class LayerStyleTests
             }
     });
 
-    [Fact]
-    public void FoodShadingUsesHighestPhaseAndSkipsStale()
-    {
-        var sdn = TestData.Food() with { Id = "ipc-SDN", CountryIso3 = "SDN", HighestPhase = 5 };
-        var som = TestData.Food();
-        var stale = TestData.Food() with { Id = "ipc-AGO", CountryIso3 = "AGO", HighestPhase = 3, IsStale = true };
-        var plan = FoodImageLayer.Plan([sdn, som, stale, TestData.Conflict()]);
-        Assert.Equal([("SDN", LayerStyle.IpcPhaseColor(5)), ("SOM", LayerStyle.IpcPhaseColor(4))], plan);
-    }
+    // The food shading's plan (R17, which replaced "the highest phase with people") is tested in FoodMapTests.
 
     [Fact]
     public void ConflictDotsAreColouredByAgeAndSizedByBand()

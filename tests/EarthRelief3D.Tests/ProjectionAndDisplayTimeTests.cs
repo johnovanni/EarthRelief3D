@@ -129,9 +129,11 @@ public class ProjectionAndDisplayTimeTests
         var panel = Panel(store);
         panel.Show("SDN");
         var food = panel.Sections.Single(s => s.Heading == CountryPanelViewModel.FoodHeading);
-        Assert.Contains(food.Rows, r => r.Label == "In Phase 3 Crisis" && r.Value == N(sdn["Phase 3 number current"]) + " people");
-        Assert.Contains(food.Rows, r => r.Label == "In Phase 4 Emergency" && r.Value == N(sdn["Phase 4 number current"]) + " people");
-        Assert.Contains(food.Rows, r => r.Label == "In Phase 5 Catastrophe/Famine" && r.Value == N(sdn["Phase 5 number current"]) + " people");
+        // R17: the phase bar's rows carry the people in every phase (they replaced the "In Phase N" rows).
+        var rows = food.Bar!.Rows;
+        Assert.Contains(rows, r => r.Name == "Phase 3 Crisis" && r.People == N(sdn["Phase 3 number current"]));
+        Assert.Contains(rows, r => r.Name == "Phase 4 Emergency" && r.People == N(sdn["Phase 4 number current"]));
+        Assert.Contains(rows, r => r.Name == "Phase 5 Catastrophe/Famine" && r.People == N(sdn["Phase 5 number current"]));
 
         var ipc = store.Snapshot.ByCountry("SDN").OfType<FoodCrisis>().Single();
         var tip = CrisisText.FoodHover("Sudan", ipc);

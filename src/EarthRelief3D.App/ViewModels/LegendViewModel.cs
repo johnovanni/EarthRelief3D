@@ -9,16 +9,20 @@ using GlobeCore.Regions;
 namespace EarthRelief3D.App.ViewModels;
 
 /// <summary>One colour key under a legend line ("Phase 4 Emergency", "last 3 months").</summary>
-public sealed record LegendKey(string Label, Color Color)
+/// <param name="IsOutline">Drawn as an outline sample (a ring), not a filled swatch: the food layer's outline (R17).</param>
+public sealed record LegendKey(string Label, Color Color, bool IsOutline = false)
 {
     /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
 }
 
 /// <summary>One visible layer: its symbol, what it measures, the source and the as-of date.</summary>
+/// <param name="Note">A short note under the keys (food: Phase 5 shading is not a famine classification); null for none.</param>
 public sealed record LegendLine(CrisisLayer Layer, string Symbol, Color Color, string Measures, string Source, string AsOf,
-    IReadOnlyList<LegendKey> Keys)
+    IReadOnlyList<LegendKey> Keys, string? Note = null)
 {
+    public bool HasNote => Note is not null;
+
     /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
 
@@ -41,6 +45,10 @@ public sealed partial class LegendViewModel : ObservableObject
     public const string UnplacedTitle = "Not placed on the map";
     /// <summary>The standard UN note (spec Q3, §11), shown under the legend.</summary>
     public const string BoundaryNote = "The boundaries and names shown on this map do not imply official endorsement or acceptance by the United Nations.";
+    /// <summary>The food layer's outline key (R17), drawn as a ring in Phase 4's colour.</summary>
+    public const string OutlineKeyLabel = "Outline: people in a worse phase";
+    /// <summary>Under the food keys (R17): the shading is not IPC's famine classification.</summary>
+    public const string FamineNote = "A country shaded Phase 5 is not an IPC famine classification, which also needs malnutrition and death-rate data.";
 
     private readonly CrisisStore _store;
     private readonly LayerStripViewModel _layers;
@@ -79,7 +87,8 @@ public sealed partial class LegendViewModel : ObservableObject
         {
             if (!_layers.IsShown(summary.Layer)) continue;
             lines.Add(new LegendLine(summary.Layer, LayerStyle.Symbol(summary.Layer), LayerStyle.SymbolColor(summary.Layer),
-                Measures(summary.Layer), summary.Source, summary.LegendDate, Keys(summary.Layer)));
+                Measures(summary.Layer), summary.Source, summary.LegendDate, Keys(summary.Layer),
+                summary.Layer == CrisisLayer.Food ? FamineNote : null));
         }
         Lines = lines;
         Unplaced = [.. s.Unplaced.OrderByDescending(u => u.Citation.AsOfUtc)
@@ -110,7 +119,8 @@ public sealed partial class LegendViewModel : ObservableObject
     public static string Measures(CrisisLayer layer) => layer switch
     {
         CrisisLayer.Conflict => "Armed conflict: UCDP events of conflicts with 25 or more deaths in a calendar year; dot size by the band of that conflict's deaths in the country over the data window, colour by the event's age",
-        CrisisLayer.Food => "Food crisis: the highest IPC phase that has people in it (country shading)",
+        CrisisLayer.Food => "Food crisis: the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
+            + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase.",
         CrisisLayer.Outbreaks => "Disease outbreaks: WHO Outbreak News reports in the last 90 days, at the country",
         CrisisLayer.Displacement => "People forced from home, by country of origin (refugees, asylum-seekers and internally displaced); ring area grows with the number",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
@@ -119,7 +129,11 @@ public sealed partial class LegendViewModel : ObservableObject
     private static IReadOnlyList<LegendKey> Keys(CrisisLayer layer) => layer switch
     {
         CrisisLayer.Conflict => [.. LayerStyle.ConflictAgeColors.Select((c, i) => new LegendKey(LayerStyle.ConflictAgeLabels[i], c))],
-        CrisisLayer.Food => [.. Enumerable.Range(3, 3).Select(p => new LegendKey(LayerStyle.IpcPhaseLabel(p), LayerStyle.IpcPhaseColor(p)))],
+        CrisisLayer.Food =>
+        [
+            .. Enumerable.Range(3, 3).Select(p => new LegendKey(LayerStyle.IpcPhaseLabel(p), LayerStyle.IpcPhaseColor(p))),
+            new LegendKey(OutlineKeyLabel, LayerStyle.IpcPhaseColor(4), IsOutline: true),
+        ],
         _ => [],
     };
 

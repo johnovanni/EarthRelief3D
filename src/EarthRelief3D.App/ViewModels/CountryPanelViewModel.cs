@@ -10,7 +10,9 @@ namespace EarthRelief3D.App.ViewModels;
 
 /// <summary>One part of the country panel: a heading, label/value rows, the source line and a link to the source.</summary>
 /// <param name="SourceLine">"Source: &lt;publisher&gt;, &lt;dataset&gt; · as of &lt;date&gt;" (food: the IPC analysis period instead).</param>
-public sealed record PanelSection(string Heading, IReadOnlyList<(string Label, string Value)> Rows, string SourceLine, Uri? Link);
+/// <param name="Bar">The IPC phase bar (R17): food sections with current-period figures, current or past; null otherwise.</param>
+public sealed record PanelSection(string Heading, IReadOnlyList<(string Label, string Value)> Rows, string SourceLine, Uri? Link,
+    PhaseBar? Bar = null);
 
 /// <summary>
 /// The country panel (C1: per country, a section per crisis), the "What is happening" part of spec §9.1. Sections come in
@@ -114,7 +116,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var conflicts = crises.OfType<ConflictCrisis>().OrderByDescending(c => c.Severity.Value).ToList();
         Add(ConflictSection(conflicts, now), CrisisLayer.Conflict);
         var food = crises.OfType<FoodCrisis>().OrderByDescending(f => f.PeriodTo).FirstOrDefault();
-        Add(food is null ? null : FoodSection(food), CrisisLayer.Food);
+        Add(food is null ? null : FoodSection(food, _nameOf(iso3) ?? iso3), CrisisLayer.Food);
         var outbreaks = crises.OfType<OutbreakCrisis>().OrderByDescending(o => o.PublishedUtc).ToList();
         Add(OutbreakSection(outbreaks, now), CrisisLayer.Outbreaks);
         var displaced = s.Displacement.Where(d => string.Equals(d.CountryIso3, iso3, StringComparison.OrdinalIgnoreCase))
@@ -182,7 +184,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         return colon >= 0 ? c.Title[(colon + 2)..] : c.Title;
     }
 
-    private static PanelSection FoodSection(FoodCrisis f)
+    private static PanelSection FoodSection(FoodCrisis f, string country)
     {
         var cite = f.Citations.Count > 0 ? f.Citations[0]
             : new SourceCitation(IpcNationalReader.Publisher, IpcNationalReader.Dataset, null, IpcNationalReader.PageUrl, "CC0", IpcNationalReader.Attribution, default, default);
@@ -198,17 +200,22 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             if (f.IsStale) projected.Add(("Ended", "More than 12 months ago"));
             return new PanelSection(ProjectionFoodHeading, projected, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url);
         }
-        List<(string, string)> rows = f.IsStale
-            ? [("Last IPC analysis", period), ("Note", "Ended more than 12 months ago, so it is not shown as a current crisis")]
-            :
-            [
-                ("Highest phase", LayerStyle.IpcPhaseLabel(f.HighestPhase)),
-                ("People in Phase 3 or higher", $"{CrisisText.Number(f.Phase3PlusPeople)} ({CrisisText.Percent(f.Phase3PlusShare)} of the people analysed)"),
-                // R16: the number of people in each phase, so a small Phase 5 count is not read as a whole country in famine.
-                .. CrisisText.PhaseCounts(f).Select(p => ($"In {p.Label}", $"{CrisisText.Number(p.People)} people")),
-                ("Analysis period", period),
-            ];
-        return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url);
+        // R17: the 20% rule and the phase bar, for a past analysis too. The bar's rows carry the people in every phase (R16:
+        // a small Phase 5 count is not read as a whole country in famine).
+        var c = IpcAreaRule.Classify(f);
+        var bar = PhaseBar.For(country, f);
+        List<(string, string)> rows;
+        if (f.IsStale)
+            rows = [("Last IPC analysis", period), ("Note", "Ended more than 12 months ago, so it is not shown as a current crisis")];
+        else
+        {
+            rows = [("Country shading", CrisisText.FoodShading(c))];
+            if (c.OutlinePhase is { } o) rows.Add(("Outline", $"{LayerStyle.IpcPhaseLabel(o)}: some people are in this phase"));
+            rows.Add(("People in Phase 3 or higher", CrisisText.Number(f.Phase3PlusPeople)
+                + (c.ShareKnown ? $" ({CrisisText.FoodPercent(c.ShareAtOrAbove(3))} of the people analysed)" : " (share unknown)")));
+            rows.Add(("Analysis period", period));
+        }
+        return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url, bar);
     }
 
     private static PanelSection? OutbreakSection(IReadOnlyList<OutbreakCrisis> outbreaks, DateTime now)

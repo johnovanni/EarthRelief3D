@@ -54,11 +54,12 @@ public class CountryPanelViewModelTests
 
         var food = panel.Sections[1];
         var ipc = store.Snapshot.ByCountry("SDN").OfType<FoodCrisis>().Single();
-        Assert.Contains(food.Rows, r => r.Value == LayerStyle.IpcPhaseLabel(ipc.HighestPhase));
+        // R17: the 20% rule's phase, not the highest phase with people (which is the outline).
+        Assert.Contains(food.Rows, r => r.Label == "Country shading" && r.Value == LayerStyle.IpcPhaseLabel(3) + " (IPC's 20% rule)");
+        Assert.Contains(food.Rows, r => r.Label == "Outline" && r.Value.StartsWith(LayerStyle.IpcPhaseLabel(ipc.HighestPhase), StringComparison.Ordinal));
         Assert.Equal("Phase 5 Catastrophe/Famine", LayerStyle.IpcPhaseLabel(5));
-        // Phase3PlusShare is a fraction: 0.32 is shown as 32%.
-        var pct = Math.Round(ipc.Phase3PlusShare * 100).ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "%";
-        Assert.Contains(food.Rows, r => r.Value.Contains(pct, StringComparison.Ordinal));
+        // The share of Phase 3 or higher from the exact counts (the file's 0.41 is rounded), to one decimal.
+        Assert.Contains(food.Rows, r => r.Value.Contains("(41.0% of the people analysed)", StringComparison.Ordinal));
         Assert.Contains("IPC analysis period", food.SourceLine);
         Assert.Contains($"(analysed {ipc.Citations[0].Version})", food.SourceLine);
         Assert.DoesNotContain("as of", food.SourceLine);
@@ -170,7 +171,8 @@ public class CountryPanelViewModelTests
         var c = TestData.Conflict();
         Assert.Equal("Sudan · armed conflict · 30 deaths · as of 22 Nov 2026", CrisisText.ConflictHover("Sudan", c));
         var food = Food() with { Phase3People = 900_000, Phase4People = 300_000, Phase5People = 0 };
-        Assert.Equal("Somalia · food crisis · Phase 4 Emergency · people in Phase 3 Crisis 900,000, Phase 4 Emergency 300,000, "
+        // No people analysed in the fixture: the phase sum (1,200,000) is the denominator, and 25% are in Phase 4 (R17).
+        Assert.Equal("Somalia · food crisis · shaded Phase 4 Emergency (20% rule) · people in Phase 3 Crisis 900,000, Phase 4 Emergency 300,000, "
                      + "Phase 5 Catastrophe/Famine 0 · IPC analysis period 1 Apr 2026–31 Dec 2026 (analysed Sep 2026)",
             CrisisText.FoodHover("Somalia", food));
         Assert.DoesNotContain("as of", CrisisText.FoodHover("Somalia", Food()));

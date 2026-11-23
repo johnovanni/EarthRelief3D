@@ -10,6 +10,7 @@ using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.Services;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
+using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Feeds;
 using GlobeCore.Geo;
@@ -277,6 +278,25 @@ public class AppStartupTests
         Assert.False(rig.Vm.Panel.IsOpen);
     });
 
+    [Fact]
+    public void ACountryThatIsOnlyOutlinedIsStillPickedByTheFoodLayer() => StaAsync.Run(async () =>
+    {
+        var rig = await StartAsync();
+        var host = rig.Scene.Host!;
+        // 15% in Phase 3 or higher, some in Phase 4: no fill, a Phase 4 outline (R17).
+        rig.Store.Load(new CrisisSnapshot([FoodMapTests.Counts("SOM", 1000, 600, 250, 100, 50, 0)], [], []));
+        await StaAsync.WaitUntil(() => host.IsComposeIdle);
+        Assert.Equal([new FoodArea("SOM", null, LayerStyle.IpcPhaseColor(4))], FoodImageLayer.Plan(rig.Store.Snapshot.Crises));
+        Assert.NotNull(host.Layers.OfType<FoodImageLayer>().Single().Current);
+
+        rig.Scene.LookAt(new GeoPosition(5, 46));   // inside Somalia, away from its edges
+        var hit = host.Pick(new Point(400, 300), hover: true);
+        Assert.NotNull(hit);
+        Assert.Equal(FoodImageLayer.LayerId, hit.LayerId);
+        Assert.Equal(new CountryPick("SOM", CrisisLayer.Food), hit.Item);
+        Assert.Contains("not shaded (under 20%)", hit.Tooltip);
+    });
+
     private sealed class BindingErrors : System.Diagnostics.TraceListener
     {
         public List<string> Lines { get; } = [];
@@ -325,6 +345,15 @@ public class AppStartupTests
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
             Assert.Equal(5, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four sources and Borders
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
+            // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
+            var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));
+            Assert.True(bar.ActualWidth > 200);
+            Assert.StartsWith("IPC phase bar for Sudan, of 47,535,794 people analysed: ",
+                System.Windows.Automation.AutomationProperties.GetName(bar));
+            Assert.Contains("The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", texts);
+            Assert.Contains("People by IPC phase, of 47,535,794 people analysed", texts);
+            Assert.Contains("Phase 5 Catastrophe/Famine", texts);
+            Assert.Contains(LegendViewModel.FamineNote, texts);
             Assert.Empty(errors.Lines);
 
             vm.Panel.Show("ISL");
