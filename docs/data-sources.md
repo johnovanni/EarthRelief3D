@@ -64,18 +64,24 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
   IPC's "20% rule" for area classification, applied here to the whole country (our adaptation; the national file has no
   areas): the worst phase p (5, 4 or 3) such that the people in Phase p or higher are at least 20% of the people analysed.
   One denominator D serves the rule, the panel's figures and the bar: `Population analyzed current` when it is at least
-  the sum of the Phase 1 to 5 current numbers; the sum when that is larger (the panel says so; in the sample, 22 of the 36
-  current rows add up to slightly more than the people analysed, Sudan by 30) or when the people analysed is blank; when
-  both are 0, the share is unknown and the country is not shaded. When the Phase 3 to 5 numbers are blank, the file's
-  "Phase 3+ number current" stands for them. Phases 1 and 2 are never shaded. The country also gets an outline in the
-  colour of the worst phase from 3 to 5 that has people in it, when that phase is worse than the shading (or nothing is
-  shaded). One record per country is used, the latest period (as in the panel); stale and projection-only records are
+  the sum of the Phase 1 to 5 current numbers; the sum when that is larger or when the people analysed is blank. In the
+  sample, 22 of the 36 current rows add up to slightly more than the people analysed (rounding; Sudan by 30): up to 1%
+  over, the panel says "of 47,535,794 people analysed (the phase numbers add up to 30 more)", and only a bigger gap is
+  named as the five phases adding up to more (and shares are then "of the N people in the five phases"). When the people
+  analysed and the sum are both 0, the share is unknown and the country is not shaded. When the Phase 3 to 5 numbers are
+  blank, the file's "Phase 3+ number current" stands for them (a Phase 3+ share above 100% is shown as "more than all the
+  people analysed: the file's numbers disagree"). Phases 1 and 2 are never shaded. The country also gets an outline in
+  the colour of the worst phase from 3 to 5 that has people in it, when that phase is worse than the shading (or nothing
+  is shaded). A country that has such an outline but no shaded phase (some people in Phase 3 or worse, but no phase
+  covers 20%) also gets a faint tint of the same colour (alpha 46 of 255, about 18%, a third of a shaded fill's 60%; the
+  owner's decision of 2026-11-23): "Not shaded (no phase covers 20% of the people); faint Phase 4 tint and outline: some
+  people are in Phase 4". A shaded country gets no faint tint. One record per country is used, the latest period (as in the panel); stale and projection-only records are
   neither shaded nor outlined. The panel shows the people analysed as a stacked bar (the people in no reported phase in
   grey first, then Phases 1 to 5) with a "worst 20%" marker that always falls in the rule's phase. A country shaded Phase
   5 is not an IPC famine classification, which also needs malnutrition and death-rate data (said in the legend, and
   under the bar of a country shaded Phase 5). With the sample file (judged on 2026-11-22): 36 current analyses;
-  7 are shaded Phase 3 (AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline; SDN with a Phase 5 outline); 29 are only
-  outlined (19 in Phase 4's colour, 10 in Phase 3's); none reaches 20% in Phase 4 or higher.
+  7 are shaded Phase 3 (AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline; SDN with a Phase 5 outline); 29 have the
+  faint tint and outline (19 in Phase 4's colour, 10 in Phase 3's); none reaches 20% in Phase 4 or higher.
 
 ## 3. UNHCR Refugee Data Finder population API (displacement)
 

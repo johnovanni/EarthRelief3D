@@ -74,13 +74,14 @@ replaced by R14b, see the last part of this section):
 The owner decided R16's question: ruling **R17** (IPC's 20% rule per country, an outline for a worse phase with people,
 and a phase bar in the panel; see the spec and `docs/data-sources.md`).
 
-- Tests: `dotnet build EarthRelief3D.sln -c Release`: 0 warnings, 0 errors; `dotnet test` in Release: **210 passed,
-  0 failed, 0 skipped** (178 before).
+- Tests: `dotnet build EarthRelief3D.sln -c Release`: 0 warnings, 0 errors; `dotnet test` in Release: **226 passed,
+  0 failed, 0 skipped** (178 before R17; 210 after the first build, 221 after review fix round 1).
 - Counts with the sample file (judged 2026-11-22): 36 current analyses (8 more are stale). 7 are shaded Phase 3 Crisis:
-  AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline, SDN with a Phase 5 outline. 29 are only outlined: 19 in Phase
+  AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline, SDN with a Phase 5 outline. 29 are not shaded but outlined
+  (since round 2 with a faint tint too): 19 in Phase
   4's colour, 10 in Phase 3's. None reaches 20% in Phase 4 or higher, so nothing is shaded Phase 4 or 5 (before R17,
   all 36 were shaded, Sudan Phase 5 and Somalia and Afghanistan Phase 4). Pakistan (19.7%, which the file rounds to 0.2)
-  is outlined only.
+  is not shaded (faint tint and outline).
 - Snapshots: the five scenes into `artifacts\snapshot-food`. PngDiff against the old `artifacts\snapshot-baseline`:
   `pacific` identical (no IPC rows there); `africa`, `sudan-panel`, `sudan-panel-food` and `no-crisis-panel` differ, as
   expected (the shading, the outlines and the taller legend; the panel's food section).
@@ -98,3 +99,22 @@ and a phase bar in the panel; see the spec and `docs/data-sources.md`).
 - App launches: 3 (the first snapshot run, the run after tuning, the repeat run). The last two are the ones above.
 - Not done in this task: copying the new pictures over `artifacts\snapshot-baseline` (the copy was refused by the
   session's permission check). Copy `artifacts\snapshot-food\*.png` over it to make them the baseline.
+
+### Round 2 (2026-11-23): faint tint for outline-only countries
+
+- Owner's decision: a country with people in Phase 3 or worse but no phase covering 20% also gets a faint tint in its
+  outline's colour (alpha 46 of 255, about 18%; a shaded fill is about 60%). Review fix round 1 (one denominator for the
+  rule and the bar, captions, small countries, one record per country) and the round 2 minors are in the same build.
+- Tests: Release, **226 passed, 0 failed, 0 skipped**; 0 warnings.
+- Snapshots: the five scenes into `artifacts\snapshot-food-r2`. PngDiff against `artifacts\snapshot-food`: `pacific`
+  identical; `africa`, `sudan-panel`, `sudan-panel-food` and `no-crisis-panel` differ (the tints, the legend's longer
+  food line and new key, and the panel's food wording).
+- Repeat check: the scenes again into `artifacts\snapshot-food-r2b`; **PngDiff: all five identical** (exit code 0).
+- Seen in the pictures: the 29 outline-only countries (Mali, Niger, Chad, Kenya, Mauritania, Mozambique and others) now
+  carry a light salmon (Phase 4) or pale orange (Phase 3) tint inside their outlines, clearly lighter than the orange
+  shaded countries (Sudan, Somalia, Yemen, DR Congo, Afghanistan); Sudan's map is unchanged (orange, dark-red Phase 5
+  band); the Sudan panel says "of 47,535,794 people analysed (the phase numbers add up to 30 more)"; the legend's food
+  line is two lines longer (the rule's last clause and the faint-tint key).
+- App launches: 2 (the snapshot run and the repeat).
+- The baseline is **not yet replaced**: `artifacts\snapshot-baseline` still holds the pictures from before R17. The owner
+  decides whether `artifacts\snapshot-food-r2` becomes the baseline.
