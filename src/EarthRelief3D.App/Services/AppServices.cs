@@ -22,8 +22,8 @@ namespace EarthRelief3D.App.Services;
 /// </summary>
 public sealed class AppServices : IDisposable
 {
-    /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s (the four sources, then Borders).</summary>
-    public static IReadOnlyList<string> FeedNames { get; } = [.. SourceDates.SourceNames, SourceDates.BordersFeedName];
+    /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s (the four sources, the two needs feeds, then Borders).</summary>
+    public static IReadOnlyList<string> FeedNames { get; } = [.. SourceDates.SourceNames, .. SourceDates.NeedsFeedNames, SourceDates.BordersFeedName];
 
     private readonly CacheWriter _cacheWriter;
     private readonly CacheWriter _indicatorWriter;
@@ -105,6 +105,9 @@ public sealed class AppServices : IDisposable
             new IpcNationalFeed(http, store, clock, log, countries),
             new WhoOutbreakFeed(http, store, clock, log, countries),
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
+            // Plan 3 needs: weekly, into the country-value store (their unplaced codes go to the crisis store's list).
+            new GhoFeed(http, indicators, store, clock, log, countries),
+            new HnoFeed(http, indicators, store, clock, log, countries),
             // Checks Natural Earth's releases once a day; a newer, valid set replaces the live one without a restart.
             // A rejected release is remembered with the fingerprint of the rules and probes; an app update that changes
             // them looks at that release again. After a failed download the feed waits 6 h (ruling R5).

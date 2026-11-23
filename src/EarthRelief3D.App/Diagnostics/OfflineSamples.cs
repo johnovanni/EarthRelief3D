@@ -8,7 +8,7 @@ namespace EarthRelief3D.App.Diagnostics;
 
 /// <summary>
 /// The <c>--offline-samples &lt;dir&gt;</c> diagnostic: every feed request is answered from the sample files in
-/// <c>tests\Samples</c> (captured 2026-11-22; the WHO file is synthetic), so the app can be checked without a network.
+/// <c>tests\Samples</c> (captured 2026-11-22; the WHO and WHO GHO files are synthetic), so the app can be checked without a network.
 /// Anything not mapped gets a 404, which the feeds treat as a failure.
 /// </summary>
 public static class OfflineSamples
@@ -18,6 +18,7 @@ public static class OfflineSamples
     [
         "ucdp_downloads.html", "ucdp_candidate_monthly.csv", "ucdp_candidate_quarterly.csv",
         "hdx_ipc_package.json", "ipc_national_wide_latest.csv", "unhcr_population_coo.json", "who_don_synthetic.json",
+        "gho_wsh_water_basic.json", "gho_wsh_sanitation_basic.json", "gho_uhc_index.json", "hdx_hno_package.json", "hpc_hno_2026.csv",
     ];
 
     /// <summary>The year of the UNHCR sample (the feed asks for the clock's year first).</summary>
@@ -27,6 +28,8 @@ public static class OfflineSamples
     public const string UcdpMonthlyUrl = "https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_0_10.csv";
     public const string UcdpQuarterlyUrl = "https://ucdp.uu.se/downloads/candidateged/GEDEvent_v26_01_26_09.csv";
     public const string IpcCsvUrl = "https://data.humdata.org/dataset/7a7e7428-b8d7-4d2e-91d3-19100500e016/resource/2e4f7475-105b-4fae-81f7-7c32076096b6/download/ipc_global_national_wide_latest.csv";
+    /// <summary>The 2026 needs CSV the HDX package names (docs/data-sources.md section 6).</summary>
+    public const string HnoCsvUrl = "https://data.humdata.org/dataset/8326ed53-8f3a-47f9-a2aa-83ab4ecee476/resource/edb91329-0e6b-4ebc-b6cb-051b2a11e536/download/hpc_hno_2026.csv";
     public const string WhoUrlPrefix = "https://www.who.int/api/news/diseaseoutbreaknews";
 
     /// <summary>What GitHub's "latest release" answer holds for the Borders feed in an offline run: the bundled edition, so no update.</summary>
@@ -91,6 +94,12 @@ public static class OfflineSamples
         Map(WhoUrlPrefix, "who_don_synthetic.json");
         // UNHCR: only the sample's year has items; any other year is a 404.
         Map(UnhcrDisplacementFeed.UrlFor(UnhcrSampleYear).ToString(), "unhcr_population_coo.json");
+        // WHO GHO (synthetic samples) and UN HNO: the three indicators, then the package and the 2026 file it names.
+        Map(GhoFeed.UrlFor(GhoFeed.WaterCode).ToString(), "gho_wsh_water_basic.json");
+        Map(GhoFeed.UrlFor(GhoFeed.SanitationCode).ToString(), "gho_wsh_sanitation_basic.json");
+        Map(GhoFeed.UrlFor(GhoFeed.UhcCode).ToString(), "gho_uhc_index.json");
+        Map(HnoFeed.PackageUrl.ToString(), "hdx_hno_package.json");
+        Map(HnoCsvUrl, "hpc_hno_2026.csv");
         // Borders: the release check answers "latest is v5.1.2" (the edition the program ships), so nothing is downloaded and
         // the dot shows the same state in every run. The text is inline: there is no sample file for it.
         h.MapText(NaturalEarthBoundarySource.LatestReleaseUrl.ToString(), BordersLatestReleaseJson);

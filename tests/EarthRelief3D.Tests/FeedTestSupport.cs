@@ -36,6 +36,27 @@ internal static class Samples
         return (new FeedHttp("test", h), h);
     }
 
+    public const string HnoCsv2026 = "https://data.humdata.org/dataset/8326ed53-8f3a-47f9-a2aa-83ab4ecee476/resource/edb91329-0e6b-4ebc-b6cb-051b2a11e536/download/hpc_hno_2026.csv";
+
+    /// <summary>The three WHO GHO indicators answered from the synthetic samples.</summary>
+    public static (FeedHttp Http, SampleHttpHandler Handler) GhoHttp()
+    {
+        var h = new SampleHttpHandler();
+        h.Map(GhoFeed.UrlFor(GhoFeed.WaterCode).ToString(), Path("gho_wsh_water_basic.json"));
+        h.Map(GhoFeed.UrlFor(GhoFeed.SanitationCode).ToString(), Path("gho_wsh_sanitation_basic.json"));
+        h.Map(GhoFeed.UrlFor(GhoFeed.UhcCode).ToString(), Path("gho_uhc_index.json"));
+        return (new FeedHttp("test", h), h);
+    }
+
+    /// <summary>The HDX needs package and its 2026 CSV.</summary>
+    public static (FeedHttp Http, SampleHttpHandler Handler) HnoHttp()
+    {
+        var h = new SampleHttpHandler();
+        h.Map(HnoFeed.PackageUrl.ToString(), Path("hdx_hno_package.json"));
+        h.Map(HnoCsv2026, Path("hpc_hno_2026.csv"));
+        return (new FeedHttp("test", h), h);
+    }
+
     public static (FeedHttp Http, SampleHttpHandler Handler) IpcHttp()
     {
         var h = new SampleHttpHandler();

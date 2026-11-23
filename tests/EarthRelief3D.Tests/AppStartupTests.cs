@@ -55,11 +55,13 @@ public class AppStartupTests
             Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NotChecked, l.AsOf));
             Assert.Equal("as of 30 Jun 2026", vm.Legend.Lines.Single(l => l.Layer == CrisisLayer.Displacement).AsOf);
             vm.Panel.Show("SDN");
-            Assert.Equal(4, vm.Panel.Sections.Count);
+            // The four crisis sections, then the two needs sections (nothing loaded for them yet).
+            Assert.Equal(4, vm.Panel.Sections.Count(s => s.Heading != CountryPanelViewModel.BasicNeedsHeading
+                && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)));
 
             // One dot per source, grey until each reports.
             Assert.Equal(AppServices.FeedNames, vm.Status.Dots.Select(d => d.Name));
-            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "Borders"], AppServices.FeedNames);
+            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "WHO GHO", "UN HNO", "Borders"], AppServices.FeedNames);
             Assert.All(vm.Status.Dots, d => Assert.Equal(FeedState.NotStarted, d.State));
 
             // Every feed fails (no network): amber dots, and the cached data stays.
@@ -410,7 +412,7 @@ public class AppStartupTests
             Assert.Contains("Water", texts);
             Assert.Contains("Steel plants", texts);
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
-            Assert.Equal(5, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four sources and Borders
+            Assert.Equal(7, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four sources, the two needs feeds and Borders
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));

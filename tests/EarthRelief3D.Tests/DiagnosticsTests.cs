@@ -149,6 +149,7 @@ public class OfflineSamplesTests
         var handler = OfflineSamples.CreateHandler(SamplesDir);
         var http = new FeedHttp("test", handler);
         var store = new CrisisStore();
+        var indicators = new IndicatorStore();
         var clock = new FixedClock(new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc));
         var log = new ListLog();
         var countries = CountryResolver.LoadDefault();
@@ -158,15 +159,19 @@ public class OfflineSamplesTests
             new IpcNationalFeed(http, store, clock, log, countries),
             new WhoOutbreakFeed(http, store, clock, log, countries),
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
+            new GhoFeed(http, indicators, store, clock, log, countries),
+            new HnoFeed(http, indicators, store, clock, log, countries),
         ];
         foreach (var f in feeds) Assert.Equal(FeedRunResult.Ok, await f.RunOnceAsync(CancellationToken.None));
+        Assert.NotNull(indicators.Snapshot.Get("gho.water"));
+        Assert.NotEmpty(indicators.Snapshot.Needs);
 
         var s = store.Snapshot;
         Assert.Contains(s.Crises, c => c is ConflictCrisis);
         Assert.Contains(s.Crises, c => c is FoodCrisis);
         Assert.Contains(s.Crises, c => c is OutbreakCrisis);
         Assert.NotEmpty(s.Displacement);
-        Assert.Equal(["IPC", "UCDP", "UNHCR", "WHO"], s.CheckedUtc.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["IPC", "UCDP", "UN HNO", "UNHCR", "WHO", "WHO GHO"], s.CheckedUtc.Keys.Order(StringComparer.Ordinal));
         // Every request was answered: a 404 would have thrown (the feeds treat it as a failure), and the log has no error.
         Assert.DoesNotContain(log.Lines, l => l.StartsWith("ERROR", StringComparison.Ordinal));
     }

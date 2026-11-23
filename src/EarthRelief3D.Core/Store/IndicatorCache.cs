@@ -15,7 +15,9 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
     /// <summary>Raised whenever the saved shape or meaning of the series changes; an older file is discarded.</summary>
     public const int SchemaVersion = 1;
 
-    private sealed record Dto(int SchemaVersion, List<IndicatorSeries> Series);
+    // Needs was added in Plan 3 Task 3 and is optional: a file written before it has none, which is a valid (empty) list, so the
+    // schema version stays 1.
+    private sealed record Dto(int SchemaVersion, List<IndicatorSeries> Series, List<HumanitarianNeed>? Needs = null);
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -51,7 +53,7 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
             if (Problem(dto) is { } problem) throw new JsonException("invalid record: " + problem);
             var series = new Dictionary<string, IndicatorSeries>(StringComparer.Ordinal);
             foreach (var s in dto.Series) series[s.Id] = s;
-            return new IndicatorSnapshot(series);
+            return new IndicatorSnapshot(series, dto.Needs is null ? [] : [.. dto.Needs]);
         }
         catch (Exception ex) when (ex is JsonException or ArgumentException or FormatException or InvalidOperationException or NotSupportedException)
         {
@@ -64,7 +66,7 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
     /// <summary>False (with a logged warning) if the file could not be written; never throws for I/O failures.</summary>
     public bool Save(IndicatorSnapshot s)
     {
-        var dto = new Dto(SchemaVersion, [.. s.Series.Values.OrderBy(x => x.Id, StringComparer.Ordinal)]);
+        var dto = new Dto(SchemaVersion, [.. s.Series.Values.OrderBy(x => x.Id, StringComparer.Ordinal)], [.. s.Needs]);
         if (AtomicFile.TryWriteAllText(FilePath, JsonSerializer.Serialize(dto, Options), out var error)) return true;
         log.Warn("Could not save indicator cache", error);
         return false;
@@ -85,6 +87,9 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
             foreach (var v in s.Values)
                 if (v is null || v.Iso3 is null || CitationProblem(v.Citation)) return $"series {s.Id}: value";
         }
+        if (d.Needs is not null)
+            foreach (var n in d.Needs)
+                if (n is null || n.Iso3 is null || n.Cluster is null || CitationProblem(n.Citation)) return "needs row: fields";
         return null;
     }
 

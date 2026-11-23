@@ -211,7 +211,7 @@ Checked 2026-11-23 by a download into a scratch folder (nothing in the repo).
 ## Offline samples (`--offline-samples`)
 
 The app's diagnostic handler (`src/EarthRelief3D.App/Diagnostics/OfflineSamples.cs`) maps each live URL to a file in
-`tests/Samples`; anything else is a 404. `OfflineSamplesTests` runs the four feeds through it, so a URL that changes in a
+`tests/Samples`; anything else is a 404. `OfflineSamplesTests` runs the six feeds (the four sources and the two needs feeds) through it, so a URL that changes in a
 feed fails a test.
 
 | Live URL | Sample file |
@@ -223,6 +223,9 @@ feed fails a test.
 | the `ipc_global_national_wide_latest.csv` resource URL named in that package | `ipc_national_wide_latest.csv` |
 | https://www.who.int/api/news/diseaseoutbreaknews (any query) | `who_don_synthetic.json` (synthetic, no WHO text) |
 | https://api.unhcr.org/population/v1/population/?year=2026&coo_all=true&limit=500 | `unhcr_population_coo.json` |
+| https://ghoapi.azureedge.net/api/WSH_WATER_BASIC, `.../WSH_SANITATION_BASIC`, `.../UHC_INDEX_REPORTED` | `gho_wsh_water_basic.json`, `gho_wsh_sanitation_basic.json`, `gho_uhc_index.json` (synthetic) |
+| https://data.humdata.org/api/3/action/package_show?id=global-hpc-hno | `hdx_hno_package.json` |
+| the `hpc_hno_2026.csv` resource URL named in that package | `hpc_hno_2026.csv` |
 
 The samples are from Nov 2026, so offline runs use `--display-time 2026-11-22T12:00:00Z`. The WHO sample has no report for
 Sudan, so Sudan's panel shows conflict, food crisis and displacement (three sections); that is what the samples hold.

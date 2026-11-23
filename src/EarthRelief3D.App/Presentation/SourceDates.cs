@@ -31,6 +31,12 @@ public static class SourceDates
     /// <summary>The four sources in strip order, by feed name; also the status dots' order.</summary>
     public static IReadOnlyList<string> SourceNames { get; } = ["UCDP", "IPC", "WHO", "UNHCR"];
 
+    /// <summary>
+    /// The two needs feeds (Plan 3), after the four sources: "WHO GHO" (water, sanitation, health care) and "UN HNO" (people
+    /// in need). They have status dots but are not crisis layers, so they are not in <see cref="SourceNames"/>.
+    /// </summary>
+    public static IReadOnlyList<string> NeedsFeedNames { get; } = [GhoFeed.FeedName, HnoFeed.FeedName];
+
     /// <summary>The boundary update feed's name (GlobeCore's BoundaryUpdateFeed): the fifth status dot, after the four sources.</summary>
     public const string BordersFeedName = "Borders";
 

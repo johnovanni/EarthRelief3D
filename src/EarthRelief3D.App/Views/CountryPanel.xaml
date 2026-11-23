@@ -116,7 +116,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Text="Needs, getting help in and your one small step: coming in a later version." Foreground="#8A92A3"
+                    <TextBlock Text="Getting help in and your one small step: coming in a later version." Foreground="#8A92A3"
                                FontSize="12" Margin="0,2,0,0"/>
                 </StackPanel>
             </ScrollViewer>

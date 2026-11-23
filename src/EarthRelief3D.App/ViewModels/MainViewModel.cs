@@ -26,7 +26,7 @@ public sealed class MainViewModel
         MarkerData = markerData ?? new MarkerDataStore();
         Layers = new LayerStripViewModel(settings);
         Legend = new LegendViewModel(store, Layers, dispatcher, nowUtc, boundaries, Indicators, MarkerData);
-        Panel = new CountryPanelViewModel(store, countryName, dispatcher, nowUtc);
+        Panel = new CountryPanelViewModel(store, countryName, dispatcher, nowUtc, Indicators);
         Status = new StatusDotsViewModel(AppServices.FeedNames, dispatcher);
     }
 
