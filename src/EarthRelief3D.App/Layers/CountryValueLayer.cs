@@ -120,15 +120,16 @@ public sealed class CountryValueLayer : ImageLayer, IPickable
     }
 
     /// <summary>
-    /// True when <paramref name="v"/> is a figure the map shows: the source qualified it (FAO's "&lt;2.5"), or it falls in
-    /// a class of <paramref name="scale"/>. A value below the first break (WRI's -9999 "no data", a slightly negative
-    /// 100 − x) or not a number is no figure: not filled, and the tooltip says "No figure from …".
+    /// True when <paramref name="v"/> is a figure the map shows: its value falls in a class of <paramref name="scale"/>
+    /// (exactly when <see cref="Plan"/> fills it). A value below the first break (WRI's -9999 "no data", a slightly
+    /// negative 100 − x) or not a number is no figure, whatever its qualifier says: not filled, and the tooltip says
+    /// "No figure from …". FAO's "&lt;2.5" is stored as 2.5, in the first class (ruling R3), so it is a figure.
     /// </summary>
     public static bool HasFigure(CountryValue v, ShadingScale scale)
     {
         ArgumentNullException.ThrowIfNull(v);
         ArgumentNullException.ThrowIfNull(scale);
-        return v.Qualifier is not null || scale.ClassOf(v.Value) is not null;
+        return scale.ClassOf(v.Value) is not null;
     }
 
     /// <summary>

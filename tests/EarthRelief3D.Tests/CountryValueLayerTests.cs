@@ -100,6 +100,15 @@ public class CountryValueLayerTests
             CountryValueLayer.Tooltip(ShadingLayer.WaterStress, "Iceland", "ISL", series, scale));
         Assert.False(CountryValueLayer.HasFigure(series.For("ISL")!, scale));
 
+        // A qualifier does not make a figure: a -9999 row labelled by the source is still no figure.
+        var labelled = series with { Values = [new CountryValue("ISL", -9999, 2019, cite, "No data")] };
+        Assert.Empty(CountryValueLayer.Plan(labelled, scale));
+        Assert.Equal(0, Alpha(CountryValueLayer.Rasterize(CountryValueLayer.Plan(labelled, scale), countries, 1440, 720),
+            countries.ByIso3("ISL")!.LabelPoint));
+        Assert.Equal("Iceland · No figure from WRI Aqueduct for the baseline water stress: not shaded",
+            CountryValueLayer.Tooltip(ShadingLayer.WaterStress, "Iceland", "ISL", labelled, scale));
+        Assert.False(CountryValueLayer.HasFigure(labelled.Values[0], scale));
+
         var water = Water(new CountryValue("SDN", -0.2, 2024, Gho));
         Assert.Empty(CountryValueLayer.Plan(water, WaterScale));
         Assert.Contains("No figure from WHO GHO", CountryValueLayer.Tooltip(ShadingLayer.Water, "Sudan", "SDN", water, WaterScale));

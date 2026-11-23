@@ -209,7 +209,7 @@ public static class LayerStyle
         ShadingLayer.None => throw new ArgumentOutOfRangeException(nameof(layer)),
         ShadingLayer.Food => SymbolColor(CrisisLayer.Food),
         // Water stress has the arid grey as its class 0, so its classes are shifted by one: its Colors[4] is YlGnBu's
-        // fourth colour (#2C7FB8), the colour the other shadings take from Colors[3].
+        // fourth colour (#2C7FB8), the colour the other resource shadings take from Colors[3].
         ShadingLayer.WaterStress => ShadingScales.For(layer).Colors[4],
         _ => ShadingScales.For(layer).Colors[3],
     };
