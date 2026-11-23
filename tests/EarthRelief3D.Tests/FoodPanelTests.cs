@@ -60,7 +60,8 @@ public class FoodPanelTests
 
         var bar = Assert.IsType<PhaseBar>(food.Bar);
         Assert.True(bar.HasBar);
-        Assert.Equal("of 47,535,794 people analysed", bar.OfAnalysed);
+        // The sample's five phases add up to 30 more than the people analysed: the sum is D, and the text says so.
+        Assert.Equal("of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed)", bar.OfAnalysed);
         Assert.Equal("The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", bar.Caption);
         Assert.Equal(
         [
@@ -72,10 +73,101 @@ public class FoodPanelTests
         ], bar.Rows.Select(r => (r.Name, r.People, r.Percent)));
         Assert.Equal([1, 2, 3, 4, 5], bar.Rows.Select(r => r.Phase));
         Assert.Equal(LayerStyle.IpcPhaseColor(5), bar.Rows[4].Color);
-        // The same facts as text for screen readers: colour is never the only carrier.
-        Assert.Equal("IPC phase bar for Sudan, of 47,535,794 people analysed: Phase 1 Minimal 25.4%, Phase 2 Stressed 33.7%, "
-                     + "Phase 3 Crisis 30.1%, Phase 4 Emergency 10.6%, Phase 5 Catastrophe/Famine 0.3%. A dashed line marks the worst 20%. "
+        Assert.Equal([1, 2, 3, 4, 5], bar.Segments.Select(s => s.Phase));   // nothing outside the five phases
+        Assert.Null(bar.Note);   // shaded Phase 3: no famine note
+        // The same facts as text for screen readers, people as well as shares: colour is never the only carrier.
+        Assert.Equal("IPC phase bar for Sudan, of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed): "
+                     + "Phase 1 Minimal 25.4%, 12,069,469 people; Phase 2 Stressed 33.7%, 15,999,822 people; Phase 3 Crisis 30.1%, 14,316,494 people; "
+                     + "Phase 4 Emergency 10.6%, 5,015,231 people; Phase 5 Catastrophe/Famine 0.3%, 134,808 people. A dashed line marks the worst 20%. "
                      + "The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", bar.AutomationName);
+    }
+
+    [Fact]
+    public void AnalysedLargerThanTheSumShowsTheRestAsNotInAPhaseAndTheMarkerAgrees()
+    {
+        var f = FoodMapTests.Counts("SOM", 100, 0, 20, 30, 20, 10) with { UnreportedPhases = 0b00001 };
+        var food = FoodSectionOf(f);
+        var bar = food.Bar!;
+        Assert.Equal("of 100 people analysed", bar.OfAnalysed);
+        // The people in no reported phase come first (left), so the right-hand 20% are always the worst-off.
+        Assert.Equal([0, 1, 2, 3, 4, 5], bar.Segments.Select(s => s.Phase));
+        Assert.Equal(0.2, bar.Segments[0].Fraction, 12);
+        Assert.Equal(PhaseBar.NotInAPhaseColor, bar.Segments[0].Color);
+        Assert.Equal(4, MarkerPhase(bar));
+        Assert.Equal(4, IpcAreaRule.Classify(f).LinePhase);
+        Assert.Equal(("Not in a reported phase", "20", "20.0%"), (bar.Rows[^1].Name, bar.Rows[^1].People, bar.Rows[^1].Percent));
+        Assert.Equal("The line falls in Phase 4, so Somalia is shaded Emergency, with a Phase 5 outline.", bar.Caption);
+        Assert.Contains("Not in a reported phase 20.0%, 20 people", bar.AutomationName);
+        Assert.Contains(("People in Phase 3 or higher", "60 (60.0% of the people analysed)"), food.Rows);
+    }
+
+    [Fact]
+    public void SumLargerThanAnalysedIsTheDenominatorAndTheMarkerAgrees()
+    {
+        var f = FoodMapTests.Counts("SOM", 900, 500, 200, 100, 150, 50);   // the phases add up to 1,000
+        var bar = FoodSectionOf(f).Bar!;
+        Assert.Equal("of 1,000 people (the five phases add up to more than the 900 people analysed)", bar.OfAnalysed);
+        Assert.Equal([1, 2, 3, 4, 5], bar.Segments.Select(s => s.Phase));
+        Assert.Equal(4, MarkerPhase(bar));   // 20% in Phase 4 or higher, exactly
+        Assert.Equal(4, IpcAreaRule.Classify(f).LinePhase);
+        Assert.Equal("50.0%", bar.Rows[0].Percent);
+    }
+
+    [Fact]
+    public void NoPhaseReachingTheWorst20PercentIsSaidSo()
+    {
+        // 15 of 100 analysed in a reported phase: the share is known, but even Phase 1 or higher is under 20%.
+        var f = FoodMapTests.Counts("SOM", 100, 0, 0, 10, 5, 0) with { UnreportedPhases = 0b00011 };
+        var bar = FoodSectionOf(f).Bar!;
+        Assert.Equal("No phase reaches the worst 20%, so Somalia is not shaded, with a Phase 4 outline.", bar.Caption);
+        Assert.Null(MarkerPhase(bar));   // the marker is in the "not in a reported phase" piece
+        Assert.Null(IpcAreaRule.Classify(f).LinePhase);
+        // Without an outline.
+        var none = FoodMapTests.Counts("SOM", 100, 0, 10, 0, 0, 0) with { UnreportedPhases = 0b00001 };   // nobody in Phase 3+
+        Assert.Equal("No phase reaches the worst 20%, so Somalia is not shaded.", FoodSectionOf(none).Bar!.Caption);
+    }
+
+    [Fact]
+    public void BlankPerPhaseCellsWithAPhase3PlusFigureHaveNoBarAndNoLine()
+    {
+        var f = TestData.Food() with { HighestPhase = 3, PopulationAnalysed = 1000, Phase3PlusPeople = 250, UnreportedPhases = 0b11111 };
+        var food = FoodSectionOf(f);
+        Assert.Contains(("People in Phase 3 or higher", "250 (25.0% of the people analysed)"), food.Rows);
+        Assert.Contains(("Country shading", "Phase 3 Crisis (IPC's 20% rule)"), food.Rows);
+        var bar = food.Bar!;
+        Assert.False(bar.HasBar);
+        Assert.Equal("The per-phase numbers are not reported, but 25.0% of the people analysed are in Phase 3 or higher, so Somalia is shaded Crisis.",
+            bar.Caption);
+        Assert.DoesNotContain("line", bar.Caption, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("dashed", bar.AutomationName, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ShadedPhase5CarriesTheFamineNoteUnderTheBar()
+    {
+        var bar = FoodSectionOf(FoodMapTests.Counts("SOM", 1000, 300, 200, 100, 100, 300)).Bar!;
+        Assert.Equal(CrisisText.FamineNote, bar.Note);
+        Assert.Equal(CrisisText.FamineNote, LegendViewModel.FamineNote);
+        Assert.EndsWith(CrisisText.FamineNote, bar.AutomationName);
+        // Not for a past analysis, which is not shaded.
+        Assert.Null(FoodSectionOf(FoodMapTests.Counts("SOM", 1000, 300, 200, 100, 100, 300) with { IsStale = true }).Bar!.Note);
+    }
+
+    /// <summary>
+    /// The phase of the piece the marker (80% from the left) falls in, worked out here in whole people from the segments;
+    /// null for "not in a reported phase". Also checks that the bar's own MarkerIndex (what the view draws) agrees.
+    /// </summary>
+    private static int? MarkerPhase(PhaseBar bar)
+    {
+        long total = bar.Segments.Sum(s => s.People), cumulative = 0;
+        int index = -1;
+        for (int i = 0; i < bar.Segments.Count; i++)
+        {
+            cumulative += bar.Segments[i].People;
+            if (cumulative * 5 > total * 4) { index = i; break; }
+        }
+        Assert.Equal(index, bar.MarkerIndex);
+        return bar.Segments[index].Phase == 0 ? null : bar.Segments[index].Phase;
     }
 
     [Fact]
@@ -115,8 +207,10 @@ public class FoodPanelTests
         var bar = food.Bar!;
         Assert.False(bar.HasBar);
         Assert.Equal("share unknown", bar.OfAnalysed);
-        Assert.Equal("Share unknown, so Somalia is not shaded, with a Phase 3 outline.", bar.Caption);
+        Assert.Equal("Share unknown: neither the people analysed nor the per-phase numbers are reported, so Somalia is not shaded, "
+                     + "with a Phase 3 outline.", bar.Caption);
         Assert.All(bar.Rows, r => Assert.Equal("", r.Percent));
+        Assert.Equal(5, bar.Rows.Count);
     }
 
     [Fact]
@@ -125,7 +219,7 @@ public class FoodPanelTests
         var stale = FoodMapTests.Sudan() with { IsStale = true };
         var food = FoodSectionOf(stale);
         Assert.Equal(CountryPanelViewModel.PastFoodHeading, food.Heading);
-        Assert.Equal("The line falls in Phase 3, but this analysis ended more than 12 months ago, so Sudan is not shaded.", food.Bar!.Caption);
+        Assert.Equal("The line falls in Phase 3. This analysis ended more than 12 months ago, so Sudan is not shaded.", food.Bar!.Caption);
     }
 
     [Fact]
@@ -155,7 +249,7 @@ public class FoodPanelTests
     [Fact]
     public async Task TheMarkerFallsInTheShadedPhaseForEverySampleCountry()
     {
-        // The bar is 100% stacked over the five counts and the 20% rule uses the people analysed: in the sample they agree.
+        // The bar and the rule share one denominator, so the marker always falls in the rule's phase.
         var s = (await SampleStore.LoadAsync()).Snapshot;
         int checkedRows = 0;
         foreach (var f in s.Crises.OfType<FoodCrisis>().Where(f => !f.ProjectionOnly))
@@ -163,17 +257,24 @@ public class FoodPanelTests
             var c = IpcAreaRule.Classify(f);
             var bar = PhaseBar.For(f.CountryIso3, f);
             if (!bar.HasBar) continue;
-            double cumulative = 0;
-            int markerPhase = 0;
-            foreach (var seg in bar.Segments)
-            {
-                cumulative += seg.Fraction;
-                if (cumulative > 0.8 + 1e-12) { markerPhase = seg.Phase; break; }
-            }
-            Assert.True(markerPhase == c.LinePhase, $"{f.CountryIso3}: marker in Phase {markerPhase}, rule says {c.LinePhase}");
+            Assert.True(MarkerPhase(bar) == c.LinePhase, $"{f.CountryIso3}: marker in Phase {MarkerPhase(bar)}, rule says {c.LinePhase}");
+            Assert.Equal(1.0, bar.Segments.Sum(x => x.Fraction), 9);
             checkedRows++;
         }
         Assert.True(checkedRows > 30);
+    }
+
+    [Fact]
+    public void TheDrawnMarkerStaysInsideItsPieceWhenMinimumWidthsShiftTheEdges()
+    {
+        // 79%, 1%, 20%: the 1% piece is widened to 3 px, so 80% of the width would land in it; the marker belongs to the last piece.
+        long[] people = [790, 10, 200];
+        var widths = PhaseBarLayout.Widths(people, 100);
+        double start = widths[0] + widths[1], end = start + widths[2];
+        Assert.True(start > 80, "the setup: the edge has moved past 80%");
+        Assert.InRange(PhaseBarLayout.MarkerX(widths, 2, 100), start, end);
+        // Normally the marker is at 80% of the width.
+        Assert.Equal(80, PhaseBarLayout.MarkerX(PhaseBarLayout.Widths([500, 500], 100), 1, 100), 9);
     }
 
     // ---------------------------------------------------------------- the legend

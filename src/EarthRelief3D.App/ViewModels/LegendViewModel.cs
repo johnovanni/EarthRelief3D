@@ -48,7 +48,7 @@ public sealed partial class LegendViewModel : ObservableObject
     /// <summary>The food layer's outline key (R17), drawn as a ring in Phase 4's colour.</summary>
     public const string OutlineKeyLabel = "Outline: people in a worse phase";
     /// <summary>Under the food keys (R17): the shading is not IPC's famine classification.</summary>
-    public const string FamineNote = "A country shaded Phase 5 is not an IPC famine classification, which also needs malnutrition and death-rate data.";
+    public const string FamineNote = CrisisText.FamineNote;
     /// <summary>The food layer's rule (R17), one wording for the legend line and the layer strip's tooltip.</summary>
     public const string FoodRule = "the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
         + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase.";

@@ -107,6 +107,12 @@ public sealed record FoodCrisis(string Id, string CountryIso3, string Title, Nat
     /// <summary>"first projection" or "second projection" for a <see cref="ProjectionOnly"/> record, else null.</summary>
     public string? ProjectionName { get; init; }
 
+    /// <summary>
+    /// The one record of a country's analyses that the panel, the map and the hover all use: the latest period end (the
+    /// first of equals, in the given order). Null for none.
+    /// </summary>
+    public static FoodCrisis? Latest(IEnumerable<FoodCrisis> records) => records.OrderByDescending(f => f.PeriodTo).FirstOrDefault();
+
     /// <summary>Stale (P2-4) when judged at <paramref name="nowUtc"/>: a cached analysis ages while the app runs or waits.</summary>
     public bool IsStaleAt(DateTime nowUtc) => IsStale || PeriodTo < DateOnly.FromDateTime(nowUtc).AddMonths(-StaleAfterMonths);
 

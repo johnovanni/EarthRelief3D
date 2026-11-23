@@ -45,6 +45,48 @@ public class FoodMapTests
     }
 
     [Fact]
+    public void OneRecordPerCountryTheLatestAsInThePanel()
+    {
+        // Two analyses of one country: the newer is shaded 3 with a Phase 5 outline, the older shaded 4 with none.
+        // The newer one decides both colours together (not the worst fill of one and the worst outline of the other).
+        var newer = Counts("SOM", 1000, 300, 200, 400, 50, 50) with { PeriodTo = new DateOnly(2027, 1, 31) };
+        var older = Counts("SOM", 1000, 400, 200, 150, 250, 0) with { PeriodTo = new DateOnly(2026, 6, 30) };
+        Assert.Equal((3, 5), IpcAreaRule.MapStyle(newer));
+        Assert.Equal((4, null), IpcAreaRule.MapStyle(older));
+        var expected = new FoodArea("SOM", LayerStyle.IpcPhaseColor(3), LayerStyle.IpcPhaseColor(5));
+        Assert.Equal([expected], FoodImageLayer.Plan([older, newer]));
+        Assert.Equal([expected], FoodImageLayer.Plan([newer, older]));
+        Assert.Same(newer, FoodCrisis.Latest([older, newer]));
+        // A newer record that is stale or projection only hides the country, as the panel shows that record.
+        var projection = newer with { ProjectionOnly = true, HighestPhase = 0, PeriodTo = new DateOnly(2027, 6, 30) };
+        Assert.Empty(FoodImageLayer.Plan([older, projection]));
+    }
+
+    [Fact]
+    public void ASmallCountryKeepsSomeFillInsideItsOutline() => StaAsync.Sta(() =>
+    {
+        const int w = 720, h = 360;   // 2 px per degree
+        var fill = LayerStyle.IpcPhaseColor(3);
+        var outline = LayerStyle.IpcPhaseColor(5);
+        // A square 3 degrees (6 px) wide: a 2.5 px band from each side would leave 1 px; the band is narrowed to 1.5 px.
+        var tiny = new GeoPolygon([[new GeoPosition(3, 0), new GeoPosition(3, 3), new GeoPosition(0, 3), new GeoPosition(0, 0)]]);
+        Assert.Equal(1.5, FoodImageLayer.OutlineBandPx(tiny, w, h), 9);
+        Assert.Equal(FoodImageLayer.OutlineWidthPx, FoodImageLayer.OutlineBandPx(SplitSquare(), w, h), 9);
+        var tinier = new GeoPolygon([[new GeoPosition(1, 0), new GeoPosition(1, 1), new GeoPosition(0, 1), new GeoPosition(0, 0)]]);
+        Assert.Equal(1.0, FoodImageLayer.OutlineBandPx(tinier, w, h), 9);   // the floor
+
+        var px = FoodImageLayer.RasterizeAreas([(tiny, fill, outline)], w, h).Pixels;
+        int filled = 0;
+        for (int y = 174; y < 180; y++)
+            for (int x = 360; x < 366; x++)
+            {
+                int i = (y * w + x) * 4;
+                if (Math.Abs(px[i + 2] - fill.R) <= 2 && Math.Abs(px[i + 1] - fill.G) <= 2 && px[i + 3] < 200) filled++;
+            }
+        Assert.True(filled >= 4, $"{filled} pixels of fill left inside the outline");
+    });
+
+    [Fact]
     public async Task SampleSudanIsShadedCrisisWithAPhase5Outline()
     {
         var s = (await SampleStore.LoadAsync()).Snapshot.AsSeenAt(SampleStore.Now);

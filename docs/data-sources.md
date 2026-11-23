@@ -63,12 +63,17 @@ No source needs a key or an account. Samples are in `tests/Samples` (see its REA
 - **Shading rule (ruling R17, the owner's decision of 2026-11-23):** each country with a current analysis is shaded by
   IPC's "20% rule" for area classification, applied here to the whole country (our adaptation; the national file has no
   areas): the worst phase p (5, 4 or 3) such that the people in Phase p or higher are at least 20% of the people analysed.
-  The denominator is `Population analyzed current`; when it is blank, the sum of the Phase 1 to 5 current numbers; when
-  that is 0 too, the share is unknown and the country is not shaded. Phases 1 and 2 are never shaded. The country also
-  gets an outline in the colour of the worst phase from 3 to 5 that has people in it, when that phase is worse than the
-  shading (or nothing is shaded). Stale and projection-only records are neither shaded nor outlined. The panel shows the
-  five phases as a stacked bar with a "worst 20%" marker. A country shaded Phase 5 is not an IPC famine classification,
-  which also needs malnutrition and death-rate data. With the sample file (judged on 2026-11-22): 36 current analyses;
+  One denominator D serves the rule, the panel's figures and the bar: `Population analyzed current` when it is at least
+  the sum of the Phase 1 to 5 current numbers; the sum when that is larger (the panel says so; in the sample, 22 of the 36
+  current rows add up to slightly more than the people analysed, Sudan by 30) or when the people analysed is blank; when
+  both are 0, the share is unknown and the country is not shaded. When the Phase 3 to 5 numbers are blank, the file's
+  "Phase 3+ number current" stands for them. Phases 1 and 2 are never shaded. The country also gets an outline in the
+  colour of the worst phase from 3 to 5 that has people in it, when that phase is worse than the shading (or nothing is
+  shaded). One record per country is used, the latest period (as in the panel); stale and projection-only records are
+  neither shaded nor outlined. The panel shows the people analysed as a stacked bar (the people in no reported phase in
+  grey first, then Phases 1 to 5) with a "worst 20%" marker that always falls in the rule's phase. A country shaded Phase
+  5 is not an IPC famine classification, which also needs malnutrition and death-rate data (said in the legend, and
+  under the bar of a country shaded Phase 5). With the sample file (judged on 2026-11-22): 36 current analyses;
   7 are shaded Phase 3 (AFG, COD, LBN, PSE, SOM and YEM with a Phase 4 outline; SDN with a Phase 5 outline); 29 are only
   outlined (19 in Phase 4's colour, 10 in Phase 3's); none reaches 20% in Phase 4 or higher.
 

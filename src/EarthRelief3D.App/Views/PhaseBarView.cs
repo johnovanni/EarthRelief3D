@@ -7,7 +7,8 @@ using EarthRelief3D.App.Presentation;
 namespace EarthRelief3D.App.Views;
 
 /// <summary>
-/// The IPC phase bar (R17): Phases 1 to 5, left to right, stacked to 100% in IPC colours (a phase with people at least
+/// The IPC phase bar (R17): the people in no reported phase (grey, if any), then Phases 1 to 5, left to right, stacked to
+/// 100% of the rule's denominator in IPC colours (a piece with people at least
 /// <see cref="PhaseBarLayout.MinPx"/> wide), and a dashed marker at 80% of the width labelled "worst 20%". Drawn, not
 /// templated; the same facts are in AutomationProperties.Name (set by the panel) and in the rows under it.
 /// </summary>
@@ -50,7 +51,8 @@ public sealed class PhaseBarView : FrameworkElement
         dc.DrawRectangle(null, Frame, new Rect(0.5, top + 0.5, w - 1, BarHeight - 1));
 
         // The marker, dark under white so it reads on every phase colour, and its label just right of it.
-        double mx = Math.Round(w * PhaseBar.MarkerAt) + 0.5;
+        // At 80%, kept inside the rule's piece if the minimum widths moved its edges (PhaseBarLayout.MarkerX).
+        double mx = Math.Floor(PhaseBarLayout.MarkerX(widths, bar.MarkerIndex, w)) + 0.5;
         dc.DrawLine(MarkerUnder, new Point(mx, top - 3), new Point(mx, top + BarHeight + 2));
         dc.DrawLine(Marker, new Point(mx, top - 3), new Point(mx, top + BarHeight + 2));
         var label = new FormattedText(PhaseBar.MarkerLabel, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,

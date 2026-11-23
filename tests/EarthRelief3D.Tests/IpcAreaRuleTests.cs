@@ -27,10 +27,56 @@ public class IpcAreaRuleTests
         Assert.Equal(5, c.OutlinePhase);
         Assert.Equal(3, c.LinePhase);
         Assert.True(c.ShareKnown);
-        Assert.Equal(47_535_794, c.Denominator);
-        Assert.Equal(14_316_494 / 47_535_794.0, c.Share(3), 12);
-        Assert.Equal(134_808 / 47_535_794.0, c.Share(5), 12);
-        Assert.Equal((14_316_494 + 5_015_231 + 134_808) / 47_535_794.0, c.ShareAtOrAbove(3), 12);
+        // Sudan's five phases add up to 47,535,824, 30 more than the 47,535,794 analysed: the larger sum is the denominator.
+        Assert.Equal(47_535_824, c.PhaseSum);
+        Assert.Equal(47_535_824, c.Denominator);
+        Assert.Equal(IpcDenominator.PhaseSumLarger, c.Source);
+        Assert.Equal(0, c.NotInAPhase);
+        Assert.Equal(14_316_494 / 47_535_824.0, c.Share(3), 12);
+        Assert.Equal(134_808 / 47_535_824.0, c.Share(5), 12);
+        Assert.Equal(19_466_533, c.Phase3PlusPeople);
+        Assert.Equal(19_466_533 / 47_535_824.0, c.Phase3PlusShare, 12);
+        Assert.Equal(c.Phase3PlusShare, c.ShareAtOrAbove(3), 12);
+        Assert.True(c.CanStack);
+    }
+
+    [Fact]
+    public void AnalysedLargerThanTheSumKeepsTheRestAsNotInAPhase()
+    {
+        // Analysed 100; Phase 1 blank; 20, 30, 20 and 10 in Phases 2 to 5 (80 in all).
+        var c = IpcAreaRule.Classify(F(100, 0, 20, 30, 20, 10, highest: 5) with { UnreportedPhases = 0b00001 });
+        Assert.Equal(IpcDenominator.Analysed, c.Source);
+        Assert.Equal(100, c.Denominator);
+        Assert.Equal(80, c.PhaseSum);
+        Assert.Equal(20, c.NotInAPhase);
+        Assert.Equal(0.2, c.NotInAPhaseShare, 12);
+        Assert.Equal(4, c.LinePhase);       // 30% in Phase 4 or higher, 10% in Phase 5
+        Assert.Equal(4, c.ShadedPhase);
+        Assert.Equal(5, c.OutlinePhase);
+        Assert.Equal(0.3, c.Share(3), 12);
+    }
+
+    [Fact]
+    public void FewPeopleInAnyPhaseMeansNoLineThoughTheShareIsKnown()
+    {
+        // Only 15 of 100 analysed are in a reported phase: no phase, even Phase 1, reaches the worst 20%.
+        var c = IpcAreaRule.Classify(F(100, 0, 0, 10, 5, 0, highest: 4) with { UnreportedPhases = 0b00011 });
+        Assert.True(c.ShareKnown);
+        Assert.Null(c.LinePhase);
+        Assert.Null(c.ShadedPhase);
+        Assert.Equal(4, c.OutlinePhase);
+    }
+
+    [Fact]
+    public void BlankPerPhaseCellsUseThePhase3PlusFigureForTheRowAndTheRule()
+    {
+        var f = F(1000, 0, 0, 0, 0, 0) with { Phase3PlusPeople = 250, UnreportedPhases = 0b11111 };
+        var c = IpcAreaRule.Classify(f);
+        Assert.Equal(IpcDenominator.Analysed, c.Source);
+        Assert.Equal(250, c.Phase3PlusPeople);
+        Assert.Equal(0.25, c.Phase3PlusShare, 12);
+        Assert.Equal(3, c.ShadedPhase);
+        Assert.False(c.CanStack);   // nothing per phase to stack
     }
 
     [Fact]

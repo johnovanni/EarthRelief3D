@@ -115,7 +115,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
 
         var conflicts = crises.OfType<ConflictCrisis>().OrderByDescending(c => c.Severity.Value).ToList();
         Add(ConflictSection(conflicts, now), CrisisLayer.Conflict);
-        var food = crises.OfType<FoodCrisis>().OrderByDescending(f => f.PeriodTo).FirstOrDefault();
+        var food = FoodCrisis.Latest(crises.OfType<FoodCrisis>());   // the record the map and the hover use too
         Add(food is null ? null : FoodSection(food, _nameOf(iso3) ?? iso3), CrisisLayer.Food);
         var outbreaks = crises.OfType<OutbreakCrisis>().OrderByDescending(o => o.PublishedUtc).ToList();
         Add(OutbreakSection(outbreaks, now), CrisisLayer.Outbreaks);
@@ -211,8 +211,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         {
             rows = [("Country shading", CrisisText.FoodShading(c))];
             if (c.OutlinePhase is { } o) rows.Add(("Outline", $"{LayerStyle.IpcPhaseLabel(o)}: some people are in this phase"));
-            rows.Add(("People in Phase 3 or higher", CrisisText.Number(f.Phase3PlusPeople)
-                + (c.ShareKnown ? $" ({CrisisText.FoodPercent(c.ShareAtOrAbove(3))} of the people analysed)" : " (share unknown)")));
+            rows.Add(("People in Phase 3 or higher", CrisisText.Number(c.Phase3PlusPeople)
+                + (c.ShareKnown ? $" ({CrisisText.FoodPercent(c.Phase3PlusShare)} of the people analysed)" : " (share unknown)")));
             rows.Add(("Analysis period", period));
         }
         return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url, bar);

@@ -80,6 +80,8 @@
                                                                         ToolTip="{Binding AutomationName}"
                                                                         Visibility="{Binding HasBar, Converter={StaticResource B2V}}"/>
                                                     <TextBlock Text="{Binding Caption}" Foreground="White" FontSize="13" Margin="0,3,0,2" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding Note}" Foreground="#C8CDD8" FontSize="12" Margin="0,0,0,3" TextWrapping="Wrap"
+                                                               Visibility="{Binding HasNote, Converter={StaticResource B2V}}"/>
                                                     <ItemsControl ItemsSource="{Binding Rows}" Focusable="False">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>

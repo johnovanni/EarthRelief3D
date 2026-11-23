@@ -348,14 +348,14 @@ public class AppStartupTests
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));
             Assert.True(bar.ActualWidth > 200);
-            Assert.StartsWith("IPC phase bar for Sudan, of 47,535,794 people analysed: ",
+            Assert.StartsWith("IPC phase bar for Sudan, of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed): ",
                 System.Windows.Automation.AutomationProperties.GetName(bar));
             Assert.Contains("The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline.", texts);
             // The caption wraps inside the panel (implicit TextBlock styles do not reach into the bar's template).
             var caption = Descendants<TextBlock>(root).Single(t => t.Text.StartsWith("The line falls in", StringComparison.Ordinal));
             Assert.Equal(TextWrapping.Wrap, caption.TextWrapping);
             Assert.True(caption.ActualHeight > 1.5 * caption.FontSize * 1.2, $"caption height {caption.ActualHeight}: one line, cut off");
-            Assert.Contains("People by IPC phase, of 47,535,794 people analysed", texts);
+            Assert.Contains("People by IPC phase, of 47,535,824 people (the five phases add up to more than the 47,535,794 people analysed)", texts);
             Assert.Contains("Phase 5 Catastrophe/Famine", texts);
             Assert.Contains(LegendViewModel.FamineNote, texts);
             Assert.Empty(errors.Lines);

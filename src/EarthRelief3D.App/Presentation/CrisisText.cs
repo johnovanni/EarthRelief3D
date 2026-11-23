@@ -110,26 +110,42 @@ public static class CrisisText
         : Math.Round(fraction * 100, 1, MidpointRounding.AwayFromZero).ToString("0.0", Inv) + "%";
 
     /// <summary>
-    /// "of 47,535,794 people analysed"; with the phase sum as the denominator, "of N people analysed (the sum of the five
-    /// phases; the file gives no total)"; "share unknown" with no denominator.
+    /// What the shares are of, naming the denominator D (R17): "of 47,535,794 people analysed"; "of N people analysed (the
+    /// sum of the five phases; the file gives no total)"; "of N people (the five phases add up to more than the M people
+    /// analysed)"; "share unknown" with no denominator.
     /// </summary>
-    public static string OfAnalysed(FoodCrisis f, IpcAreaClass c) =>
-        !c.ShareKnown ? "share unknown"
-        : f.PopulationAnalysed > 0 ? $"of {Number(c.Denominator)} people analysed"
-        : $"of {Number(c.Denominator)} people analysed (the sum of the five phases; the file gives no total)";
+    public static string OfAnalysed(FoodCrisis f, IpcAreaClass c) => c.Source switch
+    {
+        IpcDenominator.Analysed => $"of {Number(c.Denominator)} people analysed",
+        IpcDenominator.PhaseSum => $"of {Number(c.Denominator)} people analysed (the sum of the five phases; the file gives no total)",
+        IpcDenominator.PhaseSumLarger =>
+            $"of {Number(c.Denominator)} people (the five phases add up to more than the {Number(f.PopulationAnalysed)} people analysed)",
+        _ => "share unknown",
+    };
+
+    /// <summary>Under the legend's food keys and under a phase bar shaded Phase 5 (R17): one wording.</summary>
+    public const string FamineNote = "A country shaded Phase 5 is not an IPC famine classification, which also needs malnutrition and death-rate data.";
 
     /// <summary>
-    /// The bar's caption: "The line falls in Phase 3, so Sudan is shaded Crisis, with a Phase 5 outline." (or "... is not
-    /// shaded ..."; "Share unknown, so ..."; for a past analysis, "... but this analysis ended more than 12 months ago, so
-    /// &lt;country&gt; is not shaded.").
+    /// The bar's caption: where the worst-20% line falls and what the map shows. "The line falls in Phase 3, so Sudan is
+    /// shaded Crisis, with a Phase 5 outline."; "No phase reaches the worst 20%, so ... is not shaded" (a known share, but
+    /// too few people in any reported phase); with no per-phase numbers to draw, the Phase 3 or higher share instead of a
+    /// line; "Share unknown: ..." only when there is no denominator at all. For a past analysis, "... This analysis ended
+    /// more than 12 months ago, so &lt;country&gt; is not shaded."
     /// </summary>
     public static string BarCaption(string country, FoodCrisis f, IpcAreaClass c)
     {
-        var line = c.LinePhase is { } p ? $"The line falls in Phase {p}" : "Share unknown";
-        if (f.IsStale) return $"{line}, but this analysis ended more than {FoodCrisis.StaleAfterMonths} months ago, so {country} is not shaded.";
+        string lead;
+        if (!c.ShareKnown) lead = "Share unknown: neither the people analysed nor the per-phase numbers are reported";
+        else if (!c.CanStack)
+            lead = (c.PhaseSum == 0 ? "The per-phase numbers are" : "The Phase 3 to 5 numbers are")
+                   + $" not reported, but {FoodPercent(c.Phase3PlusShare)} of the people analysed are in Phase 3 or higher";
+        else if (c.LinePhase is { } p) lead = $"The line falls in Phase {p}";
+        else lead = "No phase reaches the worst 20%";
+        if (f.IsStale) return $"{lead}. This analysis ended more than {FoodCrisis.StaleAfterMonths} months ago, so {country} is not shaded.";
         var shading = c.ShadedPhase is { } s ? $"is shaded {LayerStyle.IpcPhaseName(s)}" : "is not shaded";
         var outline = c.OutlinePhase is { } o ? $", with a Phase {o} outline" : "";
-        return $"{line}, so {country} {shading}{outline}.";
+        return $"{lead}, so {country} {shading}{outline}.";
     }
 
     /// <summary>The newest as-of time among a crisis's citations.</summary>

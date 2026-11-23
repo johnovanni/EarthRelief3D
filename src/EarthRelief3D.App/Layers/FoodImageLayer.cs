@@ -77,26 +77,36 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     public const double OutlineWidthPx = 2.5;
 
     /// <summary>
-    /// The countries to draw, by ISO3, with their fill and outline colours from <see cref="IpcAreaRule.MapStyle"/> (stale
-    /// and projection-only analyses are left out). A country is in the plan when it has a fill, an outline or both.
+    /// The countries to draw, by ISO3, with their fill and outline colours from <see cref="IpcAreaRule.MapStyle"/>. One
+    /// record per country, the one the panel shows (<see cref="FoodCrisis.Latest"/>), whose fill and outline go together;
+    /// when that record is stale or projection only, the country is not drawn. A country is in the plan when it has a
+    /// fill, an outline or both.
     /// </summary>
     public static IReadOnlyList<FoodArea> Plan(IEnumerable<Crisis> crises) =>
     [
         .. crises.OfType<FoodCrisis>()
-            .Select(f => (Iso3: f.CountryIso3.ToUpperInvariant(), Style: IpcAreaRule.MapStyle(f)))
-            .Where(x => x.Style.Shaded is not null || x.Style.Outline is not null)
-            .GroupBy(x => x.Iso3)
+            .GroupBy(f => f.CountryIso3.ToUpperInvariant())
             .OrderBy(g => g.Key, StringComparer.Ordinal)
-            .Select(g =>
-            {
-                // One analysis per country in practice; if more, the worst fill and the worst outline above it.
-                int? shaded = g.Max(x => x.Style.Shaded);
-                int? outline = g.Max(x => x.Style.Outline);
-                if (outline <= shaded) outline = null;
-                return new FoodArea(g.Key, shaded is { } s ? LayerStyle.IpcPhaseColor(s) : null,
-                    outline is { } o ? LayerStyle.IpcPhaseColor(o) : null);
-            }),
+            .Select(g => (Iso3: g.Key, Style: IpcAreaRule.MapStyle(FoodCrisis.Latest(g)!)))
+            .Where(x => x.Style.Shaded is not null || x.Style.Outline is not null)
+            .Select(x => new FoodArea(x.Iso3, x.Style.Shaded is { } s ? LayerStyle.IpcPhaseColor(s) : null,
+                x.Style.Outline is { } o ? LayerStyle.IpcPhaseColor(o) : null)),
     ];
+
+    /// <summary>
+    /// The width of <paramref name="polygon"/>'s outline band in image pixels: <see cref="OutlineWidthPx"/>, narrowed to a
+    /// quarter of the smaller side of the polygon's bounding box so a small country keeps some fill inside it, and never
+    /// under 1 px.
+    /// </summary>
+    public static double OutlineBandPx(GeoPolygon polygon, int width, int height)
+    {
+        ArgumentNullException.ThrowIfNull(polygon);
+        var points = polygon.Rings.SelectMany(r => r).ToList();
+        if (points.Count == 0) return OutlineWidthPx;
+        double w = (points.Max(p => p.LongitudeDeg) - points.Min(p => p.LongitudeDeg)) / 360 * width;
+        double h = (points.Max(p => p.LatitudeDeg) - points.Min(p => p.LatitudeDeg)) / 180 * height;
+        return Math.Max(1.0, Math.Min(OutlineWidthPx, Math.Min(w, h) / 4));
+    }
 
     /// <summary>The key of what is drawn: the boundary version and every country's fill and outline (a change rebuilds the image).</summary>
     public static string BuildKey(int boundaryVersion, IReadOnlyList<FoodArea> plan) =>
@@ -131,7 +141,7 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     }
 
     /// <summary>
-    /// Each polygon's outline as a band just inside its edge: a pen twice <see cref="OutlineWidthPx"/> wide along the edges
+    /// Each polygon's outline as a band just inside its edge: a pen twice <see cref="OutlineBandPx"/> wide along the edges
     /// (<see cref="OutlineLines"/>, so not along ±180°), clipped to the polygon. Inside, so two neighbours outlined in
     /// different phases each keep their colour on their own side of the shared border, and the 1 px border line drawn above
     /// covers little of it. Straight-alpha BGRA pixels. STA thread.
@@ -140,16 +150,17 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     {
         Point P(GeoPosition g) => new((g.LongitudeDeg + 180) / 360 * width, (90 - g.LatitudeDeg) / 180 * height);
         var visual = new DrawingVisual();
-        var pens = new Dictionary<Color, Pen>();
+        var pens = new Dictionary<(Color, double), Pen>();
         using (var dc = visual.RenderOpen())
         {
             foreach (var (polygon, color) in areas)
             {
-                if (!pens.TryGetValue(color, out var pen))
+                double band = OutlineBandPx(polygon, width, height);
+                if (!pens.TryGetValue((color, band), out var pen))
                 {
                     var brush = new SolidColorBrush(color);
                     brush.Freeze();
-                    pens[color] = pen = new Pen(brush, 2 * OutlineWidthPx) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
+                    pens[(color, band)] = pen = new Pen(brush, 2 * band) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
                     pen.Freeze();
                 }
                 var clip = new StreamGeometry { FillRule = FillRule.EvenOdd };
@@ -267,9 +278,9 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     public PickResult? HitTest(Point screen, Projector projector, bool hover)
     {
         if (Picking.CountryAt(screen, projector, _countries.Index) is not { } country) return null;
-        var food = _store.Snapshot.AsSeenAt(_nowUtc()).ByCountry(country.Iso3).OfType<FoodCrisis>().Where(f => !f.IsStale && !f.ProjectionOnly)
-            .OrderByDescending(f => f.HighestPhase).FirstOrDefault();
-        return food is null ? null
+        // The record the map and the panel use; a stale or projection-only one is not on this layer (the borders layer answers).
+        var food = FoodCrisis.Latest(_store.Snapshot.AsSeenAt(_nowUtc()).ByCountry(country.Iso3).OfType<FoodCrisis>());
+        return food is null || food.IsStale || food.ProjectionOnly ? null
             : new PickResult(LayerId, new CountryPick(country.Iso3, CrisisLayer.Food), CrisisText.FoodHover(country.Name, food));
     }
 
