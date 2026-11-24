@@ -167,3 +167,4 @@ Branch `plan-3` was made from main c514ef5; the plan was committed as 029e3ac. G
 - R26 re-review dispatched (haiku).
 - R26 re-review: all addressed, no new Critical/Important. Minor (deferred): a test attribute is on the same line as its method (formatting); OtherFuelsText needs a length guard for malformed parts. Controller re-ran the build and tests on a3195a9 (closes the raw-output evidence gap).
 - Task 7 + R24–R27: complete on branch plan-3-gem (a534db6..a3195a9 plus the ledger commit). Awaiting the owner's merge decision.
+- 2026-11-24: the owner chose merge locally. main fast-forwarded to 6b46770 (416 tests on main); branch plan-3-gem deleted; not pushed. Plan 3 is complete, and the workspace is deleted.
