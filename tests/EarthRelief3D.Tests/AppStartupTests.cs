@@ -75,7 +75,9 @@ public class AppStartupTests
                 Assert.EndsWith(" · " + BundledDataset.StatusNote, d.Tooltip);
             });
             Assert.EndsWith("3-year averages, latest ending 2025 · bundled; updated with the app", bundledDots[0].Tooltip);
-            Assert.EndsWith("estimate year 2025 · bundled; updated with the app", bundledDots[1].Tooltip);
+            Assert.EndsWith("year 2025 · bundled; updated with the app", bundledDots[1].Tooltip);
+            Assert.DoesNotContain("estimate", bundledDots[1].Tooltip);   // C4: EIA's figures are full years
+            Assert.EndsWith("baseline 1979–2019 (published 2023) · bundled; updated with the app", bundledDots[2].Tooltip);
             // The bundled series are in the store at once, offline.
             Assert.Equal(51.4, services.Indicators.Snapshot.Get("fao.undernourishment")!.For("HTI")!.Value);
             Assert.NotNull(services.Indicators.Snapshot.Get("fao.energyAdequacy"));

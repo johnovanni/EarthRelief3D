@@ -98,6 +98,32 @@ public class BundledDatasetTests
     }
 
     [Fact]
+    public void ABaselineIsDatedByTheManifestsWords()
+    {
+        // I3: Aqueduct's figures are a modelled 1979-2019 baseline published in 2023: the manifest's dateText says so, and
+        // the citation carries it; a Baseline manifest without it is not loaded.
+        using var dir = new TempDir();
+        var manifest = Manifest.Replace("\"dateMeaning\": \"EstimateYear\",", "\"dateMeaning\": \"Baseline\", \"dateText\": \"baseline 1979–2019 (published 2023)\",");
+        var load = BundledDataset.Load("FAO", Folder(dir, manifest), Placed, new ListLog());
+        Assert.True(load.Loaded, load.Problem);
+        var c = load.Series[0].For("HTI")!.Citation;
+        Assert.Equal(CitationDate.Baseline, c.DateMeaning);
+        Assert.Equal("baseline 1979–2019 (published 2023)", c.DateText);
+        Assert.Equal("baseline 1979–2019 (published 2023)", App.Presentation.CrisisText.DataDate(c, DateTime.UtcNow));
+        Assert.Equal("baseline 1979–2019 (published 2023)", App.Presentation.CrisisText.SeriesDate(c, DateTime.UtcNow));
+
+        using var dir2 = new TempDir();
+        var bare = Manifest.Replace("\"dateMeaning\": \"EstimateYear\",", "\"dateMeaning\": \"Baseline\",");
+        var log = new ListLog();
+        Assert.False(BundledDataset.Load("FAO", Folder(dir2, bare), Placed, log).Loaded);
+        Assert.Contains(log.Lines, l => l.Contains("dateText"));
+
+        // C4: a full year is "year 2025", never an estimate.
+        var year = c with { DateMeaning = CitationDate.Year, DateText = null, AsOfUtc = new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc) };
+        Assert.Equal("year 2025", App.Presentation.CrisisText.DataDate(year, DateTime.UtcNow));
+    }
+
+    [Fact]
     public void MissingFolderIsLoggedNotFatal()
     {
         using var dir = new TempDir();
@@ -155,6 +181,7 @@ public class BundledDatasetTests
         Assert.Equal("eia.crudeOil", oil.Id);
         Assert.Equal(["USA", "RUS", "SAU", "CAN", "IRQ"], oil.Values.OrderByDescending(v => v.Value).Take(5).Select(v => v.Iso3));
         Assert.Equal(2025, oil.For("USA")!.Year);
+        Assert.Equal(CitationDate.Year, oil.For("USA")!.Citation.DateMeaning);   // C4
     }
 
     [Fact]
@@ -169,5 +196,9 @@ public class BundledDatasetTests
             Assert.Equal(scale.ClassLabels[scale.ClassOf(v.Value)!.Value], v.Qualifier);
         Assert.Equal("Extremely High (>80%)", bws.For("YEM")!.Qualifier);
         Assert.Equal("Low - Medium (10-20%)", bws.For("SDN")!.Qualifier);
+        // I3: dated as the modelled baseline it is, everywhere the date is shown.
+        var c = bws.For("SDN")!.Citation;
+        Assert.Equal(CitationDate.Baseline, c.DateMeaning);
+        Assert.Equal("baseline 1979–2019 (published 2023)", App.Presentation.CrisisText.DataDate(c, DateTime.UtcNow));
     }
 }

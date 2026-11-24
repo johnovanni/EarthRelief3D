@@ -54,7 +54,8 @@ public class DataToolEiaTests
         Assert.Contains(m.Notes, n => n.Contains("NOR 2025") && n.Contains("not a full year"));
         Assert.Equal("Public domain (U.S. government work)", m.Licence);
         Assert.Equal("Source: U.S. Energy Information Administration (Nov 2026)", m.Attribution);
-        Assert.Equal("EstimateYear", m.DateMeaning);
+        Assert.Equal("Year", m.DateMeaning);   // C4: full years, not estimates
+        Assert.Null(m.DateText);
     }
 
     [Fact]

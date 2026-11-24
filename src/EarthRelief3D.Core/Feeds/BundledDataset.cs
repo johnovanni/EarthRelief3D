@@ -51,6 +51,9 @@ public static class BundledDataset
             var manifest = DatasetManifest.Parse(File.ReadAllText(Path.Combine(folder, ManifestFile)));
             var meaning = Enum.TryParse<CitationDate>(manifest.DateMeaning, ignoreCase: false, out var m)
                 ? m : throw new InvalidDataException($"unknown dateMeaning \"{manifest.DateMeaning}\"");
+            if (meaning == CitationDate.Baseline && string.IsNullOrWhiteSpace(manifest.DateText))
+                throw new InvalidDataException("a Baseline manifest needs its dateText (\"baseline 1979–2019 (published 2023)\")");
+            var dateText = meaning == CitationDate.Baseline ? manifest.DateText!.Trim() : null;
             var downloaded = Day(manifest.Downloaded, "downloaded");
             var page = Uri.TryCreate(manifest.PageUrl, UriKind.Absolute, out var u) ? u : throw new InvalidDataException("pageUrl is not a URL");
             var citations = new Dictionary<int, SourceCitation>();
@@ -58,7 +61,7 @@ public static class BundledDataset
             {
                 if (!citations.TryGetValue(year, out var c))
                     citations[year] = c = new SourceCitation(manifest.Publisher, manifest.Dataset, manifest.Version, page, manifest.Licence,
-                        manifest.Attribution, new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc), downloaded, meaning);
+                        manifest.Attribution, new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc), downloaded, meaning) { DateText = dateText };
                 return c;
             }
 

@@ -480,8 +480,11 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             }
             else sources.Add(($"{LayerCatalog.SourceName(layer)}, no figures in the data", true));
             if (series.For(iso3) is not { } v || !CountryValueLayer.HasFigure(v, scale)) { rows.Add((label, $"No figure from {LayerCatalog.SourceName(layer)}")); continue; }
-            var year = scale.Categorical ? $"{v.Year} baseline" : v.Year.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            rows.Add((label, $"{CountryValueLayer.ValueText(v, series.Unit, scale)} ({year}, {LayerCatalog.SourceName(layer)})"));
+            // A modelled baseline (WRI) says its period and publication, never one year (I3).
+            if (v.Citation.DateMeaning == CitationDate.Baseline)
+                rows.Add((label, $"{CountryValueLayer.ValueText(v, series.Unit, scale)} · {LayerCatalog.SourceName(layer)}, {CrisisText.DataDate(v.Citation, now)}"));
+            else
+                rows.Add((label, $"{CountryValueLayer.ValueText(v, series.Unit, scale)} ({v.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {LayerCatalog.SourceName(layer)})"));
         }
         var line = sources.All(x => !x.Loaded)
             ? $"Source: {string.Join("; ", sources.Select(x => x.Text))} · {LayerCatalog.NotLoaded} · {BundledDataset.StatusNote}"

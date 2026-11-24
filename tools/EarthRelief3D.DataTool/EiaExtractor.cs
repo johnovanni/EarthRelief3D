@@ -160,7 +160,7 @@ public static partial class EiaExtractor
             PageUrl = PageUrl,
             Licence = "Public domain (U.S. government work)",
             Attribution = $"Source: U.S. Energy Information Administration ({src.Published.ToString("MMM yyyy", CultureInfo.InvariantCulture)})",
-            DateMeaning = "EstimateYear",
+            DateMeaning = "Year",   // full calendar years, not estimates (final fix wave C4): "year 2025"
             AsOf = yearsKept.Count == 1 ? $"{yearsKept[0]} (each country's latest full year)" : $"each country's latest full year, {yearsKept[0]} to {yearsKept[^1]}",
             Published = src.Published.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Downloaded = src.Downloaded.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),

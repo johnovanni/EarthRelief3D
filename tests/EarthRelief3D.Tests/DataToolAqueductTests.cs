@@ -44,7 +44,9 @@ public class DataToolAqueductTests
         Assert.Equal(1, m.QualifiersSeen["4: Extremely High (>80%)"]);
         Assert.Equal("CC BY 4.0", m.Licence);
         Assert.Contains("Kuzma", m.Attribution);
-        Assert.Equal("EstimateYear", m.DateMeaning);
+        // I3: a modelled baseline, dated in words; only the date fields say so.
+        Assert.Equal("Baseline", m.DateMeaning);
+        Assert.Equal("baseline 1979–2019 (published 2023)", m.DateText);
     }
 
     [Fact]

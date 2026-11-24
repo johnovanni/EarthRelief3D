@@ -23,6 +23,11 @@ public sealed record DatasetManifest
     public required string Attribution { get; init; }
     /// <summary>A <see cref="Model.CitationDate"/> name: what a figure's year means ("EstimateYear").</summary>
     public required string DateMeaning { get; init; }
+    /// <summary>
+    /// The date in words, required for a "Baseline" (the screen shows it as it is: "baseline 1979–2019 (published 2023)");
+    /// null for the other meanings.
+    /// </summary>
+    public string? DateText { get; init; }
     /// <summary>What the figures are as of, in words (each country's latest year, and the range).</summary>
     public required string AsOf { get; init; }
     /// <summary>The source file's own date (its Last-Modified, yyyy-MM-dd): the publication date the attribution quotes, never the as-of.</summary>

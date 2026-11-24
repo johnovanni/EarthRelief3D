@@ -122,7 +122,9 @@ public static class AqueductExtractor
             PageUrl = PageUrl,
             Licence = "CC BY 4.0",
             Attribution = $"World Resources Institute, Aqueduct 4.0 country rankings ({src.Published.Year}); CC BY 4.0. {Citation}",
-            DateMeaning = "EstimateYear",
+            // A modelled baseline (final fix wave I3): the app shows the period and the publication year, never "2019".
+            DateMeaning = "Baseline",
+            DateText = $"baseline 1979–{BaselineEndYear} (published {src.Published.Year})",
             AsOf = $"baseline period 1979 to {BaselineEndYear} (Aqueduct 4.0, published {src.Published.Year})",
             Published = src.Published.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Downloaded = src.Downloaded.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),

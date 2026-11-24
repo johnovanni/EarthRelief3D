@@ -74,12 +74,14 @@ public class CountryValueLayerTests
     public void ACategoryIsNamedNotNumbered()
     {
         var scale = ShadingScales.For(ShadingLayer.WaterStress);
-        var cite = Gho with { Publisher = "World Resources Institute", Dataset = "Aqueduct 4.0 country rankings" };
+        // I3: a modelled baseline says its period and publication, never a year appended to the measure.
+        var cite = Gho with { Publisher = "World Resources Institute", Dataset = "Aqueduct 4.0 country rankings",
+            DateMeaning = CitationDate.Baseline, DateText = "baseline 1979–2019 (published 2023)" };
         var series = new IndicatorSeries("wri.bws", "Baseline water stress", "category",
             [new CountryValue("IRQ", 4, 2019, cite), new CountryValue("EGY", -1, 2019, cite, "Arid and Low Water Use")]);
-        Assert.Equal("Iraq · Baseline water stress, 2019: Extremely High (>80%) · WRI Aqueduct",
+        Assert.Equal("Iraq · Baseline water stress: Extremely High (>80%) · WRI Aqueduct, baseline 1979–2019 (published 2023)",
             CountryValueLayer.Tooltip(ShadingLayer.WaterStress, "Iraq", "IRQ", series, scale));
-        Assert.EndsWith(": Arid and Low Water Use · WRI Aqueduct", CountryValueLayer.Tooltip(ShadingLayer.WaterStress, "Egypt", "EGY", series, scale));
+        Assert.EndsWith(": Arid and Low Water Use · WRI Aqueduct, baseline 1979–2019 (published 2023)", CountryValueLayer.Tooltip(ShadingLayer.WaterStress, "Egypt", "EGY", series, scale));
     }
 
     [Fact]

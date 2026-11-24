@@ -228,7 +228,9 @@ public sealed partial class LegendViewModel : ObservableObject
         var newest = values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
         // 3-year averages (FAO) are shown as ranges, never as their last year (fix round 1).
         bool averages = values.Count > 0 && values.All(v => v.Citation.DateMeaning == Core.Model.CitationDate.ThreeYearAverage);
-        var measures = values.Count == 0 ? series.Measures
+        // A modelled baseline (WRI) names its period in the measure and its date on the source line: no year appended (I3).
+        bool baseline = values.Count > 0 && values.All(v => v.Citation.DateMeaning == Core.Model.CitationDate.Baseline);
+        var measures = values.Count == 0 || baseline ? series.Measures
             : $"{series.Measures}, {(averages ? AverageText(values.Select(v => v.Year)) : YearText(values.Select(v => v.Year)))}";
         // Ruling R17b: the grey arid key only when some country in the data is in that category.
         IReadOnlyList<LegendKey> keys =

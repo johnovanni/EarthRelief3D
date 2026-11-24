@@ -49,10 +49,12 @@ public class ResourcesPanelTests
         var res = Section(panel, CountryPanelViewModel.ResourcesHeading);
         Assert.Equal(
             [("Crude oil production", "13,662 thousand barrels per day (2025, US EIA)"),
-             ("Water stress", "Medium - High (20-40%) (2019 baseline, WRI Aqueduct)")],
+             ("Water stress", "Medium - High (20-40%) · WRI Aqueduct, baseline 1979–2019 (published 2023)")],
             res.Rows);
-        Assert.Equal("Source: U.S. Energy Information Administration, estimate year 2025; World Resources Institute, estimate year 2019 · "
+        // I3 and C4: the baseline's period and publication; EIA's full year, not an estimate.
+        Assert.Equal("Source: U.S. Energy Information Administration, year 2025; World Resources Institute, baseline 1979–2019 (published 2023) · "
             + BundledDataset.StatusNote, res.SourceLine);
+        Assert.DoesNotContain("estimate", res.SourceLine);
         Assert.Equal(["U.S. Energy Information Administration", "World Resources Institute"], res.Links!.Select(l => l.Text));
         Assert.DoesNotContain("as of", res.SourceLine);
 
@@ -80,11 +82,13 @@ public class ResourcesPanelTests
         var oil = Assert.Single(legend.Entries);
         Assert.Equal("Crude oil production, including lease condensate, in thousand barrels per day, 2025", oil.Measures);
         Assert.StartsWith("U.S. Energy Information Administration, International Energy Statistics", oil.SourceLine);
+        Assert.EndsWith(" · year 2025", oil.SourceLine);
 
         layers.Shading = App.Presentation.ShadingLayer.WaterStress;
         var water = Assert.Single(legend.Entries);
-        Assert.Equal("Baseline water stress (WRI Aqueduct 4.0 category; baseline period 1979 to 2019), 2019", water.Measures);
-        Assert.EndsWith("· estimate year 2019", water.SourceLine);
+        // I3: no year appended to the measure (it names its period), and the date is the baseline's, with its publication year.
+        Assert.Equal("Baseline water stress (WRI Aqueduct 4.0 category; baseline period 1979 to 2019)", water.Measures);
+        Assert.EndsWith("· baseline 1979–2019 (published 2023)", water.SourceLine);
         // WRI's own caution travels with the layer (docs/data-sources.md §10).
         Assert.Equal(LegendViewModel.WaterStressNote, water.Note);
         Assert.Contains("not been validated", water.Note);
