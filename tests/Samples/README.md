@@ -35,15 +35,15 @@ workbook from each. **Licence: CC BY 4.0** (https://creativecommons.org/licenses
 https://globalenergymonitor.org/creative-commons-license). **Changed:** only these rows are kept (and the About sheets'
 first lines, without GEM's staff contact lines); nothing in a kept row is altered.
 
-- `gem_power_excerpt.json`: "Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release."
+- `gem_power_excerpt.json`: "Global Energy Monitor, Global Integrated Power Tracker, September 2026 release." (file V2)
   From `Global Integrated Power September 2026 V2.xlsx`: `About` (first 3 rows), `Power facilities` (18 unit rows: every
   unit of Kosovo A, Kosovo B, Kosovo C, Delimara, Kitka, Bajgora, Ujmani, Zhur and Ferizaj; no row with a TransitionZero
   "TZ:" id, as those are CC BY-NC 4.0, ruling R22), `Regions, area, and countries` (Kosovo, Malta).
-- `gem_oilgas_excerpt.json`: "Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026 Release." From
+- `gem_oilgas_excerpt.json`: "Global Energy Monitor, Global Oil and Gas Extraction Tracker, March 2026 release." From
   `Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx`: `About` (first row), `Field-level main data` (14 fields:
   Rumaila, Burgan, Khor Mor, Wafra, Siba, Banan, Swara Tika, Marrat, Homah, Jazza, Khashman, Bina Bawi, Akkas
   Redevelopment, Athabasca) and their 9 `Field-level production data` rows.
-- `gem_steel_excerpt.json`: "Global Iron and Steel Tracker, Global Energy Monitor, September 2026 (V1) release." From
+- `gem_steel_excerpt.json`: "Global Energy Monitor, Global Iron and Steel Tracker, September 2026 (V1) release." From
   `Plant-level data - Global Iron and Steel Tracker - September 2026 (V1).xlsx`: `About` (first 3 rows), `Plant data` (10
   plants: POSCO Gwangyang, Taranto, Abba Steel Ohangwena, HyIron, Alfa Acciai Brescia and Catania, DaehanSteel Noksan,
   KG Steel Dangjin, Danieli ABS, Voestalpine Linz) and their 20 `Plant capacities and status` rows.

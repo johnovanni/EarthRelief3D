@@ -222,15 +222,15 @@ through the DataTool's ExcelDataReader). GEM's download form is not scriptable, 
   full Creative Commons Attribution 4.0 International Public License (CC BY 4.0); each workbook's About sheet says the same.
   Bundling is allowed with credit, a link to the licence (https://creativecommons.org/licenses/by/4.0/) and a note of the
   changes. Each manifest (`attribution`, `licence`, `licenceUrl`, `changes`, `filter`) and each legend line carries all
-  three. The citations used (the owner's, verbatim):
-  - "Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release."
-  - "Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026 Release."
-  - "Global Iron and Steel Tracker, Global Energy Monitor, September 2026 (V1) release."
+  three. The citations used (GEM's recommended form, publisher first, ruling R24):
+  - "Global Energy Monitor, Global Integrated Power Tracker, September 2026 release." (the About sheet's text, verbatim;
+    it has no "V2": that is the file name's, so the manifest's `version` is "September 2026 release, file V2" and the
+    screen dates it "September 2026 release (file V2)", outside the citation)
+  - "Global Energy Monitor, Global Oil and Gas Extraction Tracker, March 2026 release." (its About sheet gives no
+    recommended citation, only "Global Oil and Gas Extraction Tracker, 2026 release": the same order is used)
+  - "Global Energy Monitor, Global Iron and Steel Tracker, September 2026 (V1) release." (the "(V1)" is GEM's own)
 
-  The workbooks' own wording differs slightly, and is kept in each manifest's notes: the power workbook's About sheet
-  recommends "Global Energy Monitor, Global Integrated Power Tracker, September 2026 release." (no "V2": the version is
-  the file name's); the oil and gas workbook says "Global Oil and Gas Extraction Tracker, 2026 release" and gives no
-  recommended citation; the steel workbook says "September 2026 (V1) release".
+  (Before R24 the manifests put the tracker first and "(V2)" inside the citation; the owner's brief had that form.)
 - **Non-commercial rows (ruling R22):** the power workbook's About sheet says records with a "TZ ID" in
   `Other IDs (unit/phase)` (entries `TZ: <number>`) come partly or wholly from TransitionZero's Solar Asset Mapper
   (August 2025), licensed **CC BY-NC 4.0**. Non-commercial data is never bundled (C6), so a plant (GEM location ID) with
@@ -240,8 +240,8 @@ through the DataTool's ExcelDataReader). GEM's download form is not scriptable, 
   https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/ ,
   https://globalenergymonitor.org/projects/global-iron-and-steel-tracker/ ; each page's download form is at `#download`.
 - **Dates:** GEM names a release by month only. The manifests' `dateMeaning` is `Release` with `dateText` the release as
-  cited ("September 2026 (V2) release"), and `published` is the 1st of that month, for ordering only: the screen never
-  shows a day ("GEM Global Integrated Power Tracker, September 2026 (V2) release").
+  cited, with a file-only version after it ("September 2026 release (file V2)"), and `published` is the 1st of that month, for ordering only: the screen never
+  shows a day ("GEM Global Integrated Power Tracker, September 2026 release (file V2)").
 - **Checking a new release:** `DataTool describe <xlsx> [--sheet <name>] [--distinct <column>]` lists sheets, columns,
   row counts and value counts; the extractors refuse a file whose sheet or column is missing, or whose About sheet does
   not name the release's month and year.
@@ -265,7 +265,7 @@ through the DataTool's ExcelDataReader). GEM's download form is not scriptable, 
   timepoints (checked), so nothing is counted twice.
 - **Extract columns:** `name, iso3, lat, lon, capacity (MW), unit, status, type`, then `gem_location_id, gem_country,
   units, types, location_accuracy`.
-- **On screen:** a disc with a dark edge (R8), filled by fuel group: fossil (coal, oil/gas) #E69F00, nuclear #CC79A7,
+- **On screen:** a disc with a dark edge (R8), filled by its largest fuel's group (R24; the legend says "coloured by its largest fuel", and a plant of several fuels lists each in its tooltip, "coal 5,500 MW, oil/gas 280 MW", from the `types` column): fossil (coal, oil/gas) #E69F00, nuclear #CC79A7,
   hydro #0072B2, wind or solar #F0E442, other (bioenergy, geothermal) #BBBBBB; sized by class (under 1,000 MW,
   1,000–2,499, 2,500–4,999, 5,000 or more), each class and group a legend key.
 

@@ -8,10 +8,11 @@ namespace EarthRelief3D.Core.Feeds;
 /// One site of a bundled point extract (Task 7, the GEM trackers): a plant or field at its source's coordinates, with the
 /// country it is in (ISO3, the boundary set's unit), its capacity (null where the source gives none, as for oil and gas
 /// fields), the capacity's unit, its status and its type as the source words them ("coal", "oil and gas", "BF; BOF"), and a
-/// detail the source gives in its own words and units (an oil field's production, "oil 518 million bbl/y (2022)"), or "".
+/// detail the source gives in its own words and units (an oil field's production, "oil 518 million bbl/y (2022)"), or "",
+/// and for a plant of several fuels each one's capacity ("coal 5500 MW; oil/gas 280 MW"; ruling R24), or "".
 /// </summary>
 public sealed record MarkerPoint(string Name, string Iso3, double Lat, double Lon, double? Capacity, string Unit, string Status, string Type,
-    string Detail = "");
+    string Detail = "", string Types = "");
 
 /// <summary>What loading one bundled point extract gave: its sites (none when it could not be loaded) and its citation.</summary>
 /// <param name="Name">The status dot's name ("GEM").</param>
@@ -36,6 +37,9 @@ public static class BundledPoints
     /// <summary>An optional column: the source's own detail for a site (<see cref="MarkerPoint.Detail"/>).</summary>
     public const string DetailColumn = "detail";
 
+    /// <summary>An optional column: a plant's capacity per fuel, when it has more than one (<see cref="MarkerPoint.Types"/>).</summary>
+    public const string TypesColumn = "types";
+
     /// <param name="name">The status dot's name, used in the log too.</param>
     /// <param name="isPlaced">True when the boundary set has a country for the ISO3 code (C16); null: every code is.</param>
     public static BundledPointsLoad Load(string name, string folder, Func<string, bool>? isPlaced, IAppLog log)
@@ -56,7 +60,7 @@ public static class BundledPoints
                 if (!rows.MoveNext()) throw new InvalidDataException("data.csv is empty");
                 var col = Columns.Select(c => Array.IndexOf(rows.Current, c)).ToArray();
                 if (col.Any(i => i < 0)) throw new InvalidDataException("data.csv lacks a column of: " + string.Join(", ", Columns));
-                int detailCol = Array.IndexOf(rows.Current, DetailColumn);
+                int detailCol = Array.IndexOf(rows.Current, DetailColumn), typesCol = Array.IndexOf(rows.Current, TypesColumn);
                 int line = 1;
                 while (rows.MoveNext())
                 {
@@ -73,7 +77,7 @@ public static class BundledPoints
                     if (lat is < -90 or > 90 || lon is < -180 or > 180) throw new InvalidDataException($"data.csv line {line}: {lat}, {lon} is not a position");
                     double? capacity = string.IsNullOrWhiteSpace(r[col[4]]) ? null : Number(r[col[4]], line, "capacity");
                     points.Add(new MarkerPoint(r[col[0]], iso3, lat, lon, capacity, r[col[5]], r[col[6]], r[col[7]],
-                        detailCol >= 0 && detailCol < r.Length ? r[detailCol] : ""));
+                        detailCol >= 0 && detailCol < r.Length ? r[detailCol] : "", typesCol >= 0 && typesCol < r.Length ? r[typesCol] : ""));
                 }
             }
             foreach (var (iso3, n) in unplacedSites.OrderBy(kv => kv.Key, StringComparer.Ordinal))
@@ -96,7 +100,7 @@ public static class BundledPoints
 
     /// <summary>
     /// The manifest's source as a citation: a tracker release (<see cref="CitationDate.Release"/>, its <c>dateText</c>
-    /// "September 2026 (V2) release"), dated the manifest's <c>published</c> day for ordering only.
+    /// "September 2026 release (file V2)"), dated the manifest's <c>published</c> day for ordering only.
     /// </summary>
     public static SourceCitation Citation(DatasetManifest manifest)
     {

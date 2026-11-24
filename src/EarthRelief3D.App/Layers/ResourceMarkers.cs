@@ -13,7 +13,7 @@ public enum FuelGroup { Fossil, Nuclear, Hydro, WindOrSolar, Other }
 /// <summary>
 /// The Resources group's three GEM marker layers (Task 7, P3-9): the bundled extracts in <c>data\datasets\gem-*</c> as
 /// points, each with its tooltip (name, type, capacity, status, and the tracker's release), its size by capacity class and,
-/// for power plants, its fuel group's colour (the disc's dark edge, R8, keeps it apart from conflict dots). The legend line
+/// for power plants, its largest fuel's group colour (the disc's dark edge, R8, keeps it apart from conflict dots). The legend line
 /// gives the filter, the keys, and GEM's CC BY 4.0 credit: the citation, the licence's link and what was changed.
 /// </summary>
 public static class ResourceMarkers
@@ -116,11 +116,29 @@ public static class ResourceMarkers
     public static string EquipmentText(string type) => string.Join(", ", type.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .Select(e => Equipment.TryGetValue(e, out var words) ? words : e));
 
-    /// <summary>"GEM Global Integrated Power Tracker, September 2026 (V2) release": the source and its date on every marker.</summary>
+    /// <summary>The power legend's colour rule (R24): a plant of several fuels takes its largest fuel's colour.</summary>
+    public const string ColouredByLargestFuel = "coloured by its largest fuel";
+
+    /// <summary>
+    /// A plant's capacity per fuel, as the extract's <c>types</c> column has it ("coal 5500 MW; oil/gas 280 MW"), in the
+    /// tooltip's words: "coal 5,500 MW, oil/gas 280 MW" (R24). A part it cannot read is shown as written.
+    /// </summary>
+    public static string FuelsText(string types) => string.Join(", ", types.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(part =>
+        {
+            if (!part.EndsWith(" MW", StringComparison.Ordinal)) return part;
+            var body = part[..^3];
+            int space = body.LastIndexOf(' ');
+            return space > 0 && double.TryParse(body[(space + 1)..], NumberStyles.Float, CultureInfo.InvariantCulture, out var mw)
+                ? $"{body[..space]} {mw.ToString("#,##0.#", CultureInfo.InvariantCulture)} MW" : part;
+        }));
+
+    /// <summary>"GEM Global Integrated Power Tracker, September 2026 release (file V2)": the source and its date on every marker.</summary>
     public static string SourceText(SourceCitation c) => $"GEM {c.Dataset}, {CrisisText.DataDate(c, DateTime.MaxValue)}";
 
     /// <summary>
-    /// "Taichung power station · coal · 5,780 MW · operating · GEM Global Integrated Power Tracker, September 2026 (V2) release";
+    /// "Taichung power station · coal 5,500 MW, oil/gas 280 MW · 5,780 MW · operating · GEM Global Integrated Power Tracker,
+    /// September 2026 release (file V2)" (a plant of one fuel names it alone, "· coal ·");
     /// fields say their production as GEM gives it, plants their equipment in words. Long lines are wrapped (<see cref="TooltipText.Wrap"/>).
     /// </summary>
     public static string Tooltip(MarkerLayer layer, MarkerPoint p, SourceCitation c)
@@ -130,7 +148,8 @@ public static class ResourceMarkers
         var inv = CultureInfo.InvariantCulture;
         string[] parts = layer switch
         {
-            MarkerLayer.PowerPlants => [p.Name, p.Type, p.Capacity is { } mw ? mw.ToString("N0", inv) + " MW" : "capacity not given", p.Status],
+            MarkerLayer.PowerPlants => [p.Name, p.Types.Length > 0 ? FuelsText(p.Types) : p.Type,
+                p.Capacity is { } mw ? mw.ToString("N0", inv) + " MW" : "capacity not given", p.Status],
             MarkerLayer.OilGasFields => [p.Name, p.Type, p.Detail.Length > 0 ? "production: " + p.Detail : "no production figure in GEM's field data", p.Status],
             MarkerLayer.SteelPlants => [p.Name, EquipmentText(p.Type),
                 p.Capacity is { } mt ? mt.ToString("0.#", inv) + " million tonnes of crude steel a year" : "capacity not given", p.Status],
@@ -150,13 +169,13 @@ public static class ResourceMarkers
         var items = load.Points.Select(p => new PointItem(new AstroCore.Earth.GeoPosition(p.Lat, p.Lon), SizeOf(layer, p.Capacity), Tooltip(layer, p, c),
             p.Iso3, layer == MarkerLayer.PowerPlants ? FuelGroupColor(FuelGroupOf(p.Type)) : null)).ToList();
         var filter = load.Manifest!.Filter!;
-        var measures = $"{LayerCatalog.Label(layer)}: {filter}{(layer == MarkerLayer.PowerPlants ? ", coloured by fuel" : "")}";
+        var measures = $"{LayerCatalog.Label(layer)}: {filter}{(layer == MarkerLayer.PowerPlants ? ", " + ColouredByLargestFuel : "")}";
         return new PointSet(items, c, Credit(load.Manifest)) { Measures = measures };
     }
 
     /// <summary>
     /// The legend's note (CC BY 4.0): GEM's citation, the licence and its link, and what EarthRelief3D changed:
-    /// "Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release. Licence: CC BY 4.0,
+    /// "Global Energy Monitor, Global Integrated Power Tracker, September 2026 release. Licence: CC BY 4.0,
     /// https://creativecommons.org/licenses/by/4.0/. Changed: filtered to …".
     /// </summary>
     public static string Credit(DatasetManifest m)

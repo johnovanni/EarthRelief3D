@@ -12,7 +12,7 @@ public sealed record PointSet(IReadOnlyList<PointItem> Items, SourceCitation Cit
 {
     /// <summary>
     /// What the legend line says the layer shows, from the data (GEM: "Power plants: operating plants of 500 MW or more
-    /// (units summed per plant), coloured by fuel", the filter P3-9 records); null: the layer's own wording.
+    /// (units summed per plant), coloured by its largest fuel", the filter P3-9 records); null: the layer's own wording.
     /// </summary>
     public string? Measures { get; init; }
 }

@@ -6,7 +6,7 @@ public sealed record SourceCitation(string Publisher, string Dataset, string? Ve
 {
     /// <summary>
     /// The date in words, for a <see cref="CitationDate.Baseline"/> ("baseline 1979–2019 (published 2023)", from the bundled
-    /// extract's manifest) or a <see cref="CitationDate.Release"/> ("September 2026 (V2) release"); null for every other meaning.
+    /// extract's manifest) or a <see cref="CitationDate.Release"/> ("September 2026 release (file V2)"); null for every other meaning.
     /// </summary>
     public string? DateText { get; init; }
 }
@@ -43,7 +43,7 @@ public enum CitationDate
     Baseline,
     /// <summary>
     /// A tracker release (Global Energy Monitor's, Task 7): only the release month is known, so
-    /// <see cref="SourceCitation.DateText"/> says it as the publisher names it, "September 2026 (V2) release", and the
+    /// <see cref="SourceCitation.DateText"/> says it as the publisher names it, "September 2026 release (file V2)", and the
     /// day is never shown; AsOfUtc is the 1st of the release month (for ordering only).
     /// </summary>
     Release,

@@ -8,22 +8,23 @@ const string Usage = """
       DataTool fao        <zip>      --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool eia        <INTL.zip> --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool aqueduct   <zip>      --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool gem-power  <xlsx>     --release "<release>" --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool gem-oilgas <xlsx>     --release "<release>" --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool gem-steel  <plant-level xlsx> --release "<release>" --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool gem-power  <xlsx>     --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool gem-oilgas <xlsx>     --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool gem-steel  <plant-level xlsx> --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool simplify   <geojson> <tolerance in degrees> [--out <file>]
       DataTool describe   <xlsx>     [--sheet <name>] [--rows <n>] [--distinct <column>] [--header-row <n>]
       DataTool excerpt    <xlsx>     --take "<sheet>|<column>|<value;value...>"... --out <json>   (a sheet's first N rows: "<sheet>||N")
 
     --published: the source file's own date (its Last-Modified; for GEM, the 1st of the release month). --downloaded: the day
     it was downloaded (default: the file's modified date). --out: default data\datasets\<id> in the repository. --note: added
-    to the manifest's notes. --release: GEM's release as its citation words it ("September 2026 (V2) release").
+    to the manifest's notes. --release: GEM's release as its citation words it ("September 2026 release"); --file-version: a
+    version GEM gives only in the file's name ("V2"), kept out of the citation.
     """;
 
 if (args.Length < 2) { Console.Error.WriteLine(Usage); return 2; }
 var verb = args[0];
 var path = args[1];
-string? published = null, downloaded = null, output = null, sheet = null, distinct = null, release = null;
+string? published = null, downloaded = null, output = null, sheet = null, distinct = null, release = null, fileVersion = null;
 int sampleRows = 3, headerRow = 1;
 var notes = new List<string>();
 var takes = new List<string>();
@@ -38,6 +39,7 @@ for (int i = 2; i < args.Length; i++)
         case "--out": output = Next(); break;
         case "--note": notes.Add(Next()); break;
         case "--release": release = Next(); break;
+        case "--file-version": fileVersion = Next(); break;
         case "--take": takes.Add(Next()); break;
         case "--sheet": sheet = Next(); break;
         case "--distinct": distinct = Next(); break;
@@ -80,9 +82,9 @@ try
         if (release is null) { Console.Error.WriteLine(Usage); return 2; }
         PointExtract points = verb switch
         {
-            "gem-power" => GemExtractor.Power(src, release, codes),
-            "gem-oilgas" => GemExtractor.OilGas(src, release, codes),
-            "gem-steel" => GemExtractor.Steel(src, release, codes),
+            "gem-power" => GemExtractor.Power(src, release, codes, fileVersion: fileVersion),
+            "gem-oilgas" => GemExtractor.OilGas(src, release, codes, fileVersion: fileVersion),
+            "gem-steel" => GemExtractor.Steel(src, release, codes, fileVersion: fileVersion),
             _ => throw new ArgumentException($"unknown command \"{verb}\""),
         };
         if (notes.Count > 0) points = points with { Manifest = points.Manifest with { Notes = [.. points.Manifest.Notes, .. notes] } };

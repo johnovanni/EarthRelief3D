@@ -18,11 +18,11 @@ public class ResourceMarkersTests
     private static readonly DateTime Now = new(2026, 11, 24, 12, 0, 0, DateTimeKind.Utc);
 
     private static SourceCitation Release(string dataset, string release) =>
-        new("Global Energy Monitor", dataset, release, new Uri("https://globalenergymonitor.org/"), "CC BY 4.0", $"{dataset}, Global Energy Monitor, {release}.",
+        new("Global Energy Monitor", dataset, release, new Uri("https://globalenergymonitor.org/"), "CC BY 4.0", $"Global Energy Monitor, {dataset}, {release}.",
             new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2026, 11, 24, 0, 0, 0, DateTimeKind.Utc), CitationDate.Release) { DateText = release };
 
-    private static readonly SourceCitation PowerCite = Release("Global Integrated Power Tracker", "September 2026 (V2) release");
-    private static readonly SourceCitation OilCite = Release("Global Oil and Gas Extraction Tracker", "March 2026 Release");
+    private static readonly SourceCitation PowerCite = Release("Global Integrated Power Tracker", "September 2026 release (file V2)");
+    private static readonly SourceCitation OilCite = Release("Global Oil and Gas Extraction Tracker", "March 2026 release");
     private static readonly SourceCitation SteelCite = Release("Global Iron and Steel Tracker", "September 2026 (V1) release");
 
     /// <summary>The tooltip as one line (long ones are wrapped for the screen).</summary>
@@ -41,13 +41,13 @@ public class ResourceMarkersTests
     public void TooltipNamesPlantCapacityStatusAndRelease()
     {
         var plant = new MarkerPoint("Taichung power station", "TWN", 24.2131, 120.485, 5780, "MW", "operating", "coal");
-        Assert.Equal("Taichung power station · coal · 5,780 MW · operating · GEM Global Integrated Power Tracker, September 2026 (V2) release",
+        Assert.Equal("Taichung power station · coal · 5,780 MW · operating · GEM Global Integrated Power Tracker, September 2026 release (file V2)",
             OneLine(ResourceMarkers.Tooltip(MarkerLayer.PowerPlants, plant, PowerCite)));
         var small = plant with { Name = "Kosovo B power station", Capacity = 680 };
         Assert.Contains(" · 680 MW · ", ResourceMarkers.Tooltip(MarkerLayer.PowerPlants, small, PowerCite));
 
         var field = new MarkerPoint("Rumaila Oil Field (Iraq)", "IRQ", 30.59, 47.35, 518.3, "million boe/y", "operating", "oil", "oil 518 million bbl/y (2022)");
-        Assert.Equal("Rumaila Oil Field (Iraq) · oil · production: oil 518 million bbl/y (2022) · operating · GEM Global Oil and Gas Extraction Tracker, March 2026 Release",
+        Assert.Equal("Rumaila Oil Field (Iraq) · oil · production: oil 518 million bbl/y (2022) · operating · GEM Global Oil and Gas Extraction Tracker, March 2026 release",
             OneLine(ResourceMarkers.Tooltip(MarkerLayer.OilGasFields, field, OilCite)));
         var unmeasured = field with { Capacity = null, Unit = "", Detail = "" };
         Assert.Contains(" · no production figure in GEM's field data · ", OneLine(ResourceMarkers.Tooltip(MarkerLayer.OilGasFields, unmeasured, OilCite)));
@@ -57,6 +57,27 @@ public class ResourceMarkersTests
             + "GEM Global Iron and Steel Tracker, September 2026 (V1) release", OneLine(ResourceMarkers.Tooltip(MarkerLayer.SteelPlants, steel, SteelCite)));
         var taranto = steel with { Name = "Acciaierie d'Italia Taranto steel plant", Capacity = 7.8, Status = "operating pre-retirement" };
         Assert.Contains(" · 7.8 million tonnes of crude steel a year · operating pre-retirement · ", OneLine(ResourceMarkers.Tooltip(MarkerLayer.SteelPlants, taranto, SteelCite)));
+    }
+
+    [Fact]
+    public void AMultiFuelPlantListsEachFuelAndTakesItsLargestFuelsColour()
+    {
+        // Ruling R24: the tooltip names every fuel's MW, as the extract's types column has them; the colour is the largest's.
+        var synthetic = new MarkerPoint("Taichung power station", "TWN", 24.2131, 120.485, 5780, "MW", "operating", "coal", Types: "coal 5500 MW; oil/gas 280 MW");
+        Assert.Equal("Taichung power station · coal 5,500 MW, oil/gas 280 MW · 5,780 MW · operating · GEM Global Integrated Power Tracker, "
+            + "September 2026 release (file V2)", OneLine(ResourceMarkers.Tooltip(MarkerLayer.PowerPlants, synthetic, PowerCite)));
+        Assert.Equal("bioenergy 2,580 MW, oil/gas 96.5 MW", ResourceMarkers.FuelsText("bioenergy 2580 MW; oil/gas 96.5 MW"));
+
+        // The committed extract: Taichung is read with its types column (checked against the raw file: coal 5,500 MW and
+        // oil/gas 280 MW, 14 units) and drawn in the fossil colour.
+        var load = Committed(MarkerLayer.PowerPlants);
+        var taichung = Assert.Single(load.Points, p => p.Name == "Taichung power station");
+        Assert.Equal(("coal", 5780.0, "coal 5500 MW; oil/gas 280 MW"), (taichung.Type, taichung.Capacity!.Value, taichung.Types));
+        var item = Assert.Single(ResourceMarkers.For(MarkerLayer.PowerPlants, load)!.Items, i => i.Tooltip.StartsWith("Taichung power station ·", StringComparison.Ordinal));
+        Assert.StartsWith("Taichung power station · coal 5,500 MW, oil/gas 280 MW · 5,780 MW · operating · ", OneLine(item.Tooltip));
+        Assert.Equal(ResourceMarkers.FuelGroupColor(FuelGroup.Fossil), item.Color);
+        // A one-fuel plant names its fuel alone.
+        Assert.Equal("", Assert.Single(load.Points, p => p.Name == "Bruce nuclear power plant").Types);
     }
 
     [Fact]
@@ -115,20 +136,20 @@ public class ResourceMarkersTests
         }
         Assert.Equal(["power", "oilgas", "steel"], legend.Entries.Select(e => e.Id));
         var power = legend.Entries[0];
-        Assert.Equal("Power plants: operating plants of 500 MW or more (units summed per plant), coloured by fuel", power.Measures);
-        Assert.Equal("Global Energy Monitor, Global Integrated Power Tracker · September 2026 (V2) release", power.SourceLine);
+        Assert.Equal("Power plants: operating plants of 500 MW or more (units summed per plant), coloured by its largest fuel", power.Measures);
+        Assert.Equal("Global Energy Monitor, Global Integrated Power Tracker · September 2026 release (file V2)", power.SourceLine);
         // One key per fuel group, then the size classes.
         Assert.Equal(["fossil (coal, oil, gas)", "nuclear", "hydro", "wind or solar", "other (bioenergy, geothermal)",
             "under 1,000 MW", "1,000–2,499 MW", "2,500–4,999 MW", "5,000 MW or more"], power.Keys.Select(k => k.Label));
         Assert.True(power.Keys[5].Swatch < power.Keys[8].Swatch);
         // CC BY 4.0: GEM's citation, the licence's link, and what was changed.
-        Assert.Contains("Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release.", power.Note);
+        Assert.StartsWith("Global Energy Monitor, Global Integrated Power Tracker, September 2026 release. Licence:", power.Note);
         Assert.Contains("CC BY 4.0, https://creativecommons.org/licenses/by/4.0/", power.Note);
         Assert.Contains("Changed: filtered to operating plants of 500 MW or more", power.Note);
 
         var oil = legend.Entries[1];
         Assert.StartsWith("Oil and gas fields: operating fields with coordinates", oil.Measures);
-        Assert.Contains("Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026 Release.", oil.Note);
+        Assert.StartsWith("Global Energy Monitor, Global Oil and Gas Extraction Tracker, March 2026 release. Licence:", oil.Note);
         Assert.Empty(oil.Keys);
         var steel = legend.Entries[2];
         Assert.Equal("Global Energy Monitor, Global Iron and Steel Tracker · September 2026 (V1) release", steel.SourceLine);
@@ -184,7 +205,7 @@ public class ResourceMarkersTests
         Assert.All(ResourceMarkers.Datasets, d => Assert.NotEmpty(markers.Items(d.Layer)));
         var dot = ResourceMarkers.Status(loads);
         Assert.Equal((ResourceMarkers.DotName, FeedState.Ok), (dot.Name, dot.State));
-        Assert.Equal("power September 2026 (V2) release; oil and gas March 2026 Release; steel September 2026 (V1) release · " + BundledDataset.StatusNote, dot.Note);
+        Assert.Equal("power September 2026 release (file V2); oil and gas March 2026 release; steel September 2026 (V1) release · " + BundledDataset.StatusNote, dot.Note);
         Assert.Contains(ResourceMarkers.DotName, AppServices.StatusDotNames);
 
         // A missing extract leaves its layer "Data not loaded yet" (R2) and turns the dot amber, saying which.

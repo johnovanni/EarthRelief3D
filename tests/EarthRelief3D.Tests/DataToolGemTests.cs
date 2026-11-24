@@ -12,14 +12,14 @@ namespace EarthRelief3D.Tests;
 /// </summary>
 public class DataToolGemTests
 {
-    public const string PowerRelease = "September 2026 (V2) release";
-    public const string OilGasRelease = "March 2026 Release";
+    public const string PowerRelease = "September 2026 release";   // GEM's wording; "V2" is the file's only (R24)
+    public const string OilGasRelease = "March 2026 release";
     public const string SteelRelease = "September 2026 (V1) release";
 
     private static PointExtract Power(double minMw = GemExtractor.PowerMinMw, int max = GemExtractor.MaxMarkers)
     {
         using var dir = new TempDir();
-        return GemExtractor.Power(Gem(dir, "gem_power_excerpt.json", new DateOnly(2026, 9, 1)), PowerRelease, Codes, minMw, max);
+        return GemExtractor.Power(Gem(dir, "gem_power_excerpt.json", new DateOnly(2026, 9, 1)), PowerRelease, Codes, minMw, max, fileVersion: "V2");
     }
 
     private static PointExtract OilGas(int max = GemExtractor.MaxMarkers)
@@ -143,7 +143,7 @@ public class DataToolGemTests
             int ids = Array.IndexOf(rows[0], "Other IDs (unit/phase)"), name = Array.IndexOf(rows[0], "Plant / Project name"), unit = Array.IndexOf(rows[0], "Unit / Phase name");
             rows.Single(r => r[name] as string == "Kitka wind farm" && r[unit] is 2.0)[ids] = "WKSL: 1,TZ: 999999";
         });
-        var e = GemExtractor.Power(src, PowerRelease, Codes, minMw: 1);
+        var e = GemExtractor.Power(src, PowerRelease, Codes, minMw: 1, fileVersion: "V2");
         Assert.DoesNotContain(e.Rows, r => r.Name == "Kitka wind farm");
         Assert.Contains(e.Rows, r => r.Name == "Bajgora wind farm" && r.Capacity == 103);
         Assert.Contains(e.Rows, r => r.Name == "Ujmani hydroelectric plant" && r.Capacity == 35);
@@ -177,9 +177,9 @@ public class DataToolGemTests
     public void ManifestCreditsGemWithItsLicenceAndTheChanges()
     {
         var power = Power().Manifest;
-        Assert.Equal("Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release.", power.Attribution);
+        Assert.Equal("Global Energy Monitor, Global Integrated Power Tracker, September 2026 release.", power.Attribution);   // the About sheet's, verbatim (R24)
         Assert.Equal(("Global Energy Monitor", "CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"), (power.Publisher, power.Licence, power.LicenceUrl));
-        Assert.Equal(("Release", PowerRelease), (power.DateMeaning, power.DateText));
+        Assert.Equal(("Release", "September 2026 release (file V2)", "September 2026 release, file V2"), (power.DateMeaning, power.DateText, power.Version));
         Assert.Equal("filtered to operating plants of 500 MW or more (units summed per plant); operating units summed per plant; "
             + "plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out", power.Changes);
         Assert.Contains(power.Notes, n => n.StartsWith("Licence: CC BY 4.0", StringComparison.Ordinal) && n.Contains("Changed by EarthRelief3D"));
@@ -188,9 +188,9 @@ public class DataToolGemTests
         Assert.Contains(power.Notes, n => n.StartsWith("About sheet: Copyright © Global Energy Monitor.", StringComparison.Ordinal));
         Assert.Equal("2026-09-01", power.Published);
 
-        Assert.Equal("Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026 Release.", OilGas().Manifest.Attribution);
+        Assert.Equal("Global Energy Monitor, Global Oil and Gas Extraction Tracker, March 2026 release.", OilGas().Manifest.Attribution);
         var steel = Steel().Manifest;
-        Assert.Equal("Global Iron and Steel Tracker, Global Energy Monitor, September 2026 (V1) release.", steel.Attribution);
+        Assert.Equal("Global Energy Monitor, Global Iron and Steel Tracker, September 2026 (V1) release.", steel.Attribution);
         Assert.DoesNotContain(steel.Notes, n => n.StartsWith("Release:", StringComparison.Ordinal));   // the workbook names (V1)
         Assert.Contains("converted from thousand to million tonnes a year", steel.Changes);
     }
@@ -214,7 +214,7 @@ public class DataToolGemTests
         var load = BundledPoints.Load("GEM", dir.File("gem-power"), null, new ListLog());
         Assert.True(load.Loaded, load.Problem);
         Assert.Equal(e.Rows.Select(r => (r.Name, r.Iso3, r.Lat, r.Lon, r.Capacity)), load.Points.Select(p => (p.Name, p.Iso3, p.Lat, p.Lon, p.Capacity)));
-        Assert.Equal(PowerRelease, load.Citation!.DateText);
+        Assert.Equal("September 2026 release (file V2)", load.Citation!.DateText);
         Assert.Equal(Core.Model.CitationDate.Release, load.Citation.DateMeaning);
 
         // A code the boundary set lacks is not drawn and is listed as not placed, with how many sites.

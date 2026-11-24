@@ -63,8 +63,12 @@ public static class GemExtractor
     /// <summary>GEM's statuses counted as operating: "operating", and for steel "operating pre-retirement" (still producing).</summary>
     public static bool IsOperating(string status) => status is "operating" or "operating pre-retirement";
 
-    /// <summary>The citation GEM recommends: the release is as GEM words it in citations ("September 2026 (V2) release", "March 2026 Release").</summary>
-    public static string Citation(string dataset, string release) => $"{dataset}, {Publisher}, {release}.";
+    /// <summary>
+    /// GEM's recommended citation, publisher first, with the release as GEM words it ("Global Energy Monitor, Global
+    /// Integrated Power Tracker, September 2026 release."; ruling R24). A version GEM gives only in the file's name (power's
+    /// "V2") is not part of it: it goes in the manifest's version and date text ("September 2026 release (file V2)").
+    /// </summary>
+    public static string Citation(string dataset, string release) => $"{Publisher}, {dataset}, {release}.";
 
     // ------------------------------------------------------------------------------------------------ power
 
@@ -86,12 +90,13 @@ public static class GemExtractor
     /// A plant with any unit whose "Other IDs (unit/phase)" has a TransitionZero id ("TZ: …", Solar Asset Mapper,
     /// CC BY-NC 4.0, per the workbook's About sheet) is left out whole (ruling R22: non-commercial data is never bundled, C6).
     /// </summary>
-    public static PointExtract Power(SourceFile src, string release, CountryCodes codes, double minMw = PowerMinMw, int maxMarkers = MaxMarkers)
+    public static PointExtract Power(SourceFile src, string release, CountryCodes codes, double minMw = PowerMinMw, int maxMarkers = MaxMarkers,
+        string? fileVersion = null)
     {
         ArgumentNullException.ThrowIfNull(src);
         ArgumentNullException.ThrowIfNull(codes);
         const string Source = "GEM power";
-        var about = CheckAbout(src, release, Source);
+        var about = CheckAbout(src, release, fileVersion, Source);
         var isoByName = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var r in GemWorkbook.Rows(src.Path, PowerCountrySheet, ["GEM Standard Country Name/Area", "ISO-alpha3 Code"], Source))
             if (r.Text("ISO-alpha3 Code") is { Length: 3 } iso) isoByName.TryAdd(r.Text("GEM Standard Country Name/Area"), iso);
@@ -185,7 +190,7 @@ public static class GemExtractor
         notes.Add("Country/area names map to ISO3 through the workbook's own \"Regions, area, and countries\" sheet (ISO-alpha3 Code), then the app's country names.");
         notes.Add("Check: largest plants: " + string.Join("; ", outRows.Take(5).Select(r => string.Create(CultureInfo.InvariantCulture,
             $"{r.Name} ({r.Iso3}, {r.Type}) {r.Capacity:N0} MW"))) + ".");
-        return new PointExtract(Manifest(src, release, PowerFolder, PowerDataset, PowerPage, PowerDownload, "gem-power", filter,
+        return new PointExtract(Manifest(src, release, fileVersion, PowerFolder, PowerDataset, PowerPage, PowerDownload, "gem-power", filter,
             $"filtered to {filter}; operating units summed per plant; plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out",
             new ManifestSeries("gem.power", "Power plants: " + filter, "MW",
                 $"{PowerSheet}: Capacity (MW) of units with Status \"operating\", summed by GEM location ID", outRows.Select(r => r.Iso3).Distinct().Count()),
@@ -274,12 +279,12 @@ public static class GemExtractor
     /// are left out, the threshold raised from <see cref="OilGasStepBoe"/> in steps of it; fields with no production figure
     /// stay (ruling R23).
     /// </summary>
-    public static PointExtract OilGas(SourceFile src, string release, CountryCodes codes, int maxMarkers = MaxMarkers)
+    public static PointExtract OilGas(SourceFile src, string release, CountryCodes codes, int maxMarkers = MaxMarkers, string? fileVersion = null)
     {
         ArgumentNullException.ThrowIfNull(src);
         ArgumentNullException.ThrowIfNull(codes);
         const string Source = "GEM oil and gas";
-        var about = CheckAbout(src, release, Source);
+        var about = CheckAbout(src, release, fileVersion, Source);
         var statuses = new Dictionary<string, int>(StringComparer.Ordinal);
         var flags = new Dictionary<string, int>(StringComparer.Ordinal);
         var production = Production(src.Path, ReleaseYear(release), flags, Source);
@@ -357,7 +362,7 @@ public static class GemExtractor
         notes.Add("Check: largest fields: " + string.Join("; ", outRows.Take(5).Select(r => $"{r.Name} ({r.Iso3}) {r.Extra["detail"]}")) + ".");
         var changes = threshold == 0 ? $"filtered to {filter}"
             : $"filtered to {filter} (each fuel's newest reported year, summed; gas converted at 6,000 cubic feet per barrel of oil equivalent)";
-        return new PointExtract(Manifest(src, release, OilGasFolder, OilGasDataset, OilGasPage, OilGasDownload, "gem-oilgas", filter, changes,
+        return new PointExtract(Manifest(src, release, fileVersion, OilGasFolder, OilGasDataset, OilGasPage, OilGasDownload, "gem-oilgas", filter, changes,
             new ManifestSeries("gem.oilgas", "Oil and gas fields: " + filter, threshold == 0 ? "" : "million boe/y",
                 $"{OilGasSheet}: fields with Status \"operating\" and a Latitude and Longitude; {OilGasProductionSheet}: newest Quantity (converted) per fuel",
                 outRows.Select(r => r.Iso3).Distinct().Count()),
@@ -372,12 +377,13 @@ public static class GemExtractor
     /// plant ID to "Plant capacities and status": a plant's Nominal crude steel capacity (ttpa) summed over its rows whose
     /// Status is operating (or operating pre-retirement), in million tonnes a year; plants of <paramref name="minMt"/> or more.
     /// </summary>
-    public static PointExtract Steel(SourceFile src, string release, CountryCodes codes, double minMt = SteelMinMt, int maxMarkers = MaxMarkers)
+    public static PointExtract Steel(SourceFile src, string release, CountryCodes codes, double minMt = SteelMinMt, int maxMarkers = MaxMarkers,
+        string? fileVersion = null)
     {
         ArgumentNullException.ThrowIfNull(src);
         ArgumentNullException.ThrowIfNull(codes);
         const string Source = "GEM steel";
-        var about = CheckAbout(src, release, Source);
+        var about = CheckAbout(src, release, fileVersion, Source);
         var info = new Dictionary<string, SheetRow>(StringComparer.Ordinal);
         foreach (var r in GemWorkbook.Rows(src.Path, SteelPlantSheet, SteelPlantColumns, Source))
             if (!info.TryAdd(r.Text("GEM plant ID"), r)) throw new InvalidDataException($"{Source}: plant {r.Text("GEM plant ID")} is listed twice in \"{SteelPlantSheet}\"");
@@ -453,7 +459,7 @@ public static class GemExtractor
         notes.Add(string.Create(CultureInfo.InvariantCulture, $"Check: {kept.Count(kv => kv.Value.Rows > 1)} kept plants have more than one operating row."));
         notes.Add("Check: largest plants: " + string.Join("; ", outRows.Take(5).Select(r => string.Create(CultureInfo.InvariantCulture,
             $"{r.Name} ({r.Iso3}) {r.Capacity:0.##} Mt/yr"))) + ".");
-        return new PointExtract(Manifest(src, release, SteelFolder, SteelDataset, SteelPage, SteelDownload, "gem-steel", filter,
+        return new PointExtract(Manifest(src, release, fileVersion, SteelFolder, SteelDataset, SteelPage, SteelDownload, "gem-steel", filter,
             $"filtered to {filter}; a plant's operating crude steel capacities summed and converted from thousand to million tonnes a year",
             new ManifestSeries("gem.steel", "Steel plants: " + filter, "Mt/yr",
                 $"{SteelCapacitySheet}: Nominal crude steel capacity (ttpa) of rows with Status \"operating\" or \"operating pre-retirement\", summed by GEM plant ID",
@@ -489,13 +495,16 @@ public static class GemExtractor
         return t;
     }
 
-    /// <summary>The release's year: "March 2026 Release" to 2026.</summary>
+    /// <summary>The release as the screen dates it: GEM's wording, then a file-only version ("September 2026 release (file V2)").</summary>
+    public static string DateText(string release, string? fileVersion) => fileVersion is null ? release : $"{release} (file {fileVersion})";
+
+    /// <summary>The release's year: "March 2026 release" to 2026.</summary>
     public static int ReleaseYear(string release) =>
         release.Split(' ', StringSplitOptions.RemoveEmptyEntries) is [_, var y, ..] && int.TryParse(y, NumberStyles.None, CultureInfo.InvariantCulture, out var year)
             ? year : throw new ArgumentException($"the release \"{release}\" does not start with a month and a year");
 
     /// <summary>The About sheet: the release must be named there (its month and year), and its copyright and licence lines are kept.</summary>
-    private static List<string> CheckAbout(SourceFile src, string release, string source)
+    private static List<string> CheckAbout(SourceFile src, string release, string? fileVersion, string source)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(release);
         var cells = GemWorkbook.Cells(src.Path, "About", source);
@@ -504,7 +513,7 @@ public static class GemExtractor
         if (words.Length < 2 || !cells.Any(c => c.Contains(monthYear, StringComparison.Ordinal)))
             throw new InvalidDataException($"{source}: the About sheet does not name the release \"{monthYear}\" (is this the right file?)");
         var notes = new List<string>();
-        var version = words.FirstOrDefault(w => w.StartsWith("(V", StringComparison.Ordinal));
+        var version = fileVersion is null ? words.FirstOrDefault(w => w.StartsWith("(V", StringComparison.Ordinal)) : $"({fileVersion})";
         if (version is not null && !cells.Any(c => c.Contains($"{monthYear} {version}", StringComparison.Ordinal)))
             notes.Add($"Release: the workbook names \"{monthYear}\" without \"{version}\"; the version is the file name's ({src.FileName}).");
         foreach (var c in cells.Where(c => c.StartsWith("Copyright", StringComparison.Ordinal) || c.StartsWith("Recommended Citation", StringComparison.Ordinal)
@@ -517,7 +526,7 @@ public static class GemExtractor
         [.. unresolved.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => new ManifestCode(kv.Key, kv.Key, string.Create(CultureInfo.InvariantCulture,
             $"no unit in the boundary set for this Country/area: {kv.Value.Sites} {what}{(unit is null ? "" : $" ({kv.Value.Total:N0} {unit})")} not drawn")))];
 
-    private static DatasetManifest Manifest(SourceFile src, string release, string folder, string dataset, string page, string download, string verb,
+    private static DatasetManifest Manifest(SourceFile src, string release, string? fileVersion, string folder, string dataset, string page, string download, string verb,
         string filter, string changes, ManifestSeries series, IReadOnlyList<ManifestCode> notPlaced, IReadOnlyList<ManifestCode> dropped,
         Dictionary<string, int> statuses, Dictionary<string, int> flags, Dictionary<string, int> types, List<string> notes)
     {
@@ -531,20 +540,20 @@ public static class GemExtractor
             Id = folder,
             Publisher = Publisher,
             Dataset = dataset,
-            Version = release,
+            Version = fileVersion is null ? release : $"{release}, file {fileVersion}",
             SourceUrl = download,
             PageUrl = page,
             Licence = Licence,
             LicenceUrl = LicenceUrl,
             Attribution = citation,
             DateMeaning = "Release",
-            DateText = release,
-            AsOf = $"{dataset}, {release}: the status GEM recorded for that release",
+            DateText = DateText(release, fileVersion),
+            AsOf = $"{dataset}, {DateText(release, fileVersion)}: the status GEM recorded for that release",
             Published = src.Published.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Downloaded = src.Downloaded.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             FileName = src.FileName,
             FileSha256 = src.Sha256(),
-            Command = $"DataTool {verb} \"<downloads>/{src.FileName}\" --release \"{release}\" --published {src.Published:yyyy-MM-dd} --downloaded {src.Downloaded:yyyy-MM-dd}",
+            Command = $"DataTool {verb} \"<downloads>/{src.FileName}\" --release \"{release}\"{(fileVersion is null ? "" : $" --file-version {fileVersion}")} --published {src.Published:yyyy-MM-dd} --downloaded {src.Downloaded:yyyy-MM-dd}",
             Series = [series],
             NotPlaced = notPlaced,
             Dropped = dropped,
