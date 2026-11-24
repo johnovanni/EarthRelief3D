@@ -24,8 +24,11 @@ public sealed record IndicatorSnapshot(IReadOnlyDictionary<string, IndicatorSeri
     public bool Equals(IndicatorSnapshot? o)
     {
         if (o is null) return false;
+        if (ReferenceEquals(this, o)) return true;
+        // The needs first (C6): the same series dictionary must not hide a change in the needs rows.
+        if (!ListEquality.Equal(Needs, o.Needs)) return false;
         if (ReferenceEquals(Series, o.Series)) return true;
-        if (Series.Count != o.Series.Count || !ListEquality.Equal(Needs, o.Needs)) return false;
+        if (Series.Count != o.Series.Count) return false;
         foreach (var (id, s) in Series)
             if (!o.Series.TryGetValue(id, out var t) || !s.Equals(t)) return false;
         return true;
@@ -96,6 +99,20 @@ public sealed class IndicatorStore
             if (ListEquality.Equal(s.Needs, needs) && s.Get(series.Id) is { } old && old.Equals(series)) return null;
             var all = new Dictionary<string, IndicatorSeries>(s.Series, StringComparer.Ordinal) { [series.Id] = series };
             return new IndicatorSnapshot(all, [.. needs]);
+        });
+    }
+
+    /// <summary>Takes these series out (a bundled extract that did not load, C5); false when none of them was there.</summary>
+    public bool Remove(IEnumerable<string> seriesIds)
+    {
+        ArgumentNullException.ThrowIfNull(seriesIds);
+        var ids = seriesIds.ToList();
+        return _store.Write(s =>
+        {
+            if (!ids.Any(s.Series.ContainsKey)) return null;
+            var all = new Dictionary<string, IndicatorSeries>(s.Series, StringComparer.Ordinal);
+            foreach (var id in ids) all.Remove(id);
+            return s with { Series = all };
         });
     }
 

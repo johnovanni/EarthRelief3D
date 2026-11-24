@@ -439,6 +439,11 @@ public class AppStartupTests
         rig.Vm.Layers.ShowFood = true;
         Assert.False(water.IsVisible);
         Assert.True(food.IsVisible);
+        // C1: a hidden shading lets its image go (a 4096×2048 image is about 32 MB), and builds it again when shown.
+        Assert.Null(water.Current);
+        rig.Vm.Layers.Shading = ShadingLayer.Water;
+        await StaAsync.WaitUntil(() => water.Current is not null && host.IsComposeIdle);
+        Assert.NotNull(water.Current);
     });
 
     private sealed class BindingErrors : System.Diagnostics.TraceListener

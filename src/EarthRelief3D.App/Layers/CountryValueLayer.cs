@@ -65,6 +65,18 @@ public sealed class CountryValueLayer : ImageLayer, IPickable
         _sta = sta ?? throw new ArgumentNullException(nameof(sta));
         _log = log ?? throw new ArgumentNullException(nameof(log));
         _isClosed = isClosed ?? throw new ArgumentNullException(nameof(isClosed));
+        // C1: a hidden shading lets its image go (a 4096×2048 BGRA image is about 32 MB); shown again, the next compose
+        // builds it anew (the key no longer matches).
+        PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(IsVisible) && !IsVisible) Release();
+        };
+    }
+
+    private void Release()
+    {
+        _current = null;
+        _builtKey = null;
     }
 
     public ShadingLayer Which { get; }
@@ -172,6 +184,7 @@ public sealed class CountryValueLayer : ImageLayer, IPickable
             var countries = _countries.Index;
             var image = plan.Count == 0 ? null : await _sta.InvokeAsync(() => Rasterize(plan, countries, w, h));
             if (_isClosed()) return;
+            if (!IsVisible) { Release(); return; }   // hidden while it was drawn: do not keep it
             _current = image is null ? null : new BitmapBlendLayer(image, Pass, ImageOrder);
             _builtKey = key;
         }

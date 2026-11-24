@@ -30,14 +30,38 @@ public sealed class AppServices : IDisposable
 
     /// <summary>
     /// The bundled extracts (Task 6, P3-10) in <c>data\datasets</c>: each one's status dot name (the layer's source name,
-    /// <see cref="LayerCatalog.SourceName(ShadingLayer)"/>) and folder. They are loaded once at start and change only with the app.
+    /// <see cref="LayerCatalog.SourceName(ShadingLayer)"/>), folder and the series it provides (its manifest's, so a failed
+    /// load can take the last run's copy out: C5). They are loaded once at start and change only with the app.
     /// </summary>
-    public static IReadOnlyList<(string Name, string Folder)> BundledDatasets { get; } =
+    public static IReadOnlyList<(string Name, string Folder, IReadOnlyList<string> SeriesIds)> BundledDatasets { get; } =
     [
-        (LayerCatalog.SourceName(ShadingLayer.Hunger), "fao-food-security"),
-        (LayerCatalog.SourceName(ShadingLayer.OilProduction), "eia-crude-oil"),
-        (LayerCatalog.SourceName(ShadingLayer.WaterStress), "aqueduct-water-stress"),
+        (LayerCatalog.SourceName(ShadingLayer.Hunger), "fao-food-security", [LayerCatalog.SeriesId(ShadingLayer.Hunger), CountryPanelViewModel.EnergyAdequacySeries]),
+        (LayerCatalog.SourceName(ShadingLayer.OilProduction), "eia-crude-oil", [LayerCatalog.SeriesId(ShadingLayer.OilProduction)]),
+        (LayerCatalog.SourceName(ShadingLayer.WaterStress), "aqueduct-water-stress", [LayerCatalog.SeriesId(ShadingLayer.WaterStress)]),
     ];
+
+    /// <summary>
+    /// Puts the bundled extracts' series in the store (replacing the last run's copies) and their codes not placed on the
+    /// map in the crisis store's list. An extract that did not load shows nothing (C5): its series are taken out of the
+    /// store, so the map, the legend and the panel say "Data not loaded yet", as its amber dot and the log do, rather than
+    /// drawing an older cached copy under a dot that says it is not loaded.
+    /// </summary>
+    public static void ApplyBundled(IndicatorStore indicators, CrisisStore store,
+        IReadOnlyList<(BundledDatasetLoad Load, IReadOnlyList<string> SeriesIds)> bundled, IAppLog log)
+    {
+        ArgumentNullException.ThrowIfNull(indicators);
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(bundled);
+        ArgumentNullException.ThrowIfNull(log);
+        indicators.ReplaceAll([.. bundled.SelectMany(b => b.Load.Series)]);
+        foreach (var (load, ids) in bundled.Where(b => !b.Load.Loaded))
+            if (indicators.Remove(ids))
+                log.Info($"{load.Name}: the last run's copy of {string.Join(", ", ids)} is not shown either; its layers say \"{LayerCatalog.NotLoaded}\"");
+        foreach (var (b, _) in bundled)
+            store.ReplaceUnplaced(b.Name, b.Loaded && b.Newest is { } cite
+                ? [.. b.NotPlaced.Select(n => new UnplacedReport(b.Name, $"{b.Name} figures for {n.Code} ({n.Name})", n.Reason, cite))]
+                : []);
+    }
 
     /// <summary>The status dots: the feeds' (<see cref="FeedNames"/>), then the bundled datasets'.</summary>
     public static IReadOnlyList<string> StatusDotNames { get; } = [.. FeedNames, .. BundledDatasets.Select(d => d.Name)];
@@ -119,14 +143,11 @@ public sealed class AppServices : IDisposable
         }
 
         // Task 6: the bundled extracts (FAO, EIA, WRI) replace any cached copy of their series; one that is missing or
-        // broken is logged, its dot turns amber and its layers say "Data not loaded yet" (the cached copy, if any, stays).
-        var bundled = BundledDatasets.Select(d => BundledDataset.Load(d.Name, Path.Combine(BundledDataset.DatasetsDir, d.Folder),
-            iso => countries.ByIso3(iso) is not null, log)).ToList();
-        indicators.ReplaceAll([.. bundled.SelectMany(b => b.Series)]);
-        foreach (var b in bundled)
-            store.ReplaceUnplaced(b.Name, b.Loaded && b.Newest is { } cite
-                ? [.. b.NotPlaced.Select(n => new UnplacedReport(b.Name, $"{b.Name} figures for {n.Code} ({n.Name})", n.Reason, cite))]
-                : []);
+        // broken is logged, its dot turns amber and its layers say "Data not loaded yet" (C5: its cached copy is taken out).
+        var loads = BundledDatasets.Select(d => (BundledDataset.Load(d.Name, Path.Combine(BundledDataset.DatasetsDir, d.Folder),
+            iso => countries.ByIso3(iso) is not null, log), d.SeriesIds)).ToList();
+        ApplyBundled(indicators, store, loads, log);
+        var bundled = loads.Select(l => l.Item1).ToList();
 
         // P3-2: the IPC areas, an extra step of the IPC feed (its status dot): it needs the national records just stored, and
         // a country whose areas cannot be had keeps the 20% rule without failing the national figures. The areas of the last

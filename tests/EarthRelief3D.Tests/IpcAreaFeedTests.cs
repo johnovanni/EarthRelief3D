@@ -284,11 +284,47 @@ public class IpcAreaFeedTests
         var sw = System.Diagnostics.Stopwatch.StartNew();
         await feed.RunAsync(three, CancellationToken.None);
         Assert.True(sw.Elapsed >= TimeSpan.FromMilliseconds(290), $"took {sw.Elapsed.TotalMilliseconds} ms");   // two pauses for three countries
-        // Remembered (12 h): the second run asks nobody, so it does not wait.
-        sw.Restart();
+        // Remembered (12 h): the second run asks nobody (so it has nothing to wait between). No wall-clock bound here: it
+        // could flake on a busy machine (final fix wave D4); the request count shows it.
         await feed.RunAsync(three, CancellationToken.None);
-        Assert.True(sw.Elapsed < TimeSpan.FromMilliseconds(150), $"took {sw.Elapsed.TotalMilliseconds} ms");
         Assert.Equal(3, h.Requests.Count);
+    }
+
+    [Fact]
+    public async Task ARejectedCountryIsRememberedAcrossRestarts()
+    {
+        // C3: a GeoJSON downloaded and turned down (here: projection areas only) is not downloaded again by the next start
+        // under the same analysis until its retry time; the rejection is saved in cache\ipc-areas with its key and time.
+        var dir = Path.Combine(Path.GetTempPath(), "er3d-ipcrej-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var clock = new FixedClock(Now);
+            var geojson = Samples.Text("ipc_nga.geojson");   // all P areas: downloaded, then turned down
+            var (feed, store, _, h) = Make(geojson: geojson, cacheDir: dir, clock: clock);
+            await feed.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+            Assert.Empty(store.Snapshot.IpcAreas);
+            Assert.Equal(1, Requests(h, IpcAreaFixture.GeoJsonUrl));
+            Assert.True(File.Exists(Path.Combine(dir, IpcAreaFeed.CacheFolder, "NGA.rejected.json")));
+
+            // A restart (a new feed on the same cache folder) an hour later: nothing is asked.
+            clock.UtcNow = Now.AddHours(1);
+            var (again, _, log2, h2) = Make(geojson: geojson, cacheDir: dir, clock: clock);
+            await again.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+            Assert.Empty(h2.Requests);
+            Assert.Contains(log2.Lines, l => l.Contains("NGA keeps the 20% rule") && l.Contains("turned down"));
+
+            // A new national analysis is asked about at once.
+            var (other, _, _, h3) = Make(geojson: geojson, cacheDir: dir, clock: clock);
+            await other.RunAsync([IpcAreaFixture.National(version: "Sep 2026")], CancellationToken.None);
+            Assert.NotEmpty(h3.Requests);
+
+            // After the retry time (a day for a downloaded GeoJSON), the same analysis is asked again.
+            clock.UtcNow = Now.Add(IpcAreaFeed.RetryRejectedAfter);
+            var (later, _, _, h4) = Make(geojson: geojson, cacheDir: dir, clock: clock);
+            await later.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+            Assert.Equal(1, Requests(h4, IpcAreaFixture.GeoJsonUrl));
+        }
+        finally { if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true); }
     }
 
     [Fact]
@@ -377,6 +413,25 @@ public class IpcAreaFeedTests
             url.AbsoluteUri);
         Assert.Equal("ipc_nga.geojson", IpcAreaReader.GeoJsonName("NGA"));
         Assert.Equal("ipc_nga_national_long_latest.csv", IpcAreaReader.NationalCsvName("NGA"));
+    }
+
+    [Fact]
+    public void AFeatureWithoutCoordinatesIsCountedUnreadableAndTheRestAreRead()
+    {
+        // C2: a Polygon with no "coordinates" (or a point with one number) is one unreadable feature, not the end of the run.
+        var geojson = IpcAreaFixture.CurrentGeoJson(fs =>
+        {
+            var areas = fs.Where(f => (string?)f!["geometry"]!["type"] is "Polygon" or "MultiPolygon").ToList();
+            areas[0]!["geometry"] = JsonNode.Parse("""{"type":"Polygon"}""");
+            areas[1]!["geometry"] = JsonNode.Parse("""{"type":"Polygon","coordinates":[[[3],[4,5],[6,7],[3,4]]]}""");
+        });
+        var all = IpcAreaFixture.CurrentGeoJson();
+        var period = new IpcAreaReader.Period("Mar 2026", IpcAreaFixture.From, IpcAreaFixture.To);
+        var whole = IpcAreaReader.Read(System.Text.Encoding.UTF8.GetBytes(all), "NGA", period, TestData.Cite("IPC"));
+        var file = IpcAreaReader.Read(System.Text.Encoding.UTF8.GetBytes(geojson), "NGA", period, TestData.Cite("IPC"));
+        Assert.Equal(whole.Unreadable + 2, file.Unreadable);
+        Assert.Equal(whole.Current.Count - 2, file.Current.Count);
+        Assert.NotEmpty(file.Current);
     }
 
     [Fact]

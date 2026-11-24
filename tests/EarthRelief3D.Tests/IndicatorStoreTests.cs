@@ -36,6 +36,20 @@ public class IndicatorStoreTests
     }
 
     [Fact]
+    public void SnapshotsWithTheSameSeriesButOtherNeedsDiffer()
+    {
+        // C6: the series dictionary being the same object must not hide a change in the needs rows.
+        var series = new Dictionary<string, IndicatorSeries>(StringComparer.Ordinal) { ["gho.water"] = Water() };
+        var need = new HumanitarianNeed("SDN", "ALL", 51_700_000, 33_699_770, 20_419_163, 2026, CountryValueLayerTests.Gho);
+        var a = new IndicatorSnapshot(series, [need]);
+        var b = new IndicatorSnapshot(series, []);
+        Assert.NotEqual(a, b);
+        Assert.False(a.Equals(b));
+        Assert.True(a.Equals(new IndicatorSnapshot(series, [need])));
+        Assert.True(a.Equals(a));
+    }
+
+    [Fact]
     public void SeriesCompareByValue()
     {
         Assert.Equal(Water(), Water());

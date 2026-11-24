@@ -14,7 +14,7 @@ public class ResourcesPanelTests
     private static IndicatorStore Bundled()
     {
         var store = new IndicatorStore();
-        foreach (var (name, folder) in App.Services.AppServices.BundledDatasets)
+        foreach (var (name, folder, _) in App.Services.AppServices.BundledDatasets)
             store.ReplaceAll(BundledDataset.Load(name, Path.Combine(BundledDataset.DatasetsDir, folder), null, new ListLog()).Series);
         return store;
     }

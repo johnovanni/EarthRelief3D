@@ -166,7 +166,10 @@ public static class IpcAreaReader
                 }
                 List<GeoPolygon> polygons;
                 try { polygons = Polygons(geom, type); }
-                catch (Exception e) when (e is ArgumentException or InvalidOperationException or FormatException) { unreadable++; continue; }
+                // A geometry with no "coordinates" (KeyNotFound) or a short position (IndexOutOfRange) is one unreadable
+                // feature: counted, and the rest of the file is read (final fix wave C2).
+                catch (Exception e) when (e is ArgumentException or InvalidOperationException or FormatException or KeyNotFoundException
+                                              or IndexOutOfRangeException) { unreadable++; continue; }
                 if (polygons.Count == 0) { unreadable++; continue; }
                 var id = Text(props, "anl_id") ?? (props.TryGetProperty("anl_id", out var n) && n.ValueKind == JsonValueKind.Number ? n.GetRawText() : "");
                 if (!ids.Contains(id)) ids.Add(id);

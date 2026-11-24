@@ -149,6 +149,36 @@ public class BundledDatasetTests
         Assert.Contains(log.Lines, l => l.StartsWith("WARN FAO", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void ABundledExtractThatFailsShowsNothingNotTheCachedCopy()
+    {
+        // C5: the last run's cached copy of a bundled series must not keep drawing while the dot is amber and the log says
+        // "Data not loaded yet": the series is taken out of the store, so the map, legend and panel all say so.
+        using var dir = new TempDir();
+        var indicators = new Core.Store.IndicatorStore();
+        var cite = TestData.Cite("World Resources Institute");
+        indicators.Replace("wri.bws", new IndicatorSeries("wri.bws", "Baseline water stress", "category", [new CountryValue("IRQ", 4, 2019, cite)]));
+        indicators.Replace("eia.crudeOil", new IndicatorSeries("eia.crudeOil", "Crude oil", "thousand barrels per day", [new CountryValue("IRQ", 4000, 2024, cite)]));
+        var log = new ListLog();
+        var failed = BundledDataset.Load("WRI Aqueduct", dir.File("aqueduct-water-stress"), Placed, log);   // not there
+        var loaded = BundledDataset.Load("FAO", Folder(dir), Placed, log);
+        Assert.False(failed.Loaded);
+
+        App.Services.AppServices.ApplyBundled(indicators, new Core.Store.CrisisStore(),
+            [(failed, ["wri.bws"]), (loaded, ["fao.undernourishment", "fao.energyAdequacy"])], log);
+        Assert.Null(indicators.Snapshot.Get("wri.bws"));
+        Assert.NotNull(indicators.Snapshot.Get("eia.crudeOil"));   // not this extract's: untouched
+        Assert.NotNull(indicators.Snapshot.Get("fao.undernourishment"));
+        Assert.Contains(log.Lines, l => l.Contains("WRI Aqueduct") && l.Contains("Data not loaded yet"));
+    }
+
+    [Fact]
+    public void TheBundledSeriesIdsAreTheManifests()
+    {
+        foreach (var (name, folder, ids) in App.Services.AppServices.BundledDatasets)
+            Assert.Equal(Committed(name, folder).Series.Select(s => s.Id), ids);
+    }
+
     // ---------------------------------------------------------------- the committed extracts (hand checks, pinned)
 
     private static BundledDatasetLoad Committed(string name, string folder)

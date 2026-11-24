@@ -20,7 +20,9 @@ namespace EarthRelief3D.Core.Feeds;
 /// A country's files are downloaded again only when its national analysis (date of analysis and period) changes: an
 /// accepted set is kept in memory and, with <c>cacheDir</c>, on disk (<c>ipc-areas\&lt;ISO3&gt;.geojson</c> and
 /// <c>.json</c>), so a restart, offline too, shows the areas without a download. A GeoJSON that was downloaded and turned
-/// down is tried again after <see cref="RetryRejectedAfter"/>; a failed download is tried at the next run.
+/// down is tried again after <see cref="RetryRejectedAfter"/>; a failed download is tried at the next run. A turned-down
+/// country is remembered on disk as well (<c>ipc-areas\&lt;ISO3&gt;.rejected.json</c>: the analysis key, when, how long,
+/// and why), so a restart does not ask again before its retry time.
 /// </para>
 /// <para>
 /// Not a feed of its own: <see cref="IpcNationalFeed"/> runs it right after it has stored the national records, which it
@@ -138,6 +140,15 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
                 log.Info($"{LogName}: {iso3} from the cache ({cached.Areas.Count} areas, analysis {cached.AnalysisId})");
                 continue;
             }
+            // C3: turned down under this analysis by an earlier run, and not yet due again: nothing is downloaded.
+            if (ReadRejection(iso3, key, now) is { } rejected)
+            {
+                lock (_gate) _entries[iso3] = new Entry(key, null, rejected.RejectedUtc, rejected.RetryAfter);
+                kept.Add(iso3);
+                log.Info($"{LogName}: {iso3} keeps the 20% rule: turned down {rejected.RejectedUtc:yyyy-MM-dd HH:mm} UTC ({rejected.Why}); "
+                    + $"asked again after {rejected.RejectedUtc + rejected.RetryAfter:yyyy-MM-dd HH:mm} UTC");
+                continue;
+            }
             if (asked && _pause > TimeSpan.Zero) await Task.Delay(_pause, ct).ConfigureAwait(false);   // spread the requests to HDX
             asked = true;
             try
@@ -149,10 +160,15 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
                     _entries[iso3] = set is not null ? new Entry(key, set, default)
                         : new Entry(key, null, now, downloaded ? RetryRejectedAfter : RetrySearchAfter);
                 }
-                if (set is not null) sets.Add(set);
+                if (set is not null)
+                {
+                    sets.Add(set);
+                    DeleteRejection(iso3);
+                }
                 else
                 {
                     kept.Add(iso3);
+                    WriteRejection(iso3, new Rejection(key, now, downloaded ? RetryRejectedAfter : RetrySearchAfter, why));
                     log.Info($"{LogName}: {iso3} keeps the 20% rule: {why}");
                 }
             }
@@ -226,6 +242,51 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
         from.ToString("d MMM yyyy", CultureInfo.InvariantCulture) + "–" + to.ToString("d MMM yyyy", CultureInfo.InvariantCulture);
 
     // ---------------------------------------------------------------- the files on disk
+
+    /// <summary>A country turned down under the analysis <paramref name="Key"/> (C3): asked again after <paramref name="RetryAfter"/>.</summary>
+    private sealed record Rejection(string Key, DateTime RejectedUtc, TimeSpan RetryAfter, string Why);
+
+    private string? RejectionFile(string iso3) => Dir is { } dir ? Path.Combine(dir, iso3 + ".rejected.json") : null;
+
+    // A turned-down country is remembered on disk too, so a restart does not download its files again (Nigeria's GeoJSON is
+    // 1.9 MB) before the retry time.
+    private void WriteRejection(string iso3, Rejection r)
+    {
+        if (RejectionFile(iso3) is not { } file) return;
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            if (!AtomicFile.TryWriteAllText(file, JsonSerializer.Serialize(r), out var error))
+                log.Warn($"{LogName}: could not save that {iso3} was turned down", error);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            log.Warn($"{LogName}: could not save that {iso3} was turned down", e);
+        }
+    }
+
+    // The saved rejection, when it is for this analysis and not yet due again; otherwise null.
+    private Rejection? ReadRejection(string iso3, string key, DateTime now)
+    {
+        if (RejectionFile(iso3) is not { } file || !File.Exists(file)) return null;
+        try
+        {
+            var r = JsonSerializer.Deserialize<Rejection>(File.ReadAllText(file));
+            return r is not null && r.Key == key && now >= r.RejectedUtc && now - r.RejectedUtc < r.RetryAfter ? r : null;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
+        {
+            log.Warn($"{LogName}: {iso3}'s saved rejection could not be read", e);
+            return null;
+        }
+    }
+
+    private void DeleteRejection(string iso3)
+    {
+        if (RejectionFile(iso3) is not { } file) return;
+        try { File.Delete(file); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { log.Warn($"{LogName}: could not delete {file}", e); }
+    }
 
     private sealed record CacheMeta(string Key, string Package, string Licence, string? DateOfAnalysis, DateOnly From, DateOnly To, DateTime RetrievedUtc);
 
