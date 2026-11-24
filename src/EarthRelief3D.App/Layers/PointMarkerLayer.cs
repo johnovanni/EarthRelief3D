@@ -40,7 +40,7 @@ public sealed class PointMarkerLayer : SceneLayer, IPickable
     private const double PickSlopPx = 3;
 
     /// <summary>The marker layers the scene draws with this class (atrocities have their own glyph layer, Task 5).</summary>
-    public static IReadOnlyList<MarkerLayer> Layers { get; } = [MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants];
+    public static IReadOnlyList<MarkerLayer> Layers { get; } = [MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants, MarkerLayer.Renewables];
 
     /// <summary>The layer's z-order: after the crisis markers (100 to 120), before the labels (200).</summary>
     public static int OrderOf(MarkerLayer layer) => 130 + (int)layer;
@@ -116,6 +116,11 @@ public sealed class PointMarkerLayer : SceneLayer, IPickable
                 case MarkerShape.EdgedDisc:
                     m.AddDisc(item.Position, r, h);
                     edges.AddRing(item.Position, r + line / 2, line, h, 24);   // just outside the disc: no overlap
+                    px += OutlinePx;
+                    break;
+                case MarkerShape.Hexagon:
+                    m.AddHexagon(item.Position, r * 1.1, h);
+                    edges.AddHexagonOutline(item.Position, r * 1.1 + line, line, h);   // just outside the fill
                     px += OutlinePx;
                     break;
                 case MarkerShape.Square: m.AddSquare(item.Position, r * 0.9, h); break;

@@ -175,3 +175,28 @@ before the snapshot run, from the test's measurement.
   steel lines are below the legend's fold (it scrolls). Eleven green status dots (GEM's is the last).
 - Not checked by a picture: the hover tooltips (tests pin their wording), the oil and gas and steel legend lines (below
   the fold), and a close-up: at this zoom the markers crowd each other over the Gulf and eastern China.
+
+## Renewables layer (ruling R25, 2026-11-24)
+
+- Data: `DataTool gem-renewables` on the same power workbook wrote `data/datasets/gem-renewables`: operating units of
+  GEM's Types wind, utility-scale solar (its Solar Thermal technology included), hydropower, geothermal and bioenergy,
+  summed per plant, R22 applied. Thresholds tried: 100 MW 9,047 plants, 150 MW 5,379, 200 MW 4,021, so **200 MW**:
+  **4,020 plants** drawn (wind 1,429, utility-scale solar 1,271, hydropower 1,265, bioenergy 41, geothermal 14; one in
+  Réunion not placed). docs/data-sources.md §11e.
+- Look: a filled hexagon with a dark edge, used by no other layer (C8), in the power layer's fuel colours by the plant's
+  largest fuel. The legend names the threshold and the fuel groups present (hydro, wind or solar, other), gives four
+  size keys, and says that plants of 500 MW or more also appear in Power plants (1,058 do).
+- Tests: Release and Debug builds 0 warnings; **415 passed, 0 failed** (405 before).
+- Launch: `EarthRelief3D.App.exe --offline-samples tests\Samples --snapshot-scenes tests\SnapshotScenes\scenes.json
+  --snapshot-out artifacts\snapshot-gem-2` (Release, PowerShell argument array), exit code 0, ten pictures. For this run
+  `resources` also turned on `renewables`, and a new `renewables` scene was added.
+- Decision on the scenes: in `resources.png` with all four marker layers, yellow wind and solar hexagons smother India
+  and eastern China and cover the power discs, and over the Gulf the hexagons and discs cannot be told apart. So
+  `resources` stays at oil shading plus power, oil and gas, and steel (as pictured in `artifacts\snapshot-gem`), and the
+  renewables have their own scene, `renewables` (Europe, lookAt 50, 10, water stress shading, no other markers).
+- `renewables.png`: blue hydro hexagons along the Alps, Norway, Sweden, the Caucasus, Turkey and Russia's rivers; yellow
+  wind and solar hexagons over the North Sea coasts, Germany, the UK, Spain, Turkey and the Gulf; a few grey "other"
+  (bioenergy) around the North Sea and in Sweden. Each hexagon has its dark edge and reads apart from the shading. The legend
+  shows the water-stress line, then "Renewable power plants: operating renewable plants of 200 MW or more (renewable units
+  summed per plant), coloured by its largest fuel" with the hydro, wind or solar, and other keys and four size keys; the
+  overlap sentence starts at the legend's fold. The strip's Renewable power plants toggle is below its fold.

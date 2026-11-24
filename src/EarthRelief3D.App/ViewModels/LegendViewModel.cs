@@ -293,7 +293,7 @@ public sealed partial class LegendViewModel : ObservableObject
             return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), NotLoaded, []);
         var c = set.Citation;
         return new LegendEntry(id, symbol, color, set.Measures ?? measures, $"{c.Publisher}, {c.Dataset}", CrisisText.DataDate(c, now),
-            ResourceKeys(layer), set.Filter);
+            ResourceKeys(layer, set), set.Filter);
     }
 
     /// <summary>The swatch for a size class: about the marker's own diameter (its radius in pixels, doubled).</summary>
@@ -301,17 +301,20 @@ public sealed partial class LegendViewModel : ObservableObject
 
     /// <summary>
     /// A GEM layer's keys (Task 7): for power plants one round key per fuel group, then the size classes as grey discs; for
-    /// steel plants the size classes as square outlines in the layer's colour; none for oil and gas fields (one size).
+    /// renewable plants (R25) the same, with only the fuel groups present in the layer; for steel plants the size classes as
+    /// square outlines in the layer's colour; none for oil and gas fields (one size).
     /// </summary>
-    private static IReadOnlyList<LegendKey> ResourceKeys(MarkerLayer layer)
+    private static IReadOnlyList<LegendKey> ResourceKeys(MarkerLayer layer, PointSet set)
     {
         if (!LayerCatalog.ResourceMarkers.Contains(layer)) return [];
         var sizes = ResourceMarkers.SizeClasses(layer);
+        var colours = set.Items.Select(i => i.Color).ToHashSet();
         return layer switch
         {
-            MarkerLayer.PowerPlants =>
+            MarkerLayer.PowerPlants or MarkerLayer.Renewables =>
             [
-                .. Enum.GetValues<FuelGroup>().Select(g => new LegendKey(ResourceMarkers.FuelGroupLabel(g), ResourceMarkers.FuelGroupColor(g), IsRound: true)),
+                .. Enum.GetValues<FuelGroup>().Where(g => layer == MarkerLayer.PowerPlants || colours.Contains(ResourceMarkers.FuelGroupColor(g)))
+                    .Select(g => new LegendKey(ResourceMarkers.FuelGroupLabel(g), ResourceMarkers.FuelGroupColor(g), IsRound: true)),
                 .. sizes.Select(s => new LegendKey(s.Label, SizeKeyColor, Swatch: SwatchFor(s.SizePx), IsRound: true)),
             ],
             MarkerLayer.SteelPlants => [.. sizes.Select(s => new LegendKey(s.Label, LayerStyle.SteelColor, IsOutline: true, Swatch: SwatchFor(s.SizePx)))],

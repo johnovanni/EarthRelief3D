@@ -18,12 +18,12 @@ public enum FuelGroup { Fossil, Nuclear, Hydro, WindOrSolar, Other }
 /// </summary>
 public static class ResourceMarkers
 {
-    /// <summary>The status dot shared by the three extracts.</summary>
+    /// <summary>The status dot shared by the GEM extracts.</summary>
     public const string DotName = "GEM";
 
     /// <summary>The layers and their extracts' folders under <c>data\datasets</c>.</summary>
     public static IReadOnlyList<(MarkerLayer Layer, string Folder)> Datasets { get; } =
-        [(MarkerLayer.PowerPlants, "gem-power"), (MarkerLayer.OilGasFields, "gem-oilgas"), (MarkerLayer.SteelPlants, "gem-steel")];
+        [(MarkerLayer.PowerPlants, "gem-power"), (MarkerLayer.Renewables, "gem-renewables"), (MarkerLayer.OilGasFields, "gem-oilgas"), (MarkerLayer.SteelPlants, "gem-steel")];
 
     // ---------------------------------------------------------------- power: fuel groups
 
@@ -74,6 +74,12 @@ public static class ResourceMarkers
         ("1–2.9 million tonnes a year", 0, 3.5), ("3–9.9 million tonnes a year", 3, 4.5), ("10 million tonnes a year or more", 10, 6),
     ];
 
+    /// <summary>Renewable plants (R25): smaller classes, as the layer starts at 100 to 300 MW.</summary>
+    private static readonly (string Label, double Min, double SizePx)[] RenewableClasses =
+    [
+        ("under 500 MW", 0, 3), ("500–999 MW", 500, 4), ("1,000–4,999 MW", 1000, 5), ("5,000 MW or more", 5000, 6.5),
+    ];
+
     /// <summary>Oil and gas fields: one size (their production years and units differ, and many have no figure).</summary>
     public const double FieldSizePx = 3.5;
 
@@ -86,6 +92,7 @@ public static class ResourceMarkers
     {
         MarkerLayer.PowerPlants => PowerClasses,
         MarkerLayer.SteelPlants => SteelClasses,
+        MarkerLayer.Renewables => RenewableClasses,
         MarkerLayer.OilGasFields => [],
         _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Only the GEM layers are sized here."),
     };
@@ -119,6 +126,19 @@ public static class ResourceMarkers
     /// <summary>The power legend's colour rule (R24): a plant of several fuels takes its largest fuel's colour.</summary>
     public const string ColouredByLargestFuel = "coloured by its largest fuel";
 
+    /// <summary>The renewables legend's note (R25): the two layers overlap on purpose.</summary>
+    public const string OverlapNote = "The Power plants layer shows every fuel at 500 MW or more, so a large renewable plant appears in both layers when both are on.";
+
+    /// <summary>
+    /// A marker's own colour: for power and renewable plants the fuel group of the plant's type, which the extract makes its
+    /// largest fuel by capacity (never the first listed, R24); null for the other layers (the layer's colour).
+    /// </summary>
+    public static Color? ColorOf(MarkerLayer layer, MarkerPoint p)
+    {
+        ArgumentNullException.ThrowIfNull(p);
+        return layer is MarkerLayer.PowerPlants or MarkerLayer.Renewables ? FuelGroupColor(FuelGroupOf(p.Type)) : null;
+    }
+
     /// <summary>
     /// A plant's capacity per fuel, as the extract's <c>types</c> column has it ("coal 5500 MW; oil/gas 280 MW"), in the
     /// tooltip's words: "coal 5,500 MW, oil/gas 280 MW" (R24). A part it cannot read is shown as written.
@@ -148,7 +168,7 @@ public static class ResourceMarkers
         var inv = CultureInfo.InvariantCulture;
         string[] parts = layer switch
         {
-            MarkerLayer.PowerPlants => [p.Name, p.Types.Length > 0 ? FuelsText(p.Types) : p.Type,
+            MarkerLayer.PowerPlants or MarkerLayer.Renewables => [p.Name, p.Types.Length > 0 ? FuelsText(p.Types) : p.Type,
                 p.Capacity is { } mw ? mw.ToString("N0", inv) + " MW" : "capacity not given", p.Status],
             MarkerLayer.OilGasFields => [p.Name, p.Type, p.Detail.Length > 0 ? "production: " + p.Detail : "no production figure in GEM's field data", p.Status],
             MarkerLayer.SteelPlants => [p.Name, EquipmentText(p.Type),
@@ -167,10 +187,12 @@ public static class ResourceMarkers
         if (!load.Loaded) return null;
         var c = load.Citation!;
         var items = load.Points.Select(p => new PointItem(new AstroCore.Earth.GeoPosition(p.Lat, p.Lon), SizeOf(layer, p.Capacity), Tooltip(layer, p, c),
-            p.Iso3, layer == MarkerLayer.PowerPlants ? FuelGroupColor(FuelGroupOf(p.Type)) : null)).ToList();
+            p.Iso3, ColorOf(layer, p))).ToList();
         var filter = load.Manifest!.Filter!;
-        var measures = $"{LayerCatalog.Label(layer)}: {filter}{(layer == MarkerLayer.PowerPlants ? ", " + ColouredByLargestFuel : "")}";
-        return new PointSet(items, c, Credit(load.Manifest)) { Measures = measures };
+        bool byFuel = layer is MarkerLayer.PowerPlants or MarkerLayer.Renewables;
+        var measures = $"{LayerCatalog.Label(layer)}: {filter}{(byFuel ? ", " + ColouredByLargestFuel : "")}";
+        var note = (layer == MarkerLayer.Renewables ? OverlapNote + " " : "") + Credit(load.Manifest);
+        return new PointSet(items, c, note) { Measures = measures };
     }
 
     /// <summary>
@@ -200,6 +222,7 @@ public static class ResourceMarkers
     private static string Short(MarkerLayer layer) => layer switch
     {
         MarkerLayer.PowerPlants => "power",
+        MarkerLayer.Renewables => "renewables",
         MarkerLayer.OilGasFields => "oil and gas",
         MarkerLayer.SteelPlants => "steel",
         _ => LayerCatalog.Label(layer),

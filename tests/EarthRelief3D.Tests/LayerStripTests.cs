@@ -131,7 +131,7 @@ public class LayerStripTests
         Assert.Equal(["Armed conflict", "Food crisis", "Disease outbreaks", "People forced from home", "Genocide and mass atrocities", "Prison camps"],
             vm.Groups[0].Toggles.Select(t => t.Label));
         Assert.Equal(["Water", "Sanitation", "Health care", "Hunger", "Shelter need"], vm.Groups[1].Toggles.Select(t => t.Label));
-        Assert.Equal(["Oil production", "Water stress", "Power plants", "Oil and gas fields", "Steel plants"], vm.Groups[2].Toggles.Select(t => t.Label));
+        Assert.Equal(["Oil production", "Water stress", "Power plants", "Renewable power plants", "Oil and gas fields", "Steel plants"], vm.Groups[2].Toggles.Select(t => t.Label));
         // Every shading layer and every marker layer has exactly one toggle (R2: all of them exist from Task 2).
         var toggles = vm.Groups.SelectMany(g => g.Toggles).ToList();
         Assert.Equal(Enum.GetValues<ShadingLayer>().Length - 1 + Enum.GetValues<MarkerLayer>().Length, toggles.Count);

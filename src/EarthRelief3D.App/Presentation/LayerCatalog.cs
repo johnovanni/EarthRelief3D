@@ -17,7 +17,7 @@ public static class LayerCatalog
     public static IReadOnlyList<ShadingLayer> ResourceShadings { get; } = [ShadingLayer.OilProduction, ShadingLayer.WaterStress];
 
     /// <summary>The marker layers of the Resources group, in strip order.</summary>
-    public static IReadOnlyList<MarkerLayer> ResourceMarkers { get; } = [MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants];
+    public static IReadOnlyList<MarkerLayer> ResourceMarkers { get; } = [MarkerLayer.PowerPlants, MarkerLayer.Renewables, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants];
 
     /// <summary>The marker layers Plan 3 adds to the Crises group, after Plan 2's four layers.</summary>
     public static IReadOnlyList<MarkerLayer> CrisisMarkersAdded { get; } = [MarkerLayer.Atrocities, MarkerLayer.Camps];
@@ -121,6 +121,7 @@ public static class LayerCatalog
         MarkerLayer.PowerPlants => "power",
         MarkerLayer.OilGasFields => "oilgas",
         MarkerLayer.SteelPlants => "steel",
+        MarkerLayer.Renewables => "renewables",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -134,6 +135,7 @@ public static class LayerCatalog
         MarkerLayer.PowerPlants => "Power plants",
         MarkerLayer.OilGasFields => "Oil and gas fields",
         MarkerLayer.SteelPlants => "Steel plants",
+        MarkerLayer.Renewables => "Renewable power plants",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -148,6 +150,7 @@ public static class LayerCatalog
         MarkerLayer.PowerPlants => "Global Energy Monitor, Global Integrated Power Tracker",
         MarkerLayer.OilGasFields => "Global Energy Monitor, Global Oil and Gas Extraction Tracker",
         MarkerLayer.SteelPlants => "Global Energy Monitor, Global Iron and Steel Tracker",
+        MarkerLayer.Renewables => "Global Energy Monitor, Global Integrated Power Tracker",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -161,6 +164,7 @@ public static class LayerCatalog
         MarkerLayer.PowerPlants => "operating plants of 500 MW or more (units summed per plant), coloured by its largest fuel",
         MarkerLayer.OilGasFields => "operating fields, leaving out the smallest reported producers (the legend gives the threshold)",
         MarkerLayer.SteelPlants => "operating plants of 1 million tonnes of crude steel a year or more",
+        MarkerLayer.Renewables => "operating wind, solar, hydro, geothermal and bioenergy plants, coloured by its largest fuel (the legend gives the size threshold; large ones are also in Power plants)",
         _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "The Plan 2 layers' wording is in LegendViewModel.Measures."),
     };
 

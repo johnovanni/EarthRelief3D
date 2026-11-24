@@ -11,7 +11,8 @@ disease outbreaks (WHO) and people forced from home (UNHCR). Plan 3 (2026-11-23)
 curated atrocity designations and prison camps (drafts until the owner reviews them), the Needs shadings (water,
 sanitation, health care, hunger, shelter need) and the Resources shadings (oil production, water stress). Task 7
 (2026-11-24) added the Resources marker layers from Global Energy Monitor's trackers (CC BY 4.0): power plants of
-500 MW or more coloured by fuel, oil and gas fields, and steel plants of 1 million tonnes a year or more. The Getting
+500 MW or more coloured by fuel, renewable plants (wind, solar, hydro, geothermal, bioenergy) of 200 MW or more, oil
+and gas fields, and steel plants of 1 million tonnes a year or more. The Getting
 help in group comes in a later version.
 
 ## Features

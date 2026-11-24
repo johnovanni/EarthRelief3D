@@ -107,6 +107,40 @@ public sealed class MarkerMeshes
         Tri(e, w, s);
     }
 
+    /// <summary>A filled hexagon, flat sides north and south: corners <paramref name="radius"/> from the centre (renewable plants, R25).</summary>
+    public void AddHexagon(GeoPosition at, double radius, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        int centre = Add(On(n, e1, e2, 0, 0, height));
+        int first = _positions.Count;
+        for (int k = 0; k < 6; k++)
+        {
+            double t = Math.PI / 3 * k;   // counter-clockwise from east
+            Add(On(n, e1, e2, radius * Math.Cos(t), radius * Math.Sin(t), height));
+        }
+        for (int k = 0; k < 6; k++) Tri(centre, first + k, first + (k + 1) % 6);
+    }
+
+    /// <summary>A hexagonal outline: corners <paramref name="radius"/> from the centre on the outside, <paramref name="width"/> wide (measured along the corner).</summary>
+    public void AddHexagonOutline(GeoPosition at, double radius, double width, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        double inner = Math.Max(0, radius - width);
+        int first = _positions.Count;
+        for (int k = 0; k < 6; k++)
+        {
+            double t = Math.PI / 3 * k, c = Math.Cos(t), s = Math.Sin(t);
+            Add(On(n, e1, e2, inner * c, inner * s, height));
+            Add(On(n, e1, e2, radius * c, radius * s, height));
+        }
+        for (int k = 0; k < 6; k++)
+        {
+            int a = first + 2 * k, b = a + 1, j = first + 2 * ((k + 1) % 6), l = j + 1;
+            Tri(a, b, l);
+            Tri(a, l, j);
+        }
+    }
+
     /// <summary>
     /// A hollow triangle pointing north: corners <paramref name="radius"/> from the centre, sides <paramref name="width"/>
     /// wide (measured square to each side), a hole inside.

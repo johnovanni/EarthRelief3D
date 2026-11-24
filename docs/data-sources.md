@@ -213,7 +213,7 @@ Checked 2026-11-23 by a download into a scratch folder (nothing in the repo).
 - **Licence confirmed (Task 6, ruling R6, 2026-11-23):** WRI's Open Data Commitment (https://www.wri.org/about/open-data-commitment) says WRI has adopted the Creative Commons Attribution 4.0 International License as its standard licence for publications and data. The extract is bundled under CC BY 4.0 with WRI's citation.
 - **As built (Task 6, 2026-11-23):** `country_baseline` has 2,456 rows: indicators `bws`, `drr`, `rfr`; weights `Tot, Dom, Ind, Irr, Liv, One`. `bws` with `Tot`: 189 countries, every `gid_0` the app's ISO3. Categories and labels: -9999 "NoData" (25), 0 "Low (<10%)" (59), 1 "Low - Medium (10-20%)" (35), 2 "Medium - High (20-40%)" (23), 3 "High (40-80%)" (22), 4 "Extremely High (>80%)" (25). **No country row has cat -1** ("Arid and Low Water Use"), so the legend leaves out the grey arid key (ruling R17b: it shows only when some country has that category); the app's labels for 0 to 4 match WRI's exactly. `DataTool aqueduct` keeps `gid_0, score, cat, label`; the value is `cat` and WRI's label is shown as written; the figures' year is 2019, the end of the 1979-2019 baseline. The figure is a modelled baseline for 1979–2019, published in 2023, so the manifest's date is `dateMeaning` "Baseline" with `dateText` "baseline 1979–2019 (published 2023)", and the legend, source line, status dot, hover and panel all say that, with no year appended (final fix wave I3; it said "estimate year 2019" before). The legend repeats the Read Me's cautions.
 
-## 11. Global Energy Monitor trackers (power plants, oil and gas fields, steel plants; Plan 3, bundled in Task 7)
+## 11. Global Energy Monitor trackers (power plants, renewable plants, oil and gas fields, steel plants; Plan 3, bundled in Task 7)
 
 Built 2026-11-24 from the owner's downloads in `.downloads\gem\` (git-ignored; never committed, never opened except
 through the DataTool's ExcelDataReader). GEM's download form is not scriptable, so the owner downloads new releases.
@@ -326,6 +326,28 @@ through the DataTool's ExcelDataReader). GEM's download form is not scriptable, 
 - POSCO Gwangyang: BF; BOF operating 22,999 ttpa (EAF 2,500 under construction, not counted): **23.0 Mt/yr**. Taranto:
   BF; BOF "operating pre-retirement" 7,800 ttpa. Voestalpine Linz: 4,000 operating + 2,000 operating pre-retirement.
   Port Talbot is not in the extract (its blast furnaces are retired).
+
+### 11e. Renewables (ruling R25): `DataTool gem-renewables` → `data/datasets/gem-renewables/`
+
+- **File and columns:** the same power workbook and columns as §11a, with the same citation, licence, R22 rule and
+  version handling (`--release "September 2026 release" --file-version V2`).
+- **Fuels (GEM's own `Type` names):** `wind`, `utility-scale solar`, `hydropower`, `geothermal`, `bioenergy`. GEM has no
+  separate solar thermal Type: "Solar Thermal" is a `Technology` within `utility-scale solar`, so it is included with
+  it. Not included: `coal`, `oil/gas`, `nuclear`.
+- **Rows:** units of those Types with `Status` "operating", summed per `GEM location ID` (101,731 plants). A plant's
+  units of other fuels are not counted here (7 kept plants have some; the Power plants layer counts every fuel). R22: a
+  plant with any TransitionZero unit is left out whole (18,723 plants; none of 200 MW or more).
+- **Threshold (P3-9 cap, R25):** tried in turn, counting plants with coordinates: **100 MW: 9,047; 150 MW: 5,379;
+  200 MW: 4,021**. Kept at **200 MW**: **4,020 plants in 109 countries** (one plant in Réunion, 212 MW, has no unit in
+  the boundary set and is listed "Not placed on the map"). The manifest's `thresholds` records each step and its count.
+- **By largest Type:** wind 1,429, utility-scale solar 1,271, hydropower 1,265, bioenergy 41, geothermal 14. Largest per
+  fuel: Three Gorges (hydropower, 22,500 MW), Gansu–Shandong Huanxian wind farm (4,501 MW), Xinjiang Ruoqiang solar farm
+  (4,000 MW), Drax (bioenergy 2,580 MW: its oil/gas units are not counted here), Makban geothermal (362 MW).
+- **Overlap:** 1,058 of these plants are 500 MW or more, so they also appear in the Power plants layer when both are on;
+  the legend says so.
+- **On screen:** a filled hexagon with a dark edge (no other layer has it, C8), in the power layer's fuel colours by the
+  plant's largest fuel; legend keys for the fuel groups present (hydro, wind or solar, other) and size classes (under
+  500 MW, 500–999, 1,000–4,999, 5,000 or more); the tooltip as the power layer's.
 
 ## Offline samples (`--offline-samples`)
 

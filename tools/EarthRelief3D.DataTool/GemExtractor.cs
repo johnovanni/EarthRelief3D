@@ -82,45 +82,57 @@ public static class GemExtractor
         public readonly Dictionary<string, double> ByCountry = new(StringComparer.Ordinal);
         public int Units;
         public bool Moved;
+        /// <summary>Operating capacity of the types not counted (renewables: a plant's fossil units), per type.</summary>
+        public Dictionary<string, double> Others = new(StringComparer.Ordinal);
         public double Capacity => ByType.Values.Sum();
     }
 
+    /// <summary>The power workbook read into plants: each plant's operating units of the types asked for, summed.</summary>
+    private sealed record PlantRead(Dictionary<string, Plant> Plants, Dictionary<string, int> Statuses, Dictionary<string, int> Flags, int Rows,
+        Dictionary<string, string> IsoByName, List<string> About);
+
     /// <summary>
-    /// <c>gem-power &lt;xlsx&gt;</c>: operating units summed per plant (GEM location ID); plants of <paramref name="minMw"/> or more.
-    /// A plant with any unit whose "Other IDs (unit/phase)" has a TransitionZero id ("TZ: …", Solar Asset Mapper,
-    /// CC BY-NC 4.0, per the workbook's About sheet) is left out whole (ruling R22: non-commercial data is never bundled, C6).
+    /// Reads the "Power facilities" sheet: units whose Type passes <paramref name="includeType"/> and whose Status is
+    /// "operating", summed per GEM location ID. A plant with any unit (of any type or status) carrying a TransitionZero id
+    /// is marked non-commercial (R22). Operating units of other types are kept apart, per type, for the notes.
     /// </summary>
-    public static PointExtract Power(SourceFile src, string release, CountryCodes codes, double minMw = PowerMinMw, int maxMarkers = MaxMarkers,
-        string? fileVersion = null)
+    private static PlantRead ReadPlants(SourceFile src, string release, string? fileVersion, string source, Func<string, bool> includeType)
     {
-        ArgumentNullException.ThrowIfNull(src);
-        ArgumentNullException.ThrowIfNull(codes);
-        const string Source = "GEM power";
-        var about = CheckAbout(src, release, fileVersion, Source);
+        var about = CheckAbout(src, release, fileVersion, source);
         var isoByName = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var r in GemWorkbook.Rows(src.Path, PowerCountrySheet, ["GEM Standard Country Name/Area", "ISO-alpha3 Code"], Source))
+        foreach (var r in GemWorkbook.Rows(src.Path, PowerCountrySheet, ["GEM Standard Country Name/Area", "ISO-alpha3 Code"], source))
             if (r.Text("ISO-alpha3 Code") is { Length: 3 } iso) isoByName.TryAdd(r.Text("GEM Standard Country Name/Area"), iso);
 
         var statuses = new Dictionary<string, int>(StringComparer.Ordinal);
         var flags = new Dictionary<string, int>(StringComparer.Ordinal);
         var plants = new Dictionary<string, Plant>(StringComparer.Ordinal);
         var tainted = new HashSet<string>(StringComparer.Ordinal);
+        var others = new Dictionary<string, Dictionary<string, double>>(StringComparer.Ordinal);
         int rows = 0;
-        foreach (var r in GemWorkbook.Rows(src.Path, PowerSheet, PowerColumns, Source))
+        foreach (var r in GemWorkbook.Rows(src.Path, PowerSheet, PowerColumns, source))
         {
             rows++;
             var id = r.Text("GEM location ID");
-            if (id.Length == 0) throw new InvalidDataException($"{Source}: row {r.RowNumber} has no GEM location ID");
-            var status = r.Text("Status");
-            Tally.Add(statuses, status);
+            if (id.Length == 0) throw new InvalidDataException($"{source}: row {r.RowNumber} has no GEM location ID");
             if (r.Text("Other IDs (unit/phase)").Split(',').Any(x => x.Trim().StartsWith("TZ:", StringComparison.Ordinal))) tainted.Add(id);
+            var type = r.Text("Type");
+            var status = r.Text("Status");
+            if (!includeType(type))
+            {
+                if (status == "operating" && r.Number("Capacity (MW)") is { } other)
+                {
+                    if (!others.TryGetValue(id, out var o)) others[id] = o = new(StringComparer.Ordinal);
+                    o[type] = o.GetValueOrDefault(type) + other;
+                }
+                continue;
+            }
+            Tally.Add(statuses, status);
             if (status != "operating") continue;
             var mw = r.Number("Capacity (MW)");
             if (mw is null) { Tally.Add(flags, $"operating unit with Capacity (MW) \"{r.Text("Capacity (MW)")}\": not counted"); continue; }
             if (!plants.TryGetValue(id, out var p))
                 plants[id] = p = new Plant { Id = id, Name = r.Text("Plant / Project name"), Accuracy = r.Text("Location accuracy") };
             p.Units++;
-            var type = r.Text("Type");
             p.ByType[type] = p.ByType.GetValueOrDefault(type) + mw.Value;
             var country = r.Text("Country/area");
             p.ByCountry[country] = p.ByCountry.GetValueOrDefault(country) + mw.Value;
@@ -130,19 +142,23 @@ public static class GemExtractor
                 else if (Math.Abs(lat - p.Lat) > 0.05 || Math.Abs(lon - p.Lon) > 0.05) p.Moved = true;
             }
         }
-        if (plants.Count == 0) throw new InvalidDataException($"{Source}: no operating units found (format changed)");
+        if (plants.Count == 0) throw new InvalidDataException($"{source}: no operating units found (format changed)");
         foreach (var p in plants.Values)
         {
             p.NonCommercial = tainted.Contains(p.Id);
             p.Country = p.ByCountry.MaxBy(kv => kv.Value).Key;
+            if (others.TryGetValue(p.Id, out var o)) p.Others = o;
         }
+        return new PlantRead(plants, statuses, flags, rows, isoByName, about);
+    }
 
-        var notes = new List<string>(about);
+    /// <summary>The kept plants as rows (largest first), the codes with no country, the types tally and the R22 and position notes.</summary>
+    private static (List<PointRow> Rows, List<ManifestCode> NotPlaced, Dictionary<string, int> Types, List<ManifestCode> Dropped) PlantRows(
+        PlantRead read, CountryCodes codes, double threshold)
+    {
         var dropped = new List<ManifestCode>();
-        var eligible = plants.Values.Where(p => !p.NonCommercial).ToList();
-        var nc = plants.Values.Where(p => p.NonCommercial).ToList();
-        double threshold = Raise(minMw, PowerStepMw, t => eligible.Count(p => p.Capacity >= t && p.HasPosition), maxMarkers, out var raisedNote, "MW");
-        foreach (var p in nc.Where(p => p.Capacity >= threshold).OrderByDescending(p => p.Capacity))
+        var eligible = read.Plants.Values.Where(p => !p.NonCommercial).ToList();
+        foreach (var p in read.Plants.Values.Where(p => p.NonCommercial && p.Capacity >= threshold).OrderByDescending(p => p.Capacity))
             dropped.Add(new ManifestCode(p.Id, p.Name, string.Create(CultureInfo.InvariantCulture,
                 $"{p.Capacity:N0} MW ({string.Join(", ", p.ByType.Keys)}): a unit sourced from TransitionZero's Solar Asset Mapper (CC BY-NC 4.0): left out (ruling R22)")));
         foreach (var p in eligible.Where(p => p.Capacity >= threshold && !p.HasPosition))
@@ -154,7 +170,7 @@ public static class GemExtractor
         var outRows = new List<PointRow>();
         foreach (var p in kept)
         {
-            var iso = (isoByName.TryGetValue(p.Country, out var i3) ? codes.FromIso3(i3) : null) ?? codes.FromName(p.Country);
+            var iso = (read.IsoByName.TryGetValue(p.Country, out var i3) ? codes.FromIso3(i3) : null) ?? codes.FromName(p.Country);
             if (iso is null)
             {
                 var u = unresolved.GetValueOrDefault(p.Country);
@@ -173,29 +189,130 @@ public static class GemExtractor
                 ["location_accuracy"] = p.Accuracy,
             }));
         }
-        var notPlaced = NotPlaced(unresolved, "plants", "MW");
+        return (outRows, NotPlaced(unresolved, "plants", "MW"), types, dropped);
+    }
 
-        var filter = string.Create(CultureInfo.InvariantCulture, $"operating plants of {threshold:N0} MW or more (units summed per plant)");
-        notes.Add(string.Create(CultureInfo.InvariantCulture,
-            $"Rows: {rows:N0} units in \"{PowerSheet}\"; {plants.Count:N0} plants (GEM location ID) with an operating unit; operating units' Capacity (MW) summed per plant."));
-        if (raisedNote is not null) notes.Add(raisedNote);
-        notes.Add(string.Create(CultureInfo.InvariantCulture,
+    private static string R22Note(PlantRead read, double threshold)
+    {
+        var nc = read.Plants.Values.Where(p => p.NonCommercial).ToList();
+        return string.Create(CultureInfo.InvariantCulture,
             $"Ruling R22: the About sheet says records with a \"TZ ID\" in Other IDs (unit/phase) come partly or wholly from TransitionZero's Solar Asset Mapper (August 2025), "
             + $"CC BY-NC 4.0. Non-commercial data is never bundled (C6), so a plant with any such unit is left out whole: {nc.Count:N0} plants with operating units, "
-            + $"{nc.Count(p => p.Capacity >= threshold):N0} of them {threshold:N0} MW or more (listed under dropped)."));
-        notes.Add("A plant's position is its first operating unit's Latitude and Longitude; "
+            + $"{nc.Count(p => p.Capacity >= threshold):N0} of them {threshold:N0} MW or more (listed under dropped).");
+    }
+
+    private static string PositionNote(PlantRead read, double threshold)
+    {
+        var kept = read.Plants.Values.Where(p => !p.NonCommercial && p.Capacity >= threshold && p.HasPosition).ToList();
+        return "A plant's position is its first operating unit's Latitude and Longitude; "
             + $"{kept.Count(p => p.Moved)} kept plants have units more than 0.05 degrees apart. A plant's type is its largest Type by capacity "
             + $"({kept.Count(p => p.ByType.Count > 1)} kept plants have more than one; see the types column), and its country the Country/area with the most capacity "
-            + $"({kept.Count(p => p.ByCountry.Count > 1)} span two).");
-        notes.Add("Country/area names map to ISO3 through the workbook's own \"Regions, area, and countries\" sheet (ISO-alpha3 Code), then the app's country names.");
-        notes.Add("Check: largest plants: " + string.Join("; ", outRows.Take(5).Select(r => string.Create(CultureInfo.InvariantCulture,
-            $"{r.Name} ({r.Iso3}, {r.Type}) {r.Capacity:N0} MW"))) + ".");
+            + $"({kept.Count(p => p.ByCountry.Count > 1)} span two).";
+    }
+
+    private const string CountryNote = "Country/area names map to ISO3 through the workbook's own \"Regions, area, and countries\" sheet (ISO-alpha3 Code), then the app's country names.";
+
+    private static string LargestNote(List<PointRow> rows) => "Check: largest plants: " + string.Join("; ", rows.Take(5).Select(r => string.Create(CultureInfo.InvariantCulture,
+        $"{r.Name} ({r.Iso3}, {r.Type}) {r.Capacity:N0} MW"))) + ".";
+
+    /// <summary>
+    /// <c>gem-power &lt;xlsx&gt;</c>: operating units summed per plant (GEM location ID); plants of <paramref name="minMw"/> or more.
+    /// A plant with any unit whose "Other IDs (unit/phase)" has a TransitionZero id ("TZ: …", Solar Asset Mapper,
+    /// CC BY-NC 4.0, per the workbook's About sheet) is left out whole (ruling R22: non-commercial data is never bundled, C6).
+    /// </summary>
+    public static PointExtract Power(SourceFile src, string release, CountryCodes codes, double minMw = PowerMinMw, int maxMarkers = MaxMarkers,
+        string? fileVersion = null)
+    {
+        ArgumentNullException.ThrowIfNull(src);
+        ArgumentNullException.ThrowIfNull(codes);
+        var read = ReadPlants(src, release, fileVersion, "GEM power", _ => true);
+        var eligible = read.Plants.Values.Where(p => !p.NonCommercial).ToList();
+        double threshold = Raise(minMw, PowerStepMw, t => eligible.Count(p => p.Capacity >= t && p.HasPosition), maxMarkers, out var raisedNote, "MW");
+        var (outRows, notPlaced, types, dropped) = PlantRows(read, codes, threshold);
+
+        var filter = string.Create(CultureInfo.InvariantCulture, $"operating plants of {threshold:N0} MW or more (units summed per plant)");
+        var notes = new List<string>(read.About)
+        {
+            string.Create(CultureInfo.InvariantCulture,
+                $"Rows: {read.Rows:N0} units in \"{PowerSheet}\"; {read.Plants.Count:N0} plants (GEM location ID) with an operating unit; operating units' Capacity (MW) summed per plant."),
+        };
+        if (raisedNote is not null) notes.Add(raisedNote);
+        notes.Add(R22Note(read, threshold));
+        notes.Add(PositionNote(read, threshold));
+        notes.Add(CountryNote);
+        notes.Add(LargestNote(outRows));
         return new PointExtract(Manifest(src, release, fileVersion, PowerFolder, PowerDataset, PowerPage, PowerDownload, "gem-power", filter,
             $"filtered to {filter}; operating units summed per plant; plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out",
             new ManifestSeries("gem.power", "Power plants: " + filter, "MW",
                 $"{PowerSheet}: Capacity (MW) of units with Status \"operating\", summed by GEM location ID", outRows.Select(r => r.Iso3).Distinct().Count()),
-            notPlaced, dropped, statuses, flags, types, notes), outRows,
+            notPlaced, dropped, read.Statuses, read.Flags, types, notes), outRows,
             ["gem_location_id", "gem_country", "units", "types", "location_accuracy"]);
+    }
+
+    // ------------------------------------------------------------------------------------------------ renewables (R25)
+
+    public const string RenewablesFolder = "gem-renewables";
+
+    /// <summary>
+    /// GEM's renewable Types (R25), as the workbook names them. Solar thermal is not a Type of its own: it is a Technology
+    /// ("Solar Thermal") within "utility-scale solar", so it is included with it.
+    /// </summary>
+    public static IReadOnlyList<string> RenewableTypes { get; } = ["wind", "utility-scale solar", "hydropower", "geothermal", "bioenergy"];
+
+    /// <summary>R25's thresholds, tried in turn until a layer fits under the cap; past the last, 100 MW steps.</summary>
+    public static IReadOnlyList<double> RenewableSteps { get; } = [100, 150, 200, 300];
+
+    /// <summary>
+    /// <c>gem-renewables &lt;xlsx&gt;</c> (ruling R25): the power workbook's renewable units (<see cref="RenewableTypes"/>)
+    /// with Status "operating", summed per plant (GEM location ID); a plant's units of other fuels are not counted here. R22
+    /// applies (no plant with a TransitionZero unit). The threshold starts at 100 MW and rises through 150, 200 and 300 MW
+    /// (then 100 MW steps) until at most <paramref name="maxMarkers"/> plants remain; each step's count is recorded.
+    /// </summary>
+    public static PointExtract Renewables(SourceFile src, string release, CountryCodes codes, int maxMarkers = MaxMarkers, string? fileVersion = null)
+    {
+        ArgumentNullException.ThrowIfNull(src);
+        ArgumentNullException.ThrowIfNull(codes);
+        var read = ReadPlants(src, release, fileVersion, "GEM renewables", t => RenewableTypes.Contains(t));
+        var eligible = read.Plants.Values.Where(p => !p.NonCommercial && p.HasPosition).ToList();
+        int Count(double t) => eligible.Count(p => p.Capacity >= t);
+        var tried = new List<(double Mw, int Plants)>();
+        double threshold = RenewableSteps[0];
+        for (int k = 0; ; k++)
+        {
+            threshold = k < RenewableSteps.Count ? RenewableSteps[k] : RenewableSteps[^1] + 100 * (k - RenewableSteps.Count + 1);
+            tried.Add((threshold, Count(threshold)));
+            if (tried[^1].Plants <= maxMarkers) break;
+        }
+        var (outRows, notPlaced, types, dropped) = PlantRows(read, codes, threshold);
+        var steps = string.Join("; ", tried.Select(s => string.Create(CultureInfo.InvariantCulture, $"{s.Mw:N0} MW: {s.Plants:N0} plants")));
+
+        var filter = string.Create(CultureInfo.InvariantCulture, $"operating renewable plants of {threshold:N0} MW or more (renewable units summed per plant)");
+        var keptPlants = read.Plants.Values.Where(p => !p.NonCommercial && p.HasPosition && p.Capacity >= threshold).ToList();
+        var notes = new List<string>(read.About)
+        {
+            string.Create(CultureInfo.InvariantCulture,
+                $"Rows: {read.Rows:N0} units in \"{PowerSheet}\"; Types kept: {string.Join(", ", RenewableTypes)} (solar thermal is a Technology of utility-scale solar, "
+                + $"so it is included). {read.Plants.Count:N0} plants (GEM location ID) with an operating renewable unit; their renewable units' Capacity (MW) summed per plant."),
+            string.Create(CultureInfo.InvariantCulture,
+                $"Threshold (ruling R25): plants with coordinates and no TransitionZero unit at each step tried, up to the {maxMarkers:N0} markers a layer draws: {steps}. "
+                + $"Kept at {threshold:N0} MW."),
+            string.Create(CultureInfo.InvariantCulture,
+                $"{keptPlants.Count(p => p.Others.Count > 0)} kept plants also have operating units of other fuels (not counted here; the Power plants layer counts all fuels)."),
+            "The Power plants layer shows all fuels at 500 MW or more, so a large renewable plant is in both layers when both are on.",
+        };
+        notes.Add(R22Note(read, threshold));
+        notes.Add(PositionNote(read, threshold));
+        notes.Add(CountryNote);
+        notes.Add("Check: kept plants by largest Type: " + string.Join("; ", types.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key} {kv.Value:N0}")) + ".");
+        notes.Add(LargestNote(outRows));
+        return new PointExtract(Manifest(src, release, fileVersion, RenewablesFolder, PowerDataset, PowerPage, PowerDownload, "gem-renewables", filter,
+            $"filtered to {filter}; renewable units ({string.Join(", ", RenewableTypes)}) only; operating units summed per plant; "
+            + "plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out",
+            new ManifestSeries("gem.renewables", "Renewable power plants: " + filter, "MW",
+                $"{PowerSheet}: Capacity (MW) of units of Type {string.Join(", ", RenewableTypes)} with Status \"operating\", summed by GEM location ID",
+                outRows.Select(r => r.Iso3).Distinct().Count()),
+            notPlaced, dropped, read.Statuses, read.Flags, types, notes) with { Thresholds = tried.ToDictionary(s => s.Mw.ToString("0", CultureInfo.InvariantCulture) + " MW", s => s.Plants) },
+            outRows, ["gem_location_id", "gem_country", "units", "types", "location_accuracy"]);
     }
 
     // ------------------------------------------------------------------------------------------------ oil and gas

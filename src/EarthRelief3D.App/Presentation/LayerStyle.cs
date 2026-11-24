@@ -12,15 +12,15 @@ public enum CrisisLayer { Conflict, Food, Outbreaks, Displacement }
 public enum ShadingLayer { None, Food, Water, Sanitation, Health, Hunger, ShelterNeed, OilProduction, WaterStress }
 
 /// <summary>The marker layers (Plan 3, P3-6): any number show at once (they stack).</summary>
-public enum MarkerLayer { Conflict, Outbreaks, Displacement, Atrocities, Camps, PowerPlants, OilGasFields, SteelPlants }
+public enum MarkerLayer { Conflict, Outbreaks, Displacement, Atrocities, Camps, PowerPlants, OilGasFields, SteelPlants, Renewables }
 
 /// <summary>The second cue after colour (C8): each layer has its own shape.</summary>
 /// <remarks>
 /// Plan 3 adds the hollow triangle (atrocities, Task 5), the filled square (prison camps), the disc with a dark edge
 /// (power plants, filled by fuel group in Task 7: the edge keeps it apart from conflict's plain dots when both are on),
-/// the diamond (oil and gas fields) and the square outline (steel plants).
+/// the diamond (oil and gas fields), the square outline (steel plants) and the hexagon with a dark edge (renewable plants, R25).
 /// </remarks>
-public enum MarkerShape { Dot, Area, Cross, Ring, TriangleOutline, Square, EdgedDisc, Diamond, SquareOutline }
+public enum MarkerShape { Dot, Area, Cross, Ring, TriangleOutline, Square, EdgedDisc, Diamond, SquareOutline, Hexagon }
 
 /// <summary>Colours, shapes and legend symbols of the crisis layers. Colour-blind safe, with shape as a second cue (C8).</summary>
 public static class LayerStyle
@@ -133,6 +133,7 @@ public static class LayerStyle
         MarkerShape.EdgedDisc => "◉",
         MarkerShape.Diamond => "◆",
         MarkerShape.SquareOutline => "□",
+        MarkerShape.Hexagon => "⬢",
         _ => throw new ArgumentOutOfRangeException(nameof(shape)),
     };
 
@@ -158,6 +159,8 @@ public static class LayerStyle
     public static Color PowerPlantColor { get; } = Color.FromRgb(0xE6, 0x9F, 0x00);
     public static Color OilGasColor { get; } = Color.FromRgb(0xD5, 0x5E, 0x00);
     public static Color SteelColor { get; } = Color.FromRgb(0x00, 0x9E, 0x73);
+    /// <summary>The renewable plants' legend and strip symbol (R25): Okabe–Ito blue; the hexagons themselves are filled by fuel group.</summary>
+    public static Color RenewablesColor { get; } = Color.FromRgb(0x00, 0x72, 0xB2);
     /// <summary>The dark edge of an edged disc (power plants) and of the atrocity triangle.</summary>
     public static Color MarkerEdgeColor { get; } = Color.FromRgb(0x20, 0x20, 0x20);
 
@@ -180,6 +183,7 @@ public static class LayerStyle
         MarkerLayer.PowerPlants => MarkerShape.EdgedDisc,
         MarkerLayer.OilGasFields => MarkerShape.Diamond,
         MarkerLayer.SteelPlants => MarkerShape.SquareOutline,
+        MarkerLayer.Renewables => MarkerShape.Hexagon,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -196,6 +200,7 @@ public static class LayerStyle
         MarkerLayer.PowerPlants => PowerPlantColor,
         MarkerLayer.OilGasFields => OilGasColor,
         MarkerLayer.SteelPlants => SteelColor,
+        MarkerLayer.Renewables => RenewablesColor,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 

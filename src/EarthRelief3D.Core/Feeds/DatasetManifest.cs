@@ -59,6 +59,12 @@ public sealed record DatasetManifest
     public string? Changes { get; init; }
     /// <summary>The licence's own text (a URL), which a CC BY credit links to; null when the licence needs no link.</summary>
     public string? LicenceUrl { get; init; }
+    /// <summary>
+    /// A point extract's thresholds tried under the P3-9 cap, each with how many sites it left ("100 MW": 9,190), in the
+    /// order tried (ruling R25); not written when null.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? Thresholds { get; init; }
 
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
     {

@@ -270,7 +270,7 @@ public class AppStartupTests
         Assert.True(OutbreakSceneLayer.Order < AtrocityLayer.Order && AtrocityLayer.Order < PointMarkerLayer.OrderOf(MarkerLayer.Camps));
         Assert.False(host.Layers.OfType<AtrocityLayer>().Single().IsVisible);   // off by default, as the other Plan 3 markers
         Assert.Equal(7, CountryValueLayer.Layers.Count);
-        Assert.Equal([MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants], PointMarkerLayer.Layers);
+        Assert.Equal([MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants, MarkerLayer.Renewables], PointMarkerLayer.Layers);
         Assert.All(host.Layers.OfType<CountryValueLayer>(), l => Assert.False(l.IsVisible));   // food is today's shading
         Assert.All(host.Layers.OfType<PointMarkerLayer>(), l => Assert.False(l.IsVisible));
 

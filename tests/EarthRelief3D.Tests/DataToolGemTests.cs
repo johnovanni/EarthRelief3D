@@ -222,4 +222,98 @@ public class DataToolGemTests
         Assert.DoesNotContain(noMalta.Points, p => p.Iso3 == "MLT");
         Assert.Contains(noMalta.NotPlaced, n => n.Code == "MLT" && n.Reason.Contains("1 site not drawn", StringComparison.Ordinal));
     }
+
+    // ---------------------------------------------------------------- renewables (ruling R25)
+
+    /// <summary>Changes one unit's cell in the excerpt's "Power facilities" sheet (a test's own variant of real rows).</summary>
+    private static void SetUnit(List<(string Name, List<object?[]> Rows)> sheets, string plant, object? unit, string column, object value)
+    {
+        var rows = sheets.Single(s => s.Name == GemExtractor.PowerSheet).Rows;
+        int name = Array.IndexOf(rows[0], "Plant / Project name"), unitCol = Array.IndexOf(rows[0], "Unit / Phase name"), col = Array.IndexOf(rows[0], column);
+        Assert.True(col >= 0, column);
+        rows.Single(r => r.Length > name && r[name] as string == plant && (unit is null || Equals(r[unitCol], unit)))[col] = value;
+    }
+
+    private static PointExtract Renewables(Action<List<(string Name, List<object?[]> Rows)>>? edit = null, int max = GemExtractor.MaxMarkers)
+    {
+        using var dir = new TempDir();
+        return GemExtractor.Renewables(Gem(dir, "gem_power_excerpt.json", new DateOnly(2026, 9, 1), edit), PowerRelease, Codes, max, fileVersion: "V2");
+    }
+
+    [Fact]
+    public void RenewablesKeepOnlyRenewableFuelsFrom100MW()
+    {
+        Assert.Equal(["wind", "utility-scale solar", "hydropower", "geothermal", "bioenergy"], GemExtractor.RenewableTypes);
+        var e = Renewables();
+        // Bajgora wind farm (103 MW) only: Ujmani hydro is 35 MW, Kitka wind 32 MW operating, Zhur hydro (305 MW) cancelled,
+        // and the coal and oil/gas plants (Kosovo A and B, Delimara) are not renewable.
+        var bajgora = Row(e, "Bajgora wind farm");
+        Assert.Single(e.Rows);
+        Assert.Equal((103.0, "wind", "operating", "KOS"), (bajgora.Capacity!.Value, bajgora.Type, bajgora.Status, bajgora.Iso3));
+        var m = e.Manifest;
+        Assert.Equal("gem-renewables", m.Id);
+        Assert.Equal("operating renewable plants of 100 MW or more (renewable units summed per plant)", m.Filter);
+        Assert.Equal(new Dictionary<string, int> { ["100 MW"] = 1 }, m.Thresholds);
+        // The same credit as gem-power (R24).
+        Assert.Equal("Global Energy Monitor, Global Integrated Power Tracker, September 2026 release.", m.Attribution);
+        Assert.Equal(("September 2026 release (file V2)", "CC BY 4.0"), (m.DateText, m.Licence));
+        Assert.StartsWith("filtered to operating renewable plants of 100 MW or more", m.Changes);
+        Assert.Contains("plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out", m.Changes);
+    }
+
+    [Fact]
+    public void RenewablesThresholdStepsThrough150200And300MW()
+    {
+        void Bigger(List<(string Name, List<object?[]> Rows)> s)
+        {
+            SetUnit(s, "Ujmani hydroelectric plant", null, "Capacity (MW)", 160.0);
+            SetUnit(s, "Kitka wind farm", 1.0, "Capacity (MW)", 210.0);
+        }
+        // Three plants pass 100 MW (Bajgora 103, Ujmani 160, Kitka 210). With room for one, 150 leaves two, 200 leaves one.
+        var e = Renewables(Bigger, max: 1);
+        Assert.Equal("Kitka wind farm", Assert.Single(e.Rows).Name);
+        Assert.Equal(new Dictionary<string, int> { ["100 MW"] = 3, ["150 MW"] = 2, ["200 MW"] = 1 }, e.Manifest.Thresholds);
+        Assert.Equal("operating renewable plants of 200 MW or more (renewable units summed per plant)", e.Manifest.Filter);
+        Assert.Contains(e.Manifest.Notes, n => n.Contains("100 MW: 3 plants; 150 MW: 2 plants; 200 MW: 1 plants. Kept at 200 MW.", StringComparison.Ordinal));
+        // With room for none, the steps run on to 300 MW.
+        Assert.Equal(["100 MW", "150 MW", "200 MW", "300 MW"], Renewables(Bigger, max: 0).Manifest.Thresholds!.Keys);
+    }
+
+    [Fact]
+    public void RenewablesSumOnlyTheRenewableOperatingUnitsPerPlant()
+    {
+        var e = Renewables(s =>
+        {
+            // Kitka's unit 2 goes into operation at 80 MW: 32 + 80 = 112 MW, summed per plant.
+            SetUnit(s, "Kitka wind farm", 2.0, "Status", "operating");
+            SetUnit(s, "Kitka wind farm", 2.0, "Capacity (MW)", 80.0);
+            // Kosovo A's unit 3 is made bioenergy: 200 MW counted here; its coal units 4 and 5 (410 MW) are not.
+            SetUnit(s, "Kosovo A power station", "Unit 3", "Type", "bioenergy");
+        });
+        var kitka = Row(e, "Kitka wind farm");
+        Assert.Equal((112.0, "2"), (kitka.Capacity!.Value, kitka.Extra["units"]));
+        var kosovoA = Row(e, "Kosovo A power station");
+        Assert.Equal((200.0, "bioenergy", ""), (kosovoA.Capacity!.Value, kosovoA.Type, kosovoA.Extra["types"]));
+        Assert.Contains(e.Manifest.Notes, n => n.StartsWith("1 kept plants also have operating units of other fuels", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RenewablesLeaveOutPlantsWithATransitionZeroUnit()
+    {
+        // R22 still applies: Bajgora with a made-up TransitionZero id is left out whole and listed as dropped.
+        var e = Renewables(s => SetUnit(s, "Bajgora wind farm", null, "Other IDs (unit/phase)", "TZ: 999999"));
+        Assert.Empty(e.Rows);
+        Assert.Equal("Bajgora wind farm", Assert.Single(e.Manifest.Dropped).Name);
+        Assert.Contains("CC BY-NC 4.0", e.Manifest.Dropped[0].Reason);
+    }
+
+    [Fact]
+    public void APlantsTypeIsItsLargestFuelNotTheFirstListed()
+    {
+        // Delimara's first unit (2A, 75 MW) is made hydropower; its other units are oil/gas (472.8 MW): the plant is oil/gas.
+        using var dir = new TempDir();
+        var src = Gem(dir, "gem_power_excerpt.json", new DateOnly(2026, 9, 1), s => SetUnit(s, "Delimara power station", "Unit 2A", "Type", "hydropower"));
+        var delimara = Row(GemExtractor.Power(src, PowerRelease, Codes, fileVersion: "V2"), "Delimara power station");
+        Assert.Equal(("oil/gas", "oil/gas 472.8 MW; hydropower 75 MW"), (delimara.Type, delimara.Extra["types"]));
+    }
 }

@@ -134,7 +134,7 @@ public class ResourceMarkersTests
             markers.Replace(layer, ResourceMarkers.For(layer, Committed(layer))!);
             layers.Show(layer, true);
         }
-        Assert.Equal(["power", "oilgas", "steel"], legend.Entries.Select(e => e.Id));
+        Assert.Equal(["power", "renewables", "oilgas", "steel"], legend.Entries.Select(e => e.Id));
         var power = legend.Entries[0];
         Assert.Equal("Power plants: operating plants of 500 MW or more (units summed per plant), coloured by its largest fuel", power.Measures);
         Assert.Equal("Global Energy Monitor, Global Integrated Power Tracker · September 2026 release (file V2)", power.SourceLine);
@@ -147,11 +147,11 @@ public class ResourceMarkersTests
         Assert.Contains("CC BY 4.0, https://creativecommons.org/licenses/by/4.0/", power.Note);
         Assert.Contains("Changed: filtered to operating plants of 500 MW or more", power.Note);
 
-        var oil = legend.Entries[1];
+        var oil = legend.Entries[2];
         Assert.StartsWith("Oil and gas fields: operating fields with coordinates", oil.Measures);
         Assert.StartsWith("Global Energy Monitor, Global Oil and Gas Extraction Tracker, March 2026 release. Licence:", oil.Note);
         Assert.Empty(oil.Keys);
-        var steel = legend.Entries[2];
+        var steel = legend.Entries[3];
         Assert.Equal("Global Energy Monitor, Global Iron and Steel Tracker · September 2026 (V1) release", steel.SourceLine);
         Assert.Equal(["1–2.9 million tonnes a year", "3–9.9 million tonnes a year", "10 million tonnes a year or more"], steel.Keys.Select(k => k.Label));
         Assert.All(steel.Keys, k => Assert.True(k.IsOutline));   // drawn as the layer's square outline
@@ -205,7 +205,7 @@ public class ResourceMarkersTests
         Assert.All(ResourceMarkers.Datasets, d => Assert.NotEmpty(markers.Items(d.Layer)));
         var dot = ResourceMarkers.Status(loads);
         Assert.Equal((ResourceMarkers.DotName, FeedState.Ok), (dot.Name, dot.State));
-        Assert.Equal("power September 2026 release (file V2); oil and gas March 2026 release; steel September 2026 (V1) release · " + BundledDataset.StatusNote, dot.Note);
+        Assert.Equal("power September 2026 release (file V2); renewables September 2026 release (file V2); oil and gas March 2026 release; steel September 2026 (V1) release · " + BundledDataset.StatusNote, dot.Note);
         Assert.Contains(ResourceMarkers.DotName, AppServices.StatusDotNames);
 
         // A missing extract leaves its layer "Data not loaded yet" (R2) and turns the dot amber, saying which.
@@ -218,5 +218,88 @@ public class ResourceMarkersTests
         var amber = ResourceMarkers.Status(broken);
         Assert.Equal(FeedState.Attention, amber.State);
         Assert.Contains("steel not loaded (not found)", amber.Note);
+    }
+
+    // ---------------------------------------------------------------- renewables (ruling R25)
+
+    [Fact]
+    public void ColourIsTheLargestFuelsEvenWhenAnotherIsListedFirst()
+    {
+        // R24 re-review: the colour must follow the plant's largest fuel (the extract's type), not the first fuel listed.
+        var mixed = new MarkerPoint("Test station", "MLT", 35.8, 14.6, 547.8, "MW", "operating", "oil/gas", Types: "hydropower 75 MW; oil/gas 472.8 MW");
+        Assert.Equal(ResourceMarkers.FuelGroupColor(FuelGroup.Fossil), ResourceMarkers.ColorOf(MarkerLayer.PowerPlants, mixed));
+        Assert.NotEqual(ResourceMarkers.FuelGroupOf("hydropower"), ResourceMarkers.FuelGroupOf("oil/gas"));
+        Assert.Equal(ResourceMarkers.FuelGroupColor(FuelGroup.Fossil), ResourceMarkers.ColorOf(MarkerLayer.Renewables, mixed with { Type = "coal" }));
+        Assert.Equal(ResourceMarkers.FuelGroupColor(FuelGroup.Hydro), ResourceMarkers.ColorOf(MarkerLayer.Renewables, mixed with { Type = "hydropower" }));
+        Assert.Null(ResourceMarkers.ColorOf(MarkerLayer.SteelPlants, mixed));
+    }
+
+    [Fact]
+    public void RenewablesHaveTheirOwnHexagonGlyph() => StaAsync.Sta(() =>
+    {
+        Assert.Equal(MarkerShape.Hexagon, LayerStyle.Shape(MarkerLayer.Renewables));
+        Assert.Equal("⬢", LayerStyle.Symbol(MarkerLayer.Renewables));
+        // C8: no other layer has this shape or symbol (LayerStyleTests checks every layer's are distinct).
+        Assert.Single(Enum.GetValues<MarkerLayer>(), l => LayerStyle.Shape(l) == MarkerShape.Hexagon);
+        Assert.Equal("renewables", LayerCatalog.Id(MarkerLayer.Renewables));
+        Assert.Equal([MarkerLayer.PowerPlants, MarkerLayer.Renewables, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants], LayerCatalog.ResourceMarkers);
+        Assert.Contains(MarkerLayer.Renewables, PointMarkerLayer.Layers);
+
+        // Drawn as a filled hexagon in the fuel's colour inside a dark hexagonal edge.
+        var item = new PointItem(new AstroCore.Earth.GeoPosition(0, 0), 5, "tip", null, ResourceMarkers.FuelGroupColor(FuelGroup.Hydro));
+        var layer = new PointMarkerLayer(MarkerLayer.Renewables, () => [item], new ListLog());
+        var camera = new System.Windows.Media.Media3D.PerspectiveCamera(new System.Windows.Media.Media3D.Point3D(3, 0, 0),
+            new System.Windows.Media.Media3D.Vector3D(-3, 0, 0), new System.Windows.Media.Media3D.Vector3D(0, 0, 1), 45);
+        layer.Update(new GlobeCore.Wpf.Layers.SceneContext(camera, new GlobeCore.Wpf.Rendering.Projector(camera, 800, 600), TestData.T));
+        var group = Assert.IsType<System.Windows.Media.Media3D.Model3DGroup>(layer.Root.Content);
+        Assert.Equal(2, group.Children.Count);   // the edge, then the fill
+        var fill = (System.Windows.Media.Media3D.MeshGeometry3D)((System.Windows.Media.Media3D.GeometryModel3D)group.Children[1]).Geometry;
+        Assert.Equal(7, fill.Positions.Count);   // a centre and six corners
+        Assert.Equal(18, fill.TriangleIndices.Count);
+    });
+
+    [Fact]
+    public void RenewablesTooltipFollowsThePowerLayer()
+    {
+        var farm = new MarkerPoint("Bajgora wind farm", "KOS", 42.98, 21.02, 103, "MW", "operating", "wind");
+        Assert.Equal("Bajgora wind farm · wind · 103 MW · operating · GEM Global Integrated Power Tracker, September 2026 release (file V2)",
+            OneLine(ResourceMarkers.Tooltip(MarkerLayer.Renewables, farm, PowerCite)));
+        var mixed = farm with { Name = "Mixed park", Capacity = 450, Type = "utility-scale solar", Types = "utility-scale solar 300 MW; wind 150 MW" };
+        Assert.StartsWith("Mixed park · utility-scale solar 300 MW, wind 150 MW · 450 MW · operating · ",
+            OneLine(ResourceMarkers.Tooltip(MarkerLayer.Renewables, mixed, PowerCite)));
+    }
+
+    [Fact]
+    public void RenewablesLegendNamesThresholdFuelsPresentOverlapAndCredit()
+    {
+        var markers = new MarkerDataStore();
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, markerData: markers);
+        var load = Committed(MarkerLayer.Renewables);
+        markers.Replace(MarkerLayer.Renewables, ResourceMarkers.For(MarkerLayer.Renewables, load)!);
+        layers.Show(MarkerLayer.Renewables, true);
+        var e = Assert.Single(legend.Entries);
+        Assert.Equal("renewables", e.Id);
+        Assert.Equal($"Renewable power plants: {load.Manifest!.Filter}, coloured by its largest fuel", e.Measures);
+        Assert.Matches(@"^operating renewable plants of \d+ MW or more \(renewable units summed per plant\)$", load.Manifest.Filter);
+        // Only the fuel groups present (no fossil, no nuclear), then the size classes.
+        Assert.Equal(["hydro", "wind or solar", "other (bioenergy, geothermal)", "under 500 MW", "500–999 MW", "1,000–4,999 MW", "5,000 MW or more"],
+            e.Keys.Select(k => k.Label));
+        Assert.StartsWith(ResourceMarkers.OverlapNote + " Global Energy Monitor, Global Integrated Power Tracker, September 2026 release. Licence: CC BY 4.0, ", e.Note);
+        Assert.Contains("Changed: filtered to operating renewable plants of", e.Note);
+        Assert.Equal("Global Energy Monitor, Global Integrated Power Tracker · September 2026 release (file V2)", e.SourceLine);
+    }
+
+    [Fact]
+    public void CommittedRenewablesExtractIsUnderTheCapWithHandCheckedPlants()
+    {
+        var load = Committed(MarkerLayer.Renewables);
+        Assert.InRange(load.Points.Count, 1000, PointMarkerLayer.MaxMarkers);
+        Assert.All(load.Points, p => Assert.Contains(p.Type, new[] { "wind", "utility-scale solar", "hydropower", "geothermal", "bioenergy" }));
+        Assert.Equal((22500.0, "CHN", "hydropower"), Pick(load, "Three Gorges Dam hydroelectric plant"));
+        Assert.DoesNotContain(load.Points, p => p.Name == "Bruce nuclear power plant" || p.Name == "Taichung power station");
+        // The thresholds tried, in order, with their counts.
+        Assert.Equal("100 MW", load.Manifest!.Thresholds!.Keys.First());
+        Assert.True(load.Manifest.Thresholds.Values.Last() <= PointMarkerLayer.MaxMarkers);
     }
 }

@@ -77,7 +77,7 @@ public class SnapshotScenesTests
     public void TheCommittedScenesLoad()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "myanmar-panel", "dprk-camps"],
+        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps"],
             scenes.Select(s => s.Name));
         Assert.All(scenes, s => Assert.Equal(new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc), s.DisplayTimeUtc));
         Assert.Equal(new GeoPosition(10, 25), scenes[0].LookAt);
@@ -97,7 +97,12 @@ public class SnapshotScenesTests
         Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.OilProduction, resources.Shading);
         // Task 7 (after ruling R18): the three GEM marker layers over the oil production shading.
         Assert.Equal([EarthRelief3D.App.Presentation.MarkerLayer.PowerPlants, EarthRelief3D.App.Presentation.MarkerLayer.OilGasFields,
-            EarthRelief3D.App.Presentation.MarkerLayer.SteelPlants], resources.Markers);
+            EarthRelief3D.App.Presentation.MarkerLayer.SteelPlants], resources.Markers);   // R25: renewables have their own scene
+        // R25: the renewables over the water-stress shading, Europe, no other markers.
+        var renewables = scenes.Single(s => s.Name == "renewables");
+        Assert.Equal(new GeoPosition(50, 10), renewables.LookAt);
+        Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.WaterStress, renewables.Shading);
+        Assert.Equal([EarthRelief3D.App.Presentation.MarkerLayer.Renewables], renewables.Markers);
         var myanmar = scenes.Single(s => s.Name == "myanmar-panel");
         Assert.True(myanmar.ShowDrafts);
         Assert.Equal("MMR", myanmar.Panel);
