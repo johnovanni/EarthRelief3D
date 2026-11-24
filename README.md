@@ -12,8 +12,10 @@ curated atrocity designations and prison camps (drafts until the owner reviews t
 sanitation, health care, hunger, shelter need) and the Resources shadings (oil production, water stress). Task 7
 (2026-11-24) added the Resources marker layers from Global Energy Monitor's trackers (CC BY 4.0): power plants of
 500 MW or more coloured by fuel, renewable plants (wind, solar, hydro, geothermal, bioenergy) of 200 MW or more, oil
-and gas fields, and steel plants of 1 million tonnes a year or more. The Getting
-help in group comes in a later version.
+and gas fields, and steel plants of 1 million tonnes a year or more. Plan 4 (2026-11-24) added the Getting help in group, "Your one
+small step", a plain-language explainer for each crisis kind, and the vetting tool the maintainer runs before a
+release. Everything curated in Plan 4 (UN depots, pooled funds, contacts, charities, explainers) is a draft until the
+owner approves it.
 
 ## Features
 
@@ -41,6 +43,21 @@ help in group comes in a later version.
   shelter (UN humanitarian needs overviews). The country panel adds "Basic needs", "People in need" and "Resources".
 - **Resources:** crude oil production (US EIA) and baseline water stress (WRI Aqueduct). FAOSTAT, EIA and Aqueduct are
   small extracts bundled in `data/datasets`, made by `tools/EarthRelief3D.DataTool` from the downloaded files.
+- **Getting help in:** a brown Access shading (ACAPS humanitarian access scores, 0 to 5, read live from HDX and never
+  stored in the repository), markers for the UN humanitarian response depots, scheduled-service airports and large and
+  medium ports, and curved lines from the open country to the nearest depot, airport and port, each labelled with its
+  straight-line distance (km, or miles in Settings). The country panel has a "Getting help in" section (ACAPS's nine
+  access indicators, each as published) and appeal funding from OCHA's FTS, with a regional plan labelled as a figure for
+  the whole plan.
+- **Your one small step:** for a country in crisis, the UN pooled fund for it (or CERF), the vetted US charities
+  working there (only entries with an IRS check, evidence and a rating the owner confirmed; never ranked, never with
+  stars or scores, with links to the evaluators' own reports), and the official people to contact (your two senators once
+  you choose a state in Settings, the House's own "find your representative" page, the State Department, the country's
+  mission through the UN Blue Book). The app never handles money and never asks for an address.
+- **Explainers:** a short, sourced, plain-language card for each crisis kind, "Access" and "Why these?", opened from a
+  section's "What is this, and why does it happen?" link.
+- **Vetting tool** (`src/EarthRelief3D.Vetting`): checks the charity list against IRS Publication 78, the revocation
+  list and Form 990 files and writes a report for the owner; it never edits the list.
 - A legend whose every line names its source and "as of" date (a shading's line says exactly what is measured, with the
   year, and "no figure: not shaded"); hover tips and a country panel (click a country or a
   marker) that list every source's finding with its source and date, or "No crisis recorded by these sources".
@@ -77,13 +94,15 @@ itself to a PNG with WPF's `RenderTargetBitmap`):
 | `--offline-samples <dir>` | Answer every feed request from the sample files in `<dir>` (use `tests\Samples`). The cache and settings live in a temporary folder that is deleted on exit (the log stays in the usual logs folder, `%LOCALAPPDATA%\EarthRelief3D\logs`), and the window title says SAMPLE DATA. |
 | `--display-time <ISO UTC>` | Start the app's clock at that time (the sample data is from Nov 2026: `2026-11-22T12:00:00Z`). |
 | `--snapshot-scenes <json> --snapshot-out <dir>` | Take one picture per scene, saved as `<dir>\<name>.png`, in one launch, then exit. Needs `--offline-samples`. Exit code 1 if any picture failed. |
-| `--snapshot <png>` | One picture, with `--look-at lat,lon`, `--layers` (a comma list: at most one shading of food, water, sanitation, health, hunger, shelter, oil, waterstress, and any of the markers conflict, outbreaks, displacement, atrocities, camps, power, oilgas, steel; default `conflict,food,outbreaks,displacement`) and `--open-panel ISO3`. Scenes files take the same names. |
+| `--snapshot <png>` | One picture, with `--look-at lat,lon`, `--layers` (a comma list: at most one shading of food, water, sanitation, health, hunger, shelter, oil, waterstress, access, and any of the markers conflict, outbreaks, displacement, atrocities, camps, power, oilgas, steel, renewables, un-depots, airports, ports, hub-lines; default `conflict,food,outbreaks,displacement`) and `--open-panel ISO3`. Scenes files take the same names. |
 | `--delay-ms N` | Wait N ms after the data is drawn before each picture (default 1500). |
 | `--show-drafts` | Also show the curated rows the owner has not approved yet, each labelled "Draft: not yet reviewed"; the window title says DRAFTS SHOWN. |
 
 A scenes file (`tests/SnapshotScenes/scenes.json`) is
-`{"scenes":[{"name","displayTimeUtc","lookAt":[lat,lon],"layers":[...],"panel":"ISO3","panelFocus":"conflict|food|outbreaks|displacement|atrocities|camps","showDrafts":true}]}`;
-`showDrafts` shows the drafts for that picture only, as `--show-drafts` does for a whole run.
+`{"scenes":[{"name","displayTimeUtc","lookAt":[lat,lon],"layers":[...],"panel":"ISO3","panelFocus":"conflict|food|outbreaks|displacement|atrocities|camps|access|help","explainer":"food","showDrafts":true}]}`;
+`showDrafts` shows the drafts for that picture only, as `--show-drafts` does for a whole run; `explainer` (an explainer
+id: conflict, food, outbreaks, displacement, atrocities, camps, access or why-these; needs a panel) opens the explainer
+card, and a scene must list `hub-lines` to show the arcs.
 Runs repeat exactly: the display clock stands still at each scene's time, the feeds' clock stands still at the first
 scene's time (so the feeds run once and their "checked" dates do not move), and the camera moves at once.
 
@@ -95,8 +114,8 @@ src\EarthRelief3D.App\bin\Release\net10.0-windows\EarthRelief3D.App.exe --offlin
 To compare two runs, use EarthWatch3D's PngDiff, referenced by path (it is not copied into this repo):
 `dotnet run --project C:\repos\EarthWatch3D\tools\PngDiff -c Release -- artifacts\snapshot-baseline artifacts\snapshot-baseline-2`
 (exit code 0 only when every picture is identical). Pictures go to `artifacts\`, which git ignores. Results of the
-first baseline are in [docs/plan-2-results.md](docs/plan-2-results.md), and of Plan 3's nine scenes in
-[docs/plan-3-results.md](docs/plan-3-results.md).
+first baseline are in [docs/plan-2-results.md](docs/plan-2-results.md), of Plan 3's nine scenes in
+[docs/plan-3-results.md](docs/plan-3-results.md) and of Plan 4's fourteen in [docs/plan-4-results.md](docs/plan-4-results.md).
 
 ## Licence
 

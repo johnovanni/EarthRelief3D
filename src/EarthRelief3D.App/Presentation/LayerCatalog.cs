@@ -16,14 +16,23 @@ public static class LayerCatalog
     /// <summary>The shadings of the Resources group, in strip order.</summary>
     public static IReadOnlyList<ShadingLayer> ResourceShadings { get; } = [ShadingLayer.OilProduction, ShadingLayer.WaterStress];
 
+    /// <summary>The shadings of the Getting help in group (Plan 4), in strip order.</summary>
+    public static IReadOnlyList<ShadingLayer> HelpShadings { get; } = [ShadingLayer.Access];
+
+    /// <summary>
+    /// The marker layers of the Getting help in group (Plan 4, P4-5), after its shading, in strip order: the three hub layers
+    /// (off by default), then the toggle for the lines to the nearest hubs (on by default, R3).
+    /// </summary>
+    public static IReadOnlyList<MarkerLayer> HelpMarkers { get; } = [MarkerLayer.UnDepots, MarkerLayer.Airports, MarkerLayer.Ports, MarkerLayer.HubLines];
+
     /// <summary>The marker layers of the Resources group, in strip order.</summary>
     public static IReadOnlyList<MarkerLayer> ResourceMarkers { get; } = [MarkerLayer.PowerPlants, MarkerLayer.Renewables, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants];
 
     /// <summary>The marker layers Plan 3 adds to the Crises group, after Plan 2's four layers.</summary>
     public static IReadOnlyList<MarkerLayer> CrisisMarkersAdded { get; } = [MarkerLayer.Atrocities, MarkerLayer.Camps];
 
-    /// <summary>The Plan 2 marker layers, on by default.</summary>
-    public static IReadOnlyList<MarkerLayer> DefaultMarkers { get; } = [MarkerLayer.Conflict, MarkerLayer.Outbreaks, MarkerLayer.Displacement];
+    /// <summary>The marker layers on by default: the Plan 2 layers and the lines to the nearest hubs (Plan 4, R3).</summary>
+    public static IReadOnlyList<MarkerLayer> DefaultMarkers { get; } = [MarkerLayer.Conflict, MarkerLayer.Outbreaks, MarkerLayer.Displacement, MarkerLayer.HubLines];
 
     // ---------------------------------------------------------------- shadings
 
@@ -38,6 +47,7 @@ public static class LayerCatalog
         ShadingLayer.ShelterNeed => "shelter",
         ShadingLayer.OilProduction => "oil",
         ShadingLayer.WaterStress => "waterstress",
+        ShadingLayer.Access => "access",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -51,6 +61,7 @@ public static class LayerCatalog
         ShadingLayer.ShelterNeed => "Shelter need",
         ShadingLayer.OilProduction => "Oil production",
         ShadingLayer.WaterStress => "Water stress",
+        ShadingLayer.Access => "Access constraints",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -68,6 +79,7 @@ public static class LayerCatalog
         ShadingLayer.ShelterNeed => "hno.shelter",
         ShadingLayer.OilProduction => "eia.crudeOil",
         ShadingLayer.WaterStress => "wri.bws",
+        ShadingLayer.Access => EarthRelief3D.Core.Feeds.AcapsAccessFeed.ScoreSeriesId,
         _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Only the country-value shadings draw a series."),
     };
 
@@ -80,6 +92,7 @@ public static class LayerCatalog
         ShadingLayer.ShelterNeed => "UN HNO",
         ShadingLayer.OilProduction => "US EIA",
         ShadingLayer.WaterStress => "WRI Aqueduct",
+        ShadingLayer.Access => "ACAPS",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -96,6 +109,7 @@ public static class LayerCatalog
         ShadingLayer.ShelterNeed => "People in need of shelter, as a share of the population (UN humanitarian needs overviews)",
         ShadingLayer.OilProduction => "Crude oil production, including lease condensate, in thousand barrels per day",
         ShadingLayer.WaterStress => "Baseline water stress (WRI Aqueduct category)",
+        ShadingLayer.Access => AccessPanel.Measures,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -122,6 +136,10 @@ public static class LayerCatalog
         MarkerLayer.OilGasFields => "oilgas",
         MarkerLayer.SteelPlants => "steel",
         MarkerLayer.Renewables => "renewables",
+        MarkerLayer.UnDepots => "un-depots",
+        MarkerLayer.Airports => "airports",
+        MarkerLayer.Ports => "ports",
+        MarkerLayer.HubLines => "hub-lines",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -136,6 +154,10 @@ public static class LayerCatalog
         MarkerLayer.OilGasFields => "Oil and gas fields",
         MarkerLayer.SteelPlants => "Steel plants",
         MarkerLayer.Renewables => "Renewable power plants",
+        MarkerLayer.UnDepots => "UN depots",
+        MarkerLayer.Airports => "Airports",
+        MarkerLayer.Ports => "Ports",
+        MarkerLayer.HubLines => "Lines to nearest hubs",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -151,8 +173,15 @@ public static class LayerCatalog
         MarkerLayer.OilGasFields => "Global Energy Monitor, Global Oil and Gas Extraction Tracker",
         MarkerLayer.SteelPlants => "Global Energy Monitor, Global Iron and Steel Tracker",
         MarkerLayer.Renewables => "Global Energy Monitor, Global Integrated Power Tracker",
+        MarkerLayer.UnDepots => "UN Humanitarian Response Depots (UNHRD; curated, cited)",
+        MarkerLayer.Airports => "OurAirports",
+        MarkerLayer.Ports => "NGA World Port Index (Pub 150)",
+        MarkerLayer.HubLines => HubLinesSources,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
+
+    /// <summary>The sources of the hub lines: the three hub datasets (their dates are on the legend line and in the panel).</summary>
+    public const string HubLinesSources = "UNHRD, OurAirports, NGA World Port Index";
 
     /// <summary>What a Plan 3 marker layer shows, for its legend line. (The Plan 2 layers' wording is LegendViewModel.Measures.)</summary>
     public static string Measures(MarkerLayer layer) => $"{Label(layer)}: {What(layer)}";
@@ -165,6 +194,10 @@ public static class LayerCatalog
         MarkerLayer.OilGasFields => "operating fields, leaving out the smallest reported producers (the legend gives the threshold)",
         MarkerLayer.SteelPlants => "operating plants of 1 million tonnes of crude steel a year or more",
         MarkerLayer.Renewables => "operating wind, solar, hydro, geothermal and bioenergy plants, coloured by its largest fuel (the legend gives the size threshold; large ones are also in Power plants)",
+        MarkerLayer.UnDepots => "the five UN Humanitarian Response Depots (UNHRD, run by the World Food Programme); each is marked at the airport beside it, so its position is approximate",
+        MarkerLayer.Airports => EarthRelief3D.App.Layers.HubMarkers.AirportsDrawn,
+        MarkerLayer.Ports => "ports with a large or medium harbour",
+        MarkerLayer.HubLines => "straight-line arcs from the selected country to its nearest UN depot, airport and port",
         _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "The Plan 2 layers' wording is in LegendViewModel.Measures."),
     };
 

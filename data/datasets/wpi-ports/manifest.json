@@ -1,0 +1,67 @@
+{
+  "id": "wpi-ports",
+  "publisher": "US National Geospatial-Intelligence Agency (NGA)",
+  "dataset": "World Port Index (Pub 150)",
+  "version": null,
+  "sourceUrl": "https://msi.nga.mil/apology_objects/WPI.zip",
+  "pageUrl": "https://msi.nga.mil/Publications/WPI",
+  "licence": "Public domain (US government work, 17 U.S.C. 105)",
+  "attribution": "US National Geospatial-Intelligence Agency (NGA), World Port Index (Pub 150), public domain.",
+  "dateMeaning": "AsOf",
+  "dateText": null,
+  "asOf": "the World Port Index file dated 2026-11-05",
+  "published": "2026-11-05",
+  "downloaded": "2026-11-24",
+  "fileName": "WPI.zip",
+  "fileSha256": "bd6e0eeb647d3fc79ab7d390720c60fc5d361edca9553e9ebe2c4fd8d530b53e",
+  "command": "DataTool ports <downloads>/WPI.zip --downloaded 2026-11-24",
+  "series": [
+    {
+      "id": "wpi-ports",
+      "measures": "Ports with a large or medium harbour",
+      "unit": "ports",
+      "sourceItem": "UpdatedPub150.csv",
+      "countries": 108
+    }
+  ],
+  "notPlaced": [
+    {
+      "code": "CX",
+      "name": "Christmas Island",
+      "reason": "no unit in the boundary set for this country: 1 port not drawn"
+    },
+    {
+      "code": "GP",
+      "name": "Guadeloupe",
+      "reason": "no unit in the boundary set for this country: 1 port not drawn"
+    },
+    {
+      "code": "Gibraltar",
+      "name": "Gibraltar",
+      "reason": "no unit in the boundary set for this country: 1 port not drawn"
+    },
+    {
+      "code": "MQ",
+      "name": "Martinique",
+      "reason": "no unit in the boundary set for this country: 1 port not drawn"
+    }
+  ],
+  "dropped": [],
+  "qualifiersSeen": {
+    "(blank)": 127,
+    "Large": 174,
+    "Medium": 376,
+    "Small": 1023,
+    "Very Small": 2109
+  },
+  "flagsSeen": {},
+  "notes": [
+    "Counts (checked 2026-11-24): 546 ports kept in 108 countries (large 174, medium 372) of 3,809 rows in the file (Harbor Size: (blank) 127, Large 174, Medium 376, Small 1,023, Very Small 2,109); 4 large or medium ports have no country in the boundary set.",
+    "Country: 536 ports by the first two letters of the UN/LOCODE (ISO 3166 alpha-2), 10 with no usable UN/LOCODE by the country name in the Country Code column.",
+    "Licence: no statement could be read on NGA's portal (it was under maintenance on 2026-11-24); a US federal government work (17 U.S.C. section 105), not confirmed from NGA's own page.",
+    "The file is UTF-8 with a byte order mark. Its date is the zip entry's (the CSV inside WPI.zip); the portal states no edition number."
+  ],
+  "filter": "ports with a large or medium harbour (the World Port Index's Harbor Size)",
+  "changes": "filtered to ports with a large or medium harbour; name, position, harbour size and UN/LOCODE kept; the country as the boundary set's unit",
+  "licenceUrl": null
+}

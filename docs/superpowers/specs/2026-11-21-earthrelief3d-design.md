@@ -205,6 +205,53 @@ owner's GEM files (R18) and ran on 2026-11-24.
 | OR-1 | **Owner review, 2026-11-24:** "Drafts are reviewed and approved." All 31 designations and 5 camp sites are approved as drafted (`approvedOn` 2026-11-24), so the app shows them without `--show-drafts`. Read as answers to the review's questions: the US Sudan genocide determination (2025) keeps its continuing statement and counts toward Sudan's triangle; Camp 15 keeps its marker on HRNK's 2015 report (no recency rule for camps); Camp 18 keeps its marker with both statements (R14b); the ICC warrants for Netanyahu and Gallant stay listed as interim steps. The answered questions were removed from the JSON | The owner approved the rows as drafted, with no corrections | If the owner meant otherwise on a question, one JSON edit per row |
 | OR-2 | Not changed by the approval: the Gambia v. Myanmar merits judgment stays "awaiting confirmation" (it is not a draft row; it needs its operative paragraph from the ICJ's own text), and the four pre-2001 US genocide conclusions stay unlisted | Neither was a draft; both still need a source Claude could not open or that does not exist on state.gov | Myanmar has no ICJ merits row until confirmed |
 
+### Rulings made while building Plan 4 (for the owner to check)
+
+P4-1 to P4-15 were made while writing the Plan 4 plan (`docs/superpowers/plans/2026-11-24-plan-4-getting-help-in-and-one-small-step.md`, "Rulings made while writing this plan"; each is one line here, the plan has the reason and the cost).
+R1 to R22 were made while building it (its SDD ledger; R20 to R22 in the final review's fix wave); **these R numbers are Plan 4's own**, not Plan 2's R1 to R17 or Plan 3's R1 to R25 above.
+Everything curated in Plan 4 (depots, pooled funds, contacts, charities, explainers) is a draft until the owner approves it (P4-13).
+
+- P4-1: no source needs a key, an account or an email (HAPI's API is not used; FTS, ACAPS and 3W come from HDX files).
+- P4-2: ACAPS is treated by its stricter licence (CC BY-NC-ND 4.0): fetched live from HDX only, never committed, values shown unchanged, the credit names both licences, test samples synthetic; a note to ACAPS is in `docs/permission-requests.md`.
+- P4-3: the ACAPS edition is the newest XLSX resource on HDX, named from its file name (R4 changes how "newest" is decided).
+- P4-4: appeal funding is FTS's rows for the clock's year; a plan seen for more than one country, or called "Regional", is shown as "figures for the whole plan, all its countries" and never summed into a country.
+- P4-5: hubs are scheduled-service large and medium airports (OurAirports), large and medium ports (World Port Index) and the UNHRD depots; each is an off-by-default marker layer with one status dot, "Hubs".
+- P4-6: the crisis place for arcs is the country's `LabelPoint`; distances are great-circle on a 6,371 km sphere, always written "straight-line".
+- P4-7: arcs show when the panel is open and "Lines to nearest hubs" is on (default on): at most three, to the nearest approved depot, airport and port; the panel lists the same three.
+- P4-8: ratings are confirmed by the owner, not by scripts or agents; no task fetches charitynavigator.org or give.org pages; a charity without a confirmed qualifying rating is hidden.
+- P4-9: the first charities follow a rule (3W presence in at least 5 countries within 12 months, US public charity in Publication 78, at most 15 organisations), not a choice.
+- P4-10: UN missions are one link to the UN Blue Book; no list is compiled.
+- P4-11: "Give" for the UN is the country's pooled fund with OCHA's links, otherwise CERF with the UN Foundation note.
+- P4-12: "Your one small step" shows for a country with a current crisis or an FTS appeal for the year; Getting help in shows for every country.
+- P4-13: contacts, pooled funds, depots and explainers are curated drafts with the Plan 3 review record, shown only after approval (or with `--show-drafts`).
+- P4-14: new marker shapes (depot star, airport hexagon outline, port diamond outline, hub arc) and the Access shading's colours (R5 changes it to six classes, 0 to 5).
+- P4-15: Settings gain "Your country", "Your state (optional)" and "Distances" (km or miles); nothing else about the user is stored.
+
+| # | Ruling | Reason | Cost |
+|---|---|---|---|
+| R1 | The synthetic ACAPS HDX package names its newest XLSX resource `acaps-humanitarian-access-dataset_dec_2025.xlsx` | The tests expect "December 2025 edition" | Test strings change |
+| R2 | The controller (not a subagent) opened unhrd.org and state.gov in the built-in browser and handed the findings over as a file | A subagent may lack the browser tools | None |
+| R3 | Layer ids: `access` (shading), `un-depots`, `airports`, `ports`, `hub-lines` | The plan named only `access`; Task 10's scenes and `--layers` need the rest | A rename |
+| R4 | The ACAPS feed picks the XLSX with the latest edition parsed from its file name, not the latest `last_modified`; a name that does not parse is skipped and logged; none parsing is a format error | On HDX the July 2025 file's `last_modified` is 3 s later than December 2025's, so P4-3's rule would pick the older edition | None (the file names are HDX's own) |
+| R5 | ACAPS's ACCESS score 0 is a figure ("No constraints"), not a missing one: the Access scale has six classes 0 to 5 (YlOrBr 6) labelled with ACAPS's own level names, and the legend says "ACAPS score 0-5" | P4-14 assumed 0 had no name; a real figure must never look missing | One class |
+| R6 | Senators' office phones and contact forms in the Senate sample are public-office data (US government work), not personal data | The "no personal data" rule is about app users and private people | Trim the sample |
+| R7 | The ACAPS sample has 12 placed assessments, not 11 | Task 1's synthetic sheet has 13 country-level rows, one unplaced (XXK) | None |
+| R8 | An ACAPS indicator cell that is not 0 to 3 (an information gap, "X") is left out of the data; the panel lists all nine indicators and shows a missing one as "No score (information gap)" | No figure must never look like a low score | Wording |
+| R9 | The edition parser accepts ACAPS's real name variants (a `-` or `_` separator, a month in full or as 3 letters, an optional `-` before `_`); an unparsed name is logged at Warn | The plan's example was narrower than HDX's real names; a silently stale feed breaks "every fact shows its date" | None |
+| R10 | The Getting help in group may start open on a fresh install because the hub lines are on by default | It shows a new user the group exists | One default |
+| R11 | Each charity's "Working here: <evidence title> (checked <date>)" line links its evidence page | §9.1 shows evidence with the entry; every fact shows its source | One link per line |
+| R12 | Subagent commits keep the trailer of the model that wrote them | Truthful attribution; no history rewrite | None |
+| R13 | A programme share's tax year is the return's own IRS `TaxYr` (fallback: the calendar year the tax period begins), and the report also prints the period end | The app must say what the filing says; the period-end year was a year late for a June year-end | One year in a label |
+| R14 | The vetting tool's link checker follows redirects by hand (at most 10) and refuses an evaluator host at every hop (reported as "not checked by the tool (evaluator's terms)"), and normalises a trailing dot | A redirect to charitynavigator.org or give.org would break P4-8's rule that no script fetches them | A few lines |
+| R15 | For drafting charities, a country "has a current crisis" when its 3W rows have `has_hrp` or `in_gho` true | Drafting needs a fixed, source-defined list; inclusion in OCHA's Global Humanitarian Overview is OCHA's own threshold | A charity listed where there is no crisis stays hidden there anyway |
+| R16 | `Charity` gains an optional `Note` (from the JSON's "note"), shown in `docs/help-review.md` and not in the app | A fact such as "EIN matched by name in Publication 78 only" would otherwise be silently dropped before the owner approves | One field |
+| R17 | The `Note` carries the reviewer's disclosures: Save the Children US's site does not state membership of Save the Children International in so many words; where a charity's country evidence is on the international organisation's site (IOM, UNFPA, UNICEF USA, NRC USA) the note says so; NRC USA's EIN note stays | The owner must see judgement calls when approving | Wording |
+| R18 | Three evaluator method pages (Charity Navigator's ratings method, give.org's BBB standards and Overhead Myth) were opened once each in the built-in browser and are cited as the "why these" sources | P4-8's purpose is no automated fetching of ratings or profiles (Charity Navigator's terms bar bots); a reader-style view of a method page to cite a threshold the spec itself states is not scraping | Drop three citations (the IRS and FTC sources remain); **owner: say if P4-8 is to be read strictly** |
+| R19 | A snapshot scene may set `"explainer"` (an explainer id; needs a panel) to open the explainer card for that picture | No scene could open the card, so it could not be checked visually | One scenes-file field |
+| R20 | The Airports marker layer draws only the large airports with scheduled service (about 1,150); the nearest-airport search and the panel row keep large and medium (P4-5 unchanged for the search), and the legend says "large airports with scheduled flights (the panel's nearest airport may be a medium one)" | Some 3,250 hexagons smothered the globe and hid the arcs (final review) | Medium airports are not drawn (they are still named in the panel and by the arc) |
+| R21 | Each UN depot's position is the airport its own address names or sits beside, from the bundled OurAirports data (The Unlicense), not OpenStreetMap: Accra at Kotoka International, Dubai at Al Maktoum International (DWC), Panama at Panamá Pacífico International (Howard), Kuala Lumpur at Sultan Abdul Aziz Shah (Subang), Brindisi at Brindisi Airport; each row says the marker is at that airport, quotes the address, and is approximate | C6 forbids committing share-alike data (OpenStreetMap is ODbL) | A marker a few km from the depot; distances are rounded anyway |
+| R22 | When no `cerf` row is shown (none approved, outside a `--show-drafts` run), the panel shows a built-in CERF line with P4-11's text and link | Every country keeps a UN fund to give to while the curated rows wait for the owner; it was accepted while building but not shown to the owner | None |
+
 ### Out of scope (for now)
 
 - Countries other than the US in the help panel (the data shape allows them, §9.4).

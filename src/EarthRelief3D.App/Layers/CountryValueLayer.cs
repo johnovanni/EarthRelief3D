@@ -30,7 +30,7 @@ public sealed record ShadedCountry(string Iso3, Color Color);
 public sealed class CountryValueLayer : ImageLayer, IPickable
 {
     /// <summary>The shadings drawn by this class, in strip order (food is <see cref="FoodImageLayer"/>).</summary>
-    public static IReadOnlyList<ShadingLayer> Layers { get; } = [.. LayerCatalog.NeedsShadings, .. LayerCatalog.ResourceShadings];
+    public static IReadOnlyList<ShadingLayer> Layers { get; } = [.. LayerCatalog.NeedsShadings, .. LayerCatalog.ResourceShadings, .. LayerCatalog.HelpShadings];
 
     /// <summary>The layer's z-order: just after the food layer (only one shading is visible, so they never compete).</summary>
     public static int OrderOf(ShadingLayer layer) => FoodImageLayer.Order + (int)layer;
@@ -128,6 +128,9 @@ public sealed class CountryValueLayer : ImageLayer, IPickable
         var source = LayerCatalog.SourceName(which);
         if (series.For(iso3) is not { } v || !HasFigure(v, scale))
             return $"{countryName} · No figure from {source} for the {LayerCatalog.LowerFirst(series.Measures)}: not shaded";
+        // ACAPS names its edition and its level for every score; 0 is a real figure (ruling R5): "… (ACAPS score 0–5): 0 of 5: No constraints · ACAPS, December 2025 edition".
+        if (which == ShadingLayer.Access)
+            return $"{countryName} · {AccessPanel.Measures}: {AccessPanel.ScoreText((int)v.Value)} · {source}, {CrisisText.DataDate(v.Citation, DateTime.UtcNow)}";
         // A 3-year average names its own range after the figure (fix round 1): "…: 10.9%, average 2020–2022 · FAO".
         // A modelled baseline names its period and publication after the source, never a year (I3): "… · WRI Aqueduct, baseline 1979–2019 (published 2023)".
         if (v.Citation.DateMeaning == CitationDate.Baseline)

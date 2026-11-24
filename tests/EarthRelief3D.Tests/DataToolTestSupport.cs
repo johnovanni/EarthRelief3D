@@ -120,71 +120,8 @@ internal static class SourceZips
             ("country_future", [new object[] { "gid_0", "name_0" }]),
         };
         var path = Zip(dir, "aqueduct-4-0-country-rankings.zip",
-            ("Aqueduct40_rankings_download_Y2023M07D05/Aqueduct40_rankings_download_Y2023M07D05.xlsx", Xlsx(sheets)));
+            ("Aqueduct40_rankings_download_Y2023M07D05/Aqueduct40_rankings_download_Y2023M07D05.xlsx", XlsxWriter.Write(sheets)));
         return new SourceFile(path, new DateOnly(2023, 8, 7), Downloaded);
-    }
-
-    /// <summary>A minimal OpenXML workbook (inline strings, no styles): enough for ExcelDataReader.</summary>
-    public static byte[] Xlsx(IReadOnlyList<(string Name, IReadOnlyList<object[]> Rows)> sheets)
-    {
-        using var ms = new MemoryStream();
-        using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            void Add(string name, string xml)
-            {
-                using var w = new StreamWriter(zip.CreateEntry(name).Open(), new UTF8Encoding(false));
-                w.Write(xml);
-            }
-            const string Main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
-            const string Rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-            var types = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
-                + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>"
-                + "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
-                + "<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>");
-            var book = new StringBuilder($"<?xml version=\"1.0\" encoding=\"UTF-8\"?><workbook xmlns=\"{Main}\" xmlns:r=\"{Rel}\"><sheets>");
-            var bookRels = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
-            for (int i = 0; i < sheets.Count; i++)
-            {
-                int n = i + 1;
-                types.Append($"<Override PartName=\"/xl/worksheets/sheet{n}.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>");
-                book.Append($"<sheet name=\"{SecurityElement.Escape(sheets[i].Name)}\" sheetId=\"{n}\" r:id=\"rId{n}\"/>");
-                bookRels.Append($"<Relationship Id=\"rId{n}\" Type=\"{Rel}/worksheet\" Target=\"worksheets/sheet{n}.xml\"/>");
-                var sheet = new StringBuilder($"<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet xmlns=\"{Main}\"><sheetData>");
-                for (int r = 0; r < sheets[i].Rows.Count; r++)
-                {
-                    sheet.Append($"<row r=\"{r + 1}\">");
-                    var cells = sheets[i].Rows[r];
-                    for (int c = 0; c < cells.Length; c++)
-                    {
-                        var at = $"{ColumnName(c)}{r + 1}";
-                        sheet.Append(cells[c] switch
-                        {
-                            null => "",   // a blank cell (GEM's sheets have many)
-                            string s => $"<c r=\"{at}\" t=\"inlineStr\"><is><t xml:space=\"preserve\">{SecurityElement.Escape(s)}</t></is></c>",
-                            double d => $"<c r=\"{at}\"><v>{d.ToString("R", CultureInfo.InvariantCulture)}</v></c>",
-                            _ => throw new ArgumentException("text, double or null cells only"),
-                        });
-                    }
-                    sheet.Append("</row>");
-                }
-                sheet.Append("</sheetData></worksheet>");
-                Add($"xl/worksheets/sheet{n}.xml", sheet.ToString());
-            }
-            Add("[Content_Types].xml", types.Append("</Types>").ToString());
-            Add("_rels/.rels", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
-                + $"<Relationship Id=\"rId1\" Type=\"{Rel}/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>");
-            Add("xl/workbook.xml", book.Append("</sheets></workbook>").ToString());
-            Add("xl/_rels/workbook.xml.rels", bookRels.Append("</Relationships>").ToString());
-        }
-        return ms.ToArray();
-    }
-
-    /// <summary>A spreadsheet column's letters: 0 is A, 25 Z, 26 AA (GEM's power sheet has 54 columns).</summary>
-    public static string ColumnName(int index)
-    {
-        var name = "";
-        for (int n = index + 1; n > 0; n = (n - 1) / 26) name = (char)('A' + (n - 1) % 26) + name;
-        return name;
     }
 
     // ---------------------------------------------------------------- Global Energy Monitor (Task 7)
@@ -207,7 +144,7 @@ internal static class SourceZips
         }
         edit?.Invoke(sheets);
         var path = dir.File(doc.RootElement.GetProperty("file").GetString()!);
-        File.WriteAllBytes(path, Xlsx([.. sheets.Select(s => (s.Name, (IReadOnlyList<object[]>)[.. s.Rows.Select(r => r.Select(c => c!).ToArray())]))]));
+        File.WriteAllBytes(path, XlsxWriter.Write([.. sheets.Select(s => (s.Name, (IReadOnlyList<object[]>)[.. s.Rows.Select(r => r.Select(c => c!).ToArray())]))]));
         return new SourceFile(path, published, Downloaded);
     }
 

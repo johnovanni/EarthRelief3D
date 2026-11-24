@@ -1,0 +1,147 @@
+[
+  {
+    "id": "unhrd-accra",
+    "name": "UNHRD Accra",
+    "city": "Accra",
+    "iso3": "GHA",
+    "address": "World Food Programme, UNHRD Accra, Courier Enclave, P.O. Box 1423, Kotoka International Airport, Accra, Ghana",
+    "position": {
+      "lat": 5.60519,
+      "lon": -0.166786
+    },
+    "positionSource": {
+      "title": "OurAirports: Kotoka International Airport (DGAA)",
+      "publisher": "OurAirports (The Unlicense)",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "date": "2026-11-24"
+    },
+    "source": {
+      "title": "Contacts | UNHRD - Humanitarian Response Depot",
+      "publisher": "UNHRD (WFP)",
+      "url": "https://unhrd.org/contacts",
+      "date": "2026-11-24"
+    },
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "checkedOn": "2026-11-24",
+    "verification": "Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Kotoka International Airport (DGAA), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot is at the airport per its own address, which names it: 'Courier Enclave, P.O. Box 1423, Kotoka International Airport, Accra'. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway."
+  },
+  {
+    "id": "unhrd-brindisi",
+    "name": "UNHRD Brindisi",
+    "city": "Brindisi",
+    "iso3": "ITA",
+    "address": "World Food Programme, UNHRD Brindisi, Ex SS 16 Km 906.9 OR, P.za Del Vento 1, 72100 Brindisi, Italy",
+    "position": {
+      "lat": 40.6576,
+      "lon": 17.947001
+    },
+    "positionSource": {
+      "title": "OurAirports: Brindisi Airport (LIBR)",
+      "publisher": "OurAirports (The Unlicense)",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "date": "2026-11-24"
+    },
+    "source": {
+      "title": "Contacts | UNHRD - Humanitarian Response Depot",
+      "publisher": "UNHRD (WFP)",
+      "url": "https://unhrd.org/contacts",
+      "date": "2026-11-24"
+    },
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "checkedOn": "2026-11-24",
+    "verification": "Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Brindisi Airport (LIBR), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot sits beside the airport per its own address on the former SS16 road: 'Ex SS 16 Km 906.9 OR, P.za Del Vento 1, 72100 Brindisi'. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway."
+  },
+  {
+    "id": "unhrd-dubai",
+    "name": "UNHRD Dubai",
+    "city": "Dubai",
+    "iso3": "ARE",
+    "address": "UNHRD c/o WFP, Dubai Humanitarian, Dubai Industrial City - Phase 2, Nearest Landmark - DWC, PO Box 506003 (United Arab Emirates)",
+    "position": {
+      "lat": 24.896171,
+      "lon": 55.16235
+    },
+    "positionSource": {
+      "title": "OurAirports: Al Maktoum International Airport (OMDW)",
+      "publisher": "OurAirports (The Unlicense)",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "date": "2026-11-24"
+    },
+    "source": {
+      "title": "Contacts | UNHRD - Humanitarian Response Depot",
+      "publisher": "UNHRD (WFP)",
+      "url": "https://unhrd.org/contacts",
+      "date": "2026-11-24"
+    },
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "checkedOn": "2026-11-24",
+    "verification": "Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Al Maktoum International Airport (OMDW, IATA DWC; OurAirports also calls it Dubai World Central), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot's own address gives the airport as its landmark: 'Dubai Industrial City - Phase 2, Nearest Landmark - DWC'. Dubai Industrial City is a large area, so the depot may be several kilometres from the airport. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway."
+  },
+  {
+    "id": "unhrd-kuala-lumpur",
+    "name": "UNHRD Kuala Lumpur",
+    "city": "Kuala Lumpur",
+    "iso3": "MYS",
+    "address": "World Food Programme, UNHRD Kuala Lumpur, Lot 14104 (PT12136), Jalan TUDM, Section U7, 40150 Shah Alam, Selangor, Malaysia",
+    "position": {
+      "lat": 3.13058,
+      "lon": 101.549004
+    },
+    "positionSource": {
+      "title": "OurAirports: Sultan Abdul Aziz Shah International Airport (WMSA)",
+      "publisher": "OurAirports (The Unlicense)",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "date": "2026-11-24"
+    },
+    "source": {
+      "title": "Contacts | UNHRD - Humanitarian Response Depot",
+      "publisher": "UNHRD (WFP)",
+      "url": "https://unhrd.org/contacts",
+      "date": "2026-11-24"
+    },
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "checkedOn": "2026-11-24",
+    "verification": "Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Sultan Abdul Aziz Shah International Airport (WMSA, Subang), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot sits beside the airport per its own address, on the air force road: 'Lot 14104 (PT12136), Jalan TUDM, Section U7, 40150 Shah Alam' (TUDM is the Royal Malaysian Air Force, which has its base at Subang). The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway."
+  },
+  {
+    "id": "unhrd-panama",
+    "name": "UNHRD Panama",
+    "city": "Panama City",
+    "iso3": "PAN",
+    "address": "World Food Programme, UNHRD Panama, Paseo de la Americas Panama Pacifico, Howard, Arraijan, Panama, Republic of Panama",
+    "position": {
+      "lat": 8.91479,
+      "lon": -79.599602
+    },
+    "positionSource": {
+      "title": "OurAirports: Panamá Pacífico International Airport (MPPA)",
+      "publisher": "OurAirports (The Unlicense)",
+      "url": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+      "date": "2026-11-24"
+    },
+    "source": {
+      "title": "Contacts | UNHRD - Humanitarian Response Depot",
+      "publisher": "UNHRD (WFP)",
+      "url": "https://unhrd.org/contacts",
+      "date": "2026-11-24"
+    },
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "checkedOn": "2026-11-24",
+    "verification": "Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Panamá Pacífico International Airport (MPPA; OurAirports lists it under the ident MPHO and gives Howard Air Force Base and Panama Pacifico as its other names), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot sits beside the airport per its own address: 'Paseo de la Americas Panama Pacifico, Howard, Arraijan'. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway."
+  }
+]

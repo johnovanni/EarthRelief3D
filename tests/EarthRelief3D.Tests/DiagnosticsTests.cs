@@ -77,7 +77,7 @@ public class SnapshotScenesTests
     public void TheCommittedScenesLoad()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps"],
+        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps", "access", "sudan-access", "sudan-help", "sudan-explainer-food"],
             scenes.Select(s => s.Name));
         Assert.All(scenes, s => Assert.Equal(new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc), s.DisplayTimeUtc));
         Assert.Equal(new GeoPosition(10, 25), scenes[0].LookAt);
@@ -126,6 +126,8 @@ public class SnapshotScenesTests
     [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panelFocus":"food"}]}""", "needs a panel")]
     [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"MMR","panelFocus":"oil"}]}""", "needs a panel")]
     [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","showDrafts":"yes"}]}""", "true or false")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","explainer":"food"}]}""", "explainer needs a panel")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN","explainer":"rivers"}]}""", "explainer needs a panel")]
     [InlineData("not json", "cannot read")]
     public void BadFilesGetPlainMessages(string json, string expected)
     {
@@ -158,6 +160,69 @@ public class SnapshotScenesTests
     }
 
     [Fact]
+    public void AccessFocusIsAccepted()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","layers":["access"],"panel":"sdn","panelFocus":"Access"},
+                  {"name":"b","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN","panelFocus":"food"},
+                  {"name":"c","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN","panelFocus":"Help"}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Access, scenes[0].FocusSection);
+            Assert.Null(scenes[0].FocusLayer);
+            Assert.Null(scenes[0].FocusMarker);
+            Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Access, scenes[0].Shading);   // "access" is also a --layers name
+            Assert.Null(scenes[1].FocusSection);
+            Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Help, scenes[2].FocusSection);
+            Assert.Contains("access", SnapshotScene.PanelFocusNames);
+            Assert.Contains("help", SnapshotScene.PanelFocusNames);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
+    public void ExplainerFieldOpensTheCard()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN","panelFocus":"food","explainer":"Food","showDrafts":true},
+                  {"name":"b","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN"}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.Equal("food", scenes[0].Explainer);
+            Assert.Null(scenes[1].Explainer);
+            Assert.Contains("why-these", SnapshotScene.ExplainerNames);
+            Assert.Contains("access", SnapshotScene.ExplainerNames);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
+    public void PlanFourScenesAreInTheFile()
+    {
+        var scenes = SnapshotScenes.Load(ScenesFile);
+        Assert.Equal(14, scenes.Count);
+        var access = scenes.Single(s => s.Name == "access");
+        Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Access, access.Shading);
+        var help = scenes.Single(s => s.Name == "sudan-help");
+        Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Help, help.FocusSection);
+        Assert.True(help.ShowDrafts);
+        Assert.Contains(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, help.Markers);
+        var ex = scenes.Single(s => s.Name == "sudan-explainer-food");
+        Assert.Equal("food", ex.Explainer);
+        Assert.Equal("SDN", ex.Panel);
+        Assert.True(ex.ShowDrafts);
+        Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Access, scenes.Single(s => s.Name == "sudan-access").FocusSection);
+    }
+
+    [Fact]
     public void ScenesMayFocusTheCuratedSectionsAndShowDrafts()
     {
         var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
@@ -178,7 +243,7 @@ public class SnapshotScenesTests
             Assert.Equal(EarthRelief3D.App.Presentation.CrisisLayer.Food, scenes[2].FocusLayer);
             Assert.Null(scenes[2].FocusMarker);
             Assert.False(scenes[2].ShowDrafts);   // absent means off
-            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps"], SnapshotScene.PanelFocusNames);
+            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps", "access", "help"], SnapshotScene.PanelFocusNames);
         }
         finally { File.Delete(path); }
     }
@@ -220,6 +285,8 @@ public class OfflineSamplesTests
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
             new GhoFeed(http, indicators, store, clock, log, countries),
             new HnoFeed(http, indicators, store, clock, log, countries),
+            new AcapsAccessFeed(http, indicators, store, clock, log, countries),
+            new FtsFundingFeed(http, indicators, store, clock, log, countries),
         ];
         // Every data feed of the app is here (Borders has its own test: BoundaryTests).
         Assert.Equal(EarthRelief3D.App.Services.AppServices.FeedNames.Where(n => n != "Borders"), feeds.Select(f => f.Name));
@@ -233,7 +300,9 @@ public class OfflineSamplesTests
         Assert.Contains(s.Crises, c => c is FoodCrisis);
         Assert.Contains(s.Crises, c => c is OutbreakCrisis);
         Assert.NotEmpty(s.Displacement);
-        Assert.Equal(["IPC", "UCDP", "UN HNO", "UNHCR", "WHO", "WHO GHO"], s.CheckedUtc.Keys.Order(StringComparer.Ordinal));
+        Assert.NotEmpty(indicators.Snapshot.Access);
+        Assert.NotEmpty(indicators.Snapshot.Appeals);
+        Assert.Equal(["ACAPS", "FTS", "IPC", "UCDP", "UN HNO", "UNHCR", "WHO", "WHO GHO"], s.CheckedUtc.Keys.Order(StringComparer.Ordinal));
         // Every request was answered: a 404 would have thrown (the feeds treat it as a failure), and the log has no error.
         Assert.DoesNotContain(log.Lines, l => l.StartsWith("ERROR", StringComparison.Ordinal));
     }

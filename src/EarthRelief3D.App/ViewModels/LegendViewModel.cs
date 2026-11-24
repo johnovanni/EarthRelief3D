@@ -101,6 +101,7 @@ public sealed partial class LegendViewModel : ObservableObject
     private readonly IndicatorStore? _indicators;
     private readonly MarkerDataStore? _markerData;
     private readonly CuratedStore? _curated;
+    private readonly HubStore? _hubs;
     private readonly LayerStripViewModel _layers;
     private readonly Dispatcher? _dispatcher;
     private readonly Func<DateTime> _nowUtc;
@@ -119,9 +120,13 @@ public sealed partial class LegendViewModel : ObservableObject
     /// <param name="indicators">The country-value series the shadings draw (none: every shading says "Data not loaded yet").</param>
     /// <param name="markerData">The point sets of the marker layers drawn from lists (none: those say "Data not loaded yet").</param>
     /// <param name="curated">The curated designations as the user sees them (the atrocities line); null: that line says "Data not loaded yet".</param>
+    /// <param name="hubs">The hubs the lines to the nearest hubs measure to (their line names the datasets and days); null: that line says "Data not loaded yet".</param>
     public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null,
-        CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null, CuratedStore? curated = null)
+        CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null, CuratedStore? curated = null,
+        HubStore? hubs = null)
     {
+        _hubs = hubs;
+        if (_hubs is not null) _hubs.Changed += OnStoreChanged;
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
         _dispatcher = dispatcher;
@@ -214,6 +219,8 @@ public sealed partial class LegendViewModel : ObservableObject
         if (_layers.Shading is not ShadingLayer.None and not ShadingLayer.Food) entries.Add(ShadingEntry(_layers.Shading, now));
         foreach (var m in LayerCatalog.ResourceMarkers)
             if (_layers.IsShown(m)) entries.Add(MarkerEntry(m, now));
+        foreach (var m in LayerCatalog.HelpMarkers)
+            if (_layers.IsShown(m)) entries.Add(m == MarkerLayer.HubLines ? HubLinesEntry(now) : MarkerEntry(m, now));
         return entries;
     }
 
@@ -236,7 +243,9 @@ public sealed partial class LegendViewModel : ObservableObject
         bool averages = values.Count > 0 && values.All(v => v.Citation.DateMeaning == Core.Model.CitationDate.ThreeYearAverage);
         // A modelled baseline (WRI) names its period in the measure and its date on the source line: no year appended (I3).
         bool baseline = values.Count > 0 && values.All(v => v.Citation.DateMeaning == Core.Model.CitationDate.Baseline);
-        var measures = values.Count == 0 || baseline ? series.Measures
+        // ACAPS's score is a level, not a year's measurement: its measure is fixed and its edition goes on the source line.
+        var measures = layer == ShadingLayer.Access ? AccessPanel.Measures
+            : values.Count == 0 || baseline ? series.Measures
             : $"{series.Measures}, {(averages ? AverageText(values.Select(v => v.Year)) : YearText(values.Select(v => v.Year)))}";
         // Ruling R17b: the grey arid key only when some country in the data is in that category.
         IReadOnlyList<LegendKey> keys =
@@ -294,6 +303,19 @@ public sealed partial class LegendViewModel : ObservableObject
         var c = set.Citation;
         return new LegendEntry(id, symbol, color, set.Measures ?? measures, $"{c.Publisher}, {c.Dataset}", CrisisText.DataDate(c, now),
             ResourceKeys(layer, set), set.Filter);
+    }
+
+    /// <summary>
+    /// The lines to the nearest hubs (Task 5): what they draw, the three datasets they measure to, and each one's day ("UN depots:
+    /// ..., Airports: ..., Ports: ..."); "Data not loaded yet" while there are no hubs. They are drawn while a country's panel is open.
+    /// </summary>
+    private LegendEntry HubLinesEntry(DateTime now)
+    {
+        const MarkerLayer layer = MarkerLayer.HubLines;
+        var dates = _hubs is null ? null : HubMarkers.SourceText(_hubs.Hubs, now);
+        return new LegendEntry(LayerCatalog.Id(layer), LayerStyle.Symbol(layer), LayerStyle.SymbolColor(layer), LayerCatalog.Measures(layer),
+            LayerCatalog.SourceName(layer), dates ?? NotLoaded, [],
+            "Each arc is in its hub's colour; drawn while a country's panel is open. Distances are great-circle, on a 6,371 km sphere, from a point inside the country.");
     }
 
     /// <summary>The swatch for a size class: about the marker's own diameter (its radius in pixels, doubled).</summary>

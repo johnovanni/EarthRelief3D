@@ -13,7 +13,8 @@ public sealed class CuratedStore
     private volatile State _state;
 
     private sealed record State(CuratedTables Tables, bool ShowDrafts, ImmutableHashSet<string> Governments,
-        IReadOnlyList<Designation> Visible, IReadOnlyList<CampSite> VisibleCamps);
+        IReadOnlyList<Designation> Visible, IReadOnlyList<CampSite> VisibleCamps, IReadOnlyList<Depot> VisibleDepots,
+        IReadOnlyList<Explainer> VisibleExplainers);
 
     /// <param name="showDrafts">Show the rows the owner has not approved yet, labelled (a diagnostic run only).</param>
     public CuratedStore(CuratedTables tables, bool showDrafts)
@@ -37,6 +38,16 @@ public sealed class CuratedStore
 
     /// <summary>The camp sites the user sees.</summary>
     public IReadOnlyList<CampSite> VisibleCamps => _state.VisibleCamps;
+
+    /// <summary>The UN depots the user sees: approved ones, and drafts in a <c>--show-drafts</c> run (P4-13).</summary>
+    public IReadOnlyList<Depot> VisibleDepots => _state.VisibleDepots;
+
+    /// <summary>The explainers the user sees: approved ones, and drafts in a <c>--show-drafts</c> run (P4-13).</summary>
+    public IReadOnlyList<Explainer> VisibleExplainers => _state.VisibleExplainers;
+
+    /// <summary>The explainer <paramref name="id"/> if the user sees it (approved, or drafts shown); otherwise null.</summary>
+    public Explainer? VisibleExplainer(string? id) =>
+        id is null ? null : _state.VisibleExplainers.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.Ordinal));
 
     public event EventHandler? Changed;
 
@@ -74,6 +85,7 @@ public sealed class CuratedStore
         var offered = tables.OfferedGovernments.Select(g => g.Iso3).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var on = governments.Where(offered.Contains).Select(g => g.ToUpperInvariant()).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
         var filter = new CuratedFilter(showDrafts, on);
-        return new State(tables, showDrafts, on, tables.VisibleDesignations(filter), tables.VisibleCamps(filter));
+        return new State(tables, showDrafts, on, tables.VisibleDesignations(filter), tables.VisibleCamps(filter), tables.VisibleDepots(filter),
+            tables.VisibleExplainers(filter));
     }
 }

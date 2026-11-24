@@ -64,6 +64,7 @@ public class ThreeYearAverageTests
     public void TheHungerLegendSaysAveragesAndThatSomeAreOlder()
     {
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, indicators: Store());
         layers.Shading = ShadingLayer.Hunger;
         var e = Assert.Single(legend.Entries);

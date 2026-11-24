@@ -37,6 +37,12 @@ public static class SourceDates
     /// </summary>
     public static IReadOnlyList<string> NeedsFeedNames { get; } = [GhoFeed.FeedName, HnoFeed.FeedName];
 
+    /// <summary>
+    /// The two "Getting help in" feeds (Plan 4), after the needs feeds: "ACAPS" (access constraints) and "FTS" (appeal funding).
+    /// They have status dots but are not crisis layers.
+    /// </summary>
+    public static IReadOnlyList<string> HelpFeedNames { get; } = [AcapsAccessFeed.FeedName, FtsFundingFeed.FeedName];
+
     /// <summary>The boundary update feed's name (GlobeCore's BoundaryUpdateFeed): the fifth status dot, after the four sources.</summary>
     public const string BordersFeedName = "Borders";
 

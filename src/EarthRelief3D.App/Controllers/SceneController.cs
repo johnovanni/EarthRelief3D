@@ -61,6 +61,8 @@ public sealed class SceneController
     private readonly AtrocityLayer _atrocities;
     private DateOnly _atrocityDay;
     private readonly LabelsOverlayLayer _labels;
+    private readonly HubArcLayer _hubArcs;
+    private readonly HubLabelsLayer _hubLabels;
     private readonly IReadOnlyList<PointMarkerLayer> _points;
     private LayerHost? _host;
     private BordersImageLayer? _borders;
@@ -99,6 +101,12 @@ public sealed class SceneController
         // Plan 3: the marker layers drawn from lists; empty until their data is loaded (ruling R2).
         var markerData = vm.MarkerData;
         _points = [.. PointMarkerLayer.Layers.Select(m => new PointMarkerLayer(m, () => markerData.Items(m), _log) { IsVisible = vm.Layers.IsShown(m) })];
+        // Plan 4 (P4-7): the straight-line arcs from the open panel's country to its nearest UN depot, airport and port, and their
+        // distance labels. Both read the same arcs: the panel's country, the toggle and the hubs (P4-6: from the country's label point).
+        IReadOnlyList<HubArcSpec> CurrentArcs() => HubArcLayer.SpecsFor(vm.Panel.IsOpen, vm.Layers.IsShown(MarkerLayer.HubLines), vm.Panel.Iso3,
+            iso => _countries.ByIso3(iso)?.LabelPoint, vm.Hubs.Hubs);
+        _hubArcs = new HubArcLayer(CurrentArcs) { IsVisible = vm.Layers.IsShown(MarkerLayer.HubLines) };
+        _hubLabels = new HubLabelsLayer(CurrentArcs, () => vm.Settings.Units, overlay) { IsVisible = vm.Layers.IsShown(MarkerLayer.HubLines) };
         _timeTimer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher) { Interval = DisplayTimeInterval };
         _timeTimer.Tick += OnTimeTick;
 
@@ -112,6 +120,9 @@ public sealed class SceneController
         _vm.Layers.PropertyChanged += OnLayerToggled;
         _vm.Indicators.Changed += OnIndicatorsChanged;
         _vm.MarkerData.Changed += OnMarkerDataChanged;
+        _vm.Panel.PropertyChanged += OnPanelChanged;
+        _vm.Hubs.Changed += OnHubsChanged;
+        _vm.Settings.UnitsChanged += OnHubsChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;   // static event: unsubscribed in OnClosed
     }
 
@@ -173,7 +184,7 @@ public sealed class SceneController
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
         foreach (var b in HoverBlockers) host.HoverBlockers.Add(b);
         // Scene layers in draw order (WPF draws 3D children in order): rings under dots under crosses, then the point markers.
-        GlobeLayer[] all = [_borders, _food, .. _shadings, _displacement, _conflict, _outbreaks, _atrocities, .. _points, _labels];
+        GlobeLayer[] all = [_borders, _food, .. _shadings, _displacement, _conflict, _outbreaks, _atrocities, _hubArcs, .. _points, _labels, _hubLabels];
         foreach (var layer in all) host.Add(layer);
         host.FirstComposeDisplayed += OnFirstComposeDisplayed;
         host.WhenFirstComposeDisplayed.ContinueWith(t => _firstCompose.TrySetException(t.Exception!.InnerExceptions),
@@ -252,6 +263,26 @@ public sealed class SceneController
         foreach (var p in _points) p.IsVisible = l.IsShown(p.Which);
         if (_food is not null) _food.IsVisible = l.ShowFood;
         foreach (var s in _shadings) s.IsVisible = l.IsShown(s.Which);
+        bool lines = l.IsShown(MarkerLayer.HubLines);
+        _hubArcs.IsVisible = lines;
+        _hubLabels.IsVisible = lines;
+        _hubArcs.Changed();
+        _hubLabels.Changed();
+    }
+
+    // The arcs follow the open panel: they appear when it opens, move with the country and go when it closes.
+    private void OnPanelChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is not (nameof(CountryPanelViewModel.IsOpen) or nameof(CountryPanelViewModel.Iso3))) return;
+        _hubArcs.Changed();
+        _hubLabels.Changed();
+    }
+
+    // The hubs changed (the curated store), or the unit did (Settings): any thread.
+    private void OnHubsChanged(object? sender, EventArgs e)
+    {
+        _hubArcs.Changed();
+        _hubLabels.Changed();
     }
 
     // Any thread (the feeds'): the layers only ask the host for a recompose or an update.
@@ -366,6 +397,13 @@ public sealed class SceneController
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // Esc closes the explainer card first, then the panel (Plan 4 Task 9).
+        if (e.Key == Key.Escape && _vm.Explainer.IsOpen)
+        {
+            e.Handled = true;
+            _vm.Explainer.CloseCommand.Execute(null);
+            return;
+        }
         if (e.Key == Key.Escape && _vm.Panel.IsOpen)
         {
             e.Handled = true;
@@ -409,6 +447,9 @@ public sealed class SceneController
         _vm.Layers.PropertyChanged -= OnLayerToggled;
         _vm.Indicators.Changed -= OnIndicatorsChanged;
         _vm.MarkerData.Changed -= OnMarkerDataChanged;
+        _vm.Panel.PropertyChanged -= OnPanelChanged;
+        _vm.Hubs.Changed -= OnHubsChanged;
+        _vm.Settings.UnitsChanged -= OnHubsChanged;
         _countries.Changed -= OnBoundariesChanged;
         _displacement.Close(); _conflict.Close(); _outbreaks.Close(); _atrocities.Close(); _labels.Close(); _food?.Close();
         _host?.Dispose();

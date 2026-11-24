@@ -185,19 +185,6 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- Later plans: headers only, they do nothing yet. -->
-            <ItemsControl ItemsSource="{Binding ComingGroups}" Focusable="False">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Margin="6,6,6,0" ToolTip="{Binding Note}">
-                            <TextBlock Text="{Binding Name}" Foreground="#8A92A3" FontSize="12" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding Note}" Foreground="#8A92A3" FontSize="11"
-                                       Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource B2V}}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
             <!-- Settings (P3-5): a gear at the end of the strip; the flyout opens under it. -->
             <StackPanel Visibility="{Binding HasSettings, Converter={StaticResource B2V}}" Margin="0,6,0,0">
                 <ToggleButton Style="{StaticResource CommandButton}" Tag="⚙" Content="Settings"

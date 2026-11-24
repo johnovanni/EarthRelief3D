@@ -58,17 +58,24 @@ public class AppStartupTests
             Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NotChecked, l.AsOf));
             Assert.Equal("as of 30 Jun 2026", vm.Legend.Lines.Single(l => l.Layer == CrisisLayer.Displacement).AsOf);
             vm.Panel.Show("SDN");
-            // The four crisis sections, then the two needs sections (nothing loaded for them yet). Since the owner approved
+            // The four crisis sections, then the needs sections and Plan 4's Getting help in and appeals sections (nothing loaded for them yet). Since the owner approved
             // the curated rows (2026-11-24), Sudan also has its atrocity sections (current and history).
             Assert.Equal(4, vm.Panel.Sections.Count(s => s.Heading != CountryPanelViewModel.BasicNeedsHeading
-                && s.Heading != CountryPanelViewModel.ResourcesHeading && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)
+                && s.Heading != CountryPanelViewModel.ResourcesHeading && s.Heading != CountryPanelViewModel.GettingHelpHeading && s.Heading != CountryPanelViewModel.StepHeading
+                && !s.Heading.StartsWith(CountryPanelViewModel.FundingNotLoadedHeading, StringComparison.Ordinal)
+                && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)
                 && !s.Heading.StartsWith(CountryPanelViewModel.AtrocityHeading, StringComparison.Ordinal)));
             Assert.Contains(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
+            // Plan 4 Task 6: Sudan has a current crisis, so "Your one small step" follows. The shipped rows are drafts: CERF, no charities, no contacts.
+            var step = Assert.Single(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.StepHeading);
+            Assert.Contains(step.Entries!, e => e.Title.Contains("CERF", StringComparison.Ordinal));
+            Assert.Contains(step.Entries!, e => e.Lines.Contains("No vetted charities listed yet"));
+            Assert.DoesNotContain(step.Entries!, e => e.Group == "Contact");
 
             // One dot per source: the feeds grey until each reports, then the bundled extracts (Task 6), green from the start.
             Assert.Equal(AppServices.StatusDotNames, vm.Status.Dots.Select(d => d.Name));
-            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "WHO GHO", "UN HNO", "Borders"], AppServices.FeedNames);
-            Assert.Equal([.. AppServices.FeedNames, "FAO", "US EIA", "WRI Aqueduct", "GEM"], AppServices.StatusDotNames);
+            Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "WHO GHO", "UN HNO", "ACAPS", "FTS", "Borders"], AppServices.FeedNames);
+            Assert.Equal([.. AppServices.FeedNames, "FAO", "US EIA", "WRI Aqueduct", "GEM", "Hubs"], AppServices.StatusDotNames);
             var feedDots = vm.Status.Dots.Take(AppServices.FeedNames.Count).ToList();
             var bundledDots = vm.Status.Dots.Skip(AppServices.FeedNames.Count).ToList();
             Assert.All(feedDots, d => Assert.Equal(FeedState.NotStarted, d.State));
@@ -105,7 +112,7 @@ public class AppStartupTests
 
     /// <summary>The snapshot without the bundled extracts' "not placed" rows (Task 6), to compare with a cached one.</summary>
     private static CrisisSnapshot WithoutBundled(CrisisSnapshot s) =>
-        s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source) && u.Source != ResourceMarkers.DotName)] };
+        s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source) && u.Source != ResourceMarkers.DotName && u.Source != HubMarkers.DotName)] };
 
     /// <summary>A log that also records the thread each line was written on.</summary>
     private sealed class ThreadLog : GlobeCore.Logging.IAppLog
@@ -266,14 +273,20 @@ public class AppStartupTests
             (nameof(AtrocityLayer), AtrocityLayer.Order),
             // Plan 3: the marker layers drawn from lists (camps, power plants, oil and gas fields, steel plants).
             .. PointMarkerLayer.Layers.Select(l => (nameof(PointMarkerLayer), PointMarkerLayer.OrderOf(l))),
+            // Plan 4 Task 5: the arcs to the nearest hubs, above every point marker (final review F2); their labels above the country labels.
+            (nameof(HubArcLayer), HubArcLayer.Order),
             (nameof(LabelsOverlayLayer), LabelsOverlayLayer.Order),
+            (nameof(HubLabelsLayer), HubLabelsLayer.Order),
         ], host.Layers.Select(l => (l.GetType().Name, l.ZOrder)));
         Assert.True(BordersImageLayer.Order < FoodImageLayer.Order && FoodImageLayer.Order < DisplacementSceneLayer.Order);
         Assert.Equal(6 + CountryValueLayer.Layers.Count + PointMarkerLayer.Layers.Count, host.Layers.Count(l => l is IPickable));
         Assert.True(OutbreakSceneLayer.Order < AtrocityLayer.Order && AtrocityLayer.Order < PointMarkerLayer.OrderOf(MarkerLayer.Camps));
+        Assert.All(Enum.GetValues<MarkerLayer>(), l => Assert.True(PointMarkerLayer.OrderOf(l) < HubArcLayer.Order, $"{l} draws over the arcs"));
+        Assert.True(HubArcLayer.Order < LabelsOverlayLayer.Order);
         Assert.False(host.Layers.OfType<AtrocityLayer>().Single().IsVisible);   // off by default, as the other Plan 3 markers
-        Assert.Equal(7, CountryValueLayer.Layers.Count);
-        Assert.Equal([MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants, MarkerLayer.Renewables], PointMarkerLayer.Layers);
+        Assert.Equal(8, CountryValueLayer.Layers.Count);
+        Assert.Equal([MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants, MarkerLayer.Renewables,
+            MarkerLayer.UnDepots, MarkerLayer.Airports, MarkerLayer.Ports], PointMarkerLayer.Layers);
         Assert.All(host.Layers.OfType<CountryValueLayer>(), l => Assert.False(l.IsVisible));   // food is today's shading
         Assert.All(host.Layers.OfType<PointMarkerLayer>(), l => Assert.False(l.IsVisible));
 
@@ -493,12 +506,13 @@ public class AppStartupTests
             Assert.Contains(CountryPanelViewModel.DisplacementHeading, texts);
             Assert.Contains(texts, t => t.StartsWith("Source: UNHCR, Mid-year 2026 figures", StringComparison.Ordinal));
             Assert.All(vm.Legend.Lines, l => Assert.Contains(l.SourceLine, texts));
-            Assert.Contains(LayerStripViewModel.ComingNote, texts);
-            // Plan 3: the Needs and Resources groups list their layers. R20: with none of their layers on they start closed,
+            Assert.Contains(LayerStripViewModel.GettingHelpGroup, texts);
+            // Plan 3 and 4: the Needs, Resources and Getting help in groups list their layers. R20: with none of their layers on they start closed,
             // their headers saying so; opened, they list their toggles.
             Assert.Contains("Needs", texts);
             Assert.Contains("Resources", texts);
             Assert.DoesNotContain("Water", texts);
+            // (Getting help in starts open: the lines to the nearest hubs are on by default, R3.)
             Assert.Equal(2, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
             foreach (var g in vm.Layers.Groups) g.IsOpen = true;
             root.UpdateLayout();
@@ -507,8 +521,9 @@ public class AppStartupTests
             Assert.Contains("Steel plants", texts);
             Assert.Equal(0, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
-            // The four sources, the two needs feeds, Borders, the three bundled extracts (Task 6) and GEM's (Task 7).
-            Assert.Equal(11, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
+            // The four sources, the two needs feeds, the two getting-help feeds (Plan 4), Borders, the three bundled extracts (Task 6), GEM's (Task 7) and the hubs' (Plan 4 Task 4),
+            // and the two radio buttons of Settings' "Distances" (Task 5).
+            Assert.Equal(16, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));
@@ -569,6 +584,87 @@ public class AppStartupTests
             Assert.True(Math.Abs(y) < 1 || (atEnd && y > 0), $"{layer}: the section's top is {y:0} px below the view's top (offset {scroller.VerticalOffset:0} of {scroller.ScrollableHeight:0})");
             if (layer == CrisisLayer.Displacement) Assert.False(atEnd, "pick a section the panel can scroll to the top of");
         }
+    });
+
+    [Fact]
+    public void TheExplainerCardIsOpaqueAndNeverCoversTheLayerStrip() => StaAsync.Run(async () =>
+    {
+        // Final review F4: the card is opaque (the legend's text showed through). And at a narrow width it shrinks rather than
+        // cover the layer strip; the window has a minimum width that keeps it readable.
+        var store = await SampleStore.LoadAsync();
+        var countries = CountryResolver.LoadDefault();
+        var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null,
+            () => SampleStore.Now, countries.Boundaries, new IndicatorStore(),
+            curated: new EarthRelief3D.App.Curated.CuratedStore(EarthRelief3D.Core.Curated.CuratedTables.Load(Path.Combine(AppContext.BaseDirectory, "data", "curated")), showDrafts: true));
+        var window = new MainWindow(vm, store, countries, new FixedClock(SampleStore.Now), new ListLog());
+        var root = (FrameworkElement)window.Content;
+        vm.Panel.Show("SDN");
+        Assert.True(vm.Panel.Explainer.Open("food"));
+        var card = Descendants<EarthRelief3D.App.Views.ExplainerCard>(root).Single();
+        var strip = Descendants<EarthRelief3D.App.Views.LayerStrip>(root).Single();
+        var border = (Border)card.FindName("Card");
+        Assert.Equal(255, ((System.Windows.Media.SolidColorBrush)border.Background).Color.A);
+
+        Assert.True(window.MinWidth >= 900, $"MinWidth {window.MinWidth}");
+        foreach (var width in new[] { 1200.0, window.MinWidth })
+        {
+            root.Measure(new Size(width, 760));
+            root.Arrange(new Rect(0, 0, width, 760));
+            root.UpdateLayout();
+            await Task.Delay(20);
+            root.UpdateLayout();
+            double stripRight = strip.TranslatePoint(new Point(strip.ActualWidth, 0), root).X;
+            double cardLeft = card.TranslatePoint(new Point(0, 0), root).X;
+            Assert.True(cardLeft >= stripRight, $"at {width} px the card starts at {cardLeft:0}, over the strip that ends at {stripRight:0}");
+            Assert.True(card.ActualWidth >= 250, $"at {width} px the card is only {card.ActualWidth:0} px wide");
+            Assert.True(card.ActualWidth <= 420);
+        }
+    });
+
+    [Fact]
+    public void ARebuildKeepsWhereThePanelWasScrolledTo() => StaAsync.Run(async () =>
+    {
+        // Final review F1: a change of unit (or state, or a feed refresh) writes the open panel again; the view keeps its
+        // scroll offset instead of jumping back to the top or to the focused section.
+        var store = await SampleStore.LoadAsync();
+        var countries = CountryResolver.LoadDefault();
+        var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null,
+            () => SampleStore.Now, countries.Boundaries, new IndicatorStore());
+        var window = new MainWindow(vm, store, countries, new FixedClock(SampleStore.Now), new ListLog());
+        var root = (FrameworkElement)window.Content;
+        root.Measure(new Size(1200, 760));
+        root.Arrange(new Rect(0, 0, 1200, 760));
+        root.UpdateLayout();
+        var panel = Descendants<EarthRelief3D.App.Views.CountryPanel>(root).Single();
+        var scroller = (ScrollViewer)panel.FindName("Scroller");
+
+        vm.Panel.Show("SDN", CrisisLayer.Conflict);
+        root.UpdateLayout();
+        await Task.Delay(50);
+        root.UpdateLayout();
+        Assert.True(scroller.ScrollableHeight > 100, "the Sudan panel should scroll");
+        double target = Math.Round(scroller.ScrollableHeight * 0.6);
+        scroller.ScrollToVerticalOffset(target);   // the user scrolls down
+        root.UpdateLayout();
+        Assert.Equal(target, scroller.VerticalOffset, 0);
+
+        vm.Settings.Units = EarthRelief3D.App.Presentation.DistanceUnit.Miles;   // rebuilds the open panel
+        root.UpdateLayout();
+        await Task.Delay(50);
+        root.UpdateLayout();
+        Assert.Equal(target, scroller.VerticalOffset, 0);
+
+        vm.Panel.RefreshOpen();   // as a feed refresh does
+        root.UpdateLayout();
+        await Task.Delay(50);
+        root.UpdateLayout();
+        Assert.Equal(target, scroller.VerticalOffset, 0);
+
+        vm.Panel.Show("SDN");   // a new Show (no focus) opens at the top
+        root.UpdateLayout();
+        await Task.Delay(50);
+        root.UpdateLayout();
+        Assert.Equal(0, scroller.VerticalOffset, 0);
     });
 
     [Fact]

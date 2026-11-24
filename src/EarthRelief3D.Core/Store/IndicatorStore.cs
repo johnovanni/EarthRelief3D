@@ -18,6 +18,20 @@ public sealed record IndicatorSnapshot(IReadOnlyDictionary<string, IndicatorSeri
     public IReadOnlyList<HumanitarianNeed> NeedsOf(string iso3) =>
         [.. Needs.Where(n => string.Equals(n.Iso3, iso3, StringComparison.OrdinalIgnoreCase))];
 
+    /// <summary>ACAPS's access assessments (Plan 4); empty until the feed has run.</summary>
+    public IReadOnlyList<AccessAssessment> Access { get; init; } = [];
+
+    /// <summary>The year's FTS appeals, with regional plans flagged (Plan 4); empty until the feed has run.</summary>
+    public IReadOnlyList<AppealFunding> Appeals { get; init; } = [];
+
+    /// <summary>The country's ACAPS assessment, or null when the file has none for it (or has not been loaded).</summary>
+    public AccessAssessment? AccessOf(string iso3) =>
+        Access.FirstOrDefault(a => string.Equals(a.Iso3, iso3, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>The country's appeals for the year (empty when it has none, or while the file has not been loaded).</summary>
+    public IReadOnlyList<AppealFunding> AppealsOf(string iso3) =>
+        [.. Appeals.Where(a => string.Equals(a.Iso3, iso3, StringComparison.OrdinalIgnoreCase))];
+
     /// <summary>The series, or null while it has not been loaded (ruling R2: its layer says "Data not loaded yet").</summary>
     public IndicatorSeries? Get(string seriesId) => Series.TryGetValue(seriesId, out var s) ? s : null;
 
@@ -27,6 +41,7 @@ public sealed record IndicatorSnapshot(IReadOnlyDictionary<string, IndicatorSeri
         if (ReferenceEquals(this, o)) return true;
         // The needs first (C6): the same series dictionary must not hide a change in the needs rows.
         if (!ListEquality.Equal(Needs, o.Needs)) return false;
+        if (!ListEquality.Equal(Access, o.Access) || !ListEquality.Equal(Appeals, o.Appeals)) return false;
         if (ReferenceEquals(Series, o.Series)) return true;
         if (Series.Count != o.Series.Count) return false;
         foreach (var (id, s) in Series)
@@ -98,8 +113,31 @@ public sealed class IndicatorStore
         {
             if (ListEquality.Equal(s.Needs, needs) && s.Get(series.Id) is { } old && old.Equals(series)) return null;
             var all = new Dictionary<string, IndicatorSeries>(s.Series, StringComparer.Ordinal) { [series.Id] = series };
-            return new IndicatorSnapshot(all, [.. needs]);
+            return s with { Series = all, Needs = [.. needs] };
         });
+    }
+
+    /// <summary>
+    /// Replaces the ACAPS assessments and the access-score series in one write (one change event), so the map and the panel
+    /// never see new rows with the old score. A write that changes nothing raises no event.
+    /// </summary>
+    public bool ReplaceAccess(IReadOnlyList<AccessAssessment> access, IndicatorSeries score)
+    {
+        ArgumentNullException.ThrowIfNull(access);
+        ArgumentNullException.ThrowIfNull(score);
+        return _store.Write(s =>
+        {
+            if (ListEquality.Equal(s.Access, access) && s.Get(score.Id) is { } old && old.Equals(score)) return null;
+            var all = new Dictionary<string, IndicatorSeries>(s.Series, StringComparer.Ordinal) { [score.Id] = score };
+            return s with { Series = all, Access = [.. access] };
+        });
+    }
+
+    /// <summary>Replaces the FTS appeals; false (no event) when they are the same.</summary>
+    public bool ReplaceAppeals(IReadOnlyList<AppealFunding> appeals)
+    {
+        ArgumentNullException.ThrowIfNull(appeals);
+        return _store.Write(s => ListEquality.Equal(s.Appeals, appeals) ? null : s with { Appeals = [.. appeals] });
     }
 
     /// <summary>Takes these series out (a bundled extract that did not load, C5); false when none of them was there.</summary>

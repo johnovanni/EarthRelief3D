@@ -141,6 +141,43 @@ public sealed class MarkerMeshes
         }
     }
 
+    /// <summary>A filled five-pointed star, one tip north: tips <paramref name="radius"/> from the centre, notches 0.4 of that (UN depots, P4-14).</summary>
+    public void AddStar(GeoPosition at, double radius, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        int centre = Add(On(n, e1, e2, 0, 0, height));
+        int first = _positions.Count;
+        for (int k = 0; k < 10; k++)
+        {
+            double t = Math.PI / 2 + Math.PI / 5 * k, r = k % 2 == 0 ? radius : radius * 0.4;   // counter-clockwise from the north tip
+            Add(On(n, e1, e2, r * Math.Cos(t), r * Math.Sin(t), height));
+        }
+        for (int k = 0; k < 10; k++) Tri(centre, first + k, first + (k + 1) % 10);
+    }
+
+    /// <summary>
+    /// A diamond outline: corners <paramref name="radius"/> from the centre to the east, north, west and south, sides
+    /// <paramref name="width"/> wide (measured square to each side), a hole inside (ports, P4-14).
+    /// </summary>
+    public void AddDiamondOutline(GeoPosition at, double radius, double width, double height)
+    {
+        var (n, e1, e2) = Frame(at);
+        double inner = Math.Max(0, radius - width * Math.Sqrt(2));   // a side's width is the corner's shift over root 2
+        int first = _positions.Count;
+        for (int k = 0; k < 4; k++)
+        {
+            double t = Math.PI / 2 * k, c = Math.Cos(t), s = Math.Sin(t);
+            Add(On(n, e1, e2, inner * c, inner * s, height));
+            Add(On(n, e1, e2, radius * c, radius * s, height));
+        }
+        for (int k = 0; k < 4; k++)
+        {
+            int a = first + 2 * k, b = a + 1, j = first + 2 * ((k + 1) % 4), l = j + 1;
+            Tri(a, b, l);
+            Tri(a, l, j);
+        }
+    }
+
     /// <summary>
     /// A hollow triangle pointing north: corners <paramref name="radius"/> from the centre, sides <paramref name="width"/>
     /// wide (measured square to each side), a hole inside.

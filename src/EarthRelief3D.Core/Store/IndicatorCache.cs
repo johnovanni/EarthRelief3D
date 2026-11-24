@@ -17,7 +17,9 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
 
     // Needs was added in Plan 3 Task 3 and is optional: a file written before it has none, which is a valid (empty) list, so the
     // schema version stays 1.
-    private sealed record Dto(int SchemaVersion, List<IndicatorSeries> Series, List<HumanitarianNeed>? Needs = null);
+    // Access and Appeals (Plan 4 Task 2) are optional in the same way.
+    private sealed record Dto(int SchemaVersion, List<IndicatorSeries> Series, List<HumanitarianNeed>? Needs = null,
+        List<AccessAssessment>? Access = null, List<AppealFunding>? Appeals = null);
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -53,7 +55,11 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
             if (Problem(dto) is { } problem) throw new JsonException("invalid record: " + problem);
             var series = new Dictionary<string, IndicatorSeries>(StringComparer.Ordinal);
             foreach (var s in dto.Series) series[s.Id] = s;
-            return new IndicatorSnapshot(series, dto.Needs is null ? [] : [.. dto.Needs]);
+            return new IndicatorSnapshot(series, dto.Needs is null ? [] : [.. dto.Needs])
+            {
+                Access = dto.Access is null ? [] : [.. dto.Access],
+                Appeals = dto.Appeals is null ? [] : [.. dto.Appeals],
+            };
         }
         catch (Exception ex) when (ex is JsonException or ArgumentException or FormatException or InvalidOperationException or NotSupportedException)
         {
@@ -66,7 +72,8 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
     /// <summary>False (with a logged warning) if the file could not be written; never throws for I/O failures.</summary>
     public bool Save(IndicatorSnapshot s)
     {
-        var dto = new Dto(SchemaVersion, [.. s.Series.Values.OrderBy(x => x.Id, StringComparer.Ordinal)], [.. s.Needs]);
+        var dto = new Dto(SchemaVersion, [.. s.Series.Values.OrderBy(x => x.Id, StringComparer.Ordinal)], [.. s.Needs],
+            [.. s.Access], [.. s.Appeals]);
         if (AtomicFile.TryWriteAllText(FilePath, JsonSerializer.Serialize(dto, Options), out var error)) return true;
         log.Warn("Could not save indicator cache", error);
         return false;
@@ -90,6 +97,13 @@ public sealed class IndicatorCache(AppDataRoot root, IAppLog log)
         if (d.Needs is not null)
             foreach (var n in d.Needs)
                 if (n is null || n.Iso3 is null || n.Cluster is null || CitationProblem(n.Citation)) return "needs row: fields";
+        if (d.Access is not null)
+            foreach (var a in d.Access)
+                if (a is null || a.Iso3 is null || a.Pillars is null || a.Indicators is null || a.Trend is null || a.Edition is null
+                    || a.Indicators.Any(i => i is null || i.Name is null) || CitationProblem(a.Citation)) return "access row: fields";
+        if (d.Appeals is not null)
+            foreach (var a in d.Appeals)
+                if (a is null || a.Iso3 is null || a.PlanName is null || a.PlanType is null || CitationProblem(a.Citation)) return "appeal row: fields";
         return null;
     }
 

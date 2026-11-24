@@ -6,6 +6,8 @@ address was given to us; the other three are placeholders). Until a written yes 
 into the app (spec C13, ruling P3-3): detention shows curated camp sites with citations, and the Early Warning Project risk list
 stays a link.
 
+Section 5 (ACAPS, Plan 4) is optional: the app reads ACAPS's workbook live from HDX and commits none of it, so it works without a reply.
+
 What the app is, the same in all four letters: free, public on GitHub (https://github.com/johnovanni/EarthRelief3D),
 MIT licence, educational, no ads, no sound, no personal data collected, and every fact on screen shows its source and
 an "as of" date.
@@ -126,6 +128,38 @@ colour or mark the map. We would not alter your figures or imply that the Museum
 program shows only a link to your site and no figures, and none of your data is included.
 
 Could you tell us whether this is permitted, and the attribution wording you want?
+
+Thank you for your time.
+
+[SENDER: name, and a reply address]
+
+---
+
+## 5. ACAPS: Humanitarian Access Dataset (Plan 4; optional)
+
+**To:** [contact address from https://www.acaps.org ; check the site's "Contact" page]
+**Subject:** Please confirm how we may show the Humanitarian Access Dataset in a free educational app
+
+Dear ACAPS team,
+
+The Humanitarian Access Dataset on the Humanitarian Data Exchange is marked "Creative Commons Attribution International
+(CC BY)", while ACAPS's copyright page (https://www.acaps.org/copyright-policy) says ACAPS-branded products are available
+under CC BY-NC-ND 4.0. We would like to use the dataset correctly, so we are asking which applies.
+
+EarthRelief3D is a Windows desktop program that shows humanitarian crises on a 3D globe. It is free, has no advertising,
+collects no personal data, and its source code is public under the MIT licence at https://github.com/johnovanni/EarthRelief3D.
+Every number on screen shows its source and the date it refers to.
+
+What we do, and will keep doing until you reply: the program downloads the workbook from HDX when it runs, on the user's
+computer, and keeps it only in that user's own data folder. We never put ACAPS data in the program or its source code
+(our test files are invented values in your layout). Each country's panel shows the country's overall access score and
+level name exactly as published ("2 Moderate access constraints"), the three pillar scores, the nine indicator scores with
+your wording, the trend and the edition ("December 2025 edition"), with the line "Source: ACAPS, Humanitarian Access
+Dataset, December 2025, via HDX" and a link to the ACAPS page. We do not change, combine or rank your scores, and we do not
+imply that ACAPS endorses the program.
+
+Could you tell us whether this use is permitted, and the credit wording you prefer? If it is not, we will remove the
+feature.
 
 Thank you for your time.
 

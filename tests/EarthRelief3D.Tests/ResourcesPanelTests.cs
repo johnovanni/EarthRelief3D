@@ -84,6 +84,7 @@ public class ResourcesPanelTests
     public void TheBundledShadingsHaveTheirLegends()
     {
         var layers = new App.ViewModels.LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, indicators: Bundled());
 
         layers.Shading = App.Presentation.ShadingLayer.Hunger;
@@ -114,6 +115,7 @@ public class ResourcesPanelTests
     {
         // Ruling R17b: Aqueduct 4.0 has no country in "Arid and Low Water Use" (cat -1), so its grey key is not shown.
         var layers = new App.ViewModels.LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var store = Bundled();
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, indicators: store);
         layers.Shading = App.Presentation.ShadingLayer.WaterStress;

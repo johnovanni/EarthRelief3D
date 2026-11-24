@@ -106,19 +106,26 @@ public static class BundledPoints
 
     /// <summary>
     /// The manifest's source as a citation: a tracker release (<see cref="CitationDate.Release"/>, its <c>dateText</c>
-    /// "September 2026 release (file V2)"), dated the manifest's <c>published</c> day for ordering only.
+    /// "September 2026 release (file V2)", dated the manifest's <c>published</c> day for ordering only), or a plain
+    /// <see cref="CitationDate.AsOf"/> (the hub extracts: no <c>dateText</c>; the <c>published</c> day is the as-of).
     /// </summary>
     public static SourceCitation Citation(DatasetManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
         var meaning = Enum.TryParse<CitationDate>(manifest.DateMeaning, ignoreCase: false, out var m)
             ? m : throw new InvalidDataException($"unknown dateMeaning \"{manifest.DateMeaning}\"");
-        if (meaning is not CitationDate.Release) throw new InvalidDataException($"a point extract's dateMeaning is Release, not {meaning}");
-        if (string.IsNullOrWhiteSpace(manifest.DateText)) throw new InvalidDataException("a Release manifest needs its dateText (\"September 2026 (V2) release\")");
+        if (meaning is not (CitationDate.Release or CitationDate.AsOf))
+            throw new InvalidDataException($"a point extract's dateMeaning is Release or AsOf, not {meaning}");
+        // Release: a tracker's own wording of its release. AsOf (the hub extracts, Plan 4): a plain "as of" day, no wording.
+        if (meaning is CitationDate.Release && string.IsNullOrWhiteSpace(manifest.DateText))
+            throw new InvalidDataException("a Release manifest needs its dateText (\"September 2026 (V2) release\")");
         if (string.IsNullOrWhiteSpace(manifest.Filter)) throw new InvalidDataException("a point extract's manifest needs its filter (P3-9)");
         var page = Uri.TryCreate(manifest.PageUrl, UriKind.Absolute, out var u) ? u : throw new InvalidDataException("pageUrl is not a URL");
         return new SourceCitation(manifest.Publisher, manifest.Dataset, manifest.Version, page, manifest.Licence, manifest.Attribution,
-            Day(manifest.Published, "published"), Day(manifest.Downloaded, "downloaded"), meaning) { DateText = manifest.DateText.Trim() };
+            Day(manifest.Published, "published"), Day(manifest.Downloaded, "downloaded"), meaning)
+        {
+            DateText = meaning is CitationDate.Release ? manifest.DateText!.Trim() : null,
+        };
     }
 
     private static double Number(string text, int line, string column) =>

@@ -81,6 +81,22 @@ public class ShadingScaleTests
     }
 
     [Fact]
+    public void AccessScale()
+    {
+        // Ruling R5: six classes for ACAPS's scores 0 to 5, ColorBrewer YlOrBr 6; every level has ACAPS's own name; 0 is a figure.
+        var a = ShadingScales.For(ShadingLayer.Access);
+        Assert.True(a.Categorical);
+        Assert.Equal([0, 1, 2, 3, 4, 5], a.Breaks);
+        Assert.Equal([Rgb(0xFFFFD4), Rgb(0xFEE391), Rgb(0xFEC44F), Rgb(0xFE9929), Rgb(0xD95F0E), Rgb(0x993404)], a.Colors);
+        Assert.Equal(["No constraints", "Low access constraints", "Moderate access constraints", "High access constraints",
+            "Very high access constraints", "Extreme access constraints"], a.ClassLabels);
+        Assert.Equal(0, a.ClassOf(0));
+        Assert.Equal(5, a.ClassOf(5));
+        Assert.Null(a.ClassOf(-1));
+        Assert.Equal(Rgb(0xFE9929), LayerStyle.SymbolColor(ShadingLayer.Access));
+    }
+
+    [Fact]
     public void EveryScaleHasOneColourAndLabelPerBreakInRisingOrder()
     {
         Assert.All(Shadings, l =>

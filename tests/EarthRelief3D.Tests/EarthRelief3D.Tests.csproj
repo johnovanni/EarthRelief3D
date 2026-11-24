@@ -32,6 +32,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EarthRelief3D.App\EarthRelief3D.App.csproj" />
     <ProjectReference Include="..\..\src\EarthRelief3D.Core\EarthRelief3D.Core.csproj" />
+    <!-- The vetting tool's readers (Task 7). -->
+    <ProjectReference Include="..\..\src\EarthRelief3D.Vetting\EarthRelief3D.Vetting.csproj" />
     <!-- The DataTool's extractors (Task 6); its Program is only argument parsing. -->
     <ProjectReference Include="..\..\tools\EarthRelief3D.DataTool\EarthRelief3D.DataTool.csproj" />
   </ItemGroup>

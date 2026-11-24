@@ -1,7 +1,7 @@
-# Data sources (Plan 2 and Plan 3)
+# Data sources (Plans 2, 3 and 4)
 
 Sections 1 to 4 (Plan 2) were checked live on 2026-11-22 and sections 5 to 10 (Plan 3) on 2026-11-23, with `tools/fetch-samples.ps1` (User-Agent `EarthRelief3D/0.1.0 (+https://github.com/johnovanni/EarthRelief3D)`).
-No source needs a key or an account. Samples are in `tests/Samples` (see its README).
+No source needs a key or an account. Samples are in `tests/Samples` (see its README). Sections 12 to 20 (Plan 4) were checked on 2026-11-24.
 
 ## 1. UCDP Georeferenced Event Dataset, Candidate (conflict events)
 
@@ -348,6 +348,108 @@ through the DataTool's ExcelDataReader). GEM's download form is not scriptable, 
 - **On screen:** a filled hexagon with a dark edge (no other layer has it, C8), in the power layer's fuel colours by the
   plant's largest fuel; legend keys for the fuel groups present (hydro, wind or solar, other) and size classes (under
   500 MW, 500–999, 1,000–4,999, 5,000 or more); the tooltip as the power layer's.
+
+## 12. ACAPS Humanitarian Access Dataset via HDX (Plan 4; live only, never committed)
+
+Checked live 2026-11-24. Samples: `tests/Samples/hdx_acaps_package.json` (the real package, trimmed to its two newest resources) and `acaps_access_synthetic.json` / `.xlsx` (**synthetic, ACAPS layout**, no ACAPS data; ruling P4-2).
+
+- **URL:** https://data.humdata.org/api/3/action/package_show?id=acaps-humanitarian-access-dataset (dataset id `b0e0bf77-29a3-46ee-9f78-1830e59c43d1`, `dataset_source` "ACAPS"). `resources[0]` is the newest: https://data.humdata.org/dataset/b0e0bf77-29a3-46ee-9f78-1830e59c43d1/resource/2b5fed9e-83d9-410e-b590-934e5be5dda3/download/acaps-humanitarian-access-dataset_dec_2025.xlsx (1,160,458 bytes, HTTP 200, no key). Ten XLSX resources, July 2021 to December 2025.
+- **The resource fields that name the edition:** the file name at the end of `url` (`acaps-humanitarian-access-dataset_dec_2025.xlsx`), `name` ("ACAPS' Humanitarian Access Dataset_December 2025.xlsx") and `description` ("ACAPS' Humanitarian Access Dataset - December 2025"). File names and `name`s are not uniform across editions (`..._dec-_2024.xlsx`, `...-july_2025.xlsx`, and the 2021 and 2022 files are named `2021xxxx_acaps_...`), while `description` always writes the edition in words.
+- **`last_modified` does not order the editions.** On 2026-11-24 the July 2025 resource's `last_modified` (2026-08-03T13:01:23) is three seconds *later* than the December 2025 resource's (13:01:20), and December 2022's (13:01:43) is later still, because HDX re-saved several resources together. The `resources` order (`position` 0 is December 2025, 1 is July 2025, and so on) is newest first. **Ruling P4-3 says "newest by `last_modified`": that would pick July 2025 today.** Pick the edition from `description` or the file name (newest first), not from `last_modified`.
+- **Package fields:** `license_id` `cc-by`, `license_title` "Creative Commons Attribution International (CC BY)"; package `last_modified` 2026-08-03; `dataset_date` `[2020-12-15T00:00:00 TO 2025-12-31T23:59:59]`; `data_update_frequency` 180; `update_status` `needs_update`. HDX notes: "updated twice a year, each edition covering a six-month reporting period."
+- **Newer edition not on HDX:** the ACAPS overview page (https://www.acaps.org/en/thematics/all-topics/humanitarian-access-overview) shows the "July 2026" edition (December 2025 to May 2026, 66 countries, PDF dated 10 August 2026). Its XLSX is not on HDX. The app shows the December 2025 edition and says so (P4-3).
+- **Workbook sheets:** `About`, `pillars` (147 rows), `indicators` (147), `trends` (386), `dictionary` (11), `log`, `list` (386), `csv` (83 rows). The `About` sheet's text is in a drawing (text boxes), not in cells, so a cell reader sees it empty.
+- **`csv` sheet columns (11, checked):** `Crisis_name, Crisis ID, P1, P2, P3, ACCESS, Info_gap, Trend, Country level, Country Name, ISO`. Scores are real numbers; `Info_gap` runs 0 to 1 (for example 0.0611); `Trend` is Stable (36), Deteriorating (18), Improving (15) or New (14); all 83 rows have `Country level` "Yes"; `ISO` is "ISO3 alpha code" (the dictionary's words). `ACCESS` counts: 0 (6), 1 (19), 2 (21), 3 (18), 4 (11), 5 (8).
+- **`indicators` sheet columns (14, checked, spacing exactly as in the file; `3.Impediments...` has no space after the dot):** `Crisis Name, Crisis ID, 1. Denial of existence of needs, 2. Restriction and obstruction to access services, 3.Impediments to entry into the country, 4.Restriction of movement within the country, 5.Interference with implementation of humanitarian activities, 6. Violence against personnel, facilities and assets, 7. Ongoing insecurity, 8. Presence of mines and explosive devices, 9. Environmental constraints, Information Gap, Country level, Country`. No ISO column: join on `Crisis ID` (its first three letters are the ISO3, for example `AFG001`). The sheet's 147 rows include crises that are not the country row (for example `AFG007` "2025 Earthquake in Eastern Provinces", `Country level` "No").
+- **Scale wording (the `About` sheet's own words):** "Indicators are scored from 0 to 3, where 3 represents the highest level of constraint." and "Pillars and the overall access score are expressed from 0 to 5": 5 Extreme access constraints, 4 Very high access constraints, 3 High access constraints, 2 Moderate access constraints, 1 Low access constraints, 0 No constraints. **Every ACCESS level has a name, and 0 is "No constraints".** The indicator scale (0 to 3) has only the one sentence above: no names for 0, 1 or 2. The `dictionary` sheet gives the codes only (`0-5`, Integer).
+- **The nine indicators as the overview page words them (quoted, 2026-11-24):**
+  1. "Denial of existence of humanitarian needs or entitlements to assistance"
+  2. "Restriction and obstruction of access to services and assistance"
+  3. "Impediments to enter the country"
+  4. "Restriction of movement within the country"
+  5. "Interference into implementation of humanitarian activities"
+  6. "Violence against humanitarian personnel, facilities, and assets"
+  7. "Insecurity or hostilities affecting humanitarian assistance"
+  8. "Presence of landmines, improvised explosive devices, explosive remnants of war and unexploded ordnance"
+  9. "Physical constraints in the environment"
+
+  Pillars: 1 "Access of people in need to humanitarian aid" (indicators 1 and 2), 2 "Access of humanitarian responders to people in need" (3 to 6), 3 "Physical, environmental and security constraints" (7 to 9). The page's scale sentence: "each indicator is given a score from 0-3 and X when there is an information gap", and a "final score on a scale of 0-5". The workbook's short column names differ from the page's wording; show the page's wording with the workbook's score unchanged.
+- **Licence (two statements that conflict):** HDX says CC BY. ACAPS's copyright page (https://www.acaps.org/copyright-policy) says all ACAPS-branded products "are available under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International licence". It prescribes no credit wording; the footer reads "(c) ACAPS 2026". The Terms of service (https://www.acaps.org/terms-service) state no data licence. Treated by the stricter one (P4-2): fetched live from HDX only, never committed; credit "ACAPS, Humanitarian Access Dataset, <edition>, via HDX (CC BY on HDX; ACAPS: CC BY-NC-ND 4.0)". A permission request is drafted in `docs/permission-requests.md` section 5 (not sent).
+- **Samples:** the real `About` sheet names a staff member's email address; it is copied nowhere. The synthetic workbook has `indicators` and `csv` only (the real file's order) and 14 invented crises: the 12 countries SDN, PSE, YEM, AFG, COD, HTI, MMR, SOM, UKR, SSD, NGA, VEN, `XXK` (Kosovo, an ISO3 the boundary set does not have) and `AFG007` with `Country level` "No". Values are invented. Made from the JSON by `dotnet run --project tools/EarthRelief3D.DataTool -- workbook tests/Samples/acaps_access_synthetic.json --out tests/Samples/acaps_access_synthetic.xlsx`.
+
+## 13. OCHA FTS requirements and funding via HDX (Plan 4)
+
+Checked live 2026-11-24. Samples: `tests/Samples/hdx_fts_package.json` (untrimmed), `fts_requirements_funding_global.csv` (real, trimmed).
+
+- **URL:** https://data.humdata.org/api/3/action/package_show?id=global-requirements-and-funding-data; the resource `fts_requirements_funding_global.csv` is https://data.humdata.org/dataset/b2bbb33c-2cfb-4809-8dd3-6bbdc080cbb9/resource/b3232da8-f1e4-41ab-9642-b22dae10a1d7/download/fts_requirements_funding_global.csv (280,855 bytes, updated daily). The package has seven resources; the cluster and incoming-funding files are not used.
+- **Columns (12, checked):** `countryCode, id, name, code, typeId, typeName, startDate, endDate, year, requirements, funding, percentFunded`. UTF-8, CRLF line endings, 3,889 rows (1999 to 2031). `countryCode` is ISO3; `requirements` and `funding` are USD; `percentFunded` is a whole percent.
+- **A blank `id`:** 2,635 rows. They read `name` "Not specified" with blank `code`, `typeId`, `typeName`, dates, `requirements` and `percentFunded`, and a `funding` figure: money given to the country that is not tied to a plan. It is not an appeal and has no percent, so it is ignored for appeal funding. Years after the current one (2027 to 2031) exist only as such rows.
+- **2026:** 166 rows, 57 with a plan id; `typeName` blank (109), "Regional response plan" (28), "Humanitarian needs and response plan" (20), "Flash appeal" (5), "Other" (4). 2025 for AFG, SDN and HTI: one plan row and one "Not specified" row each.
+- **Licence and credit:** HDX `cc-by-igo`; every FTS page footer: "Except where otherwise noted, content on this site is licensed under a Creative Commons BY 4.0 International license." FTS terms (https://fts.unocha.org/content/terms-use): data may be used "provided that suitable attribution of FTS as data source is given. Such attribution should cite the Financial Tracking Service (FTS), the publication date of the figures used and the relevant URL." The credit the app shows: "Financial Tracking Service (FTS), <date>, <URL>"; if amended or combined, "based on Financial Tracking Service (FTS), <date>, <URL>". The FTS logo is not used.
+- **Sample:** all 166 rows of 2026 and the six 2025 rows of AFG, SDN and HTI (172 rows), as published (bytes unchanged).
+
+## 14. OCHA country-based pooled funds and CERF (Plan 4)
+
+Checked 2026-11-24 (the plan's source check read the pages; this task re-read the CBPF footer). No sample: the curated `pooled-funds.json` cites the pages.
+
+- **Portal licence:** https://cbpf.data.unocha.org/ footer: "Except where otherwise noted, content on this site is licensed under a Creative Commons Attribution 4.0 International license". The OData API (https://cbpfapi.unocha.org/vo2/odata/Poolfund?$format=json, 46 rows, no "active" flag) states no licence of its own.
+- **Giving:** there is no per-fund donate page. https://www.unocha.org/our-funding explains how to give; https://cerf.un.org/donate is CERF's page ("for U.S. tax-deductible gifts" go through the UN Foundation).
+- **Extract (Plan 4 Task 6):** `data/help/pooled-funds.json`: OCHA's 20 fund pages plus `cerf`, all drafts checked 2026-11-24. A regional fund covers its CBPF sub-funds' countries (Asia-Pacific: BGD, FJI, LAO, NPL, PAK, PNG, PHL, SLB, LKA, TON, VUT; West and Central Africa: BFA, TCD, MLI, NER; Latin America and the Caribbean: COL, SLV, GTM, HTI, HND; Eastern and Southern Africa: KEN, UGA); the Syria Cross-border fund maps to SYR, which has two funds. Each row's citation is its OCHA page; `docs/help-review.md` lists them for the owner.
+
+## 15. NGA World Port Index (Pub 150; Plan 4)
+
+Checked 2026-11-24. Sample: `tests/Samples/wpi_excerpt.csv` (100 real rows, all 118 columns, header unchanged).
+
+- **Portal:** https://msi.nga.mil/Publications/WPI and https://msi.nga.mil/ still answer HTTP 503 (under maintenance). **Portal in maintenance on 2026-11-24; file date 2026-11-05.** No licence statement and no edition number could be read. The maintenance page links https://msi.nga.mil/apology_objects/WPI.zip (HTTP 200, 377,921 bytes, one file `UpdatedPub150.csv`, dated 2026-11-05). Re-check when the portal is back.
+- **Basis for use:** a US federal government work (17 U.S.C. section 105); not confirmed from NGA's own page (secondary sources only).
+- **File:** UTF-8 with BOM, CRLF, 3,809 data rows, 118 columns. Used: `Main Port Name`, `UN/LOCODE`, `Country Code` (holds the country **name**, for example "Myanmar (Burma)"), `Harbor Size` (US spelling), `Latitude`, `Longitude`, `World Port Index Number` (written "8225.0"). `Harbor Size`: Very Small 2,109; Small 1,023; Medium 376; Large 174; blank 127, where "blank" is one space. 460 rows have no `UN/LOCODE`, also written as one space, among them 2 Large and 9 Medium. Some LOCODEs have no space ("HTPAP", "NGBON"). Coordinates are long decimals ("38.983333000000002").
+- **Sample:** Large 24, Medium 34, Small 13, Very Small 17 and blank 12; 11 rows with an empty `UN/LOCODE`; includes ports of Sudan, Yemen, Fiji, Haiti, Somalia, Ukraine, Nigeria and Venezuela. Written back with the BOM and CRLF.
+- **Extract (Task 4, `DataTool ports WPI.zip`, run 2026-11-24 on the 377,921-byte zip, CSV dated 2026-11-05):** `data/datasets/wpi-ports`: 546 ports in 108 countries (Large 174, Medium 372) of the 550 Large or Medium rows; 4 are not placed (Christmas Island, Guadeloupe, Martinique, Gibraltar: no unit in the boundary set). The country is the first two letters of the UN/LOCODE (536 ports); 10 ports with no LOCODE use the country name. Its date is the zip entry's, as-of 2026-11-05.
+
+## 16. OurAirports (Plan 4)
+
+Checked 2026-11-24. Sample: `tests/Samples/ourairports_excerpt.csv` (200 real rows).
+
+- **URL:** https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv (12,763,634 bytes, 86,387 rows, rebuilt daily).
+- **Columns (19, checked):** `id, ident, type, name, latitude_deg, longitude_deg, elevation_ft, continent, iso_country, iso_region, municipality, scheduled_service, icao_code, iata_code, gps_code, local_code, home_link, wikipedia_link, keywords`. `iso_country` is ISO2; `scheduled_service` is "yes" or "no" for every type. Types: small_airport 42,787; heliport 23,294; closed 13,688; medium_airport 4,108 (2,117 scheduled); seaplane_base 1,274; large_airport 1,174 (1,153 scheduled); balloonport 62.
+- **Licence:** the repository's LICENSE (https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/LICENSE) begins "This is free and unencumbered software released into the public domain." (The Unlicense). Credit given anyway: "OurAirports (ourairports.com), public domain (The Unlicense)". The data is community-edited. ourairports.com had an expired certificate on 2026-11-24 and was not used.
+- **Sample (header unchanged; every type, both `scheduled_service` values):** large 51, medium 101, small 21, heliport 8, closed 8, seaplane_base 8, balloonport 3. All large and medium airports of AF (10 rows), SD (10), FJ (10, including the fields either side of 180 degrees) and IS (13); 17 of NO, 15 of them above 70 degrees N; 52 of US. Re-written by a script (quoting only where needed, LF line endings).
+- **Extract (Task 4, `DataTool airports airports.csv`, run 2026-11-24):** `data/datasets/ourairports`: 3,254 airports in 223 countries (large 1,144, medium 2,110) of the 3,270 that are large or medium with scheduled service; 16 are not placed (ten codes: BQ, CC, CX, GF, GI, GP, MQ, RE, UM, YT). The file has no date, so the as-of is the download day, 2026-11-24.
+
+## 17. US Senate member contact list (Plan 4)
+
+Checked 2026-11-24. Sample: `tests/Samples/senators_cfm_excerpt.xml` (6 members of ME, MD and WI, real; the entries are copied as published).
+
+- **URL:** https://www.senate.gov/general/contact_information/senators_cfm.xml (52,652 bytes, 100 `member` elements). Per member: `member_full, last_name, first_name, party, state, address, phone, email` (the value is a contact-form URL, not an email address), `website, class, bioguide_id`; the root also holds `last_updated` (2026-11-18T12:08-05:00).
+- **Terms:** Senate.gov privacy policy (https://www.senate.gov/general/privacy.htm): information on the site "is considered public information" and "may be distributed or copied unless otherwise specified"; "Use of appropriate byline/photo/image credits is requested." A US government work. Credit: "United States Senate, senate.gov, <last_updated date>".
+- **House of Representatives:** https://www.house.gov/representatives/find-your-representative is a link only. Its FAQ: "There is currently no restriction on a link being posted to the Find Your Representative page."
+- **Extract (Plan 4 Task 6, `DataTool senators senators_cfm.xml`, run 2026-11-24):** `data/countries/US/senators.json`: 100 senators in 50 states (two each), `asOf` 2026-11-18 (the file's `last_updated`). Kept per senator: state code, name as "First Last", party letter, the contact form (the `email` element) and the website, all https; the street address, phone, class and bioguide id are not kept. The download is untrusted (a DOCTYPE is refused).
+
+## 18. UN Humanitarian Response Depots and the US State Department contact page (Plan 4)
+
+Both sites answer scripts with HTTP 403. They were opened as ordinary pages in the desktop app's built-in browser on 2026-11-24 (no challenge or CAPTCHA appeared). Nothing is fetched by script.
+
+- **UNHRD** (https://unhrd.org/contacts): the home page says "Our network of five strategically located humanitarian support hubs". The contacts page gives each hub's postal address, and staff contact details that are not copied anywhere in this repository. The menu has no per-hub pages, and the pages show no coordinates and no date. Citation for each depot row: title "Contacts | UNHRD - Humanitarian Response Depot", publisher "UNHRD (WFP)", URL https://unhrd.org/contacts, checked 2026-11-24 (the page is undated). Hubs as the page writes them:
+  1. Accra: World Food Programme, UNHRD Accra, Courier Enclave, P.O. Box 1423, Kotoka International Airport, Accra, Ghana.
+  2. Brindisi: World Food Programme, UNHRD Brindisi, Ex SS 16 Km 906.9 OR, P.za Del Vento 1, 72100 Brindisi, Italy.
+  3. Dubai: UNHRD c/o WFP, Dubai Humanitarian, Dubai Industrial City - Phase 2, Nearest Landmark - DWC, PO Box 506003 (United Arab Emirates).
+  4. Kuala Lumpur: World Food Programme, UNHRD Kuala Lumpur, Lot 14104 (PT12136), Jalan TUDM, Section U7, 40150 Shah Alam, Selangor, Malaysia.
+  5. Panama City: World Food Programme, UNHRD Panama, Paseo de la Americas Panama Pacifico, Howard, Arraijan, Panama, Republic of Panama.
+- **Depot positions (ruling R21, final fix wave):** UNHRD gives no coordinates, so each depot is marked at the airport its own address names or sits beside, with the airport's position from the bundled OurAirports extract (`data/datasets/ourairports`, The Unlicense, as of 2026-11-24): Accra → Kotoka International (DGAA; the address names it); Brindisi → Brindisi Airport (LIBR; the address is on the former SS16 by the airport); Dubai → Al Maktoum International (OMDW, IATA DWC; "Nearest Landmark - DWC"); Kuala Lumpur → Sultan Abdul Aziz Shah International, Subang (WMSA; Jalan TUDM, the air force road); Panama → Panamá Pacífico International (MPPA, the former Howard air base; "Panama Pacifico, Howard"). Each position is approximate. No share-alike data (C6) is used for them.
+- **US State Department:** www.state.gov's "Contact Us" link goes to https://register.state.gov/contactus/contactusform (title "U.S. Department of State - Contact Us"). It lists topic contacts (emergencies abroad, passports, visas and more) and ends with a "Contact Us Form" for inquiries "unrelated to the topics above"; it warns "we cannot guarantee we will be able to respond to all inquiries." That URL is the profile's State Department contact, noting that the form is at the end of the page.
+
+## 19. Logistics Cluster country pages (Plan 4; links only)
+
+Checked 2026-11-24 (curl gets HTTP 403; read through the web-fetch tool). `data/help/logistics-cluster.json` has one row per page opened: `{ iso3, url, title, checkedOn }` (19 rows; `title` is the page's HTML title).
+
+- **List:** https://logcluster.org/en/where-we-work lists 218 country links. Only the 18 with an operation slug (`/en/where-we-work/<iso3>/<slug>`) plus Myanmar's `/mmr` were opened and recorded; the rest are bare `/<iso3>` pages. A country without a row has no Logistics Cluster link in the app.
+- **Terms** (https://logcluster.org/en/terms-of-use, as the plan's check read them): "You agree not to use or distribute the information for commercial purposes", and the Logistics Cluster must be credited. Links only; nothing is copied.
+
+## 20. IRS Form 990 e-file bulk files: Range requests (Plan 4; Task 7 relies on this)
+
+Checked 2026-11-24 with `curl -H "Range: bytes=0-99" https://apps.irs.gov/pub/epostcard/990/xml/2026/2026_TEOS_XML_01A.zip` (the project's User-Agent; the 100 bytes were discarded).
+
+- **Result: HTTP 206 Partial Content**, `Accept-Ranges: bytes`, `Content-Range: bytes 0-99/71497607`, `Content-Length: 100`, `Content-Type: application/zip`, `Last-Modified: Thu, 19 Feb 2026 18:32:24 GMT`. The zip is 71,497,607 bytes, so the vetting tool can read a zip's central directory and one member by byte ranges instead of downloading the whole file.
 
 ## Offline samples (`--offline-samples`)
 

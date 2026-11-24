@@ -1,0 +1,547 @@
+name,iso3,lat,lon,capacity,unit,status,type,detail
+Porto Romano,ALB,41.383333,19.416667,,,,medium,AL ROM
+Abu Zaby,ARE,24.5,54.333333,,,,medium,AE AUH
+Jabal Az Zannah/ruways,ARE,24.2,52.7,,,,medium,AE JED
+Khawr Fakkan,ARE,25.362778,56.368889,,,,medium,AE KLF
+Mina Jabal Ali,ARE,25.016667,55.05,,,,large,AE JEA
+Zirkuh,ARE,25.016667,53,,,,medium,AE ZUR
+Buenos Aires,ARG,-34.6,-58.366667,,,,large,AR BUE
+La Plata,ARG,-34.833333,-57.883333,,,,medium,AR LPG
+Rosario,ARG,-32.95,-60.633333,,,,medium,AR ROS
+St Johns,ATG,17.116667,-61.85,,,,medium,AG SJO
+Brisbane,AUS,-27.400043,153.151546,,,,large,AU BNE
+Dampier,AUS,-20.633333,116.716667,,,,medium,AU DAM
+Darwin,AUS,-12.471389,130.847778,,,,medium,AU DRW
+Fremantle,AUS,-32.05,115.75,,,,large,AU FRE
+Geelong,AUS,-38.15,144.366667,,,,medium,AU GEX
+Hobart,AUS,-42.883333,147.333333,,,,medium,AU HBA
+Melbourne,AUS,-37.833333,144.966667,,,,large,AU MEL
+Newcastle,AUS,-32.916667,151.783333,,,,large,AU NTL
+Port Adelaide,AUS,-34.85,138.5,,,,medium,AU PAE
+Port Dalrymple,AUS,-41.133333,146.833333,,,,medium,AU PTD
+Port Hedland,AUS,-20.319444,118.572222,,,,medium,AU PHE
+Port Kembla,AUS,-34.463384,150.900029,,,,medium,AU PKL
+Port Lincoln,AUS,-34.716667,135.85,,,,medium,AU PLO
+Sydney,AUS,-33.866667,151.2,,,,large,AU SYD
+Antwerpen,BEL,51.216667,4.4,,,,large,BE ANR
+Ghent,BEL,51.066667,3.733333,,,,medium,BE GNE
+Zeebrugge,BEL,51.333333,3.2,,,,medium,BE ZEE
+Cotonou,BEN,6.35,2.433333,,,,medium,BJ COO
+Chittagong,BGD,22.316667,91.816667,,,,medium,BD CGP
+Varna,BGR,43.183333,27.966667,,,,large,BG VAR
+Khalifa Bin Salman,BHR,26.183333,50.7,,,,medium,BH KBS
+Mina Salman,BHR,26.2,50.633333,,,,medium,BH MIN
+Sitrah,BHR,26.166667,50.666667,,,,medium,BH SIT
+Nassau,BHS,25.083333,-77.35,,,,medium,BS NAS
+Ireland Island,BMU,32.316667,-64.833333,,,,medium,BM FPT
+Belem,BRA,-1.45,-48.5,,,,medium,BR BEL
+Dtse / Gegua Oil Terminal,BRA,-22.816667,-43.15,,,,medium,
+Itajai,BRA,-26.916667,-48.633333,,,,medium,BR ITJ
+Port De Salvador,BRA,-12.966667,-38.516667,,,,medium,BR SSA
+Porto Alegre,BRA,-30.033333,-51.233333,,,,medium,BR POA
+Recife,BRA,-8.05,-34.866667,,,,medium,BR REC
+Rio De Janeiro,BRA,-22.9,-43.166667,,,,large,BR RIO
+Rio Grande,BRA,-32.05,-52.083333,,,,large,BR RIG
+Santos,BRA,-23.95,-46.3,,,,large,BR SSZ
+Tubarao,BRA,-20.283333,-40.25,,,,large,BR TUB
+Vitoria,BRA,-20.316667,-40.333333,,,,medium,BR VIX
+Argentia,CAN,47.3,-53.983333,,,,medium,CA NWP
+Canaport (St. John),CAN,45.2,-65.983333,,,,large,CA CPT
+Halifax,CAN,44.65,-63.583333,,,,large,CA HAL
+Hamilton,CAN,43.25,-79.85,,,,medium,CA HAM
+Montreal,CAN,45.516667,-73.55,,,,large,CA MTR
+New Westminster,CAN,49.2,-122.916667,,,,medium,CA NWE
+Pond Inlet,CAN,72.75,-76.75,,,,medium,CA PDI
+Prince Rupert,CAN,54.316667,-130.333333,,,,medium,CA PRR
+Quebec,CAN,46.816667,-71.216667,,,,medium,CA QUE
+Sept Iles,CAN,50.2,-66.383333,,,,medium,CA SEI
+St John,CAN,45.266667,-66.05,,,,medium,CA SJB
+St John's,CAN,47.566667,-52.7,,,,medium,CA SJF
+Sydney,CAN,46.15,-60.2,,,,medium,CA SYD
+Thunder Bay,CAN,48.4,-89.233333,,,,medium,CA THU
+Toronto,CAN,43.616667,-79.383333,,,,medium,CA TOR
+Trois Rivieres,CAN,46.35,-72.55,,,,medium,CA TRR
+Vancouver,CAN,49.283333,-123.116667,,,,large,CA VAN
+Victoria Harbor,CAN,48.433333,-123.383333,,,,medium,CA VIC
+Windsor,CAN,42.316667,-83.033333,,,,medium,CA WND
+Antofagasta,CHL,-23.65,-70.416667,,,,medium,CL ANF
+Bahia De Valparaiso,CHL,-33.033333,-71.616667,,,,medium,CL VAP
+Chaozhou,CHN,23.616667,117.083333,,,,medium,CN COZ
+Dalian,CHN,38.916667,121.666667,,,,large,CN DAL
+Fang-Cheng,CHN,21.75,108.35,,,,medium,CN FAN
+Guangzhou,CHN,23.116667,113.233333,,,,medium,CN GGZ
+Hankow,CHN,30.583333,114.283333,,,,medium,CN HNK
+Lon Shui Terminal,CHN,20.833333,115.683333,,,,large,
+Qingdao Gang,CHN,36.033333,120.266667,,,,large,CN QIN
+Qinhuangdao,CHN,39.933333,119.616667,,,,medium,CN SHP
+Shanghai,CHN,31.216667,121.5,,,,large,CN SGH
+Shekou,CHN,22.466667,113.866667,,,,medium,CN SHK
+Tianjin Xin Gang,CHN,38.966667,117.833333,,,,large,CN TXG
+Weihai,CHN,37.5,122.1,,,,medium,CN WEG
+Wenzhou,CHN,28.016667,120.65,,,,medium,CN WZO
+Xiamen,CHN,24.45,118.066667,,,,medium,CN XMG
+Abidjan,CIV,5.25,-4.016667,,,,large,CI ABJ
+Douala,CMR,4.05,9.683333,,,,medium,CM DLA
+Barranquilla,COL,10.966667,-74.766667,,,,medium,CO BAQ
+Buenaventura,COL,3.883333,-77.066667,,,,medium,CO BUN
+Cartagena,COL,10.416667,-75.533333,,,,medium,CO CTG
+Antilla,CUB,20.833333,-75.733333,,,,large,CU ANT
+Bahai De La Habana,CUB,23.133333,-82.366667,,,,large,CU HAV
+Bahia De Sagua De Tanamo,CUB,20.683333,-75.333333,,,,large,CU SDT
+Cabanas,CUB,23,-82.966667,,,,medium,CU CAB
+Casilda,CUB,21.75,-79.983333,,,,medium,CU CAS
+Cienfuegos,CUB,22.15,-80.45,,,,large,CU CFG
+Nuevitas Bay,CUB,21.55,-77.266667,,,,large,CU NVT
+Puerto Guantanamo,CUB,19.983333,-75.133333,,,,large,CU GUB
+Santiago De Cuba,CUB,20.016667,-75.833333,,,,medium,CU SCU
+Bullen Baai,CUW,12.183333,-69.033333,,,,medium,CW BUB
+Willemstad,CUW,12.116667,-68.933333,,,,medium,CW WIL
+Limassol,CYP,34.648889,33.019722,,,,medium,CY LMS
+Brake,DEU,53.333333,8.483333,,,,medium,DE BKE
+Bremen,DEU,53.133333,8.766667,,,,large,DE BRE
+Bremerhaven,DEU,53.533333,8.583333,,,,large,DE BRV
+Cuxhaven,DEU,53.866667,8.716667,,,,medium,DE CUX
+Emden,DEU,53.333333,7.183333,,,,medium,DE EME
+Hamburg,DEU,53.55,9.933333,,,,large,DE HAM
+Kiel,DEU,54.316667,10.133333,,,,large,DE KEL
+Lubeck,DEU,53.883333,10.7,,,,medium,DE LBC
+Rostock,DEU,54.1,12.133333,,,,large,DE RSK
+Arhus,DNK,56.15,10.216667,,,,medium,DK AAR
+Kobenhavn,DNK,55.7,12.616667,,,,large,DK CPH
+Studstrup,DNK,56.25,10.35,,,,medium,DK SSV
+Andres (Andres Lng Terminal),DOM,18.433333,-69.633333,,,,medium,DO BCC
+Santo Domingo,DOM,18.466667,-69.883333,,,,medium,DO SDQ
+Alger,DZA,36.766667,3.066667,,,,large,DZ ALG
+Annaba,DZA,36.916667,7.766667,,,,medium,DZ AAE
+Oran,DZA,35.7,-0.633333,,,,large,DZ ORN
+Puerto Maritimo De Guayaquil,ECU,-2.283333,-79.9,,,,medium,EC PEV
+Ain Sukhna Terminal,EGY,29.583333,32.366667,,,,large,EG AIS
+Al Arish,EGY,31.152045,33.831078,,,,medium,EG AAC
+Al Iskandariyh (Alexandria),EGY,31.166667,29.833333,,,,large,EG ALY
+As Suways,EGY,29.966667,32.55,,,,large,EG SUZ
+Bur Sa'id,EGY,31.266667,32.3,,,,large,EG PSD
+Damietta,EGY,31.483333,31.75,,,,large,EG DAM
+Ras Shukhier,EGY,28.133333,33.283333,,,,medium,EG RSH
+Alicante,ESP,38.333333,-0.483333,,,,medium,ES ALC
+Barcelona,ESP,41.35,2.166667,,,,large,ES BCN
+Cadiz,ESP,36.533333,-6.3,,,,medium,ES CAD
+Ceuta,ESP,35.9,-5.316667,,,,medium,ES CEU
+Ferrol,ESP,43.483333,-8.233333,,,,medium,ES FRO
+Huelva,ESP,37.25,-6.95,,,,medium,ES HUV
+Las Palmas,ESP,28.15,-15.416667,,,,large,ES LPA
+Malaga,ESP,36.716667,-4.416667,,,,medium,ES AGP
+Palma De Mallorca,ESP,39.566667,2.633333,,,,medium,ES PMI
+Puerto De Bilbao,ESP,43.35,-3.05,,,,medium,ES BIO
+Puerto De Pasajes,ESP,43.333333,-1.933333,,,,medium,ES PAS
+Santa Cruz De Tenerife,ESP,28.466667,-16.233333,,,,medium,ES SCT
+Santander,ESP,43.466667,-3.783333,,,,medium,ES SDR
+Sevilla,ESP,37.366667,-6,,,,medium,ES SVQ
+Tarragona,ESP,41.1,1.233333,,,,large,ES TAR
+Valencia,ESP,39.45,-0.316667,,,,medium,ES VLC
+Vigo,ESP,42.233333,-8.716667,,,,medium,ES VGO
+Muuga-Port of Tallin,EST,59.500042,24.966693,,,,large,EE MUG
+Paldiski South Harbor,EST,59.333343,24.081111,,,,large,EE PLS
+Paljassaare,EST,59.459102,24.70564,,,,medium,EE PAS
+Sillamae,EST,59.42612,27.73945,,,,large,EE SLM
+Tallinn's Old City Harbor,EST,59.450128,24.766676,,,,large,EE TLL
+Helsinki,FIN,60.166667,24.966667,,,,large,FI HEL
+Kaskinen,FIN,62.383333,21.233333,,,,medium,FI KAS
+Kokkola,FIN,63.85,23.016667,,,,large,FI KOK
+Kotka,FIN,60.466667,26.966667,,,,large,FI KTK
+Kristinestad,FIN,62.283333,21.4,,,,medium,FI KRS
+Mantyluoto,FIN,61.6,21.483333,,,,medium,FI MTY
+Oulu,FIN,65.016667,25.4,,,,large,FI OUL
+Pietarsaari,FIN,63.683333,22.666667,,,,medium,FI PRS
+Pori,FIN,61.483333,21.8,,,,large,FI POR
+Rauma,FIN,61.125,21.446111,,,,medium,FI RAU
+Turku,FIN,60.45,22.233333,,,,medium,FI TKU
+Vaasa,FIN,63.1,21.583333,,,,medium,FI VAA
+Stanley,FLK,-51.7,-57.833333,,,,medium,FK PSY
+Bayonne,FRA,43.5,-1.466667,,,,medium,FR BAY
+Bordeaux,FRA,44.866667,-0.566667,,,,large,FR BOD
+Boulogne-Sur-Mer,FRA,50.733333,1.6,,,,medium,FR BOL
+Dunkerque Port Est,FRA,51.05,2.383333,,,,medium,FR DKK
+Dunkerque Port Ouest,FRA,51.066667,2.35,,,,medium,FR DKK
+La Pallice,FRA,46.166667,-1.216667,,,,medium,FR LPE
+La Rochelle,FRA,46.15,-1.15,,,,medium,FR LRH
+Les Sables D' Olonne,FRA,46.5,-1.8,,,,medium,FR LSO
+Lorient,FRA,47.75,-3.35,,,,medium,FR LRT
+Montoir,FRA,47.3,-2.133333,,,,medium,FR MTX
+Nantes,FRA,47.2,-1.566667,,,,medium,FR NTE
+Port Of Le Havre,FRA,49.483333,0.116667,,,,large,FR LEH
+Port Of Rouen,FRA,49.45,1.066667,,,,large,FR URO
+Rade De Brest,FRA,48.383333,-4.5,,,,large,FR BES
+Rade De Cherbourg,FRA,49.65,-1.633333,,,,large,FR CER
+Rochefort,FRA,45.933333,-0.95,,,,medium,FR RCO
+St Nazaire,FRA,47.283333,-2.2,,,,medium,FR SNR
+Toulon,FRA,43.1,5.916667,,,,large,FR TLN
+Libreville,GAB,0.383333,9.45,,,,medium,GA LBV
+Port Gentil,GAB,-0.7,8.8,,,,medium,GA POG
+Aberdeen,GBR,57.15,-2.083333,,,,medium,GB ABD
+Barrow In Furness,GBR,54.116667,-3.233333,,,,medium,GB BIF
+Barry,GBR,51.4,-3.266667,,,,medium,GB BAD
+Belfast,GBR,54.616667,-5.9,,,,large,GB BEL
+Blyth,GBR,55.116667,-1.5,,,,medium,GB BLY
+Bristol,GBR,51.466667,-2.633333,,,,medium,GB BRS
+Cardiff,GBR,51.45,-3.166667,,,,medium,GB CDF
+Dundee,GBR,56.466667,-2.95,,,,large,GB DUN
+Falmouth Harbour,GBR,50.15,-5.066667,,,,medium,GB FAL
+Glasgow,GBR,55.866667,-4.35,,,,medium,GB GLW
+Greenock,GBR,55.95,-4.75,,,,medium,GB GRK
+Grimsby,GBR,53.583333,-0.066667,,,,medium,GB GSY
+Immingham,GBR,53.633333,-0.2,,,,medium,GB IMM
+Kingston Upon Hull,GBR,53.738688,-0.268645,,,,medium,GB HUL
+Leith,GBR,55.983333,-3.183333,,,,medium,GB LEI
+Lerwick,GBR,60.167,-1.15,,,,medium,GB LER
+Liverpool,GBR,53.416667,-3,,,,large,GB LIV
+London,GBR,51.5,-0.083333,,,,large,GB LON
+Londonderry,GBR,55,-7.316667,,,,medium,GB LDY
+Lyness,GBR,58.833333,-3.2,,,,medium,GB LYS
+Manchester,GBR,53.483333,-2.266667,,,,large,GB MNC
+Milford Haven,GBR,51.716667,-5.033333,,,,medium,GB MLF
+Newport,GBR,51.55,-2.983333,,,,medium,GB NPT
+Peterhead,GBR,57.5,-1.783333,,,,medium,GB PHD
+Plymouth,GBR,50.366667,-4.15,,,,medium,GB PLY
+Portland Harbour,GBR,50.583333,-2.433333,,,,medium,GB PTL
+Portsmouth Harbour,GBR,50.8,-1.1,,,,medium,GB PME
+Southampton,GBR,50.9,-1.4,,,,large,GB SOU
+Sunderland,GBR,54.916667,-1.366667,,,,medium,GB SUN
+Teesport,GBR,54.65,-1.133333,,,,large,GB TEE
+Tynemouth,GBR,55,-1.4,,,,medium,GB TYM
+Takoradi,GHA,4.883333,-1.733333,,,,medium,GH TKD
+Conakry,GIN,9.519444,-13.716667,,,,medium,GN CKY
+Alexandroupoli,GRC,40.833333,25.883333,,,,medium,GR AXD
+Iraklion,GRC,35.35,25.15,,,,medium,GR HER
+Kerkira,GRC,39.616667,19.933333,,,,medium,GR CFU
+Ormos Aliveriou,GRC,38.383333,24.05,,,,medium,GR LVR
+Piraievs,GRC,37.933333,23.65,,,,large,GR PIR
+Soudha,GRC,35.483333,24.183333,,,,medium,GR SDH
+Thessaloniki,GRC,40.633333,22.933333,,,,medium,GR SKG
+Volos,GRC,39.354444,22.940278,,,,medium,GR VOL
+Apra Harbor,GUM,13.45,144.616667,,,,medium,GU APR
+Georgetown,GUY,6.833333,-58.166667,,,,medium,GY GEO
+Hong Kong,HKG,22.266667,114.2,,,,large,HK HKG
+Rijeka Luka,HRV,45.333333,14.433333,,,,large,HR RJK
+Split,HRV,43.5,16.433333,,,,large,HR SPU
+Port Au Prince,HTI,18.55,-72.35,,,,medium,HT PAP
+Belawan,IDN,3.783333,98.683333,,,,medium,ID BLW
+Cilacap,IDN,-7.733333,109,,,,large,ID CXP
+Dumai,IDN,1.683333,101.45,,,,medium,ID DUM
+Jakarta,IDN,-6.1,106.883333,,,,large,ID JKT
+Kasim Terminal,IDN,-1.3,131.016667,,,,large,ID KAS
+Merak Mas Terminal,IDN,-5.919167,105.997222,,,,medium,ID MRK
+Palembang,IDN,-2.983333,104.766667,,,,medium,ID PLM
+Surabaya,IDN,-7.2,112.733333,,,,medium,ID SUB
+Ujung Pandang,IDN,-5.133333,119.4,,,,medium,ID UPG
+Calcutta,IND,22.55,88.333333,,,,large,IN CCU
+Chennai (Madras),IND,13.1,80.3,,,,large,IN MAA
+Jawaharlal Nehru Port (Nhava Shiva),IND,18.95,72.95,,,,medium,IN NSA
+Kattupalli Port,IND,13.306944,80.352222,,,,large,IN KRI
+Kochi (Cochin),IND,9.966667,76.233333,,,,medium,IN KOC
+Marmagao,IND,15.4175,73.795,,,,medium,IN MRM
+Mumbai (Bombay),IND,18.966667,72.866667,,,,large,IN BOM
+New Mangalore,IND,12.916667,74.816667,,,,medium,IN NML
+Vishakhapatnam,IND,17.683333,83.3,,,,medium,IN NRP
+Cobh,IRL,51.85,-8.3,,,,medium,IE COB
+Cork,IRL,51.85,-8.266667,,,,medium,IE ORK
+Dublin,IRL,53.35,-6.25,,,,medium,IE MTL
+Foynes,IRL,52.616667,-9.116667,,,,large,IE FOV
+Abadan,IRN,30.333333,48.283333,,,,medium,IR ABD
+Bandar Abbas,IRN,27.15,56.2,,,,medium,IR BND
+Bushehr,IRN,28.983333,50.833333,,,,medium,IR BUZ
+Khorramshahr,IRN,30.433333,48.183333,,,,medium,IR KHO
+Al Basrah,IRQ,30.516667,47.833333,,,,medium,IQ BSR
+Grundartangi,ISL,64.266667,-22,,,,medium,IS GRT
+Reykjavik,ISL,64.15,-21.933333,,,,medium,IS REY
+Haifa,ISR,32.816667,35,,,,medium,IL HFA
+Augusta,ITA,37.216667,15.233333,,,,medium,IT AUG
+Bari,ITA,41.146,16.846,,,,medium,IT BRI
+Brindisi,ITA,40.65,17.983333,,,,large,IT BDS
+Cagliari,ITA,39.19,9.102,,,,medium,IT CAG
+Catania,ITA,37.5,15.1,,,,medium,IT CTA
+Civitavecchia,ITA,42.102,11.771,,,,large,IT CVV
+Gallipoli,ITA,40.06,17.984,,,,medium,IT GAL
+Genova,ITA,44.406667,8.861389,,,,large,IT GOA
+Gioia Tauro,ITA,38.444,15.89,,,,large,IT GIT
+La Spezia,ITA,44.1,9.833333,,,,large,IT SPE
+Livorno,ITA,43.542,10.29,,,,large,IT LIV
+Messina,ITA,38.2,15.566667,,,,large,IT MSN
+Milazzo,ITA,38.216667,15.25,,,,medium,IT MLZ
+Monfalcone,ITA,45.783333,13.55,,,,medium,IT MNF
+Napoli,ITA,40.833,14.275,,,,large,IT NAP
+Porto Di Corsini,ITA,44.495,12.291,,,,medium,IT PCS
+Porto Di Lido-Venezia,ITA,45.416667,12.433333,,,,large,IT VCE
+Rada Di Vado,ITA,44.265,8.453,,,,medium,IT VDL
+Sarroch Oil Terminal,ITA,39.083333,9.033333,,,,medium,IT PFX
+Siracusa,ITA,37.05,15.283333,,,,large,IT SIR
+Taranto,ITA,40.466667,17.2,,,,large,IT TAR
+Trieste,ITA,45.651,13.746,,,,large,IT TRS
+Kingston,JAM,17.966667,-76.783333,,,,medium,JM KIN
+Fukui Ko,JPN,36.183333,136.1,,,,medium,JP FKJ
+Fukuyama,JPN,34.433333,133.433333,,,,medium,JP FYM
+Hakata,JPN,33.6,130.4,,,,medium,JP HKT
+Hakodate Ko,JPN,41.783333,140.716667,,,,medium,JP HKD
+Higashi-Harima,JPN,34.7,134.833333,,,,medium,JP HHR
+Himeji,JPN,34.75,134.633333,,,,medium,JP HIM
+Hiroshima,JPN,34.35,132.466667,,,,medium,JP HIJ
+Ishikari Bay New Port,JPN,43.216667,141.283333,,,,medium,JP ISI
+Iwakuni Ko,JPN,34.183333,132.25,,,,medium,JP IWK
+Kagoshima Ko,JPN,31.583333,130.566667,,,,medium,JP KOJ
+Kawasaki Ko,JPN,35.5,139.766667,,,,large,JP KWS
+Kobe,JPN,34.65,135.183333,,,,large,JP UKB
+Kochi Ko,JPN,33.5,133.566667,,,,medium,JP KCZ
+Kure,JPN,34.233333,132.55,,,,medium,JP KRE
+Kushiro Ko,JPN,42.983333,144.366667,,,,medium,JP KUH
+Mikawa,JPN,34.716667,137.3,,,,large,JP MKW
+Miyazu,JPN,35.533333,135.2,,,,medium,JP MIY
+Mizushima Ko,JPN,34.5,133.75,,,,medium,JP MIZ
+Moji Ko,JPN,33.95,130.966667,,,,medium,JP MOJ
+Muroran Ko,JPN,42.35,140.966667,,,,medium,JP MUR
+Nagasaki,JPN,32.716667,129.85,,,,large,JP NGS
+Nagoya Ko,JPN,35.066667,136.866667,,,,large,JP NGO
+Niigata Ko,JPN,37.916667,139.05,,,,medium,JP KIJ
+Onomichi-Itozaki,JPN,34.383333,133.166667,,,,large,JP ONX
+Osaka,JPN,34.65,135.433333,,,,large,JP OSA
+Otaru Ko,JPN,43.2,141.016667,,,,medium,JP OTR
+Sakai-Senboku,JPN,34.55,135.433333,,,,medium,JP SBK
+Sasebo,JPN,33.166667,129.716667,,,,medium,JP SSB
+Tagonoura Ko,JPN,35.133333,138.7,,,,medium,JP TGO
+Tokuyama,JPN,34.033333,131.816667,,,,medium,JP TKY
+Tokyo Ko,JPN,35.666667,139.75,,,,large,JP TYO
+Ube Ko,JPN,33.933333,131.233333,,,,medium,JP UBJ
+Wakamatsu Ko,JPN,33.9,130.816667,,,,large,JP WAM
+Wakayama-Shimotsu Ko,JPN,34.2,135.133333,,,,large,JP WAK
+Yokkaichi,JPN,34.966667,136.633333,,,,medium,JP YKK
+Yokohama Ko,JPN,35.45,139.583333,,,,large,JP YOK
+Yokosuka Ko,JPN,35.283333,139.666667,,,,medium,JP YOS
+Mombasa,KEN,-4.066667,39.666667,,,,medium,KE MBA
+Kampong Saom,KHM,10.633333,103.5,,,,medium,KH KOS
+Busan,KOR,35.1,129.033333,,,,large,KR PUS
+Gwangyang Hang,KOR,34.90846,127.75012,,,,medium,KR KAN
+Inchon,KOR,37.466667,126.616667,,,,large,KR INC
+Masan,KOR,35.183333,128.566667,,,,medium,KR MAS
+Mokpo,KOR,34.783333,126.383333,,,,medium,KR MOK
+Pyeongtaek Hang,KOR,37,126.8,,,,medium,KR PTK
+Ulsan,KOR,35.45,129.4,,,,medium,KR USN
+Mina Al Ahmadi,KWT,29.066667,48.166667,,,,medium,KW MEA
+Mina Ash Shuaybah,KWT,29.033333,48.166667,,,,medium,KW SAA
+Bayrut,LBN,33.9,35.5,,,,large,LB BEY
+Tarabulus,LBN,34.45,35.833333,,,,medium,LB KYE
+Banghazi,LBY,32.116667,20.05,,,,medium,LY BEN
+Mina Tarabulus (Tripoli),LBY,32.9,13.183333,,,,medium,LY TIP
+Colombo,LKA,6.95,79.85,,,,medium,LK CMB
+Hambantota,LKA,6.116667,81.133333,,,,medium,LK HBA
+Trincomalee Harbor,LKA,8.55,81.216667,,,,medium,LK TRR
+Klaipeda,LTU,55.716667,21.116667,,,,medium,LT KLJ
+Liepaja,LVA,56.516667,21.016667,,,,medium,LV LPX
+Riga,LVA,56.95,24.1,,,,large,LV RIX
+Ventspils,LVA,57.4,21.533333,,,,medium,LV VNT
+Macau,MAC,22.183333,113.566667,,,,medium,MO MFM
+Agadir,MAR,30.433333,-9.633333,,,,large,MA AGA
+Casablanca,MAR,33.6,-7.616667,,,,large,MA CAS
+Tanger,MAR,35.783333,-5.816667,,,,medium,MA TNG
+Tangier-Mediterranean,MAR,35.9,-5.516667,,,,large,MA PTM
+Acapulco,MEX,16.85,-99.933333,,,,medium,MX ACA
+Ensenada,MEX,31.866667,-116.633333,,,,medium,MX ESE
+Manzanillo,MEX,19.05,-104.316667,,,,medium,MX ZLO
+Mazatlan,MEX,23.2,-106.416667,,,,medium,MX MZT
+Tampico,MEX,22.216667,-97.866667,,,,medium,MX TAM
+Tuxpan,MEX,20.95,-97.4,,,,medium,MX TUX
+Veracruz,MEX,19.2,-96.133333,,,,medium,MX VER
+Marsaxlokk,MLT,35.826667,14.548333,,,,medium,MT MAR
+Valletta Harbors,MLT,35.9,14.516667,,,,medium,MT MLA
+Beira,MOZ,-19.833333,34.833333,,,,medium,MZ BEW
+Maputo,MOZ,-25.962778,32.544722,,,,medium,MZ MPM
+Nouadhibou,MRT,20.916667,-17.05,,,,medium,MR NDB
+Johor,MYS,1.433333,103.9,,,,large,MY JHB
+Kota Kinabalu,MYS,5.983333,116.066667,,,,medium,MY BKI
+Port Dickson,MYS,2.533333,101.783333,,,,medium,MY PDI
+Port Klang,MYS,3,101.4,,,,large,MY PKG
+Pulau Pinang,MYS,5.416667,100.35,,,,medium,MY PEN
+Tanjung Pelepas,MYS,1.35,103.55,,,,medium,MY TPP
+Tapis Marine Terminal A,MYS,5.516667,105.016667,,,,large,MY TAT
+Bonny,NGA,4.45,7.166667,,,,medium,NG BON
+Lagos,NGA,6.4,3.4,,,,large,NG LOS
+Lekki,NGA,6.423198,4.008242,,,,medium,NG LKK
+Pennington Oil Terminal,NGA,4.25,5.616667,,,,large,NG PEN
+Amsterdam,NLD,52.366667,4.9,,,,large,NL AMS
+Dordrecht,NLD,51.816667,4.65,,,,medium,NL DOR
+Europoort,NLD,51.95,4.116667,,,,medium,NL EUR
+Rotterdam,NLD,51.9,4.483333,,,,large,NL RTM
+Terneuzen,NLD,51.35,3.816667,,,,medium,NL TNZ
+Vlissingen,NLD,51.45,3.6,,,,medium,NL VLI
+Bergen,NOR,60.402778,5.298611,,,,medium,NO BGO
+Drammen,NOR,59.733333,10.25,,,,medium,NO DRM
+Hammerfest,NOR,70.666667,23.666667,,,,medium,NO HFT
+Harstad,NOR,68.8,16.55,,,,medium,NO HRD
+Horten,NOR,59.416667,10.5,,,,medium,NO HOR
+Karsto,NOR,59.266667,5.516667,,,,medium,NO KAR
+Mongstad,NOR,60.830833,5.036667,,,,medium,NO MON
+Oslo,NOR,59.898056,10.745556,,,,large,NO OSL
+Stavanger,NOR,58.966667,5.75,,,,medium,NO SVG
+Tromso,NOR,69.65,18.966667,,,,medium,NO TOS
+Trondheim,NOR,63.448333,10.401667,,,,medium,NO TRD
+Auckland,NZL,-36.83851,174.77164,,,,large,NZ AKL
+Manukau Harbor,NZL,-36.933333,174.783333,,,,medium,NZ MCY
+Wellington,NZL,-41.283333,174.783333,,,,large,NZ WLG
+Duqm,OMN,19.673253,57.716909,,,,medium,OM DQM
+Gwadar,PAK,25.133333,62.3,,,,medium,PK GWD
+Karachi,PAK,24.783333,66.983333,,,,medium,PK KHI
+Balboa,PAN,8.95,-79.566667,,,,medium,PA BLB
+Puerto Colon,PAN,9.366667,-79.883333,,,,medium,PA ONX
+Puerto Cristobal,PAN,9.35,-79.916667,,,,medium,PA CTB
+Puerto Del Callao,PER,-12.05,-77.15,,,,medium,PE CLL
+Batangas City,PHL,13.75,121.05,,,,medium,PH BTG
+Cagayan De Oro,PHL,8.5,124.666667,,,,medium,PH CGY
+Cebu,PHL,10.3,123.9,,,,large,PH CEB
+Manila,PHL,14.583333,120.966667,,,,large,PH MNL
+San Fernando Harbor,PHL,16.616667,120.316667,,,,medium,PH SFE
+Subic Bay,PHL,14.8,120.266667,,,,medium,PH SFS
+Gdansk,POL,54.35,18.666667,,,,large,PL GDN
+Gdynia,POL,54.533333,18.55,,,,large,PL GDY
+Port Polnochny,POL,54.4,18.716667,,,,medium,
+Szczecin,POL,53.416667,14.55,,,,medium,PL SZZ
+Ensenada Honda,PRI,18.233333,-65.633333,,,,medium,
+Playa De Guayanilla,PRI,18.016667,-66.766667,,,,medium,PR GUY
+Playa De Ponce,PRI,17.983333,-66.616667,,,,medium,PR PSE
+Aveiro,PRT,40.65,-8.65,,,,medium,PT AVE
+Funchal,PRT,32.633333,-16.916667,,,,large,PT FNC
+Lagos,PRT,37.1,-8.616667,,,,large,PT LOS
+Lisboa,PRT,38.7,-9.166667,,,,large,PT LIS
+Sines,PRT,37.95,-8.866667,,,,medium,PT SIE
+Ras Laffan,QAT,25.916667,51.583333,,,,medium,QA RLF
+Constanta,ROU,44.166667,28.65,,,,medium,RO CND
+Danube-Black Sea Canal,ROU,44.266667,28.183333,,,,medium,
+Arkhangels'k,RUS,64.529722,40.521667,,,,medium,RU ARH
+De Kastri,RUS,51.466667,140.783333,,,,medium,RU DKA
+Dudinka,RUS,69.4,86.166667,,,,medium,RU DUD
+Kaliningrad,RUS,54.7,20.483333,,,,medium,RU KGD
+Murmansk,RUS,68.983333,33.05,,,,large,RU MMK
+Novorossiysk,RUS,44.716667,37.783333,,,,large,RU NVS
+Sankt-Peterburg,RUS,59.933333,30.3,,,,large,RU LED
+Vladivostok,RUS,43.108889,131.888333,,,,large,RU VVO
+Vostochnyy,RUS,42.75,133.083333,,,,medium,RU VYP
+Vyborg,RUS,60.716667,28.75,,,,medium,RU VYG
+Ras  Tannurah,SAU,26.633333,50.166667,,,,medium,SA RTA
+Beshayer Oil Terminal,SDN,19.4,37.316667,,,,medium,
+Port Sudan,SDN,19.6,37.233333,,,,medium,SD PZU
+Dakar,SEN,14.683333,-17.433333,,,,medium,SN DKR
+Jurong Island,SGP,1.283333,103.733333,,,,large,SG JUR
+Keppel - (East Singapore),SGP,1.283333,103.85,,,,large,SG KEP
+Pulau Bukom,SGP,1.233333,103.766667,,,,medium,SG PUB
+Jamestown,SHN,-15.916667,-5.716667,,,,large,SH SHN
+Muqdisho,SOM,2.033333,45.35,,,,large,SO MGQ
+Koper,SVN,45.55,13.733333,,,,medium,SI KOP
+Falkenberg,SWE,56.881667,12.466111,,,,medium,SE FAG
+Goteborg,SWE,57.709722,11.954722,,,,large,SE GOT
+Helsingborg,SWE,56.035278,12.687778,,,,medium,SE HEL
+Karlsborg,SWE,65.8,23.283333,,,,medium,SE KXV
+Karlshamn,SWE,56.152778,14.869167,,,,medium,SE KAN
+Lulea,SWE,65.583333,22.166667,,,,medium,SE LLA
+Malmo,SWE,55.623333,12.984722,,,,large,SE MMA
+Norrkoping,SWE,58.583333,16.2,,,,medium,SE NRK
+Stockholm,SWE,59.333333,18.05,,,,large,SE STO
+Sundsvall,SWE,62.383333,17.35,,,,medium,SE SDL
+Uddevalla,SWE,58.334722,11.8775,,,,medium,SE UDD
+Varberg,SWE,57.108889,12.2325,,,,medium,SE VAG
+Vasteras,SWE,59.616667,16.55,,,,medium,SE VST
+Al Ladhiqiyah,SYR,35.533333,35.766667,,,,medium,SY ALD
+Baniyas,SYR,35.188333,35.943333,,,,large,SY BAN
+Lome,TGO,6.133333,1.283333,,,,medium,TG LFW
+Bangkok,THA,13.75,100.5,,,,large,TH BKK
+Sattahip,THA,12.616667,100.916667,,,,medium,TH SAT
+Si Racha,THA,13.166667,100.916667,,,,medium,TH SRI
+Port Of Spain,TTO,10.65,-61.516667,,,,medium,TT POS
+La Goulette,TUN,36.8,10.3,,,,medium,TN LGN
+Tazerka Oil Terminal,TUN,36.6,11.683333,,,,medium,TN TAT
+Tunis,TUN,36.8,10.25,,,,medium,TN TUN
+Haydarpasa,TUR,41,29.016667,,,,medium,TR HAY
+Istanbul,TUR,41.016667,28.966667,,,,large,TR IST
+Izmir,TUR,38.454722,27.146389,,,,large,TR IZM
+Mersin,TUR,36.8,34.633333,,,,medium,TR MER
+Nemrut Limani Bay,TUR,38.766667,26.916667,,,,medium,TR NEM
+Samsun,TUR,41.3,36.35,,,,large,TR SSX
+Chi-Lung,TWN,25.133333,121.766667,,,,large,TW KEL
+Hua-Lien Kang,TWN,23.983333,121.6,,,,medium,TW HUN
+Kao-Hsiung,TWN,22.616667,120.25,,,,large,TW KHH
+Su-Ao,TWN,24.6,121.866667,,,,medium,TW SUO
+Tai-Chung Kang,TWN,24.3,120.5,,,,large,TW TXG
+Tan-Shui,TWN,25.183333,121.4,,,,large,TW TPE
+Dar Es Salaam,TZA,-6.816667,39.3,,,,medium,TZ DAR
+Illichivsk,UKR,46.3,30.65,,,,large,UA ILK
+Odesa,UKR,46.483333,30.733333,,,,large,UA ODS
+Sevastopol,UKR,44.616667,33.533333,,,,large,UA SVP
+Montevideo,URY,-34.9,-56.216667,,,,medium,UY MVD
+Albany,USA,42.65,-73.75,,,,medium,US ALB
+Baltimore,USA,39.266667,-76.583333,,,,large,US BAL
+Bayonne,USA,40.683333,-74.1,,,,medium,US BAY
+Beaumont,USA,30.083333,-94.083333,,,,medium,US BPT
+Boston,USA,42.35,-71.05,,,,large,US BOS
+Bremerton,USA,47.566667,-122.65,,,,medium,US PWT
+Bridgeport,USA,41.166667,-73.183333,,,,medium,US BDR
+Brooklyn,USA,40.666667,-74.016667,,,,large,US BOY
+Buffalo,USA,42.883333,-78.883333,,,,large,US BUF
+Buffington,USA,41.633333,-87.416667,,,,medium,
+Calumet Harbor,USA,41.733333,-87.516667,,,,medium,US CAY
+Camden,USA,39.95,-75.133333,,,,medium,US CDE
+Chester,USA,39.85,-75.35,,,,large,US CHT
+Chicago,USA,41.883333,-87.6,,,,medium,US CHI
+Cleveland,USA,41.5,-81.716667,,,,large,US CLE
+Corpus Christi,USA,27.816667,-97.4,,,,medium,US CRP
+Detroit,USA,42.333333,-83.033333,,,,large,US DET
+Duluth,USA,46.766667,-92.1,,,,medium,US DLH
+Empire,USA,43.4,-124.283333,,,,medium,
+Galveston,USA,29.316667,-94.783333,,,,large,US GLS
+Gary,USA,41.616667,-87.333333,,,,medium,US GYY
+Hilo,USA,19.733333,-155.066667,,,,medium,US ITO
+Hoboken,USA,40.75,-74.016667,,,,medium,US HBK
+Honolulu,USA,21.3,-157.866667,,,,medium,US HNL
+Houston,USA,29.75,-95.283333,,,,large,US HOU
+Indiana Harbor,USA,41.666667,-87.433333,,,,medium,US ECH
+Jacksonville,USA,30.316667,-81.65,,,,medium,US JAX
+Jersey City,USA,40.716667,-74.033333,,,,medium,US JEC
+Long Beach,USA,33.766667,-118.183333,,,,medium,US LGB
+Loop Terminal,USA,28.883333,-90.016667,,,,large,US LO9
+Los Angeles,USA,33.75,-118.25,,,,large,US LAX
+Manitowoc,USA,44.092222,-87.648333,,,,medium,US MTW
+Milwaukee,USA,43.033333,-87.883333,,,,medium,US MKE
+Mobile,USA,30.683333,-88.116667,,,,large,US MOB
+New Orleans,USA,29.95,-90.05,,,,large,US MSY
+New York City,USA,40.7,-74.016667,,,,large,US NYC
+Newark,USA,40.7,-74.15,,,,medium,US EWR
+Newport News,USA,36.966667,-76.433333,,,,medium,US NNS
+Norfolk,USA,36.85,-76.3,,,,large,US ORF
+Oakland,USA,37.816667,-122.333333,,,,large,US OAK
+Philadelphia,USA,39.95,-75.133333,,,,large,US PHL
+Port Arthur,USA,29.833333,-93.966667,,,,medium,US POA
+Port Everglades,USA,26.1,-80.116667,,,,medium,US PEF
+Portland,USA,43.666667,-70.25,,,,medium,US PWM
+Portland,USA,45.516667,-122.666667,,,,large,US PDX
+Providence,USA,41.8,-71.4,,,,medium,US PVD
+San Diego,USA,32.716667,-117.183333,,,,medium,US SAN
+San Francisco,USA,37.816667,-122.416667,,,,large,US SFO
+Savannah,USA,32.083333,-81.083333,,,,medium,US SAV
+Seattle,USA,47.6,-122.333333,,,,large,US SEA
+Superior,USA,46.733333,-92.066667,,,,medium,US SUW
+Tacoma,USA,47.283333,-122.416667,,,,medium,US TIW
+Tampa,USA,27.916667,-82.45,,,,medium,US TPA
+Toledo,USA,41.7,-83.466667,,,,medium,US TOL
+Tompkinsville SI,USA,40.633333,-74.066667,,,,medium,
+Tri-City Port,USA,38.716667,-90.2,,,,large,
+Vancouver,USA,45.633333,-122.683333,,,,medium,US VAN
+Wilmington,USA,39.733333,-75.55,,,,medium,US ILG
+Wilmington,USA,34.233333,-77.95,,,,medium,US ILM
+Maracaibo,VEN,10.633333,-71.6,,,,medium,VE MAR
+Puerto Cabello,VEN,10.483333,-68,,,,medium,VE PBL
+Puerto La Cruz,VEN,10.25,-64.633333,,,,large,VE PCZ
+Road Harbor,VGB,18.416667,-64.616667,,,,medium,VG RAD
+Thanh Ho Chi Minh,VNM,10.766667,106.716667,,,,medium,VN SGN
+Aden,YEM,12.783333,44.95,,,,medium,YE ADE
+Al Mukha,YEM,13.316667,43.25,,,,medium,YE MOK
+Ras Isa Marine Terminal,YEM,15.133333,42.6,,,,large,YE RAI
+Cape Town,ZAF,-33.916667,18.416667,,,,large,ZA CPT
+Durban,ZAF,-29.866667,31.066667,,,,large,ZA DUR
+Mossel Bay,ZAF,-34.174722,22.146111,,,,medium,ZA MZY
+Port Elizabeth,ZAF,-33.951944,25.6425,,,,medium,ZA PLZ
+Richards Bay,ZAF,-28.81,32.098333,,,,medium,ZA RCB
+Saldanha Bay,ZAF,-33.033333,17.966667,,,,medium,ZA SDB

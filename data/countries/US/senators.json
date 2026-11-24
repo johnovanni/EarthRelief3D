@@ -1,0 +1,706 @@
+{
+  "source": "https://www.senate.gov/general/contact_information/senators_cfm.xml",
+  "asOf": "2026-11-18",
+  "senators": [
+    {
+      "state": "AK",
+      "name": "Lisa Murkowski",
+      "party": "R",
+      "contactForm": "https://www.murkowski.senate.gov/public/index.cfm/contact",
+      "website": "https://www.murkowski.senate.gov/"
+    },
+    {
+      "state": "AK",
+      "name": "Dan Sullivan",
+      "party": "R",
+      "contactForm": "https://www.sullivan.senate.gov/contact/email",
+      "website": "https://www.sullivan.senate.gov"
+    },
+    {
+      "state": "AL",
+      "name": "Katie Boyd Britt",
+      "party": "R",
+      "contactForm": "https://www.britt.senate.gov/contact/",
+      "website": "https://www.britt.senate.gov/"
+    },
+    {
+      "state": "AL",
+      "name": "Tommy Tuberville",
+      "party": "R",
+      "contactForm": "https://www.tuberville.senate.gov/contact/contact-form/",
+      "website": "https://www.tuberville.senate.gov"
+    },
+    {
+      "state": "AR",
+      "name": "John Boozman",
+      "party": "R",
+      "contactForm": "https://www.boozman.senate.gov/public/index.cfm/contact",
+      "website": "https://www.boozman.senate.gov/"
+    },
+    {
+      "state": "AR",
+      "name": "Tom Cotton",
+      "party": "R",
+      "contactForm": "https://www.cotton.senate.gov/contact/contact-tom",
+      "website": "https://www.cotton.senate.gov"
+    },
+    {
+      "state": "AZ",
+      "name": "Ruben Gallego",
+      "party": "D",
+      "contactForm": "https://www.gallego.senate.gov/connect/",
+      "website": "https://www.gallego.senate.gov/"
+    },
+    {
+      "state": "AZ",
+      "name": "Mark Kelly",
+      "party": "D",
+      "contactForm": "https://www.kelly.senate.gov/contact/contact-form/",
+      "website": "https://www.kelly.senate.gov"
+    },
+    {
+      "state": "CA",
+      "name": "Alex Padilla",
+      "party": "D",
+      "contactForm": "https://www.padilla.senate.gov/contact/",
+      "website": "https://www.padilla.senate.gov"
+    },
+    {
+      "state": "CA",
+      "name": "Adam B. Schiff",
+      "party": "D",
+      "contactForm": "https://www.schiff.senate.gov/contact/",
+      "website": "https://www.schiff.senate.gov"
+    },
+    {
+      "state": "CO",
+      "name": "Michael F. Bennet",
+      "party": "D",
+      "contactForm": "https://www.bennet.senate.gov/public/index.cfm/contact",
+      "website": "https://www.bennet.senate.gov"
+    },
+    {
+      "state": "CO",
+      "name": "John W. Hickenlooper",
+      "party": "D",
+      "contactForm": "https://www.hickenlooper.senate.gov/contact/",
+      "website": "https://www.hickenlooper.senate.gov"
+    },
+    {
+      "state": "CT",
+      "name": "Richard Blumenthal",
+      "party": "D",
+      "contactForm": "https://www.blumenthal.senate.gov/contact/",
+      "website": "https://www.blumenthal.senate.gov"
+    },
+    {
+      "state": "CT",
+      "name": "Christopher Murphy",
+      "party": "D",
+      "contactForm": "https://www.murphy.senate.gov/contact",
+      "website": "https://www.murphy.senate.gov/"
+    },
+    {
+      "state": "DE",
+      "name": "Lisa Blunt Rochester",
+      "party": "D",
+      "contactForm": "https://www.bluntrochester.senate.gov/contact/",
+      "website": "https://www.bluntrochester.senate.gov/"
+    },
+    {
+      "state": "DE",
+      "name": "Christopher A. Coons",
+      "party": "D",
+      "contactForm": "https://www.coons.senate.gov/contact",
+      "website": "https://www.coons.senate.gov/"
+    },
+    {
+      "state": "FL",
+      "name": "Ashley Moody",
+      "party": "R",
+      "contactForm": "https://www.moody.senate.gov/contact-us/",
+      "website": "https://www.moody.senate.gov"
+    },
+    {
+      "state": "FL",
+      "name": "Rick Scott",
+      "party": "R",
+      "contactForm": "https://www.rickscott.senate.gov/contact/contact",
+      "website": "https://www.rickscott.senate.gov/"
+    },
+    {
+      "state": "GA",
+      "name": "Jon Ossoff",
+      "party": "D",
+      "contactForm": "https://www.ossoff.senate.gov/contact-us/",
+      "website": "https://www.ossoff.senate.gov"
+    },
+    {
+      "state": "GA",
+      "name": "Raphael G. Warnock",
+      "party": "D",
+      "contactForm": "https://www.warnock.senate.gov/contact/",
+      "website": "https://www.warnock.senate.gov"
+    },
+    {
+      "state": "HI",
+      "name": "Mazie K. Hirono",
+      "party": "D",
+      "contactForm": "https://www.hirono.senate.gov/contact",
+      "website": "https://www.hirono.senate.gov/"
+    },
+    {
+      "state": "HI",
+      "name": "Brian Schatz",
+      "party": "D",
+      "contactForm": "https://www.schatz.senate.gov/contact",
+      "website": "https://www.schatz.senate.gov"
+    },
+    {
+      "state": "IA",
+      "name": "Joni Ernst",
+      "party": "R",
+      "contactForm": "https://www.ernst.senate.gov/public/index.cfm/contact",
+      "website": "https://www.ernst.senate.gov"
+    },
+    {
+      "state": "IA",
+      "name": "Chuck Grassley",
+      "party": "R",
+      "contactForm": "https://www.grassley.senate.gov/contact",
+      "website": "https://www.grassley.senate.gov"
+    },
+    {
+      "state": "ID",
+      "name": "Mike Crapo",
+      "party": "R",
+      "contactForm": "https://www.crapo.senate.gov/contact",
+      "website": "https://www.crapo.senate.gov"
+    },
+    {
+      "state": "ID",
+      "name": "James E. Risch",
+      "party": "R",
+      "contactForm": "https://www.risch.senate.gov/contact/",
+      "website": "https://www.risch.senate.gov"
+    },
+    {
+      "state": "IL",
+      "name": "Tammy Duckworth",
+      "party": "D",
+      "contactForm": "https://www.duckworth.senate.gov/content/contact-senator",
+      "website": "https://www.duckworth.senate.gov"
+    },
+    {
+      "state": "IL",
+      "name": "Richard J. Durbin",
+      "party": "D",
+      "contactForm": "https://www.durbin.senate.gov/contact/",
+      "website": "https://www.durbin.senate.gov"
+    },
+    {
+      "state": "IN",
+      "name": "Jim Banks",
+      "party": "R",
+      "contactForm": "https://www.banks.senate.gov/contact/",
+      "website": "https://www.banks.senate.gov/"
+    },
+    {
+      "state": "IN",
+      "name": "Todd Young",
+      "party": "R",
+      "contactForm": "https://www.young.senate.gov/contact",
+      "website": "https://www.young.senate.gov"
+    },
+    {
+      "state": "KS",
+      "name": "Roger Marshall",
+      "party": "R",
+      "contactForm": "https://www.marshall.senate.gov/contact/",
+      "website": "https://www.marshall.senate.gov"
+    },
+    {
+      "state": "KS",
+      "name": "Jerry Moran",
+      "party": "R",
+      "contactForm": "https://www.moran.senate.gov/public/index.cfm/e-mail-jerry",
+      "website": "https://www.moran.senate.gov"
+    },
+    {
+      "state": "KY",
+      "name": "Mitch McConnell",
+      "party": "R",
+      "contactForm": "https://www.mcconnell.senate.gov/public/index.cfm?p=contact",
+      "website": "https://www.mcconnell.senate.gov/"
+    },
+    {
+      "state": "KY",
+      "name": "Rand Paul",
+      "party": "R",
+      "contactForm": "https://www.paul.senate.gov/connect/email-rand",
+      "website": "https://www.paul.senate.gov"
+    },
+    {
+      "state": "LA",
+      "name": "Bill Cassidy",
+      "party": "R",
+      "contactForm": "https://www.cassidy.senate.gov/contact",
+      "website": "https://www.cassidy.senate.gov"
+    },
+    {
+      "state": "LA",
+      "name": "John Kennedy",
+      "party": "R",
+      "contactForm": "https://www.kennedy.senate.gov/public/email-me",
+      "website": "https://www.kennedy.senate.gov"
+    },
+    {
+      "state": "MA",
+      "name": "Edward J. Markey",
+      "party": "D",
+      "contactForm": "https://www.markey.senate.gov/contact",
+      "website": "https://www.markey.senate.gov"
+    },
+    {
+      "state": "MA",
+      "name": "Elizabeth Warren",
+      "party": "D",
+      "contactForm": "https://www.warren.senate.gov/contact/",
+      "website": "https://www.warren.senate.gov"
+    },
+    {
+      "state": "MD",
+      "name": "Angela D. Alsobrooks",
+      "party": "D",
+      "contactForm": "https://www.alsobrooks.senate.gov/contact/",
+      "website": "https://alsobrooks.senate.gov/"
+    },
+    {
+      "state": "MD",
+      "name": "Chris Van Hollen",
+      "party": "D",
+      "contactForm": "https://www.vanhollen.senate.gov/contact/email",
+      "website": "https://www.vanhollen.senate.gov"
+    },
+    {
+      "state": "ME",
+      "name": "Susan M. Collins",
+      "party": "R",
+      "contactForm": "https://www.collins.senate.gov/contact",
+      "website": "https://www.collins.senate.gov"
+    },
+    {
+      "state": "ME",
+      "name": "Angus S., Jr. King",
+      "party": "I",
+      "contactForm": "https://www.king.senate.gov/contact",
+      "website": "https://www.king.senate.gov/"
+    },
+    {
+      "state": "MI",
+      "name": "Gary C. Peters",
+      "party": "D",
+      "contactForm": "https://www.peters.senate.gov/contact/email-gary",
+      "website": "https://www.peters.senate.gov"
+    },
+    {
+      "state": "MI",
+      "name": "Elissa Slotkin",
+      "party": "D",
+      "contactForm": "https://www.slotkin.senate.gov/contact/",
+      "website": "https://www.slotkin.senate.gov/"
+    },
+    {
+      "state": "MN",
+      "name": "Amy Klobuchar",
+      "party": "D",
+      "contactForm": "https://www.klobuchar.senate.gov/public/index.cfm/contact",
+      "website": "https://www.klobuchar.senate.gov/"
+    },
+    {
+      "state": "MN",
+      "name": "Tina Smith",
+      "party": "D",
+      "contactForm": "https://www.smith.senate.gov/share-your-opinion/",
+      "website": "https://www.smith.senate.gov"
+    },
+    {
+      "state": "MO",
+      "name": "Josh Hawley",
+      "party": "R",
+      "contactForm": "https://www.hawley.senate.gov/contact-senator-hawley",
+      "website": "https://www.hawley.senate.gov"
+    },
+    {
+      "state": "MO",
+      "name": "Eric Schmitt",
+      "party": "R",
+      "contactForm": "https://www.schmitt.senate.gov/contact/",
+      "website": "https://www.schmitt.senate.gov/"
+    },
+    {
+      "state": "MS",
+      "name": "Cindy Hyde-Smith",
+      "party": "R",
+      "contactForm": "https://www.hydesmith.senate.gov/contact-senator",
+      "website": "https://www.hydesmith.senate.gov/"
+    },
+    {
+      "state": "MS",
+      "name": "Roger F. Wicker",
+      "party": "R",
+      "contactForm": "https://www.wicker.senate.gov/public/index.cfm/contact",
+      "website": "https://www.wicker.senate.gov"
+    },
+    {
+      "state": "MT",
+      "name": "Steve Daines",
+      "party": "R",
+      "contactForm": "https://www.daines.senate.gov/connect/email-steve",
+      "website": "https://www.daines.senate.gov"
+    },
+    {
+      "state": "MT",
+      "name": "Tim Sheehy",
+      "party": "R",
+      "contactForm": "https://www.sheehy.senate.gov/contact/",
+      "website": "https://www.sheehy.senate.gov/"
+    },
+    {
+      "state": "NC",
+      "name": "Ted Budd",
+      "party": "R",
+      "contactForm": "https://www.budd.senate.gov/contact/",
+      "website": "https://www.budd.senate.gov/"
+    },
+    {
+      "state": "NC",
+      "name": "Thom Tillis",
+      "party": "R",
+      "contactForm": "https://www.tillis.senate.gov/public/index.cfm/email-me",
+      "website": "https://www.tillis.senate.gov"
+    },
+    {
+      "state": "ND",
+      "name": "Kevin Cramer",
+      "party": "R",
+      "contactForm": "https://www.cramer.senate.gov/contact/contact-kevin",
+      "website": "https://www.cramer.senate.gov"
+    },
+    {
+      "state": "ND",
+      "name": "John Hoeven",
+      "party": "R",
+      "contactForm": "https://www.hoeven.senate.gov/contact/contact-the-senator",
+      "website": "https://www.hoeven.senate.gov"
+    },
+    {
+      "state": "NE",
+      "name": "Deb Fischer",
+      "party": "R",
+      "contactForm": "https://www.fischer.senate.gov/public/index.cfm/contact",
+      "website": "https://www.fischer.senate.gov"
+    },
+    {
+      "state": "NE",
+      "name": "Pete Ricketts",
+      "party": "R",
+      "contactForm": "https://www.ricketts.senate.gov/contact/",
+      "website": "https://www.ricketts.senate.gov"
+    },
+    {
+      "state": "NH",
+      "name": "Margaret Wood Hassan",
+      "party": "D",
+      "contactForm": "https://www.hassan.senate.gov/content/contact-senator",
+      "website": "https://www.hassan.senate.gov"
+    },
+    {
+      "state": "NH",
+      "name": "Jeanne Shaheen",
+      "party": "D",
+      "contactForm": "https://www.shaheen.senate.gov/contact/contact-jeanne",
+      "website": "https://www.shaheen.senate.gov"
+    },
+    {
+      "state": "NJ",
+      "name": "Cory A. Booker",
+      "party": "D",
+      "contactForm": "https://www.booker.senate.gov/?p=contact",
+      "website": "https://www.booker.senate.gov"
+    },
+    {
+      "state": "NJ",
+      "name": "Andy Kim",
+      "party": "D",
+      "contactForm": "https://www.kim.senate.gov/contact/",
+      "website": "https://www.kim.senate.gov/"
+    },
+    {
+      "state": "NM",
+      "name": "Martin Heinrich",
+      "party": "D",
+      "contactForm": "https://www.heinrich.senate.gov/contact",
+      "website": "https://www.heinrich.senate.gov/"
+    },
+    {
+      "state": "NM",
+      "name": "Ben Ray Luján",
+      "party": "D",
+      "contactForm": "https://www.lujan.senate.gov/contact/",
+      "website": "https://www.lujan.senate.gov"
+    },
+    {
+      "state": "NV",
+      "name": "Catherine Cortez Masto",
+      "party": "D",
+      "contactForm": "https://www.cortezmasto.senate.gov/contact",
+      "website": "https://www.cortezmasto.senate.gov"
+    },
+    {
+      "state": "NV",
+      "name": "Jacky Rosen",
+      "party": "D",
+      "contactForm": "https://www.rosen.senate.gov/contact_jacky",
+      "website": "https://www.rosen.senate.gov"
+    },
+    {
+      "state": "NY",
+      "name": "Kirsten E. Gillibrand",
+      "party": "D",
+      "contactForm": "https://www.gillibrand.senate.gov/contact/email-me",
+      "website": "https://www.gillibrand.senate.gov"
+    },
+    {
+      "state": "NY",
+      "name": "Charles E. Schumer",
+      "party": "D",
+      "contactForm": "https://www.schumer.senate.gov/contact/email-chuck",
+      "website": "https://www.schumer.senate.gov/"
+    },
+    {
+      "state": "OH",
+      "name": "Jon Husted",
+      "party": "R",
+      "contactForm": "https://www.husted.senate.gov/contact/",
+      "website": "https://www.husted.senate.gov/"
+    },
+    {
+      "state": "OH",
+      "name": "Bernie Moreno",
+      "party": "R",
+      "contactForm": "https://www.moreno.senate.gov/contact/",
+      "website": "https://www.moreno.senate.gov"
+    },
+    {
+      "state": "OK",
+      "name": "Alan Armstrong",
+      "party": "R",
+      "contactForm": "https://www.armstrong.senate.gov/contact/",
+      "website": "https://www.armstrong.senate.gov/"
+    },
+    {
+      "state": "OK",
+      "name": "James Lankford",
+      "party": "R",
+      "contactForm": "https://www.lankford.senate.gov/contact/email",
+      "website": "https://www.lankford.senate.gov"
+    },
+    {
+      "state": "OR",
+      "name": "Jeff Merkley",
+      "party": "D",
+      "contactForm": "https://www.merkley.senate.gov/contact/",
+      "website": "https://www.merkley.senate.gov"
+    },
+    {
+      "state": "OR",
+      "name": "Ron Wyden",
+      "party": "D",
+      "contactForm": "https://www.wyden.senate.gov/contact/",
+      "website": "https://www.wyden.senate.gov/"
+    },
+    {
+      "state": "PA",
+      "name": "John Fetterman",
+      "party": "D",
+      "contactForm": "https://www.fetterman.senate.gov/contact/",
+      "website": "https://www.fetterman.senate.gov/"
+    },
+    {
+      "state": "PA",
+      "name": "David McCormick",
+      "party": "R",
+      "contactForm": "https://www.mccormick.senate.gov/contact/",
+      "website": "https://mccormick.senate.gov/"
+    },
+    {
+      "state": "RI",
+      "name": "Jack Reed",
+      "party": "D",
+      "contactForm": "https://www.reed.senate.gov/contact/",
+      "website": "https://www.reed.senate.gov/"
+    },
+    {
+      "state": "RI",
+      "name": "Sheldon Whitehouse",
+      "party": "D",
+      "contactForm": "https://www.whitehouse.senate.gov/contact/email-sheldon",
+      "website": "https://www.whitehouse.senate.gov/"
+    },
+    {
+      "state": "SC",
+      "name": "Darline Graham",
+      "party": "R",
+      "contactForm": "https://www.dgraham.senate.gov/",
+      "website": "https://www.dgraham.senate.gov/"
+    },
+    {
+      "state": "SC",
+      "name": "Tim Scott",
+      "party": "R",
+      "contactForm": "https://www.scott.senate.gov/contact/email-me",
+      "website": "https://www.scott.senate.gov/"
+    },
+    {
+      "state": "SD",
+      "name": "Mike Rounds",
+      "party": "R",
+      "contactForm": "https://www.rounds.senate.gov/contact/email-mike",
+      "website": "https://www.rounds.senate.gov"
+    },
+    {
+      "state": "SD",
+      "name": "John Thune",
+      "party": "R",
+      "contactForm": "https://www.thune.senate.gov/public/index.cfm/contact",
+      "website": "https://www.thune.senate.gov/"
+    },
+    {
+      "state": "TN",
+      "name": "Marsha Blackburn",
+      "party": "R",
+      "contactForm": "https://www.blackburn.senate.gov/email-me",
+      "website": "https://www.blackburn.senate.gov"
+    },
+    {
+      "state": "TN",
+      "name": "Bill Hagerty",
+      "party": "R",
+      "contactForm": "https://www.hagerty.senate.gov/email-me/",
+      "website": "https://www.hagerty.senate.gov"
+    },
+    {
+      "state": "TX",
+      "name": "John Cornyn",
+      "party": "R",
+      "contactForm": "https://www.cornyn.senate.gov/contact",
+      "website": "https://www.cornyn.senate.gov/"
+    },
+    {
+      "state": "TX",
+      "name": "Ted Cruz",
+      "party": "R",
+      "contactForm": "https://www.cruz.senate.gov/?p=form&id=16",
+      "website": "https://www.cruz.senate.gov"
+    },
+    {
+      "state": "UT",
+      "name": "John R. Curtis",
+      "party": "R",
+      "contactForm": "https://www.curtis.senate.gov/contact/",
+      "website": "https://www.curtis.senate.gov/"
+    },
+    {
+      "state": "UT",
+      "name": "Mike Lee",
+      "party": "R",
+      "contactForm": "https://www.lee.senate.gov/public/index.cfm/contact",
+      "website": "https://www.lee.senate.gov/"
+    },
+    {
+      "state": "VA",
+      "name": "Tim Kaine",
+      "party": "D",
+      "contactForm": "https://www.kaine.senate.gov/contact",
+      "website": "https://www.kaine.senate.gov/"
+    },
+    {
+      "state": "VA",
+      "name": "Mark R. Warner",
+      "party": "D",
+      "contactForm": "https://www.warner.senate.gov/public/index.cfm?p=Contact",
+      "website": "https://www.warner.senate.gov"
+    },
+    {
+      "state": "VT",
+      "name": "Bernard Sanders",
+      "party": "I",
+      "contactForm": "https://www.sanders.senate.gov/contact/",
+      "website": "https://www.sanders.senate.gov/"
+    },
+    {
+      "state": "VT",
+      "name": "Peter Welch",
+      "party": "D",
+      "contactForm": "https://www.welch.senate.gov/email-peter/",
+      "website": "https://www.welch.senate.gov/"
+    },
+    {
+      "state": "WA",
+      "name": "Maria Cantwell",
+      "party": "D",
+      "contactForm": "https://www.cantwell.senate.gov/public/index.cfm/email-maria",
+      "website": "https://www.cantwell.senate.gov"
+    },
+    {
+      "state": "WA",
+      "name": "Patty Murray",
+      "party": "D",
+      "contactForm": "https://www.murray.senate.gov/write-to-patty/",
+      "website": "https://www.murray.senate.gov/"
+    },
+    {
+      "state": "WI",
+      "name": "Tammy Baldwin",
+      "party": "D",
+      "contactForm": "https://www.baldwin.senate.gov/feedback",
+      "website": "https://www.baldwin.senate.gov/"
+    },
+    {
+      "state": "WI",
+      "name": "Ron Johnson",
+      "party": "R",
+      "contactForm": "https://www.ronjohnson.senate.gov/public/index.cfm/email-the-senator",
+      "website": "https://www.ronjohnson.senate.gov/"
+    },
+    {
+      "state": "WV",
+      "name": "Shelley Moore Capito",
+      "party": "R",
+      "contactForm": "https://www.capito.senate.gov/contact/contact-shelley",
+      "website": "https://www.capito.senate.gov"
+    },
+    {
+      "state": "WV",
+      "name": "James C. Justice",
+      "party": "R",
+      "contactForm": "https://www.justice.senate.gov/contact/",
+      "website": "https://www.justice.senate.gov/"
+    },
+    {
+      "state": "WY",
+      "name": "John Barrasso",
+      "party": "R",
+      "contactForm": "https://www.barrasso.senate.gov/public/index.cfm/contact-form",
+      "website": "https://www.barrasso.senate.gov"
+    },
+    {
+      "state": "WY",
+      "name": "Cynthia M. Lummis",
+      "party": "R",
+      "contactForm": "https://www.lummis.senate.gov/contact/contact-form/",
+      "website": "https://www.lummis.senate.gov"
+    }
+  ]
+}

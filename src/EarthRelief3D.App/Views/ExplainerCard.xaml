@@ -1,0 +1,52 @@
+<UserControl x:Class="EarthRelief3D.App.Views.ExplainerCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12,12,404,12" MaxWidth="420" Foreground="White">
+    <!-- DataContext: ExplainerViewModel. A short plain-language explainer (Plan 4 Task 9; spec §11), to the left of the
+         country panel (the panel is 380 wide with a 12 margin: 12 + 380 + 12 = 404). At most 420 wide: in a narrow window it
+         shrinks, never covering the layer strip (MainWindow sets its left margin from the strip's width). Opaque, so nothing
+         under it shows through (final review F4). Text only: no sound, no images, no animation. Esc (the window's key
+         handler) closes it before the panel. -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="B2V"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Border x:Name="Card" Background="#FF101624" CornerRadius="8" Padding="16,12"
+            Visibility="{Binding IsOpen, Converter={StaticResource B2V}}">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                <Button x:Name="CloseButton" DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="8,1" Content="×" FontSize="16"
+                        ToolTip="Close (Esc)" AutomationProperties.Name="Close the explainer" Command="{Binding CloseCommand}"
+                        VerticalAlignment="Top"/>
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="18" Foreground="White" TextWrapping="Wrap" Margin="0,0,8,0"/>
+            </DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding ReviewedText}" Foreground="#C8CDD8" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" MaxHeight="560" Margin="0,8,0,0" Focusable="False">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding Paragraphs}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Foreground="White" FontSize="15" LineHeight="22" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Sources" Foreground="#C8CDD8" FontSize="13" FontWeight="SemiBold" Margin="0,2,0,2"/>
+                    <!-- Each source opens in the browser (http/https only, as the panel's links do). -->
+                    <ItemsControl ItemsSource="{Binding Sources}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="0,2,0,2" FontSize="13" TextWrapping="Wrap">
+                                    <Hyperlink Foreground="#7FB6FF" Click="OnSourceLinkClick" Tag="{Binding Url}"><Run Text="{Binding Text, Mode=OneWay}"/> ↗</Hyperlink>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

@@ -6,11 +6,12 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Threading;
 using EarthRelief3D.App.ViewModels;
+using EarthRelief3D.Core.Help;
 using GlobeCore.Wpf.Services;
 
 namespace EarthRelief3D.App.Views;
 
-/// <summary>The country panel (right). DataContext: CountryPanelViewModel. Scrolls to the section a marker click opened it at.</summary>
+/// <summary>The country panel (right). DataContext: CountryPanelViewModel. Scrolls to the section a marker click opened it at, and keeps its place when the open country is rebuilt.</summary>
 public partial class CountryPanel : UserControl
 {
     private CountryPanelViewModel? _vm;
@@ -26,14 +27,32 @@ public partial class CountryPanel : UserControl
 
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (_vm is not null) _vm.PropertyChanged -= OnVmChanged;
+        if (_vm is not null)
+        {
+            _vm.PropertyChanged -= OnVmChanged;
+            _vm.ScrollRequested -= OnScrollRequested;
+        }
         _vm = DataContext as CountryPanelViewModel;
-        if (_vm is not null) _vm.PropertyChanged += OnVmChanged;
+        if (_vm is not null)
+        {
+            _vm.PropertyChanged += OnVmChanged;
+            _vm.ScrollRequested += OnScrollRequested;
+        }
     }
 
+    // A rebuild of the open country (a unit or state chosen, a feed refreshed) keeps where the user scrolled to (final
+    // review F1): the offset is put back after layout, in case the new sections made the list shorter for a moment.
     private void OnVmChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(CountryPanelViewModel.Sections) && e.PropertyName != nameof(CountryPanelViewModel.FocusedSectionIndex)) return;
+        if (e.PropertyName != nameof(CountryPanelViewModel.Sections)) return;
+        double keep = Scroller.VerticalOffset;
+        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => Scroller.ScrollToVerticalOffset(keep));
+    }
+
+    // Show (a new country or a new focus): to the focused section, or to the top. Queued after the offset-keeping callback of
+    // the same rebuild, so this one wins.
+    private void OnScrollRequested(object? sender, EventArgs e)
+    {
         // After layout, so the section's container exists.
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
         {
@@ -75,6 +94,20 @@ public sealed class RowsConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
         value is IReadOnlyList<(string Label, string Value)> rows ? rows.Select(r => new DetailRow(r.Label, r.Value)).ToList() : new List<DetailRow>();
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
+}
+
+/// <summary>One group of "Your one small step" ("Give", "Contact") with its entries, for binding.</summary>
+public sealed record HelpGroup(string Name, IReadOnlyList<HelpEntry> Entries);
+
+/// <summary>Groups a section's help entries by their group, in the order the groups first appear (Give, then Contact).</summary>
+public sealed class HelpGroupsConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is IReadOnlyList<HelpEntry> entries
+            ? entries.GroupBy(e => e.Group).Select(g => new HelpGroup(g.Key, [.. g])).ToList()
+            : new List<HelpGroup>();
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

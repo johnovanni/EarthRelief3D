@@ -76,6 +76,92 @@ public class CuratedTablesTests
         Assert.Equal(5, t.Camps.Count(c => c.Review.IsApproved));
     }
 
+    // ---------------------------------------------------------------- UN depots (Plan 4 Task 4)
+
+    internal static Depot DepotRow(string id = "unhrd-test", string status = "draft") => new(id, "UNHRD Test", "Testville", "GHA", "World Food Programme, UNHRD Test, 1 Test Road, Testville, Ghana",
+        new GeoPosition(5.6, -0.17),
+        new DocumentCitation("OurAirports: Testville Airport (DXXX)", "OurAirports (The Unlicense)", new Uri("https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv"), new DateOnly(2026, 11, 24)),
+        new DocumentCitation("Contacts | UNHRD - Humanitarian Response Depot", "UNHRD (WFP)", new Uri("https://unhrd.org/contacts"), new DateOnly(2026, 11, 24)),
+        new Review(status, status == "approved" ? new DateOnly(2026, 11, 24) : null), new DateOnly(2026, 11, 24));
+
+    [Fact]
+    public void EveryDepotIsCited()
+    {
+        var t = CuratedTables.Load(CuratedDir);
+        Assert.Equal(["unhrd-accra", "unhrd-brindisi", "unhrd-dubai", "unhrd-kuala-lumpur", "unhrd-panama"], t.Depots.Select(d => d.Id));
+        Assert.Equal(["GHA", "ITA", "ARE", "MYS", "PAN"], t.Depots.Select(d => d.Iso3));
+        Assert.Empty(CuratedTables.Validate(t));
+        // The bundled OurAirports extract: name, iso3, lat, lon are its first four columns (names are not quoted where they hold no comma).
+        var airports = File.ReadLines(Path.Combine(EarthRelief3D.Core.Feeds.BundledDataset.DatasetsDir, "ourairports", "data.csv")).Skip(1)
+            .Where(l => !l.StartsWith('"')).Select(l => l.Split(','))
+            .Select(f => (Name: f[0], Iso3: f[1], Lat: double.Parse(f[2], System.Globalization.CultureInfo.InvariantCulture),
+                Lon: double.Parse(f[3], System.Globalization.CultureInfo.InvariantCulture))).ToList();
+        Assert.Equal(["Kotoka International Airport", "Brindisi Airport", "Al Maktoum International Airport", "Sultan Abdul Aziz Shah International Airport",
+            "Panamá Pacífico International Airport"], t.Depots.Select(d => d.PositionSource.Title["OurAirports: ".Length..d.PositionSource.Title.LastIndexOf(" (", StringComparison.Ordinal)]));
+        foreach (var d in t.Depots)
+        {
+            // The position's source (the search that gave the point) and the source of the depot itself: https, titled, dated.
+            foreach (var (what, c) in new[] { ("position", d.PositionSource), ("source", d.Source) })
+            {
+                Assert.False(string.IsNullOrWhiteSpace(c.Title), $"{d.Id}: {what} has no title");
+                Assert.False(string.IsNullOrWhiteSpace(c.Publisher), $"{d.Id}: {what} has no publisher");
+                Assert.True(c.Url.IsAbsoluteUri && c.Url.Scheme == Uri.UriSchemeHttps, $"{d.Id}: {what} URL {c.Url} is not https");
+                Assert.True(c.Date > new DateOnly(1900, 1, 1) && c.Date <= d.CheckedOn, $"{d.Id}: {what} date {c.Date}");
+            }
+            Assert.Equal("https://unhrd.org/contacts", d.Source.Url.ToString());
+            Assert.Equal("Contacts | UNHRD - Humanitarian Response Depot", d.Source.Title);
+            // Ruling R21: each marker is at the airport the depot's address names or sits beside, from the bundled OurAirports data
+            // (The Unlicense); nothing from OpenStreetMap (ODbL share-alike, C6).
+            Assert.Matches(@"^OurAirports: .+ \([A-Z]{4}\)$", d.PositionSource.Title);
+            Assert.Equal("OurAirports (The Unlicense)", d.PositionSource.Publisher);
+            Assert.Equal("https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv", d.PositionSource.Url.ToString());
+            Assert.Equal(new DateOnly(2026, 11, 24), d.PositionSource.Date);   // the extract's as-of day
+            var airportName = d.PositionSource.Title["OurAirports: ".Length..d.PositionSource.Title.LastIndexOf(" (", StringComparison.Ordinal)];
+            var airport = Assert.Single(airports, a => a.Name == airportName);
+            Assert.Equal(airport.Iso3, d.Iso3);
+            Assert.Equal(airport.Lat, d.Position.LatitudeDeg, 6);
+            Assert.Equal(airport.Lon, d.Position.LongitudeDeg, 6);
+            Assert.Contains("approximate", d.Verification, StringComparison.Ordinal);
+            Assert.Contains(airportName, d.Verification, StringComparison.Ordinal);
+            Assert.DoesNotContain("OpenStreetMap", d.Verification + d.PositionSource.Title + d.PositionSource.Url, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("Nominatim", d.Verification, StringComparison.OrdinalIgnoreCase);
+            Assert.StartsWith("UNHRD ", d.Name, StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(d.Verification), $"{d.Id}: no verification text for the owner");
+            // The address is a postal address: no email address and no phone number is kept anywhere in the row.
+            Assert.DoesNotContain("@", d.Address + d.Verification, StringComparison.Ordinal);
+            Assert.DoesNotMatch(@"\+?\d[\d ()-]{8,}\d", d.Address);
+            // Each position is a real point, near its country (a coarse box check against a wrong sign or swapped digits).
+            Assert.InRange(d.Position.LatitudeDeg, -90, 90);
+        }
+        Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-accra").Position.LatitudeDeg, 5.4, 5.8);
+        Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-brindisi").Position.LongitudeDeg, 17.8, 18.1);
+        Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-dubai").Position.LongitudeDeg, 54.9, 55.3);
+        Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-kuala-lumpur").Position.LongitudeDeg, 101.4, 101.7);
+        Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-panama").Position.LongitudeDeg, -79.7, -79.4);
+        // Drafts until the owner approves each row (P4-13).
+        Assert.All(t.Depots, d => Assert.Equal(new Review(Review.Draft, null), d.Review));
+        // A depot with a missing citation fails validation.
+        var bad = DepotRow() with { Source = new DocumentCitation("", "UNHRD (WFP)", new Uri("http://unhrd.org/contacts"), default) };
+        var problems = CuratedTables.Validate(Tables() with { Depots = [bad] });
+        Assert.Contains(problems, p => p.Contains("unhrd-test") && p.Contains("title"));
+        Assert.Contains(problems, p => p.Contains("unhrd-test") && p.Contains("https"));
+        Assert.Contains(problems, p => p.Contains("unhrd-test") && p.Contains("date"));
+        Assert.Contains(CuratedTables.Validate(Tables() with { Depots = [DepotRow() with { Position = new GeoPosition(0, 0) }] }), p => p.Contains("position"));
+        Assert.Contains(CuratedTables.Validate(Tables() with { Depots = [DepotRow(), DepotRow()] }), p => p.Contains("used twice"));
+    }
+
+    [Fact]
+    public void DraftDepotHidden()
+    {
+        var t = Tables() with { Depots = [DepotRow("unhrd-draft"), DepotRow("unhrd-ok", "approved")] };
+        Assert.Equal(["unhrd-ok"], t.VisibleDepots(new CuratedFilter(false, new HashSet<string>())).Select(d => d.Id));
+        Assert.Equal(["unhrd-draft", "unhrd-ok"], t.VisibleDepots(new CuratedFilter(true, new HashSet<string>())).Select(d => d.Id));
+        // The real five are drafts, so none shows in a normal run.
+        var real = CuratedTables.Load(CuratedDir);
+        Assert.Empty(real.VisibleDepots(new CuratedFilter(false, new HashSet<string>())));
+        Assert.Equal(5, real.VisibleDepots(new CuratedFilter(true, new HashSet<string>())).Count);
+    }
+
     [Fact]
     public void ValidationRejectsAnUncitedRow()
     {
@@ -197,9 +283,12 @@ public class CuratedTablesTests
         Assert.Equal(text.ReplaceLineEndings("\n"), File.ReadAllText(path).ReplaceLineEndings("\n"));
         foreach (var d in t.Designations) Assert.Contains(d.Id, text);
         foreach (var c in t.Camps) Assert.Contains(c.Id, text);
+        Assert.Contains("## UN depots", text);
+        foreach (var d in t.Depots) { Assert.Contains(d.Id, text); Assert.Contains(d.Address, text); Assert.Contains(d.PositionSource.Url.ToString(), text); }
         // Approved rows carry the day; the owner's line is only for drafts.
         Assert.Contains("- Status: **approved** on 24 Nov 2026", text);
-        Assert.Equal(t.Designations.Count(d => !d.Review.IsApproved) + t.Camps.Count(c => !c.Review.IsApproved),
+        Assert.Equal(t.Designations.Count(d => !d.Review.IsApproved) + t.Camps.Count(c => !c.Review.IsApproved) + t.Depots.Count(d => !d.Review.IsApproved)
+            + t.Explainers.Count(e => !e.Review.IsApproved),
             text.Split('\n').Count(l => l.StartsWith("- Owner: approve / correct", StringComparison.Ordinal)));
         // The candidates left out are in the document itself (never in an untracked file), with their links (R12, R13).
         Assert.Contains("## Awaiting confirmation / not entered", text);

@@ -3,6 +3,9 @@ using EarthRelief3D.Core.Model;
 
 namespace EarthRelief3D.App.Presentation;
 
+/// <summary>The unit distances are shown in (Settings, "Distances"; P4-15). Kilometres is the default.</summary>
+public enum DistanceUnit { Kilometres, Miles }
+
 /// <summary>
 /// The words and numbers the panel, the legend and the hover tooltips show. Every fact names its source and a date. IPC
 /// citations carry the analysis period's END as their as-of time, which is often in the future, so food never says
@@ -27,6 +30,14 @@ public static class CrisisText
     public static string AsOf(DateTime utc) => "as of " + Date(utc);
 
     public static string Number(long n) => n.ToString("N0", Inv);
+
+    /// <summary>One international mile in kilometres.</summary>
+    public const double KilometresPerMile = 1.609344;
+
+    /// <summary>A distance in whole kilometres or miles with a thousands separator: "812 km", "505 mi", "12,345 km".</summary>
+    public static string Distance(double km, DistanceUnit unit) => unit == DistanceUnit.Miles
+        ? Math.Round(km / KilometresPerMile, MidpointRounding.AwayFromZero).ToString("N0", Inv) + " mi"
+        : Math.Round(km, MidpointRounding.AwayFromZero).ToString("N0", Inv) + " km";
 
     /// <summary>"1 Apr 2026–31 Dec 2026".</summary>
     public static string Period(DateOnly from, DateOnly to) => Date(from) + "–" + Date(to);

@@ -1,0 +1,44 @@
+{
+ "sheets": [
+  {
+   "name": "indicators",
+   "rows": [
+    ["Crisis Name", "Crisis ID", "1. Denial of existence of needs", "2. Restriction and obstruction to access services", "3.Impediments to entry into the country", "4.Restriction of movement within the country", "5.Interference with implementation of humanitarian activities", "6. Violence against personnel, facilities and assets", "7. Ongoing insecurity", "8. Presence of mines and explosive devices", "9. Environmental constraints", "Information Gap", "Country level", "Country"],
+    ["Sudan conflict (synthetic)", "SDN001", 3, 3, 3, 3, 3, 3, 3, 2, 2, 0.12, "Yes", "Sudan"],
+    ["Gaza and West Bank crisis (synthetic)", "PSE001", 3, 3, 3, 3, 2, 3, 3, 3, 2, 0.08, "Yes", "Palestine"],
+    ["Complex crisis in Yemen (synthetic)", "YEM001", 2, 3, 3, 3, 3, 3, 2, 3, 1, 0.15, "Yes", "Yemen"],
+    ["Complex crisis in Afghanistan (synthetic)", "AFG001", 2, 2, 2, 2, 3, 2, 1, 3, 3, 0.07, "Yes", "Afghanistan"],
+    ["Conflict in eastern Congo (synthetic)", "COD001", 2, 2, 1, 3, 2, 3, 3, 3, 2, 0.1, "Yes", "Democratic Republic of the Congo"],
+    ["Gang violence in Haiti (synthetic)", "HTI001", 1, 2, 1, 3, 2, 2, 3, 0, 2, 0.05, "Yes", "Haiti"],
+    ["Conflict and displacement in Myanmar (synthetic)", "MMR001", 3, 3, 3, 3, 2, 2, 3, 3, 1, 0.2, "Yes", "Myanmar"],
+    ["Drought and conflict in Somalia (synthetic)", "SOM001", 1, 2, 2, 3, 2, 3, 3, 2, 2, 0.09, "Yes", "Somalia"],
+    ["War in Ukraine (synthetic)", "UKR001", 0, 1, 1, 2, 2, 2, 3, 3, 1, 0.03, "Yes", "Ukraine"],
+    ["Conflict and floods in South Sudan (synthetic)", "SSD001", 2, 2, 2, 3, 3, 3, 2, 2, 3, 0.11, "Yes", "South Sudan"],
+    ["Insecurity in north Nigeria (synthetic)", "NGA001", 1, 1, 0, 2, 1, 2, 3, 1, 2, 0.06, "Yes", "Nigeria"],
+    ["Political and economic crisis in Venezuela (synthetic)", "VEN001", 2, 1, 1, 1, 1, 0, 0, 0, 1, 0.18, "Yes", "Venezuela"],
+    ["Crisis in a territory the boundary set lacks (synthetic)", "XXK001", 0, 1, 0, 1, 1, 0, 1, 0, 2, 0.3, "Yes", "Kosovo"],
+    ["Earthquake in eastern provinces (synthetic)", "AFG007", 2, 2, 2, 1, 2, 2, 1, 3, 3, 0.15, "No", "Afghanistan"]
+   ]
+  },
+  {
+   "name": "csv",
+   "rows": [
+    ["Crisis_name", "Crisis ID", "P1", "P2", "P3", "ACCESS", "Info_gap", "Trend", "Country level", "Country Name", "ISO"],
+    ["Sudan conflict (synthetic)", "SDN001", 5, 5, 5, 5, 0.12, "Deteriorating", "Yes", "Sudan", "SDN"],
+    ["Gaza and West Bank crisis (synthetic)", "PSE001", 5, 4, 5, 5, 0.08, "Stable", "Yes", "Palestine", "PSE"],
+    ["Complex crisis in Yemen (synthetic)", "YEM001", 4, 5, 4, 5, 0.15, "Stable", "Yes", "Yemen", "YEM"],
+    ["Complex crisis in Afghanistan (synthetic)", "AFG001", 4, 4, 4, 4, 0.07, "Stable", "Yes", "Afghanistan", "AFG"],
+    ["Conflict in eastern Congo (synthetic)", "COD001", 3, 4, 5, 4, 0.1, "Deteriorating", "Yes", "Democratic Republic of the Congo", "COD"],
+    ["Gang violence in Haiti (synthetic)", "HTI001", 3, 3, 4, 3, 0.05, "Deteriorating", "Yes", "Haiti", "HTI"],
+    ["Conflict and displacement in Myanmar (synthetic)", "MMR001", 4, 4, 4, 4, 0.2, "Stable", "Yes", "Myanmar", "MMR"],
+    ["Drought and conflict in Somalia (synthetic)", "SOM001", 3, 3, 4, 3, 0.09, "Improving", "Yes", "Somalia", "SOM"],
+    ["War in Ukraine (synthetic)", "UKR001", 1, 3, 4, 3, 0.03, "Stable", "Yes", "Ukraine", "UKR"],
+    ["Conflict and floods in South Sudan (synthetic)", "SSD001", 3, 4, 4, 4, 0.11, "Stable", "Yes", "South Sudan", "SSD"],
+    ["Insecurity in north Nigeria (synthetic)", "NGA001", 1, 2, 3, 2, 0.06, "New", "Yes", "Nigeria", "NGA"],
+    ["Political and economic crisis in Venezuela (synthetic)", "VEN001", 2, 1, 1, 1, 0.18, "Improving", "Yes", "Venezuela", "VEN"],
+    ["Crisis in a territory the boundary set lacks (synthetic)", "XXK001", 1, 1, 2, 1, 0.3, "New", "Yes", "Kosovo", "XXK"],
+    ["Earthquake in eastern provinces (synthetic)", "AFG007", 2, 2, 3, 2, 0.15, "New", "No", "Afghanistan", "AFG"]
+   ]
+  }
+ ]
+}

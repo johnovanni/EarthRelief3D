@@ -16,10 +16,20 @@ public partial class MainWindow : Window
         DataContext = vm;
         Scene = new SceneController(Viewport, Overlay, vm, this, store, countries, clock, log);
         // No hover tooltips from the globe while the mouse is over a card.
-        foreach (var card in new UIElement[] { Strip, Panel, LegendCard, StatusCard }) Scene.HoverBlockers.Add(card);
+        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard }) Scene.HoverBlockers.Add(card);
         // The legend never grows over the layer strip above it: it scrolls when the window is short.
         SizeChanged += (_, _) => FitLegend();
         Strip.SizeChanged += (_, _) => FitLegend();
+        // The explainer card never covers the layer strip: its left edge stays right of the strip, and it shrinks to fit.
+        Root.SizeChanged += (_, _) => FitExplainer();
+        Strip.SizeChanged += (_, _) => FitExplainer();
+    }
+
+    private void FitExplainer()
+    {
+        var m = ExplainerCard.Margin;
+        double left = Strip.ActualWidth + Strip.Margin.Left + Strip.Margin.Right;
+        if (Math.Abs(m.Left - left) > 0.5) ExplainerCard.Margin = new Thickness(left, m.Top, m.Right, m.Bottom);
     }
 
     /// <summary>The share of the window's height the layer strip may take before it scrolls (Plan 3's groups are long).</summary>

@@ -1,0 +1,93 @@
+{
+  "id": "ourairports",
+  "publisher": "OurAirports",
+  "dataset": "OurAirports airport data",
+  "version": null,
+  "sourceUrl": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv",
+  "pageUrl": "https://ourairports.com/data/",
+  "licence": "The Unlicense (public domain)",
+  "attribution": "OurAirports (ourairports.com), public domain (The Unlicense).",
+  "dateMeaning": "AsOf",
+  "dateText": null,
+  "asOf": "OurAirports' airports.csv as downloaded on 2026-11-24 (rebuilt daily; the file has no date)",
+  "published": "2026-11-24",
+  "downloaded": "2026-11-24",
+  "fileName": "airports.csv",
+  "fileSha256": "a903f63c4a5fef41acd82ed0876acce0d1efd470849e1a6a1f79d34948b6123b",
+  "command": "DataTool airports <downloads>/airports.csv --downloaded 2026-11-24",
+  "series": [
+    {
+      "id": "ourairports",
+      "measures": "Large and medium airports with scheduled passenger service",
+      "unit": "airports",
+      "sourceItem": "airports.csv",
+      "countries": 223
+    }
+  ],
+  "notPlaced": [
+    {
+      "code": "BQ",
+      "name": "BQ",
+      "reason": "no unit in the boundary set for this iso_country: 3 airports not drawn"
+    },
+    {
+      "code": "CC",
+      "name": "CC",
+      "reason": "no unit in the boundary set for this iso_country: 1 airport not drawn"
+    },
+    {
+      "code": "CX",
+      "name": "CX",
+      "reason": "no unit in the boundary set for this iso_country: 1 airport not drawn"
+    },
+    {
+      "code": "GF",
+      "name": "GF",
+      "reason": "no unit in the boundary set for this iso_country: 3 airports not drawn"
+    },
+    {
+      "code": "GI",
+      "name": "GI",
+      "reason": "no unit in the boundary set for this iso_country: 1 airport not drawn"
+    },
+    {
+      "code": "GP",
+      "name": "GP",
+      "reason": "no unit in the boundary set for this iso_country: 2 airports not drawn"
+    },
+    {
+      "code": "MQ",
+      "name": "MQ",
+      "reason": "no unit in the boundary set for this iso_country: 1 airport not drawn"
+    },
+    {
+      "code": "RE",
+      "name": "RE",
+      "reason": "no unit in the boundary set for this iso_country: 2 airports not drawn"
+    },
+    {
+      "code": "UM",
+      "name": "UM",
+      "reason": "no unit in the boundary set for this iso_country: 1 airport not drawn"
+    },
+    {
+      "code": "YT",
+      "name": "YT",
+      "reason": "no unit in the boundary set for this iso_country: 1 airport not drawn"
+    }
+  ],
+  "dropped": [],
+  "qualifiersSeen": {
+    "large": 1144,
+    "medium": 2110
+  },
+  "flagsSeen": {},
+  "notes": [
+    "Counts (checked 2026-11-24): 3,254 airports kept in 223 countries (large 1,144, medium 2,110) of 86,387 rows in the file; 16 more met the filter but have no country in the boundary set.",
+    "Licence: the repository's LICENSE begins \"This is free and unencumbered software released into the public domain\" (The Unlicense). The data is community-edited; the file has no date of its own, so its as-of is the day it was downloaded.",
+    "Filter: type large_airport or medium_airport, and scheduled_service \"yes\" (P4-5; small airstrips used by aid flights are not shown). iso_country is ISO 3166 alpha-2, mapped to the boundary set's units (C16)."
+  ],
+  "filter": "large and medium airports with scheduled passenger service",
+  "changes": "filtered to large and medium airports with scheduled service; name, position, type and IATA code kept; the country as the boundary set's unit",
+  "licenceUrl": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/LICENSE"
+}

@@ -1,9 +1,11 @@
 using System.Windows.Threading;
+using AstroCore.Earth;
 using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.Services;
 using EarthRelief3D.App.Settings;
+using EarthRelief3D.Core.Help;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Regions;
 using GlobeCore.Storage;
@@ -24,9 +26,12 @@ public sealed class MainViewModel
     /// <param name="indicators">The country-value series (Plan 3 shadings); a new empty store when not given.</param>
     /// <param name="markerData">The point sets of the list-drawn marker layers; a new empty store when not given.</param>
     /// <param name="curated">The curated designations and camp sites (Plan 3); an empty store when not given.</param>
+    /// <param name="logistics">The Logistics Cluster's country pages (Plan 4); none when not given.</param>
+    /// <param name="crisisPlace">The place a country's crisis is taken to be, for the nearest hubs (P4-6): its label point; none when not given.</param>
+    /// <param name="help">The help catalog behind "Your one small step" and the Settings country and state lists (Plan 4); none when not given.</param>
     public MainViewModel(CrisisStore store, ISettingsStore<AppSettings> settings, Func<string, string?> countryName, Dispatcher? dispatcher,
         Func<DateTime>? nowUtc = null, CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null,
-        CuratedStore? curated = null)
+        CuratedStore? curated = null, LogisticsClusterLinks? logistics = null, Func<string, GeoPosition?>? crisisPlace = null, HelpTables? help = null)
     {
         ArgumentNullException.ThrowIfNull(store);
         Indicators = indicators ?? new IndicatorStore();
@@ -34,19 +39,27 @@ public sealed class MainViewModel
         Curated = curated ?? CuratedStore.Empty();
         Layers = new LayerStripViewModel(settings);
         // The Settings flyout applies the saved choice of governments to the curated store before anything reads it.
-        Settings = new SettingsViewModel(settings, Curated);
+        Settings = new SettingsViewModel(settings, Curated, help);
         Layers.Settings = Settings;
-        Legend = new LegendViewModel(store, Layers, dispatcher, nowUtc, boundaries, Indicators, MarkerData, Curated);
-        Panel = new CountryPanelViewModel(store, countryName, dispatcher, nowUtc, Indicators, Curated);
+        Hubs = new HubStore(Curated);
+        Legend = new LegendViewModel(store, Layers, dispatcher, nowUtc, boundaries, Indicators, MarkerData, Curated, Hubs);
+        Panel = new CountryPanelViewModel(store, countryName, dispatcher, nowUtc, Indicators, Curated, logistics,
+            Hubs, crisisPlace, () => Settings.Units, help, () => Settings.UserState);
+        // A change of unit writes the open panel again at once (the scene redraws its arc labels, too).
+        Settings.UnitsChanged += (_, _) => Panel.RefreshOpen();
+        // Choosing a state writes the open panel's senators again at once.
+        Settings.StateChanged += (_, _) => Panel.RefreshOpen();
         Status = new StatusDotsViewModel(AppServices.StatusDotNames, dispatcher);
         // The prison camps layer draws from the marker store: its points follow the curated store (no tables: not loaded, R2).
-        PublishCamps();
-        Curated.Changed += (_, _) => PublishCamps();
+        PublishCurated();
+        Curated.Changed += (_, _) => PublishCurated();
     }
 
-    private void PublishCamps()
+    // The prison camps and the UN depots (Plan 4) are drawn from the curated store: their points follow it.
+    private void PublishCurated()
     {
-        if (CampMarkers.For(Curated) is { } set) MarkerData.Replace(MarkerLayer.Camps, set);
+        if (CampMarkers.For(Curated) is { } camps) MarkerData.Replace(MarkerLayer.Camps, camps);
+        if (HubMarkers.ForDepots(Curated) is { } depots) MarkerData.Replace(MarkerLayer.UnDepots, depots);
     }
 
     /// <summary>The country-value series the Plan 3 shadings draw (ruling R2: a missing series says "Data not loaded yet").</summary>
@@ -58,9 +71,15 @@ public sealed class MainViewModel
     /// <summary>The curated designations and camp sites, as the user sees them (drafts, chosen governments).</summary>
     public CuratedStore Curated { get; }
 
+    /// <summary>The UN depots, airports and ports the nearest-hub rows and the arcs measure to (Plan 4); the extracts are set once loaded.</summary>
+    public HubStore Hubs { get; }
+
     public LayerStripViewModel Layers { get; }
     public SettingsViewModel Settings { get; }
     public LegendViewModel Legend { get; }
     public CountryPanelViewModel Panel { get; }
+
+    /// <summary>The explainer card (Plan 4 Task 9), opened from the panel's links; to the left of the panel.</summary>
+    public ExplainerViewModel Explainer => Panel.Explainer;
     public StatusDotsViewModel Status { get; }
 }

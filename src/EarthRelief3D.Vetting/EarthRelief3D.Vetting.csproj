@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The vetting tool (spec 9.3; Plan 4 Task 7): the maintainer runs it before each release. It checks every charity's EIN
+    against the IRS Publication 78 and auto-revocation files, works out the programme share from the latest Form 990 (Part IX),
+    lists entries about to expire and links that fail, and writes a report. It never edits the list. Not shipped with the app.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>EarthRelief3D.Vetting</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EarthRelief3D.Core\EarthRelief3D.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -128,6 +128,7 @@ public class ResourceMarkersTests
     {
         var markers = new MarkerDataStore();
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, markerData: markers);
         foreach (var (layer, _) in ResourceMarkers.Datasets)
         {
@@ -274,6 +275,7 @@ public class ResourceMarkersTests
     {
         var markers = new MarkerDataStore();
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, markerData: markers);
         var load = Committed(MarkerLayer.Renewables);
         markers.Replace(MarkerLayer.Renewables, ResourceMarkers.For(MarkerLayer.Renewables, load)!);

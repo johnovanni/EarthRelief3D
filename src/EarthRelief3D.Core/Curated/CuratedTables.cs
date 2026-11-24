@@ -39,6 +39,10 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
     public const string DesignationsFile = "designations.json";
     public const string CampsFile = "camps.json";
     public const string GovernmentsFile = "governments.json";
+    /// <summary>The UN Humanitarian Response Depots (Plan 4, P4-5).</summary>
+    public const string DepotsFile = "unhrd-depots.json";
+    /// <summary>The plain-language explainers (Plan 4 Task 9).</summary>
+    public const string ExplainersFile = "explainers.json";
     /// <summary>Candidates researched but not entered (for the owner's review document only; the app never shows them).</summary>
     public const string NotEnteredFile = "not-entered.json";
 
@@ -46,6 +50,12 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
 
     /// <summary>The candidates awaiting confirmation or left out, with the reason and the links (docs/curated-review.md).</summary>
     public IReadOnlyList<Candidate> NotEntered { get; init; } = [];
+
+    /// <summary>The UN Humanitarian Response Depots (UNHRD's five hubs), drafts until the owner approves each one (P4-13).</summary>
+    public IReadOnlyList<Depot> Depots { get; init; } = [];
+
+    /// <summary>The plain-language explainers (one per crisis kind, plus access and "why these"), drafts until the owner approves each one (P4-13).</summary>
+    public IReadOnlyList<Explainer> Explainers { get; init; } = [];
 
     /// <summary>The governments the Settings flyout offers (C15): only those curated completely.</summary>
     public IReadOnlyList<Government> OfferedGovernments => [.. Governments.Where(g => g.CuratedComplete)];
@@ -61,6 +71,12 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
 
     /// <summary>The camp sites the user sees under <paramref name="f"/>, open or reported closed (the panel lists both).</summary>
     public IReadOnlyList<CampSite> VisibleCamps(CuratedFilter f) => [.. Camps.Where(c => c.Review.IsApproved || f.ShowDrafts)];
+
+    /// <summary>The depots the user sees under <paramref name="f"/>: approved ones, and drafts only with <c>--show-drafts</c> (P4-13).</summary>
+    public IReadOnlyList<Depot> VisibleDepots(CuratedFilter f) => [.. Depots.Where(d => d.Review.IsApproved || f.ShowDrafts)];
+
+    /// <summary>The explainers the user sees under <paramref name="f"/>: approved ones, and drafts only with <c>--show-drafts</c> (P4-13).</summary>
+    public IReadOnlyList<Explainer> VisibleExplainers(CuratedFilter f) => [.. Explainers.Where(e => e.Review.IsApproved || f.ShowDrafts)];
 
     // ---------------------------------------------------------------- loading
 
@@ -85,6 +101,8 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
         var tables = new CuratedTables(designations, camps, governments)
         {
             NotEntered = File.Exists(notEnteredPath) ? Read<List<Candidate>>(notEnteredPath) : [],
+            Depots = Read<List<DepotDto>>(Path.Combine(dir, DepotsFile)).Select(d => d.ToDepot()).ToList(),
+            Explainers = Read<List<ExplainerDto>>(Path.Combine(dir, ExplainersFile)).Select(e => e.ToExplainer()).ToList(),
         };
         var problems = Validate(tables);
         if (problems.Count > 0)
@@ -120,6 +138,22 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
             StatusNotes = StatusNotes ?? [],
             OwnerQuestion = OwnerQuestion,
         };
+    }
+
+    private sealed record DepotDto(string Id, string Name, string City, string Iso3, string Address, GeoDto? Position, DocumentCitation? PositionSource,
+        DocumentCitation? Source, Review? Review, DateOnly CheckedOn, string? Verification)
+    {
+        public Depot ToDepot() => new(Id, Name, City, Iso3, Address,
+            Position is null ? new GeoPosition(double.NaN, double.NaN) : new GeoPosition(Position.Lat, Position.Lon), PositionSource!, Source!, Review!, CheckedOn)
+        {
+            Verification = Verification,
+        };
+    }
+
+    private sealed record ExplainerDto(string Id, string Title, List<string>? Paragraphs, List<DocumentCitation>? Sources, Review? Review,
+        DateOnly ReviewedOn, string? Verification)
+    {
+        public Explainer ToExplainer() => new(Id, Title, Paragraphs ?? [], Sources ?? [], Review!, ReviewedOn) { Verification = Verification };
     }
 
     private sealed record GovernmentDto(string Iso3, string Name, bool CuratedComplete, DateOnly CheckedOn, string? Scope)
@@ -215,6 +249,48 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
             }
             foreach (var note in c.StatusNotes ?? []) StatementOk(problems, id, "status note", note);
             ReviewOk(problems, id, c.Review);
+        }
+
+        foreach (var d in t.Depots)
+        {
+            if (d is null) { problems.Add("depots: an empty entry"); continue; }
+            var id = string.IsNullOrWhiteSpace(d.Id) ? "(depot with no id)" : d.Id;
+            if (!ids.Add(id)) problems.Add($"{id}: id used twice");
+            if (!IsIso3(d.Iso3)) problems.Add($"{id}: iso3 must be three capital letters");
+            Required(problems, id, d.Name, "name");
+            Required(problems, id, d.City, "city");
+            Required(problems, id, d.Address, "address");
+            if (!(Math.Abs(d.Position.LatitudeDeg) <= 90) || !(Math.Abs(d.Position.LongitudeDeg) <= 180)
+                || d.Position is { LatitudeDeg: 0, LongitudeDeg: 0 })
+                problems.Add($"{id}: no valid position (a looked-up point is required)");
+            if (d.PositionSource is null) problems.Add($"{id}: no positionSource (the search that gave the point)");
+            else Cited(problems, id, "position source", d.PositionSource.Title, d.PositionSource.Url, d.PositionSource.Date, d.PositionSource.Publisher);
+            if (d.Source is null) problems.Add($"{id}: no source (the page that gives the depot)");
+            else Cited(problems, id, "source", d.Source.Title, d.Source.Url, d.Source.Date, d.Source.Publisher);
+            if (!IsRealDate(d.CheckedOn)) problems.Add($"{id}: no checkedOn date");
+            ReviewOk(problems, id, d.Review);
+        }
+
+        var known = Explainer.Ids.ToHashSet(StringComparer.Ordinal);
+        foreach (var e in t.Explainers)
+        {
+            if (e is null) { problems.Add("explainers: an empty entry"); continue; }
+            var id = string.IsNullOrWhiteSpace(e.Id) ? "(explainer with no id)" : e.Id;
+            if (!ids.Add(id)) problems.Add($"{id}: id used twice");
+            if (!known.Contains(id)) problems.Add($"{id}: not an explainer id ({string.Join(", ", Explainer.Ids)})");
+            Required(problems, id, e.Title, "title");
+            if (e.Paragraphs is not { Count: > 0 } || e.Paragraphs.Any(string.IsNullOrWhiteSpace)) problems.Add($"{id}: no text (or an empty paragraph)");
+            else
+            {
+                if (e.WordCount > Explainer.MaxWords) problems.Add($"{id}: {e.WordCount} words; at most {Explainer.MaxWords}");
+                foreach (var q in e.Paragraphs.SelectMany(Explainer.Quotations).Where(q => Explainer.Words(q) > Explainer.MaxQuoteWords))
+                    problems.Add($"{id}: a quotation of {Explainer.Words(q)} words; at most {Explainer.MaxQuoteWords} (paraphrase instead)");
+            }
+            if (e.Sources is not { Count: >= Explainer.MinSources }) problems.Add($"{id}: at least {Explainer.MinSources} sources are needed");
+            foreach (var s in e.Sources ?? []) Cited(problems, id, "source", s?.Title, s?.Url, s?.Date ?? default, s?.Publisher);
+            if (!IsRealDate(e.ReviewedOn)) problems.Add($"{id}: no reviewedOn date");
+            if (string.IsNullOrWhiteSpace(e.Verification)) problems.Add($"{id}: no verification (what was opened, and when)");
+            ReviewOk(problems, id, e.Review);
         }
 
         foreach (var n in t.NotEntered)

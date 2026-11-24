@@ -9,18 +9,20 @@ public enum CrisisLayer { Conflict, Food, Outbreaks, Displacement }
 /// The country shadings (Plan 3, P3-6): one shows at a time across all groups. Food is the IPC shading of Plan 2 (R17);
 /// the others are country values on a sequential scale (P3-7, <see cref="ShadingScales"/>).
 /// </summary>
-public enum ShadingLayer { None, Food, Water, Sanitation, Health, Hunger, ShelterNeed, OilProduction, WaterStress }
+public enum ShadingLayer { None, Food, Water, Sanitation, Health, Hunger, ShelterNeed, OilProduction, WaterStress, Access }
 
 /// <summary>The marker layers (Plan 3, P3-6): any number show at once (they stack).</summary>
-public enum MarkerLayer { Conflict, Outbreaks, Displacement, Atrocities, Camps, PowerPlants, OilGasFields, SteelPlants, Renewables }
+public enum MarkerLayer { Conflict, Outbreaks, Displacement, Atrocities, Camps, PowerPlants, OilGasFields, SteelPlants, Renewables, UnDepots, Airports, Ports, HubLines }
 
 /// <summary>The second cue after colour (C8): each layer has its own shape.</summary>
 /// <remarks>
 /// Plan 3 adds the hollow triangle (atrocities, Task 5), the filled square (prison camps), the disc with a dark edge
 /// (power plants, filled by fuel group in Task 7: the edge keeps it apart from conflict's plain dots when both are on),
 /// the diamond (oil and gas fields), the square outline (steel plants) and the hexagon with a dark edge (renewable plants, R25).
+/// Plan 4 (P4-14) appends the star (UN depots), the hexagon outline (airports), the diamond outline (ports) and the arc (the lines to the
+/// nearest hubs, a toggle only: it draws no markers).
 /// </remarks>
-public enum MarkerShape { Dot, Area, Cross, Ring, TriangleOutline, Square, EdgedDisc, Diamond, SquareOutline, Hexagon }
+public enum MarkerShape { Dot, Area, Cross, Ring, TriangleOutline, Square, EdgedDisc, Diamond, SquareOutline, Hexagon, Star, HexagonOutline, DiamondOutline, Arc }
 
 /// <summary>Colours, shapes and legend symbols of the crisis layers. Colour-blind safe, with shape as a second cue (C8).</summary>
 public static class LayerStyle
@@ -134,6 +136,10 @@ public static class LayerStyle
         MarkerShape.Diamond => "◆",
         MarkerShape.SquareOutline => "□",
         MarkerShape.Hexagon => "⬢",
+        MarkerShape.Star => "★",
+        MarkerShape.HexagonOutline => "⬡",
+        MarkerShape.DiamondOutline => "◇",
+        MarkerShape.Arc => "⌒",
         _ => throw new ArgumentOutOfRangeException(nameof(shape)),
     };
 
@@ -161,6 +167,22 @@ public static class LayerStyle
     public static Color SteelColor { get; } = Color.FromRgb(0x00, 0x9E, 0x73);
     /// <summary>The renewable plants' legend and strip symbol (R25): Okabe–Ito blue; the hexagons themselves are filled by fuel group.</summary>
     public static Color RenewablesColor { get; } = Color.FromRgb(0x00, 0x72, 0xB2);
+    // Plan 4 (P4-14): the hubs, each with a shape no other layer has. Light blue for the UN's depots, near white for airports,
+    // pale teal for ports (a lightness that reads on the dark globe and over the shadings).
+    public static Color UnDepotColor { get; } = Color.FromRgb(0x4F, 0xC3, 0xF7);
+    public static Color AirportColor { get; } = Color.FromRgb(0xE8, 0xE8, 0xE8);
+    public static Color PortColor { get; } = Color.FromRgb(0x80, 0xCB, 0xC4);
+    /// <summary>The toggle's own symbol colour (a pale blue-grey); each arc itself takes its hub's colour (<see cref="HubColor"/>).</summary>
+    public static Color HubLinesColor { get; } = Color.FromRgb(0xB0, 0xBE, 0xC5);
+
+    /// <summary>The colour of a hub's marker layer, and of the arc and label drawn to it (P4-14).</summary>
+    public static Color HubColor(Core.Logic.HubKind kind) => kind switch
+    {
+        Core.Logic.HubKind.UnDepot => UnDepotColor,
+        Core.Logic.HubKind.Airport => AirportColor,
+        Core.Logic.HubKind.Port => PortColor,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+    };
     /// <summary>The dark edge of an edged disc (power plants) and of the atrocity triangle.</summary>
     public static Color MarkerEdgeColor { get; } = Color.FromRgb(0x20, 0x20, 0x20);
 
@@ -184,6 +206,10 @@ public static class LayerStyle
         MarkerLayer.OilGasFields => MarkerShape.Diamond,
         MarkerLayer.SteelPlants => MarkerShape.SquareOutline,
         MarkerLayer.Renewables => MarkerShape.Hexagon,
+        MarkerLayer.UnDepots => MarkerShape.Star,
+        MarkerLayer.Airports => MarkerShape.HexagonOutline,
+        MarkerLayer.Ports => MarkerShape.DiamondOutline,
+        MarkerLayer.HubLines => MarkerShape.Arc,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
@@ -201,6 +227,10 @@ public static class LayerStyle
         MarkerLayer.OilGasFields => OilGasColor,
         MarkerLayer.SteelPlants => SteelColor,
         MarkerLayer.Renewables => RenewablesColor,
+        MarkerLayer.UnDepots => UnDepotColor,
+        MarkerLayer.Airports => AirportColor,
+        MarkerLayer.Ports => PortColor,
+        MarkerLayer.HubLines => HubLinesColor,
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 

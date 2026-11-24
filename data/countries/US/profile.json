@@ -1,0 +1,82 @@
+{
+  "iso2": "US",
+  "iso3": "USA",
+  "name": "United States",
+  "registry": "IRS Tax Exempt Organization Search (Publication 78)",
+  "registryUrl": "https://apps.irs.gov/app/eos/",
+  "evaluators": [
+    {
+      "name": "Charity Navigator",
+      "qualifies": "3 stars or more",
+      "site": "https://www.charitynavigator.org/"
+    },
+    {
+      "name": "BBB Wise Giving Alliance",
+      "qualifies": "meets all 20 Standards for Charity Accountability",
+      "site": "https://give.org/"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "senators",
+      "title": "Your two senators",
+      "kind": "Senators",
+      "url": null,
+      "note": "Each senator's own contact form",
+      "source": {
+        "title": "Contact information for US senators (senators_cfm.xml)",
+        "publisher": "United States Senate",
+        "url": "https://www.senate.gov/general/contact_information/senators_cfm.xml",
+        "date": "2026-11-18"
+      },
+      "review": { "status": "draft", "approvedOn": null },
+      "checkedOn": "2026-11-24"
+    },
+    {
+      "id": "representative",
+      "title": "Your representative in the House",
+      "kind": "Representative",
+      "url": "https://www.house.gov/representatives/find-your-representative",
+      "note": "The House's own page finds your representative; this app never asks for an address or ZIP code",
+      "source": {
+        "title": "Find Your Representative | house.gov",
+        "publisher": "US House of Representatives",
+        "url": "https://www.house.gov/representatives/find-your-representative",
+        "date": "2026-11-24"
+      },
+      "review": { "status": "draft", "approvedOn": null },
+      "checkedOn": "2026-11-24"
+    },
+    {
+      "id": "state-department",
+      "title": "The State Department",
+      "kind": "Link",
+      "url": "https://register.state.gov/contactus/contactusform",
+      "note": "Its general contact form is at the end of the page",
+      "source": {
+        "title": "U.S. Department of State - Contact Us",
+        "publisher": "US Department of State",
+        "url": "https://register.state.gov/contactus/contactusform",
+        "date": "2026-11-24"
+      },
+      "review": { "status": "draft", "approvedOn": null },
+      "checkedOn": "2026-11-24"
+    },
+    {
+      "id": "un-mission",
+      "title": "A country's mission to the UN",
+      "kind": "UnMission",
+      "url": "https://www.un.org/dgacm/en/content/protocol/blue-book",
+      "note": "The UN Blue Book lists the missions to the United Nations",
+      "source": {
+        "title": "The Blue Book | Department for General Assembly and Conference Management",
+        "publisher": "United Nations",
+        "url": "https://www.un.org/dgacm/en/content/protocol/blue-book",
+        "date": "2026-11-24"
+      },
+      "review": { "status": "draft", "approvedOn": null },
+      "checkedOn": "2026-11-24"
+    }
+  ],
+  "checkedOn": "2026-11-24"
+}

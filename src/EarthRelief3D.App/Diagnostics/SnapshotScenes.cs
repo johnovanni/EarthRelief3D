@@ -21,14 +21,23 @@ namespace EarthRelief3D.App.Diagnostics;
 /// click on its marker does; a long panel does not otherwise show its later sections in one picture. Besides the Plan 2
 /// layer names it may be "atrocities" or "camps" (the panel's genocide and prison-camp sections, as a click on a triangle
 /// or a square opens them). <paramref name="ShowDrafts"/> shows the curated rows the owner has not approved yet, labelled
-/// "Draft: not yet reviewed", for this picture only, as <c>--show-drafts</c> does for a whole run (P3-4).
+/// "Draft: not yet reviewed", for this picture only, as <c>--show-drafts</c> does for a whole run (P3-4). <paramref name="Explainer"/>
+/// (an explainer id, needs a panel; ruling R19) opens the explainer card for that picture, as the section's "What is this" link does.
 /// </summary>
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
-                                   string? PanelFocus = null, bool ShowDrafts = false)
+                                   string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null)
 {
-    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3).</summary>
+    /// <summary>The <see cref="Explainer"/> ids: one per crisis kind, "access" and the step section's "why-these" (Plan 4 Task 9; ruling R19).</summary>
+    public static IReadOnlyList<string> ExplainerNames { get; } =
+    [
+        CountryPanelViewModel.ConflictExplainerId, CountryPanelViewModel.FoodExplainerId, CountryPanelViewModel.OutbreaksExplainerId,
+        CountryPanelViewModel.DisplacementExplainerId, CountryPanelViewModel.AtrocitiesExplainerId, CountryPanelViewModel.CampsExplainerId,
+        CountryPanelViewModel.AccessExplainerId, CountryPanelViewModel.StepExplainerId,
+    ];
+
+    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3), then "access" and "help" (Plan 4).</summary>
     public static IReadOnlyList<string> PanelFocusNames { get; } =
-        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps)];
+        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps), "access", "help"];
 
     /// <summary>The shading the scene names ("food", "water", ...; at most one), or none.</summary>
     public ShadingLayer Shading => Layers.Select(n => LayerCatalog.TryParse(n, out var sh, out _) ? sh : null)
@@ -44,6 +53,9 @@ public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosi
         "conflict" => CrisisLayer.Conflict, "food" => CrisisLayer.Food, "outbreaks" => CrisisLayer.Outbreaks,
         "displacement" => CrisisLayer.Displacement, _ => null,
     };
+
+    /// <summary>The Plan 4 section a <see cref="PanelFocus"/> name stands for ("access", "help"), or null.</summary>
+    public ViewModels.PanelFocus? FocusSection => PanelFocus?.ToLowerInvariant() switch { "access" => ViewModels.PanelFocus.Access, "help" => ViewModels.PanelFocus.Help, _ => null };
 
     /// <summary>The curated marker layer a <see cref="PanelFocus"/> name stands for ("atrocities", "camps"), or null.</summary>
     public MarkerLayer? FocusMarker => PanelFocus?.ToLowerInvariant() switch
@@ -107,6 +119,9 @@ public static class SnapshotScenes
                 string? focus = e.TryGetProperty("panelFocus", out var pf) && pf.ValueKind == JsonValueKind.String ? pf.GetString() : null;
                 if (focus is not null && (panel is null || !SnapshotScene.PanelFocusNames.Contains(focus.ToLowerInvariant())))
                     throw new FormatException($"Scene {name}: panelFocus needs a panel and one of {string.Join(", ", SnapshotScene.PanelFocusNames)}.");
+                string? explainer = e.TryGetProperty("explainer", out var ep) && ep.ValueKind == JsonValueKind.String ? ep.GetString() : null;
+                if (explainer is not null && (panel is null || !SnapshotScene.ExplainerNames.Contains(explainer.ToLowerInvariant())))
+                    throw new FormatException($"Scene {name}: explainer needs a panel and one of {string.Join(", ", SnapshotScene.ExplainerNames)}.");
                 bool drafts = false;
                 if (e.TryGetProperty("showDrafts", out var sd))
                 {
@@ -114,7 +129,7 @@ public static class SnapshotScenes
                         throw new FormatException($"Scene {name}: showDrafts is true or false.");
                     drafts = sd.GetBoolean();
                 }
-                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts));
+                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant()));
             }
             if (list.Count == 0) throw new FormatException("The file has no scenes.");
             return list;
@@ -169,8 +184,10 @@ public static class SnapshotScenes
                     var plainTitle = window.Title.Replace(LaunchOptions.DraftsTitleNote, "", StringComparison.Ordinal);
                     window.Title = drafts ? plainTitle + LaunchOptions.DraftsTitleNote : plainTitle;
                     vm.Layers.SetLayers(s.Shading, s.Markers);
-                    if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker);
+                    if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker, s.FocusSection);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
+                    if (s.Explainer is { } xid && !vm.Panel.Explainer.Open(xid))
+                        throw new InvalidOperationException($"Scene {s.Name}: the explainer \"{xid}\" is not shown (drafts off, or no such explainer).");
                     scene.LookAt(s.LookAt ?? SceneController.HomeView);
                     var host = scene.Host ?? throw new InvalidOperationException("The globe is not loaded yet.");
                     host.DisplayTimeUtc = displayClock.UtcNow;

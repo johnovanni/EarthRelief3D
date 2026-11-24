@@ -1,11 +1,14 @@
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using AstroCore.Earth;
 using CommunityToolkit.Mvvm.Input;
 using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Curated;
 using EarthRelief3D.Core.Feeds;
+using EarthRelief3D.Core.Help;
+using EarthRelief3D.Core.Logic;
 using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
 
@@ -15,14 +18,26 @@ namespace EarthRelief3D.App.ViewModels;
 /// <param name="SourceLine">"Source: &lt;publisher&gt;, &lt;dataset&gt; · as of &lt;date&gt;" (food: the IPC analysis period instead).</param>
 /// <param name="Bar">The IPC phase bar (R17): food sections with current-period figures, current or past; null otherwise.</param>
 /// <param name="Links">The section's documents, one link each (curated sections: every designation's and camp report's own document).</param>
+/// <param name="Entries">"Your one small step" (Plan 4): the entries to give to and to contact, grouped; null for every other section.</param>
+/// <param name="ExplainerId">
+/// The explainer the section links to (Plan 4 Task 9: "conflict", "food", ..., "access", "why-these"), or null. The panel
+/// gives it only when the user sees that explainer (approved, or drafts shown, P4-13), so a null id means no link.
+/// </param>
 public sealed record PanelSection(string Heading, IReadOnlyList<(string Label, string Value)> Rows, string SourceLine, Uri? Link,
-    PhaseBar? Bar = null, IReadOnlyList<PanelLink>? Links = null)
+    PhaseBar? Bar = null, IReadOnlyList<PanelLink>? Links = null, IReadOnlyList<HelpEntry>? Entries = null, string? ExplainerId = null)
 {
     public bool HasLinks => Links is { Count: > 0 };
+
+    /// <summary>The words of the explainer link: "Why these?" in the step section's footer, otherwise "What is this, and why does it happen?".</summary>
+    public string ExplainerLinkText => ExplainerId == CountryPanelViewModel.StepExplainerId
+        ? CountryPanelViewModel.WhyTheseLabel : CountryPanelViewModel.ExplainerLinkLabel;
 }
 
-/// <summary>A link under a panel section: the document's short description and its address.</summary>
-public sealed record PanelLink(string Text, Uri Url);
+/// <summary>
+/// A part of the panel, other than a crisis layer's, that a scene or a click can open the panel at: the Getting help in
+/// section's access scores, or "Your one small step" (<see cref="Help"/>; it focuses nothing when the panel has no help tables).
+/// </summary>
+public enum PanelFocus { Access, Help }
 
 /// <summary>
 /// The country panel (C1: per country, a section per crisis), the "What is happening" part of spec §9.1. Sections come in
@@ -65,6 +80,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     /// <summary>The note at the top of the not-established section.</summary>
     public const string NotEstablishedNote = "The court did not find the crime alleged established. This is not a finding of genocide or of another atrocity crime.";
     public const string NoCrisisText = "No crisis recorded by these sources";
+    /// <summary>The link under a section with a visible explainer (spec §11).</summary>
+    public const string ExplainerLinkLabel = "What is this, and why does it happen?";
     /// <summary>The headline when the only IPC record is a projection and no other source records a crisis.</summary>
     public const string ProjectionOnlyText = "IPC: projection only, no current-period figures; no crisis recorded by the other sources";
 
@@ -96,17 +113,39 @@ public sealed partial class CountryPanelViewModel : ObservableObject
 
     private CrisisLayer? _focus;
     private MarkerLayer? _markerFocus;
+    private PanelFocus? _sectionFocus;
+    private readonly LogisticsClusterLinks _logistics;
     private readonly CuratedStore? _curated;
+    private readonly HubStore? _hubs;
+    private readonly Func<string, GeoPosition?> _crisisPlace;
+    private readonly Func<DistanceUnit> _units;
+    private readonly HelpTables? _help;
+    private readonly Func<string?> _userState;
 
     /// <param name="countryName">The country's name for an ISO3 code (null: the code is shown).</param>
     /// <param name="dispatcher">The UI thread's; store changes from other threads are queued onto it. Null: handled at once.</param>
     /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
     /// <param name="indicators">The country-value series and needs rows (Plan 3); null: no "Basic needs" sections.</param>
     /// <param name="curated">The curated designations and camp sites as the user sees them (Plan 3); null: no such sections.</param>
+    /// <param name="logistics">The Logistics Cluster's country pages (Plan 4); null: none listed.</param>
+    /// <param name="hubs">The UN depots, airports and ports the nearest-hub rows measure to (Plan 4); null: no such rows.</param>
+    /// <param name="crisisPlace">The place the crisis is taken to be: the country's label point (P4-6); null, or a null answer: "No point to measure from".</param>
+    /// <param name="units">The unit distances are shown in (Settings); kilometres by default.</param>
+    /// <param name="help">The help catalog behind "Your one small step" (Plan 4); null: the panel has no such section.</param>
+    /// <param name="userState">The state the user chose in Settings (two-letter code), or null: not chosen.</param>
     public CountryPanelViewModel(CrisisStore store, Func<string, string?> countryName, Dispatcher? dispatcher = null,
-        Func<DateTime>? nowUtc = null, IndicatorStore? indicators = null, CuratedStore? curated = null)
+        Func<DateTime>? nowUtc = null, IndicatorStore? indicators = null, CuratedStore? curated = null, LogisticsClusterLinks? logistics = null,
+        HubStore? hubs = null, Func<string, GeoPosition?>? crisisPlace = null, Func<DistanceUnit>? units = null, HelpTables? help = null,
+        Func<string?>? userState = null)
     {
+        _help = help;
+        _userState = userState ?? (() => null);
+        _hubs = hubs;
+        _crisisPlace = crisisPlace ?? (_ => null);
+        _units = units ?? (() => DistanceUnit.Kilometres);
+        if (_hubs is not null) _hubs.Changed += OnStoreChanged;
         _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
+        _logistics = logistics ?? LogisticsClusterLinks.Empty;
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _nameOf = countryName ?? throw new ArgumentNullException(nameof(countryName));
         _dispatcher = dispatcher;
@@ -115,24 +154,45 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         if (_indicators is not null) _indicators.Changed += OnStoreChanged;
         _curated = curated;
         if (_curated is not null) _curated.Changed += OnStoreChanged;
+        Explainer = new ExplainerViewModel(curated);
     }
 
     /// <summary>
-    /// Opens the panel for <paramref name="iso3"/>, at the <paramref name="focus"/> layer's section if given, or at a Plan 3
-    /// marker layer's (<paramref name="marker"/>: atrocities, camps).
+    /// The view should scroll to <see cref="FocusedSectionIndex"/> (or to the top when it is -1): raised by <see cref="Show"/>
+    /// only. A rebuild of the open country (a unit or state chosen, a feed or store refreshed) keeps where the user scrolled to
+    /// (final review F1).
     /// </summary>
-    public void Show(string iso3, CrisisLayer? focus = null, MarkerLayer? marker = null)
+    public event EventHandler? ScrollRequested;
+
+    /// <summary>The explainer card the sections' links open (Plan 4 Task 9); closing the panel closes it.</summary>
+    public ExplainerViewModel Explainer { get; }
+
+    /// <summary>Opens the card at a section's explainer (the link's parameter is the section's <see cref="PanelSection.ExplainerId"/>).</summary>
+    [RelayCommand]
+    private void OpenExplainer(string? id) => Explainer.Open(id);
+
+    /// <summary>
+    /// Opens the panel for <paramref name="iso3"/>, at the <paramref name="focus"/> layer's section if given, or at a Plan 3
+    /// marker layer's (<paramref name="marker"/>: atrocities, camps), or at a Plan 4 section (<paramref name="section"/>).
+    /// </summary>
+    public void Show(string iso3, CrisisLayer? focus = null, MarkerLayer? marker = null, PanelFocus? section = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(iso3);
         _focus = focus;
         _markerFocus = marker;
-        Build(iso3.Trim().ToUpperInvariant());
+        _sectionFocus = section;
+        var code = iso3.Trim().ToUpperInvariant();
+        // The card explains the country shown: another country closes it (final review).
+        if (Explainer.IsOpen && !string.Equals(code, Iso3, StringComparison.Ordinal)) Explainer.CloseCommand.Execute(null);
+        Build(code);
         IsOpen = true;
+        ScrollRequested?.Invoke(this, EventArgs.Empty);
     }
 
     [RelayCommand]
     private void Close()
     {
+        if (Explainer.IsOpen) Explainer.CloseCommand.Execute(null);
         IsOpen = false;
         Iso3 = "";
         CountryName = "";
@@ -145,6 +205,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         FocusedSectionIndex = -1;
         _focus = null;
         _markerFocus = null;
+        _sectionFocus = null;
     }
 
     private void Build(string iso3)
@@ -202,13 +263,33 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         // The needs sections follow the crisis ones. They are not crises: the headline rules below ignore them.
         if (_indicators is not null) sections.AddRange(NeedsSections(_indicators.Snapshot, _store.Snapshot.CheckedUtc, iso3, now));
 
+        // Plan 4: Getting help in (every country, P4-12), then the appeals' funding. Neither is a crisis: the headline rules below ignore them.
+        if (_indicators is not null)
+        {
+            var checkedUtc = _store.Snapshot.CheckedUtc;
+            var name = _nameOf(iso3) ?? iso3;
+            if (_sectionFocus == PanelFocus.Access && focusIndex < 0) focusIndex = sections.Count;
+            sections.Add(GettingHelpSection(_indicators.Snapshot, checkedUtc, iso3, name, _logistics.For(iso3), now,
+                _hubs is null ? null : HubRows(_hubs.Hubs, _crisisPlace(iso3), _units(), now, iso3, _nameOf)));
+            sections.AddRange(FundingSections(_indicators.Snapshot, checkedUtc, iso3, now));
+        }
+
         var currentCrisis = conflicts.Count > 0 || outbreaks.Count > 0 || food is { IsStale: false, ProjectionOnly: false }
             || currentAtrocity || anyCamp;
+
+        // Plan 4: "Your one small step" for a country with a current crisis, or an FTS appeal for the year (P4-12). It follows the
+        // Getting help in and funding sections, and is not a crisis either.
+        if (_help is not null && (currentCrisis || _indicators?.Snapshot.AppealsOf(iso3).Count > 0))
+        {
+            if (_sectionFocus == PanelFocus.Help && focusIndex < 0) focusIndex = sections.Count;
+            sections.Add(StepSection(_help, iso3, _nameOf(iso3) ?? iso3, DateOnly.FromDateTime(now), _userState(), _curated?.ShowDrafts ?? false));
+        }
         var projectionOnly = !currentCrisis && food is { ProjectionOnly: true };
         var noCrisis = !currentCrisis && !projectionOnly;
         Iso3 = iso3;
         CountryName = _nameOf(iso3) ?? iso3;
-        Sections = sections;
+        // A section links its explainer only when the user sees it: approved, or a draft in a --show-drafts run (P4-13).
+        Sections = [.. sections.Select(x => x.ExplainerId is { } id && _curated?.VisibleExplainer(id) is null ? x with { ExplainerId = null } : x)];
         HasNoCrisis = noCrisis;
         ShowsSourcesChecked = noCrisis || projectionOnly;
         var notChecked = SourceDates.Unchecked(s);
@@ -254,7 +335,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             if (c.Trend is { } t) rows.Add(("Trend", $"{CrisisText.Number(t.Recent)} deaths in the last 3 months, {CrisisText.Number(t.Previous)} in the 3 before"));
         }
         var newest = conflicts.SelectMany(c => c.Citations).MaxBy(x => x.AsOfUtc)!;
-        return new PanelSection(ConflictHeading, rows, CrisisText.SourceLine(newest, CrisisText.DataDate(newest, now)), newest.Url);
+        return new PanelSection(ConflictHeading, rows, CrisisText.SourceLine(newest, CrisisText.DataDate(newest, now)), newest.Url,
+            ExplainerId: ConflictExplainerId);
     }
 
     // The title is "<country>: <UCDP conflict name>"; the panel already names the country.
@@ -280,7 +362,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
                 ("Note", "A projection is not current-period figures, so it is not shown as a current crisis"),
             ];
             if (f.IsStale) projected.Add(("Ended", "More than 12 months ago"));
-            return new PanelSection(ProjectionFoodHeading, projected, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url);
+            return new PanelSection(ProjectionFoodHeading, projected, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url,
+                ExplainerId: FoodExplainerId);
         }
         // R17: the 20% rule and the phase bar, for a past analysis too. The bar's rows carry the people in every phase (R16:
         // a small Phase 5 count is not read as a whole country in famine).
@@ -314,7 +397,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
                 + (c.ShareKnown ? $" ({CrisisText.ShareOf(f, c, c.Phase3PlusShare)})" : " (share unknown)")));
             rows.Add(("Analysis period", period));
         }
-        return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url, bar);
+        return new PanelSection(f.IsStale ? PastFoodHeading : FoodHeading, rows, CrisisText.SourceLine(cite, CrisisText.FoodDate(f)), cite.Url, bar,
+            ExplainerId: FoodExplainerId);
     }
 
     private static PanelSection? OutbreakSection(IReadOnlyList<OutbreakCrisis> outbreaks, DateTime now)
@@ -329,7 +413,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         rows.Add(("Window", $"WHO Outbreak News reports in the last {WhoOutbreakFeed.Window}"));
         var newest = outbreaks[0];
         var cite = newest.Citations.MaxBy(x => x.AsOfUtc)!;
-        return new PanelSection(OutbreakHeading, rows, CrisisText.SourceLine(cite, CrisisText.DataDate(cite, now)), newest.ReportUrl);
+        return new PanelSection(OutbreakHeading, rows, CrisisText.SourceLine(cite, CrisisText.DataDate(cite, now)), newest.ReportUrl,
+            ExplainerId: OutbreaksExplainerId);
     }
 
     private static PanelSection DisplacementSection(DisplacementFigure d, DateTime now) => new(DisplacementHeading,
@@ -340,7 +425,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             ("Total", CrisisText.Number(CrisisText.Total(d))),
             ("Counted", "by country of origin"),
         ],
-        CrisisText.SourceLine(d.Citation, CrisisText.DataDate(d.Citation, now)), d.Citation.Url);
+        CrisisText.SourceLine(d.Citation, CrisisText.DataDate(d.Citation, now)), d.Citation.Url, ExplainerId: DisplacementExplainerId);
 
     // ---------------------------------------------------------------- curated (Plan 3)
 
@@ -373,7 +458,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var drafts = list.Any(d => !d.Review.IsApproved) ? " · drafts shown: not yet reviewed" : "";
         return new PanelSection(heading, rows,
             $"Source: each entry's own document (courts, UN bodies, governments) · checked {DesignationText.Date(checkedOn)}{drafts}", null,
-            Links: links);
+            Links: links, ExplainerId: AtrocitiesExplainerId);
     }
 
     /// <summary>The country's documented camps: name, description and where the position was published; a link to every report.</summary>
@@ -399,7 +484,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var newest = camps.SelectMany(c => c.DocumentedBy).Max(r => r.Date);
         var drafts = camps.Any(c => !c.Review.IsApproved) ? " · drafts shown: not yet reviewed" : "";
         return new PanelSection(heading, rows,
-            $"Source: {CampMarkers.Publisher} · newest report {DesignationText.Date(newest)}{drafts}", null, Links: links);
+            $"Source: {CampMarkers.Publisher} · newest report {DesignationText.Date(newest)}{drafts}", null, Links: links,
+            ExplainerId: CampsExplainerId);
     }
 
     // ---------------------------------------------------------------- needs (Plan 3)
@@ -560,6 +646,206 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         return text;
     }
 
+
+    // ---------------------------------------------------------------- getting help in (Plan 4)
+
+    /// <summary>The panel's Getting help in section: ACAPS's access assessment, then the Logistics Cluster's page for the country.</summary>
+    public const string GettingHelpHeading = "Getting help in";
+
+    /// <summary>"Humanitarian appeals 2026": the heading of a year's appeal-funding section.</summary>
+    public static string FundingHeading(int year) => "Humanitarian appeals " + year.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>The heading before the appeals are loaded (the year is not known yet).</summary>
+    public const string FundingNotLoadedHeading = "Humanitarian appeals";
+
+    /// <summary>The note after a regional plan's figures: they are the whole plan's, never the country's own.</summary>
+    public const string RegionalNote = " (regional plan: figures for the whole plan, all its countries)";
+
+    /// <summary>
+    /// "Getting help in": ACAPS's overall access score with its level name, its trend, and the nine indicators (each 0 to 3, or
+    /// "No score (information gap)", ruling R8), all as ACAPS publishes them; "No ACAPS assessment for &lt;country&gt; in the
+    /// &lt;edition&gt;" for a country the edition does not assess; "Data not loaded yet" before the feed has run. A Logistics
+    /// Cluster page for the country is a row and a link.
+    /// </summary>
+    private static PanelSection GettingHelpSection(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3,
+        string countryName, LogisticsClusterLink? logistics, DateTime now, IReadOnlyList<(string, string)>? hubRows = null)
+    {
+        var rows = new List<(string, string)>();
+        var links = new List<PanelLink>();
+        string sourceLine;
+        Uri? page = AcapsAccessFeed.PageUrl;
+        if (snap.Get(AcapsAccessFeed.ScoreSeriesId) is not { } series)
+        {
+            rows.Add((AccessPanel.ScoreLabel, LayerCatalog.NotLoaded));
+            sourceLine = $"Source: {AcapsAccessFeed.Publisher} · {LayerCatalog.NotLoaded} · {CheckedText(checkedUtc, AcapsAccessFeed.FeedName)}";
+        }
+        else if (snap.AccessOf(iso3) is not { } a)
+        {
+            var cite = series.Values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
+            rows.Add((AccessPanel.ScoreLabel, AccessPanel.NoAssessment(countryName, cite?.DateText)));
+            sourceLine = cite is null ? $"Source: {AcapsAccessFeed.Publisher} · no assessments in the data"
+                : CrisisText.SourceLine(cite, CrisisText.DataDate(cite, now));
+            page = cite?.Url ?? page;
+        }
+        else
+        {
+            rows.Add((AccessPanel.ScoreLabel, AccessPanel.ScoreText(a.Score)));
+            rows.Add(("Trend", a.Trend));
+            foreach (var (number, wording) in AccessPanel.IndicatorWording.OrderBy(w => w.Key))
+                rows.Add((wording, a.Indicators.FirstOrDefault(i => i.Number == number) is { } i ? AccessPanel.IndicatorText(i.Score) : AccessPanel.NoScore));
+            sourceLine = CrisisText.SourceLine(a.Citation, CrisisText.DataDate(a.Citation, now));
+            page = a.Citation.Url;
+        }
+        if (logistics is not null)
+        {
+            rows.Add(("Logistics", $"Logistics Cluster page for {countryName}, checked {CrisisText.Date(logistics.CheckedOn)}"));
+            links.Add(new PanelLink($"Logistics Cluster: {countryName} operation", logistics.Url));
+        }
+        if (hubRows is not null) rows.AddRange(hubRows);
+        return new PanelSection(GettingHelpHeading, rows, sourceLine, page, Links: links, ExplainerId: AccessExplainerId);
+    }
+
+    /// <summary>The label of the row that stands in for the three when there is no point to measure from.</summary>
+    public const string NearestHubsLabel = "Nearest hubs";
+    public const string NoPointText = "No point to measure from";
+    public const string NoDepotText = "No UN depot confirmed yet";
+    /// <summary>The row that names the hub datasets and their days.</summary>
+    public const string HubDataLabel = "Hub data";
+
+    /// <summary>
+    /// The label of a kind's row, saying which hubs are searched (P4-5): "Nearest UN depot", "Nearest airport with scheduled
+    /// flights", "Nearest large or medium port".
+    /// </summary>
+    public static string NearestLabel(HubKind kind) => kind switch
+    {
+        HubKind.UnDepot => "Nearest UN depot",
+        HubKind.Airport => "Nearest airport with scheduled flights",
+        HubKind.Port => "Nearest large or medium port",
+        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+    };
+
+    /// <summary>
+    /// "&lt;name&gt; (&lt;detail if any&gt;) · &lt;distance&gt; straight-line": an airport shows its IATA code, a port its
+    /// UN/LOCODE, a depot no brackets (P4-6, C3). A hub in another country than the panel's names that country ("Auckland, New
+    /// Zealand (NZ AKL) · 2,150 km straight-line"); a draft depot shown in a <c>--show-drafts</c> run starts with
+    /// "Draft: not yet reviewed · " (P4-13).
+    /// </summary>
+    /// <param name="panelIso3">The panel's country; null: no country is named.</param>
+    /// <param name="countryName">The country's name for an ISO3 code (null: the hub's code is shown).</param>
+    public static string HubText(HubLink link, DistanceUnit unit, string? panelIso3 = null, Func<string, string?>? countryName = null)
+    {
+        ArgumentNullException.ThrowIfNull(link);
+        var h = link.Hub;
+        var where = panelIso3 is not null && h.Iso3.Length > 0 && !string.Equals(h.Iso3, panelIso3, StringComparison.OrdinalIgnoreCase)
+            ? ", " + (countryName?.Invoke(h.Iso3) ?? h.Iso3) : "";
+        return (h.IsDraft ? DesignationText.DraftLabel + " · " : "")
+            + $"{h.Name}{where}{(h.Detail.Length > 0 ? $" ({h.Detail})" : "")} · {CrisisText.Distance(link.DistanceKm, unit)} straight-line";
+    }
+
+    /// <summary>
+    /// The nearest UN depot, airport and port to the crisis place, then a row naming the datasets and their days. A kind with
+    /// no hub says so: no approved depot, "No UN depot confirmed yet"; an extract that did not load, "Data not loaded yet".
+    /// With no place to measure from, one row says so in place of the three.
+    /// </summary>
+    private static IReadOnlyList<(string, string)> HubRows(IReadOnlyList<Hub> hubs, GeoPosition? place, DistanceUnit unit, DateTime now,
+        string iso3, Func<string, string?> countryName)
+    {
+        if (place is not { } from) return [(NearestHubsLabel, NoPointText)];
+        var links = NearestHubFinder.Nearest(from, hubs).ToDictionary(l => l.Hub.Kind);
+        var rows = new List<(string, string)>();
+        foreach (var kind in Enum.GetValues<HubKind>())
+            rows.Add((NearestLabel(kind), links.TryGetValue(kind, out var link) ? HubText(link, unit, iso3, countryName)
+                : kind == HubKind.UnDepot ? NoDepotText : LayerCatalog.NotLoaded));
+        if (HubMarkers.SourceText(hubs, now) is { } sources) rows.Add((HubDataLabel, sources));
+        return rows;
+    }
+
+    /// <summary>
+    /// "Humanitarian appeals &lt;year&gt;": one row per FTS plan of the country, "34% funded: $580,680,803 of $1,714,181,496", as
+    /// FTS publishes it (never a percentage of our own, P4-4); a regional plan says its figures are the whole plan's. A country
+    /// with none says "No appeal in FTS for &lt;year&gt;"; before the feed has run, "Data not loaded yet".
+    /// </summary>
+    private static IEnumerable<PanelSection> FundingSections(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3, DateTime now)
+    {
+        if (snap.Appeals.Count == 0)
+        {
+            yield return new PanelSection(FundingNotLoadedHeading, [("Appeals", LayerCatalog.NotLoaded)],
+                $"Source: {FtsFundingFeed.Publisher} · {LayerCatalog.NotLoaded} · {CheckedText(checkedUtc, FtsFundingFeed.FeedName)}", FtsFundingFeed.PageUrl);
+            yield break;
+        }
+        var mine = snap.AppealsOf(iso3);
+        if (mine.Count == 0)
+        {
+            var any = snap.Appeals.OrderByDescending(a => a.Year).First();
+            yield return new PanelSection(FundingHeading(any.Year), [("Appeal", $"No appeal in FTS for {any.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)}")],
+                CrisisText.SourceLine(any.Citation, CrisisText.DataDate(any.Citation, now)), any.Citation.Url);
+            yield break;
+        }
+        foreach (var year in mine.GroupBy(a => a.Year).OrderByDescending(g => g.Key))
+        {
+            var plans = year.OrderBy(a => a.PlanName, StringComparer.Ordinal).ToList();
+            var cite = plans.Select(a => a.Citation).MaxBy(c => c.AsOfUtc)!;
+            yield return new PanelSection(FundingHeading(year.Key), [.. plans.Select(a => (a.PlanName, FundingText(a)))],
+                CrisisText.SourceLine(cite, CrisisText.DataDate(cite, now)), cite.Url);
+        }
+    }
+
+    /// <summary>One plan's figures, as FTS publishes them (P4-4): the percentage is FTS's, never worked out here.</summary>
+    public static string FundingText(AppealFunding a)
+    {
+        var funded = "$" + CrisisText.Number(a.FundingUsd);
+        var text = a.RequirementsUsd is not { } req ? $"{funded} received; requirement not published"
+            : a.PercentFunded is { } pct ? $"{pct.ToString(System.Globalization.CultureInfo.InvariantCulture)}% funded: {funded} of ${CrisisText.Number(req)}"
+            : $"{funded} of ${CrisisText.Number(req)} (FTS gives no percentage)";
+        return a.Regional ? text + RegionalNote : text;
+    }
+
+    // ---------------------------------------------------------------- your one small step (Plan 4)
+
+    /// <summary>The heading of the section that lists what to give to and whom to contact (spec §9.2).</summary>
+    public const string StepHeading = "Your one small step";
+
+    /// <summary>The explainer the section's footer links to ("Why these?"): why these entries and in this order.</summary>
+    public const string StepExplainerId = "why-these";
+
+    // The explainer each section links to (Plan 4 Task 9): one per crisis kind, all of a kind's headings alike.
+    public const string ConflictExplainerId = "conflict";
+    public const string FoodExplainerId = "food";
+    public const string OutbreaksExplainerId = "outbreaks";
+    public const string DisplacementExplainerId = "displacement";
+    public const string AtrocitiesExplainerId = "atrocities";
+    public const string CampsExplainerId = "camps";
+    public const string AccessExplainerId = "access";
+
+    public const string WhyTheseLabel = "Why these?";
+    public const string ListReviewedLabel = "List last reviewed";
+    public const string NotReviewedText = "Not reviewed yet";
+
+    /// <summary>
+    /// "Your one small step": the entries <see cref="HelpCatalog.Step"/> gives (a UN fund or CERF, vetted charities A to Z, official
+    /// contacts), then two rows: why they are listed this way, and the newest review date of the rows shown ("Not reviewed yet" when
+    /// none is approved, as with the built-in CERF line alone). The source line names the sources; each entry carries its own dates.
+    /// </summary>
+    private static PanelSection StepSection(HelpTables help, string iso3, string countryName, DateOnly today, string? state, bool showDrafts)
+    {
+        var entries = HelpCatalog.Step(help, iso3, countryName, today, state, showDrafts);
+        var reviewed = entries.Where(e => e.ReviewedOn is not null).Select(e => e.ReviewedOn!.Value).DefaultIfEmpty().Max();
+        IReadOnlyList<(string, string)> rows =
+        [
+            (WhyTheseLabel, "The UN fund first, then charities in alphabetical order. The app never ranks them and never takes a gift: every line links to an official page."),
+            (ListReviewedLabel, reviewed == default ? NotReviewedText : DesignationText.Date(reviewed)),
+        ];
+        var sources = new List<string> { "OCHA and CERF (UN funds)" };
+        if (help.Profile is { } profile)
+        {
+            sources.Add(profile.Registry);
+            sources.Add(string.Join(" and ", profile.Evaluators.Select(e => e.Name)) + " (reports linked, never copied)");
+            sources.Add("official contact pages");
+        }
+        return new PanelSection(StepHeading, rows, $"Source: {string.Join("; ", sources)} · each line gives its own date", Link: null,
+            Entries: entries, ExplainerId: StepExplainerId);
+    }
+
     // ---------------------------------------------------------------- store
 
     private void OnStoreChanged(object? sender, EventArgs e)
@@ -572,6 +858,9 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             RefreshIfOpen();
         });
     }
+
+    /// <summary>Writes the open panel again (the distance unit changed); nothing when it is closed.</summary>
+    public void RefreshOpen() => RefreshIfOpen();
 
     private void RefreshIfOpen()
     {

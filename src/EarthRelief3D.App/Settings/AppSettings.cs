@@ -44,16 +44,30 @@ public sealed record AppSettings
     /// </summary>
     public IReadOnlyDictionary<string, bool>? OpenGroups { get; init; }
 
+    /// <summary>The unit distances are shown in (Settings, "Distances"; P4-15): kilometres, or miles. A file without it reads as kilometres.</summary>
+    public DistanceUnit Units { get; init; } = DistanceUnit.Kilometres;
+
+    /// <summary>The country whose help catalog the panel shows (Settings, "Your country"; P4-15): the ISO2 code of a country that has a profile. "US" by default.</summary>
+    public string UserCountry { get; init; } = "US";
+
+    /// <summary>The user's state (Settings, "Your state (optional)"; P4-15), by two-letter code, for listing their two senators; null: not chosen. Not personal data: a state, not an address.</summary>
+    public string? UserState { get; init; }
+
     /// <summary>The shading to show: <see cref="Shading"/>, or for a Plan 2 file food when <see cref="ShowFood"/>, else none.</summary>
     [JsonIgnore]
     public ShadingLayer EffectiveShading => Shading ?? (ShowFood ? ShadingLayer.Food : ShadingLayer.None);
 
-    /// <summary>The marker layers to show, in enum order: <see cref="Markers"/>, or for a Plan 2 file its three flags.</summary>
+    /// <summary>
+    /// The marker layers to show, in enum order: <see cref="Markers"/> as saved, or, in a file with no list (a fresh start, or
+    /// a Plan 2 file), the Plan 2 layers its three flags say plus the layers on by default after them: the lines to the nearest
+    /// hubs (Plan 4, R3). A file that lists its markers keeps its own list, so a Plan 3 file reads with the lines off until the
+    /// user turns them on.
+    /// </summary>
     [JsonIgnore]
     public IReadOnlyList<MarkerLayer> EffectiveMarkers => Markers is { } m
         ? [.. m.Distinct().Order()]
         : [.. new[] { (MarkerLayer.Conflict, ShowConflict), (MarkerLayer.Outbreaks, ShowOutbreaks), (MarkerLayer.Displacement, ShowDisplacement) }
-            .Where(x => x.Item2).Select(x => x.Item1)];
+            .Where(x => x.Item2).Select(x => x.Item1), MarkerLayer.HubLines];
 }
 
 /// <summary>Reads and writes <see cref="AppSettings"/>; defaults when the file is missing or unreadable (logged).</summary>

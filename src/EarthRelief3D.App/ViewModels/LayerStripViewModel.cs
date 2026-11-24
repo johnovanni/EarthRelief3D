@@ -6,9 +6,6 @@ using GlobeCore.Storage;
 
 namespace EarthRelief3D.App.ViewModels;
 
-/// <summary>A group of layers the strip names but cannot show yet.</summary>
-public sealed record ComingGroup(string Name, string Note);
-
 /// <summary>One layer's toggle in the strip: its symbol in the layer's colour, its label, its tooltip, and whether it is on.</summary>
 /// <remarks>
 /// A shading toggle (<see cref="IsShading"/>) is radio-style within the one-shading rule (P3-6): turning it on turns the
@@ -100,8 +97,8 @@ public sealed class LayerGroup : ObservableObject
 }
 
 /// <summary>
-/// The layer strip: the Crises, Needs and Resources groups with their toggles, then the Getting help in group header,
-/// which says it is coming in a later version. One shading shows at a time across all groups; marker layers stack (P3-6).
+/// The layer strip: the Crises, Needs, Resources and Getting help in groups with their toggles. One shading shows at a time
+/// across all groups; marker layers stack (P3-6).
 /// Starts from the saved settings; any change is saved.
 /// </summary>
 public sealed partial class LayerStripViewModel : ObservableObject
@@ -109,7 +106,8 @@ public sealed partial class LayerStripViewModel : ObservableObject
     public const string CrisesGroup = "Crises";
     public const string NeedsGroup = "Needs";
     public const string ResourcesGroup = "Resources";
-    public const string ComingNote = "coming in a later version";
+    /// <summary>The Plan 4 group: ACAPS access constraints, then the UN depot, airport and port markers (off by default; P4-5).</summary>
+    public const string GettingHelpGroup = "Getting help in";
     /// <summary>Under the Needs and Resources headers.</summary>
     public const string ShadingNote = "▰ one shading at a time";
 
@@ -145,6 +143,7 @@ public sealed partial class LayerStripViewModel : ObservableObject
             new LayerGroup(NeedsGroup, [.. LayerCatalog.NeedsShadings.Select(Shade)], ShadingNote, OnGroupChosen),
             new LayerGroup(ResourcesGroup, [.. LayerCatalog.ResourceShadings.Select(Shade), .. LayerCatalog.ResourceMarkers.Select(Marker)],
                 ShadingNote, OnGroupChosen),
+            new LayerGroup(GettingHelpGroup, [.. LayerCatalog.HelpShadings.Select(Shade), .. LayerCatalog.HelpMarkers.Select(Marker)], ShadingNote, OnGroupChosen),
         ];
 
         // R20: a group starts open when one of its layers is on (its active toggle is never hidden at start), otherwise as
@@ -169,7 +168,7 @@ public sealed partial class LayerStripViewModel : ObservableObject
         return t;
     }
 
-    /// <summary>The Crises, Needs and Resources groups (spec §6), in strip order.</summary>
+    /// <summary>The Crises, Needs, Resources and Getting help in groups (spec §6), in strip order.</summary>
     public IReadOnlyList<LayerGroup> Groups { get; }
 
     /// <summary>The Settings flyout opened by the gear at the end of the strip (P3-5); null: no gear.</summary>
@@ -186,8 +185,6 @@ public sealed partial class LayerStripViewModel : ObservableObject
 
     public bool HasSettings => _settings is not null;
 
-    /// <summary>The groups after Resources, shown as headers only.</summary>
-    public IReadOnlyList<ComingGroup> ComingGroups { get; } = [new("Getting help in", ComingNote)];
 
     /// <summary>The marker layers shown, in enum order.</summary>
     public IReadOnlyList<MarkerLayer> ShownMarkers => [.. _markers];

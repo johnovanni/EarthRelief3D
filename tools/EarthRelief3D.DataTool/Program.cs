@@ -12,10 +12,16 @@ const string Usage = """
       DataTool gem-oilgas <xlsx>     --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool gem-renewables <xlsx> --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool gem-steel  <plant-level xlsx> --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool airports   <airports.csv> [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool ports      <WPI.zip or UpdatedPub150.csv> [--published yyyy-MM-dd] [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool simplify   <geojson> <tolerance in degrees> [--out <file>]
+      DataTool senators   <senators_cfm.xml> [--out <file>]   (the US Senate contact list, to data\countries\US\senators.json; no --published: the list carries its own date)
       DataTool describe   <xlsx>     [--sheet <name>] [--rows <n>] [--distinct <column>] [--header-row <n>]
+      DataTool workbook   <json>     --out <xlsx>   (writes an XLSX from { "sheets": [ { "name", "rows": [[...]] } ] }: text, numbers, null; for the synthetic ACAPS sample)
       DataTool excerpt    <xlsx>     --take "<sheet>|<column>|<value;value...>"... --out <json>   (a sheet's first N rows: "<sheet>||N")
 
+    airports and ports need no --published: OurAirports' file has no date (its as-of is the download day), and the World Port Index's
+    is the date of the CSV inside the zip (--published overrides it, and is needed for a bare CSV).
     --published: the source file's own date (its Last-Modified; for GEM, the 1st of the release month). --downloaded: the day
     it was downloaded (default: the file's modified date). --out: default data\datasets\<id> in the repository. --note: added
     to the manifest's notes. --release: GEM's release as its citation words it ("September 2026 release"); --file-version: a
@@ -62,6 +68,13 @@ try
         Console.WriteLine($"{target}: {new FileInfo(target).Length:N0} bytes (from {new FileInfo(path).Length:N0})");
         return 0;
     }
+    if (verb == "workbook")
+    {
+        if (output is null) { Console.Error.WriteLine(Usage); return 2; }
+        File.WriteAllBytes(output, XlsxWriter.Write(XlsxWriter.ReadSpec(File.ReadAllText(path))));
+        Console.WriteLine($"{output}: {new FileInfo(output).Length:N0} bytes");
+        return 0;
+    }
     if (verb == "excerpt")
     {
         if (takes.Count == 0 || output is null) { Console.Error.WriteLine(Usage); return 2; }
@@ -72,6 +85,35 @@ try
     if (verb == "describe")
     {
         Console.Write(WorkbookDescriber.Describe(path, sheet, sampleRows, distinct, headerRow));
+        return 0;
+    }
+    if (verb == "senators")
+    {
+        if (positional.Count != 0) { Console.Error.WriteLine(Usage); return 2; }
+        var senate = SenatorsExtractor.Read(path);
+        var senatePath = output ?? Path.Combine(RepoRoot(), "data", "countries", "US", "senators.json");
+        SenatorsExtractor.Write(senate, senatePath);
+        Console.WriteLine($"{senatePath}: {senate.Senators.Count} senators in {senate.Senators.Select(s => s.State).Distinct().Count()} states, as of {senate.AsOf:yyyy-MM-dd}");
+        return 0;
+    }
+    if (verb is "airports" or "ports")
+    {
+        if (positional.Count != 0) { Console.Error.WriteLine(Usage); return 2; }
+        var day = downloaded is null ? DateOnly.FromDateTime(File.GetLastWriteTimeUtc(path)) : Day(downloaded);
+        DateOnly? given = published is null ? null : Day(published);
+        if (verb == "ports" && given is null && !path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("a bare CSV has no date of its own: give --published (the zip's file date, yyyy-MM-dd)");
+        var hubSource = new SourceFile(path, given ?? day, day);
+        var hubs = verb == "airports" ? HubExtractor.Airports(hubSource, CountryCodes.Default) : HubExtractor.Ports(hubSource, CountryCodes.Default, given);
+        if (notes.Count > 0) hubs = hubs with { Manifest = hubs.Manifest with { Notes = [.. hubs.Manifest.Notes, .. notes] } };
+        var hubFolder = output ?? Path.Combine(RepoRoot(), "data", "datasets", hubs.Manifest.Id);
+        DatasetWriter.WritePoints(hubs, hubFolder);
+        var hm = hubs.Manifest;
+        Console.WriteLine($"{hubFolder}:");
+        Console.WriteLine($"  {hubs.Rows.Count:N0} sites in {hm.Series[0].Countries} countries: {hm.Filter}");
+        Console.WriteLine($"  as of: {hm.AsOf}");
+        Console.WriteLine($"  not placed: {hm.NotPlaced.Count}{(hm.NotPlaced.Count > 0 ? " (" + string.Join("; ", hm.NotPlaced.Select(n => $"{n.Code}: {n.Reason}")) + ")" : "")}");
+        foreach (var n in hm.Notes.Where(n => n.StartsWith("Counts", StringComparison.Ordinal))) Console.WriteLine("  " + n);
         return 0;
     }
     if (positional.Count != 0 || published is null) { Console.Error.WriteLine(Usage); return 2; }

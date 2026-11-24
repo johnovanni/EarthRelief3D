@@ -1,0 +1,2227 @@
+[
+  {
+    "id": "action-against-hunger-usa",
+    "name": "Action Against Hunger USA",
+    "ein": "13-3327220",
+    "website": "https://www.actionagainsthunger.org/",
+    "donateUrl": "https://www.actionagainsthunger.org/take-action/donate/",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.9036,
+      "taxYear": 2024,
+      "objectId": "202543149349301514",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://www.actionagainsthunger.org/location/asia/afghanistan/",
+        "evidenceTitle": "Hunger Relief in Afghanistan | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/burkina-faso/",
+        "evidenceTitle": "Hunger Relief in Burkina Faso | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/central-african-republic/",
+        "evidenceTitle": "Hunger Relief in Central African Republic | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/cameroon/",
+        "evidenceTitle": "Hunger Relief in Cameroon | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/democratic-republic-congo/",
+        "evidenceTitle": "Hunger Relief in Democratic Republic of Congo | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COL",
+        "evidence": "https://www.actionagainsthunger.org/location/americas/colombia/",
+        "evidenceTitle": "Hunger Relief in Colombia | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COL",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/ethiopia/",
+        "evidenceTitle": "Hunger Relief in Ethiopia | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://www.actionagainsthunger.org/location/americas/haiti/",
+        "evidenceTitle": "Hunger Relief in Haiti | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/mozambique/",
+        "evidenceTitle": "Hunger Relief in Mozambique | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/nigeria/",
+        "evidenceTitle": "Hunger Relief in Nigeria | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/sudan/",
+        "evidenceTitle": "Hunger Relief in Sudan | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/somalia/",
+        "evidenceTitle": "Hunger Relief in Somalia | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://www.actionagainsthunger.org/location/middle-east/syria/",
+        "evidenceTitle": "Hunger Relief in Syria | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://www.actionagainsthunger.org/location/africa/chad/",
+        "evidenceTitle": "Hunger Relief in Chad | Action Against Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/133327220",
+      "https://www.give.org/search?term=Action+Against+Hunger+USA"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards"
+  },
+  {
+    "id": "international-medical-corps",
+    "name": "International Medical Corps",
+    "ein": "95-3949646",
+    "website": "https://internationalmedicalcorps.org/",
+    "donateUrl": "https://internationalmedicalcorps.org/donate/",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.8705,
+      "taxYear": 2024,
+      "objectId": "202611289349300921",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://internationalmedicalcorps.org/country/afghanistan/",
+        "evidenceTitle": "Afghanistan: Humanitarian Aid, Healthcare and Emergency Relief",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://internationalmedicalcorps.org/country/central-african-republic/",
+        "evidenceTitle": "Central African Republic | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://internationalmedicalcorps.org/country/cameroon/",
+        "evidenceTitle": "Cameroon | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://internationalmedicalcorps.org/country/democratic-republic-of-congo/",
+        "evidenceTitle": "Democratic Republic of the Congo | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://internationalmedicalcorps.org/country/ethiopia/",
+        "evidenceTitle": "Ethiopia: Drought, Displaced People and Humanitarian Aid",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://internationalmedicalcorps.org/country/mali/",
+        "evidenceTitle": "Mali | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://internationalmedicalcorps.org/country/nigeria/",
+        "evidenceTitle": "Nigeria | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://internationalmedicalcorps.org/country/sudan/",
+        "evidenceTitle": "Sudan: Medical Care, Nutrition and Clean Water Programs",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://internationalmedicalcorps.org/country/somalia/",
+        "evidenceTitle": "Somalia: Healthcare, Training and Local Partnerships",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://internationalmedicalcorps.org/country/syria/",
+        "evidenceTitle": "Syria: Rebuilding with Hope and Health",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://internationalmedicalcorps.org/country/chad/",
+        "evidenceTitle": "Chad | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://internationalmedicalcorps.org/country/venezuela/",
+        "evidenceTitle": "Venezuela | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://internationalmedicalcorps.org/country/yemen/",
+        "evidenceTitle": "Yemen | International Medical Corps",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/953949646",
+      "https://www.give.org/search?term=International+Medical+Corps"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards"
+  },
+  {
+    "id": "international-rescue-committee",
+    "name": "International Rescue Committee",
+    "ein": "13-5660870",
+    "website": "https://www.rescue.org/",
+    "donateUrl": "https://help.rescue.org/donate",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.8681,
+      "taxYear": 2024,
+      "objectId": "202601529349301355",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://www.rescue.org/country/afghanistan",
+        "evidenceTitle": "Donate to help Afghanistan | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://www.rescue.org/country/burkina-faso",
+        "evidenceTitle": "Donate to help Burkina Faso | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://www.rescue.org/country/central-african-republic",
+        "evidenceTitle": "Central African Republic | International Rescue Committee",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://www.rescue.org/country/cameroon",
+        "evidenceTitle": "Donate to help Cameroon | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://www.rescue.org/country/democratic-republic-congo",
+        "evidenceTitle": "Donate to help Democratic Republic of Congo | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://www.rescue.org/country/ethiopia",
+        "evidenceTitle": "Donate to help Ethopia | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://www.rescue.org/country/haiti",
+        "evidenceTitle": "Donate to help Haiti | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://www.rescue.org/country/mali",
+        "evidenceTitle": "Donate to help Mali | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://www.rescue.org/country/niger",
+        "evidenceTitle": "Donate to help Niger | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://www.rescue.org/country/nigeria",
+        "evidenceTitle": "Donate to help Nigeria | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://www.rescue.org/country/sudan",
+        "evidenceTitle": "Donate now | Sudan | International Rescue Committee (IRC)",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://www.rescue.org/country/somalia",
+        "evidenceTitle": "Donate to help Somalia | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://www.rescue.org/country/syria",
+        "evidenceTitle": "Donate to help Syria | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://www.rescue.org/country/chad",
+        "evidenceTitle": "Donate to help Chad | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://www.rescue.org/country/yemen",
+        "evidenceTitle": "Donate to help Yemen | IRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/135660870",
+      "https://www.give.org/search?term=International+Rescue+Committee"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards"
+  },
+  {
+    "id": "norwegian-refugee-council-usa",
+    "name": "Norwegian Refugee Council USA",
+    "ein": "47-5342860",
+    "website": "https://www.nrc.no/usa",
+    "donateUrl": "https://support.nrcusa.org/global/~my-donation",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.8584,
+      "taxYear": 2025,
+      "objectId": "202632449349300733",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://www.nrc.no/countries/asia/afghanistan",
+        "evidenceTitle": "NRC in Afghanistan | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://www.nrc.no/countries/africa/burkina-faso",
+        "evidenceTitle": "NRC in Burkina Faso | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://www.nrc.no/countries/africa/central-african-republic",
+        "evidenceTitle": "NRC in the Central African Republic | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://www.nrc.no/countries/africa/cameroon",
+        "evidenceTitle": "NRC in Cameroon | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://www.nrc.no/countries/africa/dr-congo",
+        "evidenceTitle": "NRC in the Democratic Republic of the Congo | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://www.nrc.no/countries/africa/ethiopia",
+        "evidenceTitle": "NRC in Ethiopia | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://www.nrc.no/countries/africa/mali",
+        "evidenceTitle": "NRC in Mali | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://www.nrc.no/countries/africa/mozambique",
+        "evidenceTitle": "NRC in Mozambique | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://www.nrc.no/countries/africa/nigeria",
+        "evidenceTitle": "NRC in Nigeria | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://www.nrc.no/countries/africa/sudan",
+        "evidenceTitle": "NRC in Sudan | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://www.nrc.no/countries/africa/somalia",
+        "evidenceTitle": "NRC in Somalia | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://www.nrc.no/countries/africa/south-sudan",
+        "evidenceTitle": "NRC in South Sudan | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), South Sudan, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://www.nrc.no/countries/middle-east/syria",
+        "evidenceTitle": "NRC in Syria | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://www.nrc.no/countries/africa/chad",
+        "evidenceTitle": "NRC in Chad | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://www.nrc.no/countries/south-america/venezuela",
+        "evidenceTitle": "NRC in Venezuela | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://www.nrc.no/countries/middle-east/yemen",
+        "evidenceTitle": "NRC in Yemen | NRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/475342860",
+      "https://www.give.org/search?term=Norwegian+Refugee+Council+USA"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards",
+    "note": "EIN matched by name in Publication 78 only. Country evidence is on nrc.no, the international organisation's site; NRC USA's own page is itself part of nrc.no (www.nrc.no/usa)."
+  },
+  {
+    "id": "save-the-children-us",
+    "name": "Save the Children US",
+    "ein": "06-0726487",
+    "website": "https://www.savethechildren.org/",
+    "donateUrl": "https://www.savethechildren.org/us/donate",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.7759,
+      "taxYear": 2025,
+      "objectId": "202642759349301919",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/afghanistan",
+        "evidenceTitle": "Afghanistan Earthquake Relief - Donate to Help Afghan Children | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/burkina-faso",
+        "evidenceTitle": "Donate to Help Children in Burkina Faso | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/democratic-republic-of-congo",
+        "evidenceTitle": "Help the Democratic Republic of Congo (DRC) | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COL",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/colombia",
+        "evidenceTitle": "Donate to Help Children in Colombia | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COL",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/ethiopia",
+        "evidenceTitle": "Donate to Children and Refugees in Ethiopia | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/haiti",
+        "evidenceTitle": "Donate to Help Children and Refugees in Haiti | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/mali",
+        "evidenceTitle": "Donate to Help Children in Mali | Save the Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/mozambique",
+        "evidenceTitle": "Donate to Help Children in Mozambique | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/niger",
+        "evidenceTitle": "Donate to Help Children in Niger | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/nigeria",
+        "evidenceTitle": "Donate to Help Children in Nigeria | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/sudan",
+        "evidenceTitle": "Donate to Help Children and Refugees in Sudan | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/somalia",
+        "evidenceTitle": "Donate to Help Children in Somalia Hunger Crisis | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/syria",
+        "evidenceTitle": "Donate to Help Children and Refugees in Syria | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/venezuela",
+        "evidenceTitle": "Donate to Help Children in Venezuela | Save the Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://www.savethechildren.org/us/where-we-work/yemen",
+        "evidenceTitle": "Donate to Help Children in Yemen Crisis | Save The Children",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/060726487",
+      "https://www.give.org/search?term=Save+the+Children+US"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards",
+    "note": "Its US site does not state membership of Save the Children International in so many words: its FAQ sends donors outside the US to Save the Children International for their local Save the Children office, and savethechildren.net describes Save the Children as a global membership organisation of Save the Children International and its national members. Please confirm it is the US member."
+  },
+  {
+    "id": "unicef-usa",
+    "name": "UNICEF USA",
+    "ein": "13-1760110",
+    "website": "https://www.unicefusa.org/",
+    "donateUrl": "https://www.unicefusa.org/how-help/donate",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.8309,
+      "taxYear": 2024,
+      "objectId": "202630309349300223",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://www.unicefusa.org/where-unicef-works/asia/afghanistan",
+        "evidenceTitle": "Support Children in Afghanistan with UNICEF | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/africa/burkina-faso",
+        "evidenceTitle": "UNICEF in Burkina Faso | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://www.unicefusa.org/where-unicef-works/africa/central-african-republic",
+        "evidenceTitle": "UNICEF in the Central African Republic | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/africa/cameroon",
+        "evidenceTitle": "UNICEF in Cameroon | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://www.unicefusa.org/where-unicef-works/africa/democratic-republic-congo",
+        "evidenceTitle": "Help Children in Crisis in DR Congo: Donate Now | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/north-america/haiti",
+        "evidenceTitle": "UNICEF Responds to Hunger and Violence in Haiti | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://www.unicef.org/mali/",
+        "evidenceTitle": "UNICEF Mali",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://www.unicef.org/mozambique/",
+        "evidenceTitle": "UNICEF Mozambique",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://www.unicef.org/niger/",
+        "evidenceTitle": "UNICEF Niger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://www.unicefusa.org/where-unicef-works/africa/nigeria",
+        "evidenceTitle": "How UNICEF Supports Children in Nigeria | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/africa/sudan",
+        "evidenceTitle": "How UNICEF Supports Children in Sudan | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/africa/somalia",
+        "evidenceTitle": "How UNICEF Supports Children in Somalia | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/africa/south-sudan",
+        "evidenceTitle": "Donate to Help South Sudan's Children | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), South Sudan, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://www.unicefusa.org/where-unicef-works/middle-east/syria",
+        "evidenceTitle": "UNICEF's Support for Syria | Middle East Crisis | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://www.unicefusa.org/what-unicef-does/where-unicef-works/africa/chad",
+        "evidenceTitle": "How UNICEF Supports Children in Chad | UNICEF USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://www.unicef.org/venezuela/",
+        "evidenceTitle": "UNICEF Venezuela",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://www.unicef.org/yemen/",
+        "evidenceTitle": "UNICEF Yemen",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/131760110",
+      "https://www.give.org/search?term=UNICEF+USA"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards",
+    "note": "Country evidence for MLI, MOZ, NER, VEN and YEM is on unicef.org, the international organisation's site (unicefusa.org answered scripts with a bot check for those pages). The unicefusa.org home page does not link to unicef.org; its About UNICEF USA page does (opened 24 Nov 2026)."
+  },
+  {
+    "id": "usa-for-iom",
+    "name": "USA for IOM",
+    "ein": "52-1525929",
+    "website": "https://usaforiom.org/",
+    "donateUrl": "https://usaforiom.org/donate/",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.9639,
+      "taxYear": 2024,
+      "objectId": "202542399349300304",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://afghanistan.iom.int/",
+        "evidenceTitle": "International Organization for Migration | IOM, Afghanistan",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://wca.iom.int/central-african-republic",
+        "evidenceTitle": "Central African Republic | IOM Regional Office for West and Central Africa",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://www.iom.int/countries/cameroon",
+        "evidenceTitle": "Cameroon | International Organization for Migration",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://drcongo.iom.int/en",
+        "evidenceTitle": "IOM DRC",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://ethiopia.iom.int/",
+        "evidenceTitle": "IOM Ethiopia",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "ETH",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://haiti.iom.int/",
+        "evidenceTitle": "IOM Haiti",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://mali.iom.int/",
+        "evidenceTitle": "OIM au Mali",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://mozambique.iom.int/",
+        "evidenceTitle": "IOM Mozambique",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://niger.iom.int/",
+        "evidenceTitle": "IOM Niger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://nigeria.iom.int/",
+        "evidenceTitle": "IOM Nigeria",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://sudan.iom.int/",
+        "evidenceTitle": "International Organization for Migration | IOM, Sudan",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://somalia.iom.int/",
+        "evidenceTitle": "IOM Somalia",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://southsudan.iom.int/",
+        "evidenceTitle": "IOM South Sudan | International Organization for Migration",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), South Sudan, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://syria.iom.int/",
+        "evidenceTitle": "IOM Syria",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://wca.iom.int/chad",
+        "evidenceTitle": "Chad | IOM Regional Office for West and Central Africa",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://americas.iom.int/es/countries/venezuela",
+        "evidenceTitle": "República Bolivariana de Venezuela | ONU Migración Americas",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://yemen.iom.int/",
+        "evidenceTitle": "IOM Yemen",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/521525929",
+      "https://www.give.org/search?term=USA+for+IOM"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards",
+    "note": "Country evidence is on iom.int, the international organisation's site, which usaforiom.org links to from its home page."
+  },
+  {
+    "id": "usa-for-unfpa",
+    "name": "USA for UNFPA",
+    "ein": "13-3996346",
+    "website": "https://www.usaforunfpa.org/",
+    "donateUrl": "https://www.usaforunfpa.org/donate/",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.8283,
+      "taxYear": 2025,
+      "objectId": "202632699349300303",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://afghanistan.unfpa.org/en",
+        "evidenceTitle": "UNFPA Afghanistan",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://www.unfpa.org/data/CF",
+        "evidenceTitle": "Central African Republic | United Nations Population Fund",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://cameroon.unfpa.org/en",
+        "evidenceTitle": "UNFPA Republic of Cameroon",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://drc.unfpa.org/en",
+        "evidenceTitle": "UNFPA Democratic Republic of Congo",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://haiti.unfpa.org/en",
+        "evidenceTitle": "UNFPA Haiti",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://www.unfpa.org/data/ML",
+        "evidenceTitle": "Mali | United Nations Population Fund",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://mozambique.unfpa.org/en",
+        "evidenceTitle": "UNFPA Mozambique",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://nigeria.unfpa.org/en",
+        "evidenceTitle": "UNFPA Nigeria",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://sudan.unfpa.org/en",
+        "evidenceTitle": "UNFPA Sudan",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://somalia.unfpa.org/en",
+        "evidenceTitle": "UNFPA Somalia",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://syria.unfpa.org/en",
+        "evidenceTitle": "UNFPA Syria",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://www.unfpa.org/data/TD",
+        "evidenceTitle": "Chad | United Nations Population Fund",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://venezuela.unfpa.org/es",
+        "evidenceTitle": "UNFPA Venezuela",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "VEN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://yemen.unfpa.org/en",
+        "evidenceTitle": "UNFPA Yemen",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/133996346",
+      "https://www.give.org/search?term=USA+for+UNFPA"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards",
+    "note": "Country evidence is on unfpa.org, the international organisation's site. The usaforunfpa.org home page does not link to unfpa.org; its FAQ page does (opened 24 Nov 2026)."
+  },
+  {
+    "id": "world-food-program-usa",
+    "name": "World Food Program USA",
+    "ein": "13-3843435",
+    "website": "https://wfpusa.org/",
+    "donateUrl": "https://wfpusa.org/give/",
+    "legal": {
+      "checkedOn": "2026-11-24",
+      "pub78File": "data-download-pub78.zip (IRS file of 2026-11-11)",
+      "deductibilityCode": "PC"
+    },
+    "ratings": [],
+    "programme": {
+      "share": 0.8817,
+      "taxYear": 2024,
+      "objectId": "202611169349300006",
+      "computedOn": "2026-11-24"
+    },
+    "countries": [
+      {
+        "iso3": "AFG",
+        "evidence": "https://wfpusa.org/place/afghanistan/",
+        "evidenceTitle": "Hunger in Afghanistan Conflict & Natural Disasters",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "AFG",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://wfpusa.org/place/burkina-faso/",
+        "evidenceTitle": "Burkina Faso: Hunger & Food Security - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "BFA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://wfpusa.org/place/central-african-republic/",
+        "evidenceTitle": "Central African Republic - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CAF",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://wfpusa.org/place/cameroon/",
+        "evidenceTitle": "Cameroon - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "CMR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://wfpusa.org/place/democratic-republic-of-the-congo/",
+        "evidenceTitle": "Democratic Republic of the Congo - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COL",
+        "evidence": "https://wfpusa.org/place/colombia/",
+        "evidenceTitle": "Colombia - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "COL",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://wfpusa.org/place/haiti/",
+        "evidenceTitle": "Haiti - Help People in Earthquakes, Hurricanes, Hunger & Poverty",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "HTI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://wfpusa.org/place/mali/",
+        "evidenceTitle": "Mali - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MLI",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://wfpusa.org/place/mozambique/",
+        "evidenceTitle": "Mozambique - Hunger from Conflict & Climate",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "MOZ",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://wfpusa.org/place/niger/",
+        "evidenceTitle": "Niger - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NER",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://wfpusa.org/place/nigeria/",
+        "evidenceTitle": "Nigeria - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "NGA",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://wfpusa.org/place/sudan/",
+        "evidenceTitle": "Hunger in Sudan Causes, Effects & Humanitarian Aid",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SDN",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://wfpusa.org/place/somalia/",
+        "evidenceTitle": "Somalia - World Food Program USA",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SOM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://wfpusa.org/place/south-sudan/",
+        "evidenceTitle": "South Sudan Hunger Crisis & Humanitarian Aid",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SSD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), South Sudan, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://wfpusa.org/place/syria/",
+        "evidenceTitle": "Crisis in Syria: How to Help & Donate Food to Syrian Refugees",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "SYR",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://wfpusa.org/place/chad/",
+        "evidenceTitle": "Chad, Africa - People in the Country Are Suffering from Mass Hunger",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "TCD",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://wfpusa.org/place/yemen/",
+        "evidenceTitle": "Yemen Hunger Crisis from Civil War",
+        "evidenceKind": "charity's own page",
+        "checkedOn": "2026-11-24"
+      },
+      {
+        "iso3": "YEM",
+        "evidence": "https://data.humdata.org/dataset/hdx-hapi-operational-presence",
+        "evidenceTitle": "OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31",
+        "evidenceKind": "OCHA 3W",
+        "checkedOn": "2026-11-24"
+      }
+    ],
+    "review": {
+      "status": "draft",
+      "approvedOn": null
+    },
+    "reviewedOn": "2026-11-24",
+    "reviewer": "Claude (draft)",
+    "profileLinks": [
+      "https://www.charitynavigator.org/ein/133843435",
+      "https://www.give.org/search?term=World+Food+Program+USA"
+    ],
+    "ownerAction": "Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards"
+  }
+]

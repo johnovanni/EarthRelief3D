@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Trimmed from the real return (see tests/Samples/README.md): only the header's tax fields, the filer's EIN and name, the
+     return type and Form 990 Part IX line 25 are kept. People's names, compensation, the preparer and phone details are removed. -->
+<Return xmlns="http://www.irs.gov/efile" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" returnVersion="2024v5.1">
+  <ReturnHeader binaryAttachmentCnt="0">
+    <TaxPeriodEndDt>2025-06-30</TaxPeriodEndDt>
+    <ReturnTypeCd>990</ReturnTypeCd>
+    <TaxPeriodBeginDt>2024-07-01</TaxPeriodBeginDt>
+    <Filer>
+      <EIN>530196605</EIN>
+      <BusinessName>
+        <BusinessNameLine1Txt>American National Red Cross &amp; Its Constituent Chapters and Branches</BusinessNameLine1Txt>
+      </BusinessName>
+    </Filer>
+    <TaxYr>2024</TaxYr>
+  </ReturnHeader>
+  <ReturnData documentCnt="1">
+    <IRS990 documentId="IRS990" softwareId="24020961" softwareVersionNum="2024v5.1">
+      <TotalFunctionalExpensesGrp>
+        <TotalAmt>3285857544</TotalAmt>
+        <ProgramServicesAmt>2985109298</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>105697639</ManagementAndGeneralAmt>
+        <FundraisingAmt>195050607</FundraisingAmt>
+      </TotalFunctionalExpensesGrp>
+    </IRS990>
+  </ReturnData>
+</Return>

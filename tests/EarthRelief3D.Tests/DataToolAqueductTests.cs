@@ -69,7 +69,7 @@ public class DataToolAqueductTests
     public void AMissingSheetIsAFormatChange()
     {
         using var dir = new TempDir();
-        var path = Zip(dir, "aqueduct.zip", ("x/book.xlsx", Xlsx([("Read Me", [new object[] { "x" }])])));
+        var path = Zip(dir, "aqueduct.zip", ("x/book.xlsx", XlsxWriter.Write([("Read Me", [new object[] { "x" }])])));
         Assert.Throws<InvalidDataException>(() => AqueductExtractor.Run(new SourceFile(path, Published, Downloaded), Codes));
     }
 }

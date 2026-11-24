@@ -22,6 +22,7 @@ public static class OfflineSamples
         "ucdp_downloads.html", "ucdp_candidate_monthly.csv", "ucdp_candidate_quarterly.csv",
         "hdx_ipc_package.json", "ipc_national_wide_latest.csv", "unhcr_population_coo.json", "who_don_synthetic.json",
         "gho_wsh_water_basic.json", "gho_wsh_sanitation_basic.json", "gho_uhc_index.json", "hdx_hno_package.json", "hpc_hno_2026.csv",
+        "hdx_acaps_package.json", "acaps_access_synthetic.xlsx", "hdx_fts_package.json", "fts_requirements_funding_global.csv",
     ];
 
     /// <summary>The year of the UNHCR sample (the feed asks for the clock's year first).</summary>
@@ -33,6 +34,10 @@ public static class OfflineSamples
     public const string IpcCsvUrl = "https://data.humdata.org/dataset/7a7e7428-b8d7-4d2e-91d3-19100500e016/resource/2e4f7475-105b-4fae-81f7-7c32076096b6/download/ipc_global_national_wide_latest.csv";
     /// <summary>The 2026 needs CSV the HDX package names (docs/data-sources.md section 6).</summary>
     public const string HnoCsvUrl = "https://data.humdata.org/dataset/8326ed53-8f3a-47f9-a2aa-83ab4ecee476/resource/edb91329-0e6b-4ebc-b6cb-051b2a11e536/download/hpc_hno_2026.csv";
+    /// <summary>The December 2025 ACAPS workbook the HDX package names (the offline sample is synthetic, in ACAPS's layout).</summary>
+    public const string AcapsXlsxUrl = "https://data.humdata.org/dataset/b0e0bf77-29a3-46ee-9f78-1830e59c43d1/resource/2b5fed9e-83d9-410e-b590-934e5be5dda3/download/acaps-humanitarian-access-dataset_dec_2025.xlsx";
+    /// <summary>The FTS requirements-and-funding CSV the HDX package names.</summary>
+    public const string FtsCsvUrl = "https://data.humdata.org/dataset/b2bbb33c-2cfb-4809-8dd3-6bbdc080cbb9/resource/b3232da8-f1e4-41ab-9642-b22dae10a1d7/download/fts_requirements_funding_global.csv";
     public const string WhoUrlPrefix = "https://www.who.int/api/news/diseaseoutbreaknews";
 
     /// <summary>What GitHub's "latest release" answer holds for the Borders feed in an offline run: the bundled edition, so no update.</summary>
@@ -113,6 +118,11 @@ public static class OfflineSamples
         Map(GhoFeed.UrlFor(GhoFeed.UhcCode).ToString(), "gho_uhc_index.json");
         Map(HnoFeed.PackageUrl.ToString(), "hdx_hno_package.json");
         Map(HnoCsvUrl, "hpc_hno_2026.csv");
+        // ACAPS access (synthetic workbook) and FTS appeal funding: each package, then the file it names.
+        Map(AcapsAccessFeed.PackageUrl.ToString(), "hdx_acaps_package.json");
+        Map(AcapsXlsxUrl, "acaps_access_synthetic.xlsx");
+        Map(FtsFundingFeed.PackageUrl.ToString(), "hdx_fts_package.json");
+        Map(FtsCsvUrl, "fts_requirements_funding_global.csv");
         // Borders: the release check answers "latest is v5.1.2" (the edition the program ships), so nothing is downloaded and
         // the dot shows the same state in every run. The text is inline: there is no sample file for it.
         h.MapText(NaturalEarthBoundarySource.LatestReleaseUrl.ToString(), BordersLatestReleaseJson);

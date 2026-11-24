@@ -92,6 +92,54 @@ public class IndicatorStoreTests
     }
 
     [Fact]
+    public void AccessAndAppealsRoundTripThroughCache()
+    {
+        var root = new AppDataRoot(Path.Combine(Path.GetTempPath(), "er3d-ind-" + Guid.NewGuid().ToString("N")));
+        try
+        {
+            Directory.CreateDirectory(root.CacheDir);
+            var cite = CountryValueLayerTests.Fao;
+            var access = new AccessAssessment("SDN", 5, [5, 4, 5], [new AccessIndicator(1, "Denial of existence of needs", 3), new AccessIndicator(2, "Restriction", 0)],
+                "Stable", 0.12, "December 2025 edition", cite);
+            var score = new IndicatorSeries("acaps.access", "Access score", "score (0-5)", [new CountryValue("SDN", 5, 2025, cite)]);
+            var appeal = new AppealFunding("AFG", 1502, "Plan", "Flash appeal", 2026, null, 580_680_803L, 34, true, cite);
+            var store = new IndicatorStore();
+            Assert.True(store.ReplaceAccess([access], score));
+            Assert.True(store.ReplaceAppeals([appeal]));
+            Assert.Same(access, store.Snapshot.AccessOf("sdn"));
+            Assert.Equal([appeal], store.Snapshot.AppealsOf("AFG"));
+            Assert.Empty(store.Snapshot.AppealsOf("SDN"));
+
+            // The same values again (new list instances, equal members): no change, no event.
+            var raised = 0;
+            store.Changed += (_, _) => raised++;
+            Assert.False(store.ReplaceAccess([access with { Pillars = [5, 4, 5] }], score));
+            Assert.False(store.ReplaceAppeals([appeal with { }]));
+            Assert.Equal(0, raised);
+            // Needs written later must not drop them.
+            store.ReplaceNeeds([], new IndicatorSeries("hno.shelter", "x", "%", []));
+            Assert.Single(store.Snapshot.Access);
+            Assert.Single(store.Snapshot.Appeals);
+
+            var cache = new IndicatorCache(root, new ListLog());
+            Assert.True(cache.Save(store.Snapshot));
+            var loaded = cache.Load()!;
+            Assert.Equal(store.Snapshot, loaded);
+            Assert.Equal([5, 4, 5], loaded.AccessOf("SDN")!.Pillars);
+            Assert.Equal(0, loaded.AccessOf("SDN")!.Indicators[1].Score);   // a 0 score survives
+            Assert.Null(loaded.AppealsOf("AFG")[0].RequirementsUsd);
+            Assert.True(loaded.AppealsOf("AFG")[0].Regional);
+
+            // An older file without them loads with none.
+            File.WriteAllText(cache.FilePath, """{"SchemaVersion":1,"Series":[]}""");
+            var old = cache.Load()!;
+            Assert.Empty(old.Access);
+            Assert.Empty(old.Appeals);
+        }
+        finally { Directory.Delete(root.Root, recursive: true); }
+    }
+
+    [Fact]
     public void OldCacheWithoutDateMeaningLoadsAsAsOf()
     {
         // indicators.json written before Task 3 has no DateMeaning on its citations: they load as AsOf (the default).

@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="B2V"/>
             <local:RowsConverter x:Key="Rows"/>
+            <local:HelpGroupsConverter x:Key="HelpGroups"/>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="White"/>
                 <Setter Property="FontSize" Value="14"/>
@@ -52,12 +53,47 @@
                             <DataTemplate>
                                 <StackPanel Margin="0,4,0,10">
                                     <TextBlock Text="{Binding Heading}" FontWeight="SemiBold" FontSize="15" Foreground="White" TextWrapping="Wrap"/>
+                                    <!-- "Your one small step" (Plan 4): the Give and Contact groups, each entry's title, lines and links. Null for other sections. -->
+                                    <ItemsControl ItemsSource="{Binding Entries, Converter={StaticResource HelpGroups}}" Margin="0,4,0,0" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,4,0,2">
+                                                    <TextBlock Text="{Binding Name}" Foreground="#C8CDD8" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                    <ItemsControl ItemsSource="{Binding Entries}" Focusable="False">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <StackPanel Margin="0,4,0,4">
+                                                                    <TextBlock Text="{Binding Title}" Foreground="White" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                                    <ItemsControl ItemsSource="{Binding Lines}" Focusable="False">
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <TextBlock Text="{Binding}" Foreground="#D5DCE8" FontSize="12" TextWrapping="Wrap" Margin="0,1,0,1"/>
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                    </ItemsControl>
+                                                                    <ItemsControl ItemsSource="{Binding Links}" Focusable="False">
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <TextBlock Margin="0,1,0,1" FontSize="12" TextWrapping="Wrap">
+                                                                                    <Hyperlink Foreground="#7FB6FF" Click="OnSourceLinkClick" Tag="{Binding Url}"><Run Text="{Binding Text, Mode=OneWay}"/> ↗</Hyperlink>
+                                                                                </TextBlock>
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                    </ItemsControl>
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                     <ItemsControl ItemsSource="{Binding Rows, Converter={StaticResource Rows}}" Margin="0,4,0,0">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="0,2">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="130"/>
+                                                        <ColumnDefinition Width="150"/>
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Label}" Foreground="#A0AEC0" FontSize="13" TextWrapping="Wrap" Margin="0,0,8,0"/>
@@ -123,12 +159,19 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+                                    <!-- Plan 4 Task 9: the section's explainer, opened in the card to the left (not the browser);
+                                         "Why these?" for the step section. Only when the user sees the explainer (P4-13). -->
+                                    <TextBlock Margin="0,4,0,0" FontSize="13" TextWrapping="Wrap"
+                                               Visibility="{Binding ExplainerId, Converter={x:Static local:NullToCollapsedConverter.Instance}}">
+                                        <Hyperlink Foreground="#7FB6FF"
+                                                   Command="{Binding DataContext.OpenExplainerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   CommandParameter="{Binding ExplainerId}"
+                                                   ToolTip="Opens a short explainer beside this panel"><Run Text="{Binding ExplainerLinkText, Mode=OneWay}"/></Hyperlink>
+                                    </TextBlock>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Text="Getting help in and your one small step: coming in a later version." Foreground="#8A92A3"
-                               FontSize="12" Margin="0,2,0,0"/>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>

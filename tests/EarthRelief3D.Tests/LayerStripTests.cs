@@ -79,14 +79,14 @@ public class LayerStripTests
     {
         var settings = new MemorySettingsStore();
         var vm = new LayerStripViewModel(settings);
-        Assert.Equal([MarkerLayer.Conflict, MarkerLayer.Outbreaks, MarkerLayer.Displacement], vm.ShownMarkers);   // today's default
+        Assert.Equal([MarkerLayer.Conflict, MarkerLayer.Outbreaks, MarkerLayer.Displacement, MarkerLayer.HubLines], vm.ShownMarkers);   // today's default, and the hub lines (R3)
 
         Toggle(vm, "Power plants").IsChecked = true;
         Assert.True(vm.IsShown(MarkerLayer.PowerPlants));
         Assert.True(vm.ShowConflict);
         Assert.True(vm.IsShown(MarkerLayer.Conflict));
         Assert.Equal(ShadingLayer.Food, vm.Shading);   // a marker layer does not touch the shading
-        Assert.Equal([MarkerLayer.Conflict, MarkerLayer.Outbreaks, MarkerLayer.Displacement, MarkerLayer.PowerPlants], settings.Current.Markers);
+        Assert.Equal([MarkerLayer.Conflict, MarkerLayer.Outbreaks, MarkerLayer.Displacement, MarkerLayer.PowerPlants, MarkerLayer.HubLines], settings.Current.Markers);
 
         vm.ShowConflict = false;
         Assert.True(vm.IsShown(MarkerLayer.PowerPlants));
@@ -107,7 +107,7 @@ public class LayerStripTests
             var s = new SettingsStore(root, new ListLog()).Load();
             Assert.Null(s.Shading);
             Assert.Equal(ShadingLayer.Food, s.EffectiveShading);
-            Assert.Equal([MarkerLayer.Outbreaks, MarkerLayer.Displacement], s.EffectiveMarkers);
+            Assert.Equal([MarkerLayer.Outbreaks, MarkerLayer.Displacement, MarkerLayer.HubLines], s.EffectiveMarkers);   // a file with no marker list gets the lines to the nearest hubs on (R3)
             var vm = new LayerStripViewModel(new SettingsStore(root, new ListLog()));
             Assert.Equal(ShadingLayer.Food, vm.Shading);
             Assert.False(vm.ShowConflict);
@@ -123,15 +123,79 @@ public class LayerStripTests
     }
 
     [Fact]
+    public void GettingHelpGroupReplacesPlaceholder()
+    {
+        var vm = new LayerStripViewModel(new MemorySettingsStore());
+        Assert.Equal(["Crises", "Needs", "Resources", "Getting help in"], vm.Groups.Select(g => g.Name));
+        Assert.Equal(LayerStripViewModel.GettingHelpGroup, vm.Groups[3].Name);
+        Assert.Equal(["Access constraints", "UN depots", "Airports", "Ports", "Lines to nearest hubs"], vm.Groups[3].Toggles.Select(t => t.Label));
+        Assert.True(vm.Groups[3].IsCollapsible);
+        Assert.True(vm.Groups[3].IsOpen);   // the lines to the nearest hubs are on by default (R3), so the group starts open: R20
+        Assert.Null(typeof(LayerStripViewModel).GetProperty("ComingGroups"));   // the header-only placeholder is gone
+    }
+
+    [Fact]
+    public void GettingHelpGroupHoldsHubs()
+    {
+        var vm = new LayerStripViewModel(new MemorySettingsStore());
+        var group = Group(vm, LayerStripViewModel.GettingHelpGroup);
+        // The Access shading first, then the three hub markers (P4-5, off by default), then the toggle for the lines to the
+        // nearest hubs (R3, on by default).
+        Assert.Equal(["access", "un-depots", "airports", "ports", "hub-lines"], group.Toggles.Select(t => t.Id));
+        Assert.Equal([true, false, false, false, false], group.Toggles.Select(t => t.IsShading));
+        Assert.All(group.Toggles.Skip(1).Take(3), t => Assert.False(t.IsChecked));
+        Assert.True(group.Toggles[4].IsChecked);
+        Assert.Equal(["★", "⬡", "◇", "⌒"], group.Toggles.Skip(1).Select(t => t.Symbol));
+        Assert.All(group.Toggles.Skip(1), t => Assert.False(string.IsNullOrWhiteSpace(t.Tooltip)));
+        Assert.Equal([MarkerLayer.HubLines], vm.ShownMarkers.Intersect(LayerCatalog.HelpMarkers));
+        Assert.True(group.AnyOn);
+
+        // Markers stack with a shading and with each other; turning one on opens the group at the next start (R20).
+        Toggle(vm, "Airports").IsChecked = true;
+        Toggle(vm, "Ports").IsChecked = true;
+        Toggle(vm, "Water").IsChecked = true;
+        Assert.Equal([MarkerLayer.Airports, MarkerLayer.Ports, MarkerLayer.HubLines], vm.ShownMarkers.Where(LayerCatalog.HelpMarkers.Contains));
+        Assert.Equal(ShadingLayer.Water, vm.Shading);
+        Assert.True(group.AnyOn);
+        Assert.Contains("OurAirports", Toggle(vm, "Airports").Tooltip, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HubMarkersAreSavedByNameAndComeBack()
+    {
+        var store = new MemorySettingsStore();
+        var vm = new LayerStripViewModel(store);
+        vm.Show(MarkerLayer.UnDepots, true);
+        vm.Show(MarkerLayer.Airports, true);
+        Assert.Contains(MarkerLayer.UnDepots, store.Current.Markers!);
+        var again = new LayerStripViewModel(store);
+        Assert.Equal([MarkerLayer.UnDepots, MarkerLayer.Airports, MarkerLayer.HubLines], again.ShownMarkers.Where(LayerCatalog.HelpMarkers.Contains));
+        Assert.True(Group(again, LayerStripViewModel.GettingHelpGroup).IsOpen);   // a layer is on: the group starts open
+    }
+
+    [Fact]
+    public void AccessIsOneOfTheShadings()
+    {
+        var vm = new LayerStripViewModel(new MemorySettingsStore());
+        Toggle(vm, "Water").IsChecked = true;
+        Toggle(vm, "Access constraints").IsChecked = true;
+        Assert.Equal(ShadingLayer.Access, vm.Shading);
+        Assert.False(Toggle(vm, "Water").IsChecked);
+        Assert.Single(vm.Groups.SelectMany(g => g.Toggles), t => t.IsShading && t.IsChecked);
+        Assert.True(vm.Groups[3].AnyOn);
+        Assert.Equal("access", Toggle(vm, "Access constraints").Id);
+    }
+
+    [Fact]
     public void TheStripHasFourGroupsAndEveryLayerOnce()
     {
         var vm = new LayerStripViewModel(new MemorySettingsStore());
-        Assert.Equal(["Crises", "Needs", "Resources"], vm.Groups.Select(g => g.Name));
-        Assert.Equal(["Getting help in"], vm.ComingGroups.Select(g => g.Name));
+        Assert.Equal(["Crises", "Needs", "Resources", "Getting help in"], vm.Groups.Select(g => g.Name));
         Assert.Equal(["Armed conflict", "Food crisis", "Disease outbreaks", "People forced from home", "Genocide and mass atrocities", "Prison camps"],
             vm.Groups[0].Toggles.Select(t => t.Label));
         Assert.Equal(["Water", "Sanitation", "Health care", "Hunger", "Shelter need"], vm.Groups[1].Toggles.Select(t => t.Label));
         Assert.Equal(["Oil production", "Water stress", "Power plants", "Renewable power plants", "Oil and gas fields", "Steel plants"], vm.Groups[2].Toggles.Select(t => t.Label));
+        Assert.Equal(["Access constraints", "UN depots", "Airports", "Ports", "Lines to nearest hubs"], vm.Groups[3].Toggles.Select(t => t.Label));
         // Every shading layer and every marker layer has exactly one toggle (R2: all of them exist from Task 2).
         var toggles = vm.Groups.SelectMany(g => g.Toggles).ToList();
         Assert.Equal(Enum.GetValues<ShadingLayer>().Length - 1 + Enum.GetValues<MarkerLayer>().Length, toggles.Count);
@@ -141,7 +205,7 @@ public class LayerStripTests
             Assert.False(string.IsNullOrWhiteSpace(t.Symbol));
             Assert.False(string.IsNullOrWhiteSpace(t.Tooltip));
         });
-        Assert.Equal(8, toggles.Count(t => t.IsShading));
+        Assert.Equal(9, toggles.Count(t => t.IsShading));
         Assert.Equal(LegendViewModel.FoodTooltip, Toggle(vm, "Food crisis").Tooltip);
     }
 

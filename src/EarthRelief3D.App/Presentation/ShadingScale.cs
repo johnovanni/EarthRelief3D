@@ -37,6 +37,9 @@ public static class ShadingScales
     /// <summary>Resources: ColorBrewer YlGnBu, 5 classes.</summary>
     public static IReadOnlyList<Color> Resources { get; } = [Rgb(0xFFFFCC), Rgb(0xA1DAB4), Rgb(0x41B6C4), Rgb(0x2C7FB8), Rgb(0x253494)];
 
+    /// <summary>Access constraints (ruling R5): ColorBrewer YlOrBr, 6 classes for ACAPS scores 0 to 5; 0 is the lightest class.</summary>
+    public static IReadOnlyList<Color> AccessColors { get; } = [Rgb(0xFFFFD4), Rgb(0xFEE391), Rgb(0xFEC44F), Rgb(0xFE9929), Rgb(0xD95F0E), Rgb(0x993404)];
+
     /// <summary>WRI's "Arid and Low Water Use" category: grey, so it never reads as low or high stress.</summary>
     public static Color AridColor { get; } = Rgb(0xBDBDBD);
 
@@ -60,6 +63,9 @@ public static class ShadingScales
         Categorical = true,
     };
 
+    // ACAPS access (ruling R5): the score is a category 0 to 5 and every level has ACAPS's own name; 0 "No constraints" is a real figure.
+    private static readonly ShadingScale AccessScale = new([0, 1, 2, 3, 4, 5], AccessColors, AccessPanel.LevelNames) { Categorical = true };
+
     public static ShadingScale For(ShadingLayer layer) => layer switch
     {
         ShadingLayer.Water => WaterScale,
@@ -69,6 +75,7 @@ public static class ShadingScales
         ShadingLayer.ShelterNeed => ShelterScale,
         ShadingLayer.OilProduction => OilScale,
         ShadingLayer.WaterStress => WaterStressScale,
+        ShadingLayer.Access => AccessScale,
         _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Only the country-value shadings have a scale (food keeps the IPC colours)."),
     };
 

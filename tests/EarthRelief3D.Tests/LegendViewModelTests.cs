@@ -154,6 +154,7 @@ public class LegendViewModelTests
         indicators.Replace("gho.water", CountryValueLayerTests.Water(
             new CountryValue("SDN", 40, 2024, CountryValueLayerTests.Gho), new CountryValue("ISL", 0, 2024, CountryValueLayerTests.Gho)));
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
         Assert.Empty(legend.Entries);   // food is the shading: its line is the crisis line
 
@@ -180,6 +181,31 @@ public class LegendViewModelTests
     }
 
     [Fact]
+    public void AccessLine()
+    {
+        var c = new SourceCitation(AcapsAccessFeed.Publisher, AcapsAccessFeed.Dataset, "December 2025", AcapsAccessFeed.PageUrl, AcapsAccessFeed.Licence,
+            "ACAPS", new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc), T, CitationDate.Release) { DateText = "December 2025 edition" };
+        var indicators = new IndicatorStore();
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
+        layers.Shading = ShadingLayer.Access;
+
+        // Before the feed has run: the layer's own wording and "Data not loaded yet" (R2).
+        var before = Assert.Single(legend.Entries);
+        Assert.Equal("Humanitarian access constraints (ACAPS score 0–5) · Data not loaded yet", $"{before.Measures} · {before.AsOf}");
+
+        indicators.Replace(AcapsAccessFeed.ScoreSeriesId, new IndicatorSeries(AcapsAccessFeed.ScoreSeriesId, AcapsAccessFeed.ScoreMeasures, "score (0 to 5)",
+            [new CountryValue("SDN", 5, 2025, c), new CountryValue("ISL", 0, 2025, c)]));
+        var e = Assert.Single(legend.Entries);
+        Assert.Equal("Humanitarian access constraints (ACAPS score 0–5) · December 2025 edition", $"{e.Measures} · {e.AsOf}");
+        Assert.Equal("ACAPS, via HDX, Humanitarian Access dataset · December 2025 edition", e.SourceLine);
+        var scale = ShadingScales.For(ShadingLayer.Access);
+        Assert.Equal([.. scale.ClassLabels, LegendViewModel.NoFigureKeyLabel], e.Keys.Select(k => k.Label));
+        Assert.Equal(scale.Colors, e.Keys.Take(6).Select(k => k.Color));
+    }
+
+    [Fact]
     public void ShadingYearIsFromEachCountrysNewestFigure()
     {
         // Sudan has 2022 and 2024; the map shows 2024, so the legend says 2024, not 2022–2024. A value with no figure
@@ -191,6 +217,7 @@ public class LegendViewModelTests
             new CountryValue("ISL", 0, 2024, CountryValueLayerTests.Gho),
             new CountryValue("TCD", -1, 2019, CountryValueLayerTests.Gho)));
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
         layers.Shading = ShadingLayer.Water;
         Assert.Equal("Share of people without at least basic drinking water, 2024", Assert.Single(legend.Entries).Measures);
@@ -205,6 +232,7 @@ public class LegendViewModelTests
         await new HnoFeed(Samples.HnoHttp().Http, indicators, crises, clock, new ListLog()).RunOnceAsync(default);
         await new GhoFeed(Samples.GhoHttp().Http, indicators, crises, clock, new ListLog()).RunOnceAsync(default);
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, indicators: indicators);
 
         layers.Shading = ShadingLayer.ShelterNeed;
@@ -222,6 +250,7 @@ public class LegendViewModelTests
     public void LayersWithoutDataSayNotLoadedYet()
     {
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T);
         layers.Shading = ShadingLayer.Hunger;
         layers.Show(MarkerLayer.PowerPlants, true);
@@ -243,6 +272,7 @@ public class LegendViewModelTests
     {
         var markers = new MarkerDataStore();
         var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.Show(EarthRelief3D.App.Presentation.MarkerLayer.HubLines, false);   // on by default (R3): its own legend line is tested in HubPanelTests
         var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => T, markerData: markers);
         layers.Show(MarkerLayer.Camps, true);
         Assert.Equal(LegendViewModel.NotLoaded, Assert.Single(legend.Entries).AsOf);

@@ -7,6 +7,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Reads ACAPS's workbook at run time (MIT; the DataTool uses the same package). -->
+    <PackageReference Include="ExcelDataReader" Version="3.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="EarthRelief3D.Tests" />
   </ItemGroup>
 

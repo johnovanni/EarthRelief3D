@@ -57,6 +57,27 @@ internal static class Samples
         return (new FeedHttp("test", h), h);
     }
 
+    public const string AcapsXlsxDec2025 = "https://data.humdata.org/dataset/b0e0bf77-29a3-46ee-9f78-1830e59c43d1/resource/2b5fed9e-83d9-410e-b590-934e5be5dda3/download/acaps-humanitarian-access-dataset_dec_2025.xlsx";
+    public const string FtsCsv = "https://data.humdata.org/dataset/b2bbb33c-2cfb-4809-8dd3-6bbdc080cbb9/resource/b3232da8-f1e4-41ab-9642-b22dae10a1d7/download/fts_requirements_funding_global.csv";
+
+    /// <summary>The ACAPS package (the real one, trimmed to two editions) and the synthetic December 2025 workbook.</summary>
+    public static (FeedHttp Http, SampleHttpHandler Handler) AcapsHttp()
+    {
+        var h = new SampleHttpHandler();
+        h.Map(AcapsAccessFeed.PackageUrl.ToString(), Path("hdx_acaps_package.json"));
+        h.Map(AcapsXlsxDec2025, Path("acaps_access_synthetic.xlsx"));
+        return (new FeedHttp("test", h), h);
+    }
+
+    /// <summary>The FTS package and its requirements-and-funding CSV (real rows, trimmed).</summary>
+    public static (FeedHttp Http, SampleHttpHandler Handler) FtsHttp()
+    {
+        var h = new SampleHttpHandler();
+        h.Map(FtsFundingFeed.PackageUrl.ToString(), Path("hdx_fts_package.json"));
+        h.Map(FtsCsv, Path("fts_requirements_funding_global.csv"));
+        return (new FeedHttp("test", h), h);
+    }
+
     public static (FeedHttp Http, SampleHttpHandler Handler) IpcHttp()
     {
         var h = new SampleHttpHandler();

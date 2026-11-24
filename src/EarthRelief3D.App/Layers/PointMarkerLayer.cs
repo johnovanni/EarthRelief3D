@@ -40,7 +40,8 @@ public sealed class PointMarkerLayer : SceneLayer, IPickable
     private const double PickSlopPx = 3;
 
     /// <summary>The marker layers the scene draws with this class (atrocities have their own glyph layer, Task 5).</summary>
-    public static IReadOnlyList<MarkerLayer> Layers { get; } = [MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants, MarkerLayer.Renewables];
+    public static IReadOnlyList<MarkerLayer> Layers { get; } = [MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants, MarkerLayer.Renewables,
+        MarkerLayer.UnDepots, MarkerLayer.Airports, MarkerLayer.Ports];
 
     /// <summary>The layer's z-order: after the crisis markers (100 to 120), before the labels (200).</summary>
     public static int OrderOf(MarkerLayer layer) => 130 + (int)layer;
@@ -129,6 +130,9 @@ public sealed class PointMarkerLayer : SceneLayer, IPickable
                 case MarkerShape.TriangleOutline: m.AddTriangleOutline(item.Position, r * 1.3, line, h); break;
                 case MarkerShape.Cross: m.AddCross(item.Position, r, r * 0.28, h); break;
                 case MarkerShape.Ring: m.AddRing(item.Position, r, line, h); break;
+                case MarkerShape.Star: m.AddStar(item.Position, r * 1.5, h); px *= 1.5; break;
+                case MarkerShape.HexagonOutline: m.AddHexagonOutline(item.Position, r * 1.25, line * 1.2, h); break;
+                case MarkerShape.DiamondOutline: m.AddDiamondOutline(item.Position, r * 1.35, line, h); break;
                 default: throw new InvalidOperationException($"{shape} is not a marker shape.");
             }
             _picks.Add((MarkerMeshes.Above(item.Position, h), px, item));
