@@ -46,7 +46,7 @@ public class NeedsPanelTests
         Assert.NotNull(basic.Link);
 
         // Sudan has the ALL row only (R7): the total, and no invented cluster rows.
-        var plan = Section(panel, "People in need (UN humanitarian plan 2026)");
+        var plan = Section(panel, "People in need (UN humanitarian needs overview 2026)");
         Assert.Equal(
             [("Total (ALL)", "33,699,770 people, 65% of 51,700,000; 20,419,163 targeted"),
              ("Figures are", "Final")],
@@ -60,7 +60,7 @@ public class NeedsPanelTests
     {
         var panel = Panel(await Loaded());
         panel.Show("AFG");
-        var plan = Section(panel, "People in need (UN humanitarian plan 2026)");
+        var plan = Section(panel, "People in need (UN humanitarian needs overview 2026)");
         Assert.Equal(
             ["Total (ALL)", "Food security (FSC)", "Water, sanitation and hygiene (WSH)", "Shelter (SHL)", "Health (HEA)", "Figures are"],
             plan.Rows.Select(r => r.Label));
@@ -68,19 +68,27 @@ public class NeedsPanelTests
         Assert.Equal("Plan caseload", plan.Rows[^1].Value);
 
         panel.Show("YEM");
-        var yem = Section(panel, "People in need (UN humanitarian plan 2026)");
+        var yem = Section(panel, "People in need (UN humanitarian needs overview 2026)");
         Assert.Equal("GHO Estimates: not from this country's own needs overview", yem.Rows[^1].Value);
     }
 
     [Fact]
-    public async Task NonHnoCountrySaysNoPlan()
+    public async Task NonHnoCountrySaysItIsNotInTheFile()
     {
         var panel = Panel(await Loaded());
         panel.Show("ISL");
 
-        var none = Section(panel, "No UN humanitarian needs plan for 2026 lists this country");
+        // I2: the source is one HDX file (about 20 countries), so the line says only that the country is not in it; the data
+        // is a needs overview (HNO), not a response plan.
+        var none = Section(panel, "Not in OCHA's 2026 needs-overview file on HDX");
+        Assert.Equal(CountryPanelViewModel.NotInHnoFile(2026), none.Heading);
         Assert.Empty(none.Rows);
         Assert.Contains("Global HPC HNO 2026", none.SourceLine);
+        Assert.DoesNotContain(panel.Sections, s => s.Heading.Contains("plan", StringComparison.OrdinalIgnoreCase));
+        // Before the file is loaded the heading says needs overview too.
+        var empty = Panel(new IndicatorStore());
+        empty.Show("SDN");
+        Assert.Equal("Data not loaded yet", Section(empty, "People in need (UN humanitarian needs overview)").Rows.Single().Value);
         Assert.DoesNotContain(panel.Sections, s => s.Heading.StartsWith("People in need", StringComparison.Ordinal));
         // The GHO values are still there (and FAO's food supply row after them).
         Assert.Equal(4, Section(panel, CountryPanelViewModel.BasicNeedsHeading).Rows.Count);

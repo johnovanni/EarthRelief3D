@@ -40,7 +40,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     public const string ProjectionFoodHeading = "Food security: IPC projection only";
     public const string OutbreakHeading = "Disease outbreaks";
     public const string DisplacementHeading = "People forced from home";
-    /// <summary>The needs part of the panel (Plan 3): the WHO GHO values, then the UN humanitarian plan's rows.</summary>
+    /// <summary>The needs part of the panel (Plan 3): the WHO GHO values, then the UN humanitarian needs overview's rows.</summary>
     public const string BasicNeedsHeading = "Basic needs";
     public const string NoFigureText = "No figure from WHO GHO";
     /// <summary>Designations on the map now (C14: a statement within 12 months says the situation continues).</summary>
@@ -403,7 +403,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
 
     /// <summary>
     /// "Basic needs": the country's three WHO GHO values as the map shows them (each with its year and source), then the UN
-    /// humanitarian plan's rows (or the statement that no plan lists the country). A series not loaded says "Data not loaded
+    /// humanitarian needs overview's rows (or the statement that the country is not in the HNO file). A series not loaded says "Data not loaded
     /// yet"; a value the map would not shade (no class) is "No figure", the same <see cref="CountryValueLayer.HasFigure"/> rule.
     /// </summary>
     private static IEnumerable<PanelSection> NeedsSections(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3, DateTime now)
@@ -492,13 +492,13 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     private static PanelSection PlanSection(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3, DateTime now)
     {
         if (snap.Needs.Count == 0)
-            return new PanelSection("People in need (UN humanitarian plan)", [("People in need", LayerCatalog.NotLoaded)],
+            return new PanelSection("People in need (UN humanitarian needs overview)", [("People in need", LayerCatalog.NotLoaded)],
                 $"Source: {HnoFeed.Publisher} · {LayerCatalog.NotLoaded} · {CheckedText(checkedUtc, HnoFeed.FeedName)}", HnoFeed.PageUrl);
         var any = snap.Needs[0];
         var source = $"Source: {any.Citation.Publisher}, {any.Citation.Dataset} · {CrisisText.DataDate(any.Citation, now)}";
         var mine = snap.NeedsOf(iso3);
         if (mine.Count == 0)
-            return new PanelSection($"No UN humanitarian needs plan for {any.PlanYear} lists this country", [], source, any.Citation.Url);
+            return new PanelSection(NotInHnoFile(any.PlanYear), [], source, any.Citation.Url);
 
         var rows = new List<(string, string)>();
         foreach (var (code, label) in ClusterRows)
@@ -509,8 +509,15 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         if (mine.FirstOrDefault(n => n.Cluster == "ALL")?.Basis is { } basis)
             rows.Add(("Figures are", basis.Contains("GHO", StringComparison.OrdinalIgnoreCase)
                 ? basis + ": not from this country's own needs overview" : basis));
-        return new PanelSection($"People in need (UN humanitarian plan {any.PlanYear})", rows, source, any.Citation.Url);
+        return new PanelSection($"People in need (UN humanitarian needs overview {any.PlanYear})", rows, source, any.Citation.Url);
     }
+
+    /// <summary>
+    /// The line for a country with no rows in the HNO file (I2): "Not in OCHA's 2026 needs-overview file on HDX". The source
+    /// is one HDX file of about 20 countries, so it says only that the country is not in that file, never that no UN plan
+    /// lists it; and the data is a Humanitarian Needs Overview, not a Response Plan.
+    /// </summary>
+    public static string NotInHnoFile(int year) => $"Not in OCHA's {year.ToString(System.Globalization.CultureInfo.InvariantCulture)} needs-overview file on HDX";
 
     /// <summary>"checked 23 Nov 2026" from the feed's last successful run, or "not yet checked".</summary>
     private static string CheckedText(IReadOnlyDictionary<string, DateTime> checkedUtc, string feed) =>

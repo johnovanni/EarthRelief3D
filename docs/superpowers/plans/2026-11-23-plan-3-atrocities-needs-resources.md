@@ -222,8 +222,8 @@ The HNO rows used are the ones with a blank `Category`. They are keyed on `Clust
 
 The panel section "Basic needs" lists:
 - the three GHO values, each with its year and source;
-- if the country has an HNO plan: "People in need (UN humanitarian plan 2026)", with rows Total (ALL), Food security (FSC), Water, sanitation and hygiene (WSH), Shelter (SHL) and Health (HEA), each with its number, plus the source line;
-- if it has none: "No UN humanitarian needs plan for 2026 lists this country".
+- if the country is in the HNO file: "People in need (UN humanitarian needs overview 2026)" (final fix wave I2: was "UN humanitarian plan"), with rows Total (ALL), Food security (FSC), Water, sanitation and hygiene (WSH), Shelter (SHL) and Health (HEA), each with its number, plus the source line;
+- if it is not: "Not in OCHA's 2026 needs-overview file on HDX" (final fix wave I2: was "No UN humanitarian needs plan for 2026 lists this country", which overclaimed from one file of about 20 countries).
 
 - [ ] **Step 1: Write the failing tests:**
   - `GhoFeedTests.ReadsLatestTotalPerCountry`: from the sample, Sudan's water value and year are the newest `RESIDENCEAREATYPE_TOTL` row.
