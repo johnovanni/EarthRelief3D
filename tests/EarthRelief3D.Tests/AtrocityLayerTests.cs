@@ -394,7 +394,9 @@ public class AtrocityLayerTests
         var entries = text.Split(Environment.NewLine).Where(l => !l.StartsWith(' ')).ToList();
         Assert.Equal(6, current.Count);   // the pending case, three provisional-measures orders, the warrants, the COI finding
         Assert.Equal(current.Count, entries.Count);
-        Assert.All(entries, l => Assert.StartsWith(country + " · " + DesignationText.DraftLabel, l, StringComparison.Ordinal));
+        // Approved by the owner on 2026-11-24, so no line carries the draft label.
+        Assert.All(entries, l => Assert.StartsWith(country + " · ", l, StringComparison.Ordinal));
+        Assert.DoesNotContain(DesignationText.DraftLabel, text);
         Assert.All(text.Split(Environment.NewLine), l => Assert.True(l.Length <= TooltipText.MaxLineChars, l));
         // Nothing is lost by the wrap.
         Assert.Equal(string.Join(" ", current.Select(d => DesignationText.Hover(d, country, real.Tables.Governments))),

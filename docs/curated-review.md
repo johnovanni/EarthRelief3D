@@ -41,8 +41,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/36/54 on documents.un.org (dated 11 August 2017; original French). Summary: 'The Commission has reasonable grounds to believe that crimes against humanity have been committed in Burundi since April 2015.' Para. 69: 'having established that the elements of crimes against humanity are present'; para. 77: 'attributable primarily to State officials at the highest level and to senior officers and members of the National Intelligence Service, the police, the army and the Imbonerakure'. History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### BIH
 
@@ -57,8 +56,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the judgement PDF on icty.org: Trial Chamber, Case No. IT-98-33-T, dated 2 August 2001; para. 645 'General Krstic is guilty of genocide pursuant to Article 4(2)(a)'. Also opened ICTY's case information sheet (icty.org/x/cases/krstic/cis/en/cis_krstic_en.pdf): 'The Trial Chamber found that genocide was committed in Srebrenica'; '2 August 2001, convicted of genocide, crimes against humanity and violations of the laws or customs of war'.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icty-krstic-appeal-2004`: Court judgment: genocide (Krstić convicted of aiding and abetting it) (ICTY, 2004)
 
@@ -71,8 +69,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the appeal judgement PDF on icty.org: Appeals Chamber, Case No. IT-98-33-A, 19 April 2004. Para. 39: 'the crime of genocide was committed at Srebrenica in July 1995, a determination which the Trial Chamber correctly made'; 'By seeking to eliminate a part of the Bosnian Muslims, the Bosnian Serb forces committed genocide.' ICTY's case information sheet: '19 April 2004, convicted of aiding and abetting genocide, crimes against humanity and violations of the laws or customs of war'; not guilty of genocide as a principal perpetrator.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icj-bosnia-v-serbia-2007`: Court judgment: genocide (ICJ, 2007)
 
@@ -85,8 +82,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/91 ('Overview of the case'): the Srebrenica killings 'were committed with the specific intent to destroy in part the group of Bosnian Muslims in that area'; the acts were not proved attributable to Serbia; Serbia 'had violated its obligation contained in Article 1 of the Genocide Convention to prevent' the Srebrenica genocide and 'had violated its obligation to punish the perpetrators of genocide'. The judgment's PDF URL is as listed on that page; the PDF itself could not be opened (icj-cij.org serves PDFs behind a bot check).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### CHN
 
@@ -101,8 +97,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the determination on 2017-2021.state.gov (State Department archive), dated January 19, 2021: 'I have determined that since at least March 2017, the People's Republic of China (PRC), under the direction and control of the Chinese Communist Party (CCP), has committed crimes against humanity against the predominantly Muslim Uyghurs and other members of ethnic and religious minority groups'; and 'has committed genocide against the predominantly Muslim Uyghurs and other ethnic and religious minority groups in Xinjiang'. History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `un-ohchr-xinjiang-2022`: UN body finding: may constitute crimes against humanity (OHCHR, 2022)
 
@@ -115,8 +110,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the assessment on ohchr.org (dated 31 August 2022). Para. 148: 'The extent of arbitrary and discriminatory detention of members of Uyghur and other predominantly Muslim groups ... may constitute international crimes, in particular crimes against humanity.' The term keeps OHCHR's 'may constitute'. No UN statement from the last 12 months saying it continues was found, so it is history only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### ERI
 
@@ -131,8 +125,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/32/47 on documents.un.org (dated 9 May 2016). Para. 112: 'there are reasonable grounds to believe that crimes against humanity have been committed in Eritrea since 1991. Eritrean officials have engaged in a persistent, widespread and systematic attack against the country's civilian population since 1991.' History only (no statement from the last 12 months found).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### ETH
 
@@ -147,8 +140,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/51/46 on documents.un.org (Distr. 5 October 2022). Para. 98: 'the Commission has reasonable grounds to believe that the Federal Government has committed the crimes against humanity of murder, torture, rape and sexual violence' against the civilian population of Tigray. The Commission's later report (2023) was not researched. History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `us-ethiopia-2023`: United States government determination: crimes against humanity; ethnic cleansing (US Secretary of State, 2023)
 
@@ -161,8 +153,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated March 20, 2023: war crimes by members of the ENDF, EDF, TPLF forces and Amhara forces; 'Members of the ENDF, EDF, and Amhara forces also committed crimes against humanity'; 'Members of the Amhara forces also committed the crime against humanity of deportation or forcible transfer and committed ethnic cleansing in western Tigray.' History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### HRV
 
@@ -177,8 +168,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/118 ('Overview of the case'): acts against Croats 'constituted the actus reus of genocide within the meaning of Article II (a) and (b)', but 'In the absence of evidence of the required intent, the Court found that Croatia had not proved its allegations'; Serbia's counter-claim: the acts 'had not been committed on a scale such that they could only point to the existence of a genocidal intent', and 'it rejected Serbia's counter-claim in its entirety'. Press release 2015/4, 'The Court rejects Croatia's claim and Serbia's counter-claim'. Entered as a court judgment with outcome NotEstablished, so the app labels it 'Court judgment: genocide not established', never draws it on the map, and never counts it as a crisis. The judgment's PDF URL is as listed on the case page (the PDF itself is behind icj-cij.org's bot check).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### IRQ
 
@@ -193,8 +183,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the remarks on 2009-2017.state.gov (State Department archive), dated March 17, 2016: 'in my judgment, Daesh is responsible for genocide against groups in areas under its control, including Yezidis, Christians, and Shia Muslims. Daesh is also responsible for crimes against humanity and ethnic cleansing directed at these same groups and in some cases also against Sunni Muslims, Kurds, and other minorities.' One determination covering Iraq and Syria, entered once for each country. Secretary Tillerson's reaffirmation of 15 August 2017 is not entered: its page on 2017-2021.state.gov returned 'Technical Difficulties' every time.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### KHM
 
@@ -209,8 +198,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the Trial Chamber's summary of judgement on eccc.gov.kh (16 November 2018). Para. 71: Nuon Chea guilty of crimes against humanity, grave breaches and 'genocide by killing members of the Vietnamese and Cham groups'; para. 72: Khieu Samphan guilty of crimes against humanity, grave breaches and 'genocide by killing members of the Vietnamese group'; paras 30 and 34: genocide committed against the Cham and against the Vietnamese. The full judgement (E465) and the Supreme Court Chamber's appeal judgement were not opened, so the appeal is not entered.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### MMR
 
@@ -225,8 +213,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the press statement on 2017-2021.state.gov (State Department archive), dated November 22, 2017: 'After a careful and thorough analysis of available facts, it is clear that the situation in northern Rakhine state constitutes ethnic cleansing against the Rohingya.' History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `un-ffm-myanmar-2018`: UN body finding: crimes against humanity (Fact-Finding Mission, 2018)
 
@@ -240,8 +227,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: [Report of the Independent Investigative Mechanism for Myanmar (A/HRC/63/19)](https://iimm.un.org/sites/default/files/2026/08/2026 IIMM Annual Report.pdf), 13 Jul 2026. On the map until 13 Jul 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/39/64 on documents.un.org (dated 12 September 2018). Para. 88: 'the mission finds that crimes against humanity have been committed in Kachin, Rakhine and Shan States, principally by the Tatmadaw'. Para. 87 (genocide): 'sufficient information to warrant the investigation and prosecution of senior officials in the Tatmadaw chain of command, so that a competent court can determine their liability for genocide in relation to the situation in Rakhine State': so the term entered is crimes against humanity, and the genocide wording is in the situation, not presented as a finding of genocide. Continuing: opened the Independent Investigative Mechanism for Myanmar's annual report A/HRC/63/19 (dated 13 July 2026) on iimm.un.org; a UN report saying crimes against humanity by the military continued.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icj-gambia-v-myanmar-pm-2020`: Provisional measures in a case alleging genocide: not a finding (ICJ, 2020)
 
@@ -254,8 +240,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/178: the Order of 23 January 2020 ('Request for the indication of provisional measures') and press release 2020/3, 'The Court indicates provisional measures in order to preserve certain rights claimed by The Gambia for the protection of the Rohingya in Myanmar'. The order's PDF URL is as listed on the page (PDF behind icj-cij.org's bot check). The same page lists the Judgment of 19 November 2026 on the merits (press release 2026/30); that judgment's findings could not be read on icj-cij.org and it is NOT entered (see the Task 5 report).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `us-burma-2022`: United States government determination: genocide; crimes against humanity (US Secretary of State, 2022)
 
@@ -268,8 +253,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the remarks on 2021-2025.state.gov (State Department archive), dated March 21, 2022: 'I have determined that members of the Burmese military committed genocide and crimes against humanity against Rohingya.' The State Department's 'Burma Genocide' page (2021-2025.state.gov/burma-genocide/) says the same. History only (no UN statement from the last 12 months specifically about the Rohingya was used).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### PRK
 
@@ -284,8 +268,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/25/63 on documents.un.org (dated 7 February 2014). Para. 75: 'the commission finds that the body of testimony and other information it received establishes that crimes against humanity have been committed in the Democratic People's Republic of Korea, pursuant to policies established at the highest level of the State'; para. 77 names the primary targets (the group above). No continuing statement entered: the Human Rights Council's resolution 61/27 (30 March 2026, A/HRC/RES/61/27) 'condemns ... the long-standing and ongoing systematic, widespread and gross human rights violations' and recalls the commission's findings, but it is a resolution, not a report, and does not itself say the crimes against humanity continue. The owner may decide whether it qualifies.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### PSE
 
@@ -301,8 +284,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: ["The essence of childhood has been destroyed": Israel's deliberate targeting of Palestinian children in the Occupied Palestinian Territory since 7 October 2023 (A/HRC/62/CRP.2), UN Commission of Inquiry](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session62/a-hrc-62-crp-2.pdf), 18 Jun 2026. On the map until 18 Jun 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/192: application dated 29 December 2023 (its PDF file name says 28 December); Orders of 26 January, 28 March and 24 May 2024 on provisional measures; no judgment on the merits or on preliminary objections listed; latest entry press release 2026/24 of 22 September 2026 (Colombia withdraws its declaration of intervention). So the case is pending: 'Pending: no finding yet'. The continuing statement is a UN report (the Commission of Inquiry's paper A/HRC/62/CRP.2, dated 18 June 2026, para. 331), opened on ohchr.org; it is used for every row about Gaza since October 2023.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icj-south-africa-v-israel-pm-2024-01`: Provisional measures in a case alleging genocide: not a finding (ICJ, 2024)
 
@@ -316,8 +298,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: ["The essence of childhood has been destroyed": Israel's deliberate targeting of Palestinian children in the Occupied Palestinian Territory since 7 October 2023 (A/HRC/62/CRP.2), UN Commission of Inquiry](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session62/a-hrc-62-crp-2.pdf), 18 Jun 2026. On the map until 18 Jun 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/192: Order of 26 January 2024, 'Request for the indication of provisional measures'; press release title 'The Court indicates provisional measures'. PDF URL as listed on the page (behind the bot check). Continuing statement as for the pending-case row.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icj-south-africa-v-israel-pm-2024-03`: Provisional measures in a case alleging genocide: not a finding (ICJ, 2024)
 
@@ -331,8 +312,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: ["The essence of childhood has been destroyed": Israel's deliberate targeting of Palestinian children in the Occupied Palestinian Territory since 7 October 2023 (A/HRC/62/CRP.2), UN Commission of Inquiry](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session62/a-hrc-62-crp-2.pdf), 18 Jun 2026. On the map until 18 Jun 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/192: Order of 28 March 2024, 'Request for the modification of the Order of 26 January 2024 indicating provisional measures'; press release title 'The Court indicates additional provisional measures'. PDF URL as listed on the page. Continuing statement as for the pending-case row.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icj-south-africa-v-israel-pm-2024-05`: Provisional measures in a case alleging genocide: not a finding (ICJ, 2024)
 
@@ -346,8 +326,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: ["The essence of childhood has been destroyed": Israel's deliberate targeting of Palestinian children in the Occupied Palestinian Territory since 7 October 2023 (A/HRC/62/CRP.2), UN Commission of Inquiry](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session62/a-hrc-62-crp-2.pdf), 18 Jun 2026. On the map until 18 Jun 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Read the case page icj-cij.org/case/192: Order of 24 May 2024, 'Request for the modification of the Order of 28 March 2024 indicating provisional measures'; press release title 'The Court reaffirms its previous provisional measures and indicates new measures'. PDF URL as listed on the page. Continuing statement as for the pending-case row.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `icc-palestine-warrants-2024`: Arrest warrant on charges of crimes against humanity (murder, persecution, other inhumane acts) and the war crime of starvation as a method of warfare: not a verdict (ICC, 2024)
 
@@ -361,8 +340,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: ["The essence of childhood has been destroyed": Israel's deliberate targeting of Palestinian children in the Occupied Palestinian Territory since 7 October 2023 (A/HRC/62/CRP.2), UN Commission of Inquiry](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session62/a-hrc-62-crp-2.pdf), 18 Jun 2026. On the map until 18 Jun 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the ICC press release of 21 November 2024 on icc-cpi.int: Pre-Trial Chamber I issued warrants of arrest for Mr Netanyahu and Mr Gallant 'for crimes against humanity and war crimes committed from at least 8 October 2023 until at least 20 May 2024'; the crimes: 'the war crime of starvation as a method of warfare; and the crimes against humanity of murder, persecution, and other inhumane acts'; 'part of a widespread and systematic attack against the civilian population of Gaza'. NOT checked: what happened to these warrants after 21 November 2024 (icc-cpi.int blocked further automated requests). The owner should confirm on icc-cpi.int that they are still in force before approving.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `un-coi-opt-2025`: UN body finding: genocide (Commission of Inquiry, 2025)
 
@@ -376,8 +354,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: ["The essence of childhood has been destroyed": Israel's deliberate targeting of Palestinian children in the Occupied Palestinian Territory since 7 October 2023 (A/HRC/62/CRP.2), UN Commission of Inquiry](https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session62/a-hrc-62-crp-2.pdf), 18 Jun 2026. On the map until 18 Jun 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/60/CRP.3 on ohchr.org (dated 16 September 2025, advance version). Paras 252–255: the Commission 'concludes on reasonable grounds that the Israeli authorities and Israeli security forces have committed and are continuing to commit the following actus reus of genocide against the Palestinians in the Gaza Strip'; genocidal intent 'the only reasonable inference'; 'the State of Israel bears responsibility for the failure to prevent genocide, the commission of genocide and the failure to punish genocide'. Continuing: opened the same Commission's A/HRC/62/CRP.2 (dated 18 June 2026) on ohchr.org, para. 331.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### RWA
 
@@ -392,8 +369,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the judgement PDF on unictr.irmct.org (the ICTR archive kept by the UN International Residual Mechanism for Criminal Tribunals). Front page: Trial Chamber I, decision of 2 September 1998, Case No. ICTR-96-4-T. Section 8, Verdict: Count 1 'Guilty of Genocide'; Counts 3, 5, 7, 9, 11, 13 and 14 guilty of crimes against humanity; Count 4 guilty of direct and public incitement to commit genocide. Para. 126: 'genocide was, indeed, committed in Rwanda in 1994 against the Tutsi as a group'. The case page unictr.irmct.org/en/cases/ictr-96-4 refused automated access (HTTP 403), so the appeal (2001) was not checked and is not entered.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### SDN
 
@@ -408,8 +384,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the testimony on 2001-2009.state.gov (State Department archive), dated September 9, 2004: 'we concluded, I concluded, that genocide has been committed in Darfur and that the Government of Sudan and the Jingaweit bear responsibility'; attacks 'against non-Arab villagers'. History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `us-sudan-2023`: United States government determination: crimes against humanity; ethnic cleansing (US Secretary of State, 2023)
 
@@ -423,8 +398,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF), 10 Mar 2026. On the map until 10 Mar 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated December 6, 2023: 'I have determined that members of the SAF and the RSF have committed war crimes in Sudan. I have also determined that members of the RSF and allied militias have committed crimes against humanity and ethnic cleansing.' The statement names Masalit civilians. Continuing: a UN report, the fact-finding mission's A/HRC/61/77 (10 March 2026), paras 123-124: RSF atrocities showing 'continuity and escalation', and the same modus operandi moving to Kordofan. The mission's later report A/HRC/63/23 (September 2026): the Task 5 code reviewer read it on 2026-11-23 and found that it does not say atrocity crimes continue; I could not open it (see un-ffm-sudan-2026).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `us-sudan-2025`: United States government determination: genocide (US Secretary of State, 2025)
 
@@ -438,9 +412,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF), 10 Mar 2026. On the map until 10 Mar 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated January 7, 2025: 'Based on this information, I have now concluded that members of the RSF and allied militias have committed genocide in Sudan.' It describes the RSF and allied militias having 'systematically murdered men and boys ... on an ethnic basis, and deliberately targeted women and girls from certain ethnic groups'. Continuing as for us-sudan-2023 (A/HRC/61/77, paras 123-124). A/HRC/63/23: the Task 5 code reviewer read it on 2026-11-23 and found that it does not say atrocity crimes continue; I could not open it.
-- **Question for the owner:** Should this genocide determination count toward Sudan's triangle? Its continuing statement (A/HRC/61/77, paras 123-124) says RSF atrocities show 'continuity and escalation' and that 'the risk of further genocidal violence remains acute'; it supports continuing RSF atrocities, not that the genocide itself continues. If not, remove the continuing statement from this row and it becomes panel history (the FFM and the 2023 determination still give Sudan its triangle).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `un-ffm-sudan-2026`: UN body finding: crimes against humanity; indications pointing to genocide (Fact-Finding Mission, 2026)
 
@@ -454,8 +426,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
   Source: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF), 10 Mar 2026. On the map until 10 Mar 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/61/77 on documents.un.org (Distr. 10 March 2026; the mission's press release of February 2026 announced it). Para. 121: 'present indications pointing to genocide in and around El Fasher'; para. 122: 'crimes against humanity, notably extermination and persecution on ethnic, gender and political grounds, as well as war crimes ... were committed'; summary: 'indicators of a genocidal path'. The term keeps the mission's wording (indications, not a finding of genocide). Continuing statement: the same report, paras 123-124, re-read in the document on 2026-11-23 and quoted exactly ('demonstrating continuity and escalation'; 'the risk of further genocidal violence remains acute'; the conflict moving to Kordofan 'marked by the same modus operandi'). It supports continuing RSF atrocities, not a continuing genocide in so many words. Not used: (a) a July 2026 paper reported in UN News as A/HRC/62/CRP.4, whose ohchr.org link returned 'page not found'; (b) the mission's report A/HRC/63/23 ('Fuelling Sudan's conflict: weapons, fighters and external support networks', presented September 2026): documents.un.org redirected every request to its error page and no ohchr.org copy was found, so I could not open it. The Task 5 code reviewer read A/HRC/63/23 on 2026-11-23 and found that it does not say atrocity crimes continue; that is the reviewer's check, not mine.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### SYR
 
@@ -470,8 +441,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened A/HRC/S-17/2/Add.1 on documents.un.org (dated 23 November 2011). Para. 100: 'its reasons for concluding that members of the Syrian military and security forces have committed crimes against humanity in 2011'; para. 108: 'gravely concerned that crimes against humanity of murder, torture, rape ... imprisonment ... have been committed'. This is the commission's first finding; its many later reports (including on ISIS and the Yazidis, 2016) were not researched in this task. History only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 #### `us-isis-2016-syr`: United States government determination: genocide; crimes against humanity; ethnic cleansing (US Secretary of State, 2016)
 
@@ -484,8 +454,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Same document as us-isis-2016-irq (one determination, entered once per country).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### UKR
 
@@ -500,8 +469,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Continuing: none, so it is panel history only (not on the map).
 - Checked on: 23 Nov 2026
 - What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated February 18, 2023: 'I have determined that members of Russia's forces and other Russian officials have committed crimes against humanity in Ukraine.' No continuing statement was researched (the UN Commission of Inquiry on Ukraine was outside this task's list), so it is history only.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ## Camp sites
 
@@ -517,8 +485,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Status on the map: a marker (its newest cited report does not say it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1 (Word file on ohchr.org, dated 7 February 2014), para. 735, in section IV.E 'Arbitrary detention, torture, executions, enforced disappearance and political prison camps' (paras 693-845, as the table of contents says). Position: the HRNK report's own 'CenterPoint Coordinates 39.646810, 126.117058' (report dated December 22, 2021, same as its web page). Note: HRNK's 2015 report gives 'Coordinates 39.557817, 126.011499', about 13 km away; the 2021 report puts the camp's south-west entrance at 39.558234, 126.012311, so the 2015 figure seems to mark the entrance. The 2015 report's cover says November 30, 2015 and its inner page 'Date of Report: November 24, 2015'; the cover date is used.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### `prk-kwanliso-15`: Political Prison Camp No. 15 (Yodok) (Kwan-li-so No. 15)
 
@@ -532,9 +499,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Status on the map: a marker (its newest cited report does not say it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735. Position: 'Coordinates: 39.671450, 126.852357' printed in both HRNK reports (18 September 2015 and 13 February 2015). Dates are the reports' own: the web page of the February 2015 report says 2024-02-17, a site-migration date. Inconsistency: the COI places Yodok County in South Pyongan Province; HRNK's reports give Hamgyong-namdo (South Hamgyong), which is where Yodok County is; the description names the county only. HRNK (September 2015): 'This imagery analysis confirms the detainee facility and a small number of support buildings were razed between 2013-2014 and that the former "Revolutionizing Zone" is no longer used to house detainees.' The camp's later status was not researched.
-- **Question for the owner:** The spec's C11 has no recency rule for a documented camp: a camp keeps its marker unless its newest cited report says it closed (ruling R14b). This camp's newest cited report is HRNK's of September 2015, and its later status was not researched. Should an old report still put a marker on the map? If not, say how recent the newest report must be (for example, within 5 years), and the rule will be added for every camp.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### `prk-kwanliso-16`: Political Prison Camp No. 16 (Myonggan, also Hwasong) (Kwan-li-so No. 16)
 
@@ -548,8 +513,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Status on the map: a marker (its newest cited report does not say it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735 (it says 'Myonggan'; HRNK's report gives the location as Hwasong-gun, Hamgyong-bukto). Position: 'Coordinates: 41.231091 N, 129.412216 E' in HRNK's 2015 report; its cover says December 15, 2015 (the web page's date too) and its inner page 'Date of Report: November 16, 2015'; the cover date is used. The 2023 'Switchback' report's coordinates (41.2831 N, 129.0981 E) are the Punggye-ri test site's, not the camp's, so they are not used.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### `prk-kwanliso-18`: Political Prison Camp No. 18 (Pukchang) (Kwan-li-so No. 18)
 
@@ -564,9 +528,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Status note: HRNK (2024): parts remain active ([North Korea's Political Prison Camp Kwan-li-so No. 18 (Pukch'ang)](https://www.hrnk.org/wp-content/uploads/2024/07/camp18_240618.pdf), HRNK (Committee for Human Rights in North Korea), 18 Jun 2024)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 739 (camps of the Ministry of People's Security until 2006: 'Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006. Today, a short-term labour detention facility has been placed on the premises'). HRNK (report dated June 18, 2024; its web page says 2024-06-23): 'large sections of Kwan-li-so No. 18 were deactivated over a period of at least eight years and ... smaller sections remain active as a detention facility'; 'Whether the official designation of this facility remains Kwan-li-so No. 18 is unknown.' The brief allowed No. 18 if HRNK's 2024 report supports it; it does, but the two sources differ on its status, and the description gives both. Position: HRNK's 'CenterPoint Coordinates: 39.552435 N, 126.073063 E'.
-- **Question for the owner:** The sources differ: the UN Commission of Inquiry (2014, A/HRC/25/CRP.1 para. 739) reported the site closed in 2006; HRNK's newer report (2024) says smaller sections 'remain active as a detention facility'. Under ruling R14b the newest report decides, so the camp keeps its marker and counts as a current crisis, with both statements shown. Approve this, or correct it?
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ### `prk-kwanliso-25`: Political Prison Camp No. 25 (Chongjin) (Kwan-li-so No. 25)
 
@@ -583,8 +545,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Status on the map: a marker (its newest cited report does not say it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735. Left out of the description: the COI's figure that the camp 'now covers an area of 980 square metres', which cannot be right for a camp HRNK measures at about 1,400 by 1,000 metres (2014 update). Position: 'CenterPoint Coordinates: 41.834384 N, 129.725280 E' in Update 4 (February 17, 2024); the same figure is in Update 3 (September 30, 2021) and Update 2 (November 29, 2016). All dates are the reports' own cover dates. The 2013 report was prepared by DigitalGlobe Analytics for HRNK.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 24 Nov 2026
 
 ## Awaiting confirmation / not entered
 

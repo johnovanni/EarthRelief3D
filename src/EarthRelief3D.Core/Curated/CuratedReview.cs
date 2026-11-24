@@ -79,8 +79,8 @@ public static class CuratedReview
                 L($"- Checked on: {Date(d.CheckedOn)}");
                 L($"- What was checked and where: {Md(d.Verification ?? "(not recorded)")}");
                 if (d.OwnerQuestion is { Length: > 0 } q) L($"- **Question for the owner:** {Md(q)}");
-                L($"- Status: **{d.Review.Status}**" + (d.Review.ApprovedOn is { } a ? $", approved {Date(a)}" : ""));
-                L("- Owner: approve / correct: ");
+                L($"- Status: **{d.Review.Status}**" + (d.Review.ApprovedOn is { } a ? $" on {Date(a)}" : ""));
+                if (d.Review.Status == Review.Draft) L("- Owner: approve / correct: ");
             }
         }
         L();
@@ -106,8 +106,8 @@ public static class CuratedReview
             L($"- Checked on: {Date(c.CheckedOn)}");
             L($"- What was checked and where: {Md(c.Verification ?? "(not recorded)")}");
             if (c.OwnerQuestion is { Length: > 0 } q) L($"- **Question for the owner:** {Md(q)}");
-            L($"- Status: **{c.Review.Status}**" + (c.Review.ApprovedOn is { } a ? $", approved {Date(a)}" : ""));
-            L("- Owner: approve / correct: ");
+            L($"- Status: **{c.Review.Status}**" + (c.Review.ApprovedOn is { } a ? $" on {Date(a)}" : ""));
+            if (c.Review.Status == Review.Draft) L("- Owner: approve / correct: ");
         }
         L();
 

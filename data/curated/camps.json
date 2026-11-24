@@ -32,7 +32,7 @@
         "date": "2014-02-07"
       }
     ],
-    "review": { "status": "draft", "approvedOn": null },
+    "review": { "status": "approved", "approvedOn": "2026-11-24" },
     "checkedOn": "2026-11-23",
     "verification": "Name and description: A/HRC/25/CRP.1 (Word file on ohchr.org, dated 7 February 2014), para. 735, in section IV.E 'Arbitrary detention, torture, executions, enforced disappearance and political prison camps' (paras 693-845, as the table of contents says). Position: the HRNK report's own 'CenterPoint Coordinates 39.646810, 126.117058' (report dated December 22, 2021, same as its web page). Note: HRNK's 2015 report gives 'Coordinates 39.557817, 126.011499', about 13 km away; the 2021 report puts the camp's south-west entrance at 39.558234, 126.012311, so the 2015 figure seems to mark the entrance. The 2015 report's cover says November 30, 2015 and its inner page 'Date of Report: November 24, 2015'; the cover date is used."
   },
@@ -69,9 +69,8 @@
         "date": "2014-02-07"
       }
     ],
-    "review": { "status": "draft", "approvedOn": null },
+    "review": { "status": "approved", "approvedOn": "2026-11-24" },
     "checkedOn": "2026-11-23",
-    "ownerQuestion": "The spec's C11 has no recency rule for a documented camp: a camp keeps its marker unless its newest cited report says it closed (ruling R14b). This camp's newest cited report is HRNK's of September 2015, and its later status was not researched. Should an old report still put a marker on the map? If not, say how recent the newest report must be (for example, within 5 years), and the rule will be added for every camp.",
     "verification": "Name and description: A/HRC/25/CRP.1, para. 735. Position: 'Coordinates: 39.671450, 126.852357' printed in both HRNK reports (18 September 2015 and 13 February 2015). Dates are the reports' own: the web page of the February 2015 report says 2024-02-17, a site-migration date. Inconsistency: the COI places Yodok County in South Pyongan Province; HRNK's reports give Hamgyong-namdo (South Hamgyong), which is where Yodok County is; the description names the county only. HRNK (September 2015): 'This imagery analysis confirms the detainee facility and a small number of support buildings were razed between 2013-2014 and that the former \"Revolutionizing Zone\" is no longer used to house detainees.' The camp's later status was not researched."
   },
   {
@@ -107,7 +106,7 @@
         "date": "2014-02-07"
       }
     ],
-    "review": { "status": "draft", "approvedOn": null },
+    "review": { "status": "approved", "approvedOn": "2026-11-24" },
     "checkedOn": "2026-11-23",
     "verification": "Name and description: A/HRC/25/CRP.1, para. 735 (it says 'Myonggan'; HRNK's report gives the location as Hwasong-gun, Hamgyong-bukto). Position: 'Coordinates: 41.231091 N, 129.412216 E' in HRNK's 2015 report; its cover says December 15, 2015 (the web page's date too) and its inner page 'Date of Report: November 16, 2015'; the cover date is used. The 2023 'Switchback' report's coordinates (41.2831 N, 129.0981 E) are the Punggye-ri test site's, not the camp's, so they are not used."
   },
@@ -160,9 +159,8 @@
         }
       }
     ],
-    "review": { "status": "draft", "approvedOn": null },
+    "review": { "status": "approved", "approvedOn": "2026-11-24" },
     "checkedOn": "2026-11-23",
-    "ownerQuestion": "The sources differ: the UN Commission of Inquiry (2014, A/HRC/25/CRP.1 para. 739) reported the site closed in 2006; HRNK's newer report (2024) says smaller sections 'remain active as a detention facility'. Under ruling R14b the newest report decides, so the camp keeps its marker and counts as a current crisis, with both statements shown. Approve this, or correct it?",
     "verification": "Name and description: A/HRC/25/CRP.1, para. 739 (camps of the Ministry of People's Security until 2006: 'Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006. Today, a short-term labour detention facility has been placed on the premises'). HRNK (report dated June 18, 2024; its web page says 2024-06-23): 'large sections of Kwan-li-so No. 18 were deactivated over a period of at least eight years and ... smaller sections remain active as a detention facility'; 'Whether the official designation of this facility remains Kwan-li-so No. 18 is unknown.' The brief allowed No. 18 if HRNK's 2024 report supports it; it does, but the two sources differ on its status, and the description gives both. Position: HRNK's 'CenterPoint Coordinates: 39.552435 N, 126.073063 E'."
   },
   {
@@ -216,7 +214,7 @@
         "date": "2013-02-25"
       }
     ],
-    "review": { "status": "draft", "approvedOn": null },
+    "review": { "status": "approved", "approvedOn": "2026-11-24" },
     "checkedOn": "2026-11-23",
     "verification": "Name and description: A/HRC/25/CRP.1, para. 735. Left out of the description: the COI's figure that the camp 'now covers an area of 980 square metres', which cannot be right for a camp HRNK measures at about 1,400 by 1,000 metres (2014 update). Position: 'CenterPoint Coordinates: 41.834384 N, 129.725280 E' in Update 4 (February 17, 2024); the same figure is in Update 3 (September 30, 2021) and Update 2 (November 29, 2016). All dates are the reports' own cover dates. The 2013 report was prepared by DigitalGlobe Analytics for HRNK."
   }

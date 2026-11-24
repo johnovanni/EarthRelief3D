@@ -58,9 +58,12 @@ public class AppStartupTests
             Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NotChecked, l.AsOf));
             Assert.Equal("as of 30 Jun 2026", vm.Legend.Lines.Single(l => l.Layer == CrisisLayer.Displacement).AsOf);
             vm.Panel.Show("SDN");
-            // The four crisis sections, then the two needs sections (nothing loaded for them yet).
+            // The four crisis sections, then the two needs sections (nothing loaded for them yet). Since the owner approved
+            // the curated rows (2026-11-24), Sudan also has its atrocity sections (current and history).
             Assert.Equal(4, vm.Panel.Sections.Count(s => s.Heading != CountryPanelViewModel.BasicNeedsHeading
-                && s.Heading != CountryPanelViewModel.ResourcesHeading && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)));
+                && s.Heading != CountryPanelViewModel.ResourcesHeading && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)
+                && !s.Heading.StartsWith(CountryPanelViewModel.AtrocityHeading, StringComparison.Ordinal)));
+            Assert.Contains(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
 
             // One dot per source: the feeds grey until each reports, then the bundled extracts (Task 6), green from the start.
             Assert.Equal(AppServices.StatusDotNames, vm.Status.Dots.Select(d => d.Name));

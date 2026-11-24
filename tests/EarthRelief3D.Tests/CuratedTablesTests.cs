@@ -68,9 +68,12 @@ public class CuratedTablesTests
             // Newest first.
             Assert.Equal(c.DocumentedBy.OrderByDescending(r => r.Date).Select(r => r.Date), c.DocumentedBy.Select(r => r.Date));
         }
-        // Drafted by Claude: every row waits for the owner (P3-4).
-        Assert.All(t.Designations, d => Assert.Equal(Review.Draft, d.Review.Status));
-        Assert.All(t.Camps, c => Assert.Equal(Review.Draft, c.Review.Status));
+        // Drafted by Claude (P3-4); the owner approved every row on 2026-11-24. A new row starts as a draft again.
+        var approvedOn = new DateOnly(2026, 11, 24);
+        Assert.All(t.Designations.Where(d => d.Review.Status != Review.Draft), d => Assert.Equal(new Review(Review.Approved, approvedOn), d.Review));
+        Assert.All(t.Camps.Where(c => c.Review.Status != Review.Draft), c => Assert.Equal(new Review(Review.Approved, approvedOn), c.Review));
+        Assert.Equal(31, t.Designations.Count(d => d.Review.IsApproved));
+        Assert.Equal(5, t.Camps.Count(c => c.Review.IsApproved));
     }
 
     [Fact]
@@ -194,7 +197,10 @@ public class CuratedTablesTests
         Assert.Equal(text.ReplaceLineEndings("\n"), File.ReadAllText(path).ReplaceLineEndings("\n"));
         foreach (var d in t.Designations) Assert.Contains(d.Id, text);
         foreach (var c in t.Camps) Assert.Contains(c.Id, text);
-        Assert.Contains("approve / correct", text);
+        // Approved rows carry the day; the owner's line is only for drafts.
+        Assert.Contains("- Status: **approved** on 24 Nov 2026", text);
+        Assert.Equal(t.Designations.Count(d => !d.Review.IsApproved) + t.Camps.Count(c => !c.Review.IsApproved),
+            text.Split('\n').Count(l => l.StartsWith("- Owner: approve / correct", StringComparison.Ordinal)));
         // The candidates left out are in the document itself (never in an untracked file), with their links (R12, R13).
         Assert.Contains("## Awaiting confirmation / not entered", text);
         foreach (var n in t.NotEntered) Assert.Contains(n.Id, text);
@@ -203,10 +209,8 @@ public class CuratedTablesTests
         Assert.Contains("Bosnia (1993), Rwanda (1994) and Iraq (1995", text);
         Assert.Contains("Cambodia", text);
         Assert.DoesNotContain(".superpowers", text);
-        // The owner's question on the US genocide row's continuing statement.
-        Assert.Contains("Should this genocide determination count toward Sudan's triangle?", text);
-        // I1: the owner's question on a documented camp whose newest report is old (C11 has no recency rule for camps).
-        Assert.Contains("Should an old report still put a marker on the map?", text);
+        // The owner's questions were answered by the approval of 2026-11-24 (rows kept as drafted), so none is left.
+        Assert.DoesNotContain("Question for the owner", text);
     }
 
     [Fact]
