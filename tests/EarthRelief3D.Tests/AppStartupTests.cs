@@ -484,10 +484,18 @@ public class AppStartupTests
             Assert.Contains(texts, t => t.StartsWith("Source: UNHCR, Mid-year 2026 figures", StringComparison.Ordinal));
             Assert.All(vm.Legend.Lines, l => Assert.Contains(l.SourceLine, texts));
             Assert.Contains(LayerStripViewModel.ComingNote, texts);
-            // Plan 3: the Needs and Resources groups list their layers.
+            // Plan 3: the Needs and Resources groups list their layers. R20: with none of their layers on they start closed,
+            // their headers saying so; opened, they list their toggles.
             Assert.Contains("Needs", texts);
+            Assert.Contains("Resources", texts);
+            Assert.DoesNotContain("Water", texts);
+            Assert.Equal(2, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
+            foreach (var g in vm.Layers.Groups) g.IsOpen = true;
+            root.UpdateLayout();
+            texts = Descendants<TextBlock>(root).Select(t => t.Text).ToList();
             Assert.Contains("Water", texts);
             Assert.Contains("Steel plants", texts);
+            Assert.Equal(0, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
             // The four sources, the two needs feeds, Borders, and the three bundled extracts (Task 6).
             Assert.Equal(10, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
@@ -515,6 +523,41 @@ public class AppStartupTests
         finally
         {
             System.Diagnostics.PresentationTraceSources.DataBindingSource.Listeners.Remove(errors);
+        }
+    });
+
+    [Fact]
+    public void AFocusedSectionOpensAtItsTop() => StaAsync.Run(async () =>
+    {
+        // R20: a scene's focus and a marker click both open the panel with the section's heading at the top of the view,
+        // never mid-section (BringIntoView only scrolled the section's end into view).
+        var store = await SampleStore.LoadAsync();
+        var countries = CountryResolver.LoadDefault();
+        // An empty indicator store still gives the needs sections ("Data not loaded yet"), so displacement is not the last.
+        var vm = new MainViewModel(store, new MemorySettingsStore(), iso => countries.ByIso3(iso)?.Name, dispatcher: null,
+            () => SampleStore.Now, countries.Boundaries, new IndicatorStore());
+        var window = new MainWindow(vm, store, countries, new FixedClock(SampleStore.Now), new ListLog());
+        var root = (FrameworkElement)window.Content;
+        root.Measure(new Size(1200, 760));
+        root.Arrange(new Rect(0, 0, 1200, 760));
+        root.UpdateLayout();
+        var panel = Descendants<EarthRelief3D.App.Views.CountryPanel>(root).Single();
+        var scroller = (ScrollViewer)panel.FindName("Scroller");
+        var list = (ItemsControl)panel.FindName("SectionList");
+
+        foreach (var layer in new[] { CrisisLayer.Displacement, CrisisLayer.Conflict, CrisisLayer.Food, CrisisLayer.Displacement })
+        {
+            vm.Panel.Show("SDN", layer);
+            root.UpdateLayout();
+            await Task.Delay(50);   // the panel scrolls at Loaded priority
+            root.UpdateLayout();
+            Assert.True(vm.Panel.FocusedSectionIndex >= 0);
+            var item = (FrameworkElement)list.ItemContainerGenerator.ContainerFromIndex(vm.Panel.FocusedSectionIndex);
+            var y = item.TranslatePoint(new Point(0, 0), scroller).Y;
+            Assert.True(scroller.ScrollableHeight > 0, "the Sudan panel should scroll");
+            bool atEnd = Math.Abs(scroller.VerticalOffset - scroller.ScrollableHeight) < 1;
+            Assert.True(Math.Abs(y) < 1 || (atEnd && y > 0), $"{layer}: the section's top is {y:0} px below the view's top (offset {scroller.VerticalOffset:0} of {scroller.ScrollableHeight:0})");
+            if (layer == CrisisLayer.Displacement) Assert.False(atEnd, "pick a section the panel can scroll to the top of");
         }
     });
 

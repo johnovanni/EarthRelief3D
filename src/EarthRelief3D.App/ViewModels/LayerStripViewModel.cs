@@ -49,11 +49,54 @@ public sealed class LayerToggle : ObservableObject
     internal void Refresh() => OnPropertyChanged(nameof(IsChecked));
 }
 
-/// <summary>A group of the strip (spec §6) with its toggles.</summary>
-/// <param name="Note">A short line under the group's name (the one-shading rule), or null.</param>
-public sealed record LayerGroup(string Name, IReadOnlyList<LayerToggle> Toggles, string? Note = null)
+/// <summary>
+/// A group of the strip (spec §6) with its toggles. A collapsible group (Needs, Resources; ruling R20) opens and closes from
+/// its header; Crises is always open.
+/// </summary>
+public sealed class LayerGroup : ObservableObject
 {
+    private readonly Action<LayerGroup>? _userChose;
+    private bool _isOpen;
+
+    /// <param name="note">A short line under the group's name (the one-shading rule), or null.</param>
+    /// <param name="userChose">Called when the user opens or closes the group (to save the choice); null: not collapsible.</param>
+    internal LayerGroup(string name, IReadOnlyList<LayerToggle> toggles, string? note = null, Action<LayerGroup>? userChose = null)
+    {
+        Name = name;
+        Toggles = toggles;
+        Note = note;
+        _userChose = userChose;
+        _isOpen = true;
+    }
+
+    public string Name { get; }
+    public IReadOnlyList<LayerToggle> Toggles { get; }
+    public string? Note { get; }
     public bool HasNote => Note is not null;
+    public bool IsCollapsible => _userChose is not null;
+
+    /// <summary>The header's tooltip.</summary>
+    public string HeaderTooltip => $"Show or hide the {Name} layers";
+
+    /// <summary>The group's toggles are shown. Set from the header (the user's choice, saved); a non-collapsible group stays open.</summary>
+    public bool IsOpen
+    {
+        get => _isOpen;
+        set
+        {
+            if (_userChose is null || !SetProperty(ref _isOpen, value)) return;
+            _userChose(this);
+        }
+    }
+
+    /// <summary>True when one of the group's layers is on.</summary>
+    public bool AnyOn => Toggles.Any(t => t.IsChecked);
+
+    /// <summary>Opens or closes the group without recording a choice (the start rule, a snapshot scene).</summary>
+    internal void SetOpenQuietly(bool open)
+    {
+        if (_userChose is not null) SetProperty(ref _isOpen, open, nameof(IsOpen));
+    }
 }
 
 /// <summary>
@@ -99,9 +142,25 @@ public sealed partial class LayerStripViewModel : ObservableObject
                 Marker(MarkerLayer.Conflict), Shade(ShadingLayer.Food), Marker(MarkerLayer.Outbreaks), Marker(MarkerLayer.Displacement),
                 .. LayerCatalog.CrisisMarkersAdded.Select(Marker),
             ]),
-            new LayerGroup(NeedsGroup, [.. LayerCatalog.NeedsShadings.Select(Shade)], ShadingNote),
-            new LayerGroup(ResourcesGroup, [.. LayerCatalog.ResourceShadings.Select(Shade), .. LayerCatalog.ResourceMarkers.Select(Marker)], ShadingNote),
+            new LayerGroup(NeedsGroup, [.. LayerCatalog.NeedsShadings.Select(Shade)], ShadingNote, OnGroupChosen),
+            new LayerGroup(ResourcesGroup, [.. LayerCatalog.ResourceShadings.Select(Shade), .. LayerCatalog.ResourceMarkers.Select(Marker)],
+                ShadingNote, OnGroupChosen),
         ];
+
+        // R20: a group starts open when one of its layers is on (its active toggle is never hidden at start), otherwise as
+        // the user last left it, otherwise closed. After that it changes only when the user opens or closes it.
+        _openChoices = s.OpenGroups is { } saved ? new Dictionary<string, bool>(saved, StringComparer.Ordinal) : null;
+        foreach (var g in Groups.Where(g => g.IsCollapsible))
+            g.SetOpenQuietly(g.AnyOn || (_openChoices?.GetValueOrDefault(g.Name) ?? false));
+    }
+
+    // The user's open or closed choices, by group name; null until the user first opens or closes a group.
+    private Dictionary<string, bool>? _openChoices;
+
+    private void OnGroupChosen(LayerGroup g)
+    {
+        (_openChoices ??= new(StringComparer.Ordinal))[g.Name] = g.IsOpen;
+        Save();
     }
 
     private LayerToggle Add(LayerToggle t)
@@ -171,12 +230,17 @@ public sealed partial class LayerStripViewModel : ObservableObject
         else if (Shading == layer) Shading = ShadingLayer.None;
     }
 
-    /// <summary>Sets the shading and exactly these marker layers at once (a snapshot scene).</summary>
+    /// <summary>
+    /// Sets the shading and exactly these marker layers at once (a snapshot scene), and opens the groups as a start would
+    /// with them: a collapsible group is open exactly when one of its layers is on. That is not the user's choice, so it is
+    /// not saved.
+    /// </summary>
     public void SetLayers(ShadingLayer shading, IEnumerable<MarkerLayer> markers)
     {
         var wanted = new SortedSet<MarkerLayer>(markers);
         foreach (var m in Enum.GetValues<MarkerLayer>()) Show(m, wanted.Contains(m));
         Shading = shading;
+        foreach (var g in Groups.Where(g => g.IsCollapsible)) g.SetOpenQuietly(g.AnyOn);
     }
 
     /// <summary>The property name that carries <paramref name="layer"/>'s toggle.</summary>
@@ -218,7 +282,8 @@ public sealed partial class LayerStripViewModel : ObservableObject
     private void Save()
     {
         var markers = ShownMarkers;
-        _store.Save(_store.Load() with
+        var saved = _store.Load();
+        _store.Save(saved with
         {
             Shading = Shading,
             Markers = markers,
@@ -228,6 +293,7 @@ public sealed partial class LayerStripViewModel : ObservableObject
             ShowOutbreaks = ShowOutbreaks,
             ShowDisplacement = ShowDisplacement,
             LayerStripExpanded = IsExpanded,
+            OpenGroups = _openChoices is null ? saved.OpenGroups : new Dictionary<string, bool>(_openChoices, StringComparer.Ordinal),
         });
     }
 }

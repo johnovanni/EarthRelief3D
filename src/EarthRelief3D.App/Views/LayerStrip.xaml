@@ -84,6 +84,39 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <!-- A collapsible group's header (R20): an arrow (open ▾, closed ▸, also said in words by "closed"), then the name
+                 in the group-header look when the labels show. -->
+            <Style x:Key="GroupButton" TargetType="ToggleButton">
+                <Setter Property="Margin" Value="0,4,0,0"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="ToolTipService.InitialShowDelay" Value="250"/>
+                <Setter Property="ToolTipService.Placement" Value="Right"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="4,0" Height="24">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Arrow" Text="▾" Width="26" FontSize="13" TextAlignment="Center" Foreground="#C8CDD8"/>
+                                    <StackPanel Orientation="Horizontal"
+                                                Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource B2V}}">
+                                        <TextBlock Text="{Binding Name}" Foreground="#C8CDD8" FontSize="12" FontWeight="SemiBold" Margin="2,0,6,0"/>
+                                        <TextBlock x:Name="Closed" Text="closed" Foreground="#9AA3B5" FontSize="11" Margin="0,0,6,0" Visibility="Collapsed"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter TargetName="Arrow" Property="Text" Value="▸"/>
+                                    <Setter TargetName="Closed" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -99,12 +132,47 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type vm:LayerGroup}">
                         <StackPanel>
-                            <StackPanel Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource B2V}}">
+                            <!-- Crises (always open): its name, with the labels. -->
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsCollapsible}" Value="False"/>
+                                                    <Condition Binding="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
                                 <TextBlock Style="{StaticResource GroupHeader}" Text="{Binding Name}"/>
-                                <TextBlock Text="{Binding Note}" Foreground="#9AA3B5" FontSize="11" Margin="6,0,6,2"
-                                           Visibility="{Binding HasNote, Converter={StaticResource B2V}}"/>
                             </StackPanel>
-                            <ItemsControl ItemsSource="{Binding Toggles}" Focusable="False">
+                            <!-- Needs and Resources (R20): the header opens and closes the group; the arrow shows with or without labels. -->
+                            <ToggleButton Style="{StaticResource GroupButton}" IsChecked="{Binding IsOpen}"
+                                          ToolTip="{Binding HeaderTooltip}"
+                                          Visibility="{Binding IsCollapsible, Converter={StaticResource B2V}}"/>
+                            <TextBlock Text="{Binding Note}" Foreground="#9AA3B5" FontSize="11" Margin="6,0,6,2">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasNote}" Value="True"/>
+                                                    <Condition Binding="{Binding IsOpen}" Value="True"/>
+                                                    <Condition Binding="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ItemsControl ItemsSource="{Binding Toggles}" Focusable="False"
+                                          Visibility="{Binding IsOpen, Converter={StaticResource B2V}}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type vm:LayerToggle}">
                                         <ToggleButton Style="{StaticResource LayerButton}" Tag="{Binding Symbol}" Content="{Binding Label}"

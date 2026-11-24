@@ -39,8 +39,19 @@ public partial class CountryPanel : UserControl
         {
             if (_vm is not { FocusedSectionIndex: >= 0 } vm) { Scroller.ScrollToTop(); return; }
             if (SectionList.ItemContainerGenerator.ContainerFromIndex(vm.FocusedSectionIndex) is FrameworkElement item)
-                item.BringIntoView();
+                ScrollToTopOf(item);
         });
+    }
+
+    /// <summary>
+    /// Scrolls so the section's top is at the top of the panel's view (or as far as the panel scrolls), for a scene's focus
+    /// and a marker click alike: a section taller than the view opens at its heading, never mid-way.
+    /// </summary>
+    private void ScrollToTopOf(FrameworkElement item)
+    {
+        Scroller.UpdateLayout();
+        var y = item.TranslatePoint(new Point(0, 0), Scroller).Y;
+        Scroller.ScrollToVerticalOffset(Scroller.VerticalOffset + y);
     }
 
     private void OnSourceLinkClick(object sender, RoutedEventArgs e)

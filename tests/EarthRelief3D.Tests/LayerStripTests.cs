@@ -112,6 +112,8 @@ public class LayerStripTests
             Assert.Equal(ShadingLayer.Food, vm.Shading);
             Assert.False(vm.ShowConflict);
             Assert.False(vm.IsExpanded);
+            Assert.Null(s.OpenGroups);   // no group choice in a Plan 2 file: the start rule decides
+            Assert.False(vm.Groups.Single(g => g.Name == "Needs").IsOpen);
 
             File.WriteAllText(root.SettingsFile, """{ "ShowFood": false }""");
             Assert.Equal(ShadingLayer.None, new SettingsStore(root, new ListLog()).Load().EffectiveShading);
@@ -141,6 +143,94 @@ public class LayerStripTests
         });
         Assert.Equal(8, toggles.Count(t => t.IsShading));
         Assert.Equal(LegendViewModel.FoodTooltip, Toggle(vm, "Food crisis").Tooltip);
+    }
+
+    private static LayerGroup Group(LayerStripViewModel vm, string name) => vm.Groups.Single(g => g.Name == name);
+
+    [Fact]
+    public void AGroupStartsOpenOnlyWhenOneOfItsLayersIsOn()
+    {
+        // Today's default: food and the Plan 2 markers, all in Crises. Needs and Resources start closed; Crises always open.
+        var vm = new LayerStripViewModel(new MemorySettingsStore());
+        Assert.False(Group(vm, "Crises").IsCollapsible);
+        Assert.True(Group(vm, "Crises").IsOpen);
+        Assert.True(Group(vm, "Needs").IsCollapsible);
+        Assert.False(Group(vm, "Needs").IsOpen);
+        Assert.True(Group(vm, "Resources").IsCollapsible);
+        Assert.False(Group(vm, "Resources").IsOpen);
+
+        // An active shading opens its group.
+        var water = new LayerStripViewModel(new MemorySettingsStore(new AppSettings { Shading = ShadingLayer.Water }));
+        Assert.True(Group(water, "Needs").IsOpen);
+        Assert.False(Group(water, "Resources").IsOpen);
+        var oil = new LayerStripViewModel(new MemorySettingsStore(new AppSettings { Shading = ShadingLayer.OilProduction }));
+        Assert.False(Group(oil, "Needs").IsOpen);
+        Assert.True(Group(oil, "Resources").IsOpen);
+        // So does a shown marker layer.
+        var power = new LayerStripViewModel(new MemorySettingsStore(new AppSettings { Markers = [MarkerLayer.PowerPlants] }));
+        Assert.True(Group(power, "Resources").IsOpen);
+        Assert.False(Group(power, "Needs").IsOpen);
+    }
+
+    [Fact]
+    public void AGroupNeverClosesByItself()
+    {
+        var vm = new LayerStripViewModel(new MemorySettingsStore(new AppSettings { Shading = ShadingLayer.Water }));
+        var needs = Group(vm, "Needs");
+        Assert.True(needs.IsOpen);
+        Toggle(vm, "Food crisis").IsChecked = true;   // the water shading goes off: Needs stays open
+        Assert.Equal(ShadingLayer.Food, vm.Shading);
+        Assert.True(needs.IsOpen);
+        vm.ShowFood = false;
+        Assert.True(needs.IsOpen);
+        Toggle(vm, "Power plants").IsChecked = true;
+        Toggle(vm, "Power plants").IsChecked = false;
+        Assert.True(needs.IsOpen);
+    }
+
+    [Fact]
+    public void TheOpenOrClosedChoiceIsSaved()
+    {
+        var root = TempRoot();
+        try
+        {
+            Directory.CreateDirectory(root.Root);
+            var vm = new LayerStripViewModel(new SettingsStore(root, new ListLog()));
+            Assert.False(Group(vm, "Resources").IsOpen);
+            Group(vm, "Resources").IsOpen = true;   // the user opens it with nothing on
+            Assert.True(new SettingsStore(root, new ListLog()).Load().OpenGroups![LayerStripViewModel.ResourcesGroup]);
+
+            var again = new LayerStripViewModel(new SettingsStore(root, new ListLog()));
+            Assert.True(Group(again, "Resources").IsOpen);
+            Assert.False(Group(again, "Needs").IsOpen);
+            Group(again, "Resources").IsOpen = false;
+            Assert.False(new LayerStripViewModel(new SettingsStore(root, new ListLog())).Groups.Single(g => g.Name == "Resources").IsOpen);
+
+            // A closed choice does not hide an active layer at start: the group opens to show its toggle.
+            var store = new SettingsStore(root, new ListLog());
+            var vm3 = new LayerStripViewModel(store);
+            Toggle(vm3, "Oil production").IsChecked = true;
+            Assert.True(new LayerStripViewModel(new SettingsStore(root, new ListLog())).Groups.Single(g => g.Name == "Resources").IsOpen);
+
+            // Crises is never stored (it cannot close).
+            Assert.False(new SettingsStore(root, new ListLog()).Load().OpenGroups!.ContainsKey(LayerStripViewModel.CrisesGroup));
+        }
+        finally { Directory.Delete(root.Root, recursive: true); }
+    }
+
+    [Fact]
+    public void ASceneOpensTheGroupsOfItsLayersAndClosesTheOthers()
+    {
+        var settings = new MemorySettingsStore();
+        var vm = new LayerStripViewModel(settings);
+        vm.SetLayers(ShadingLayer.OilProduction, []);
+        Assert.True(Group(vm, "Resources").IsOpen);
+        Assert.False(Group(vm, "Needs").IsOpen);
+        vm.SetLayers(ShadingLayer.Water, [MarkerLayer.Camps]);
+        Assert.True(Group(vm, "Needs").IsOpen);
+        Assert.False(Group(vm, "Resources").IsOpen);
+        // A scene is not the user's choice: nothing is saved for the groups.
+        Assert.Null(settings.Current.OpenGroups);
     }
 
     [Fact]

@@ -37,6 +37,13 @@ public sealed record AppSettings
     /// </summary>
     public IReadOnlyList<string>? DeterminationGovernments { get; init; }
 
+    /// <summary>
+    /// The user's open or closed choice for each collapsible group of the strip ("Needs", "Resources"; ruling R20), by
+    /// name; null, or a group missing, when the user has not chosen (then the group starts open only if one of its layers
+    /// is on). A Plan 2 file has none.
+    /// </summary>
+    public IReadOnlyDictionary<string, bool>? OpenGroups { get; init; }
+
     /// <summary>The shading to show: <see cref="Shading"/>, or for a Plan 2 file food when <see cref="ShowFood"/>, else none.</summary>
     [JsonIgnore]
     public ShadingLayer EffectiveShading => Shading ?? (ShowFood ? ShadingLayer.Food : ShadingLayer.None);
