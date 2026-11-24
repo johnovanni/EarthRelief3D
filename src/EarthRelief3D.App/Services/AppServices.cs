@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows.Threading;
 using EarthRelief3D.App.Curated;
+using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Curated;
 using EarthRelief3D.App.Settings;
@@ -63,8 +64,25 @@ public sealed class AppServices : IDisposable
                 : []);
     }
 
-    /// <summary>The status dots: the feeds' (<see cref="FeedNames"/>), then the bundled datasets'.</summary>
-    public static IReadOnlyList<string> StatusDotNames { get; } = [.. FeedNames, .. BundledDatasets.Select(d => d.Name)];
+    /// <summary>
+    /// Task 7: puts the GEM extracts' points in the marker store (each layer's set, <see cref="ResourceMarkers.For"/>) and
+    /// their codes with no country on the map in the crisis store's "Not placed on the map" list, under the "GEM" source. An
+    /// extract that did not load gets no set: its layer draws nothing and its legend line says "Data not loaded yet" (R2),
+    /// as the amber dot does.
+    /// </summary>
+    public static void ApplyBundledPoints(MarkerDataStore markers, CrisisStore store, IReadOnlyList<(MarkerLayer Layer, BundledPointsLoad Load)> loads)
+    {
+        ArgumentNullException.ThrowIfNull(markers);
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(loads);
+        foreach (var (layer, load) in loads)
+            if (ResourceMarkers.For(layer, load) is { } set) markers.Replace(layer, set);
+        store.ReplaceUnplaced(ResourceMarkers.DotName, [.. loads.Where(l => l.Load.Loaded).SelectMany(l => l.Load.NotPlaced.Select(n =>
+            new UnplacedReport(ResourceMarkers.DotName, $"{LayerCatalog.Label(l.Layer)} in {n.Name} ({n.Code})", n.Reason, l.Load.Citation!)))]);
+    }
+
+    /// <summary>The status dots: the feeds' (<see cref="FeedNames"/>), then the bundled datasets', then GEM's (one for its three extracts, Task 7).</summary>
+    public static IReadOnlyList<string> StatusDotNames { get; } = [.. FeedNames, .. BundledDatasets.Select(d => d.Name), ResourceMarkers.DotName];
 
     private readonly CacheWriter _cacheWriter;
     private readonly CacheWriter _indicatorWriter;
@@ -148,6 +166,9 @@ public sealed class AppServices : IDisposable
             iso => countries.ByIso3(iso) is not null, log), d.SeriesIds)).ToList();
         ApplyBundled(indicators, store, loads, log);
         var bundled = loads.Select(l => l.Item1).ToList();
+        // Task 7: the GEM power, oil and gas, and steel extracts (P3-9), points for the Resources marker layers.
+        var pointLoads = ResourceMarkers.Datasets.Select(d => (d.Layer, BundledPoints.Load(ResourceMarkers.DotName,
+            Path.Combine(BundledDataset.DatasetsDir, d.Folder), iso => countries.ByIso3(iso) is not null, log))).ToList();
 
         // P3-2: the IPC areas, an extra step of the IPC feed (its status dot): it needs the national records just stored, and
         // a country whose areas cannot be had keeps the 20% rule without failing the national figures. The areas of the last
@@ -191,6 +212,8 @@ public sealed class AppServices : IDisposable
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.SeriesDate(c, clock.UtcNow)));
+        ApplyBundledPoints(main.MarkerData, store, pointLoads);
+        main.Status.Update(ResourceMarkers.Status(pointLoads));
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke
         return new AppServices(store, cache, indicators, indicatorCache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log)
         {

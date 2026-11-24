@@ -29,9 +29,9 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="0,1,10,1">
-                                        <!-- A filled swatch; for the food outline (R17) a ring in the outline's colour; for the faint tint (round 2) a ring around a faint fill;
+                                        <!-- A filled swatch (round for the power plants' fuels and sizes, sized for a size class, Task 7); for the food outline (R17) a ring in the outline's colour; for the faint tint (round 2) a ring around a faint fill;
                                              for "no figure: not shaded" (P3-7) an empty box with a thin grey edge. -->
-                                        <Rectangle Width="12" Height="12" RadiusX="2" RadiusY="2" Margin="0,0,5,0" VerticalAlignment="Center">
+                                        <Rectangle Width="{Binding Swatch}" Height="{Binding Swatch}" RadiusX="{Binding Radius}" RadiusY="{Binding Radius}" Margin="0,0,5,0" VerticalAlignment="Center">
                                             <Rectangle.Style>
                                                 <Style TargetType="Rectangle">
                                                     <Setter Property="Fill" Value="{Binding Brush}"/>

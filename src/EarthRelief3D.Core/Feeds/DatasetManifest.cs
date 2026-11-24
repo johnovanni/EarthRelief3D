@@ -47,6 +47,18 @@ public sealed record DatasetManifest
     /// <summary>The source's flags seen (FAO's E, O; EIA's frequency and "--" marker), with how often.</summary>
     public IReadOnlyDictionary<string, int> FlagsSeen { get; init; } = new Dictionary<string, int>();
     public IReadOnlyList<string> Notes { get; init; } = [];
+    /// <summary>
+    /// A point extract's filter (P3-9), as the legend says it ("operating plants of 500 MW or more"); null for the
+    /// country-value extracts.
+    /// </summary>
+    public string? Filter { get; init; }
+    /// <summary>
+    /// How the extract changed the source's data, for CC BY 4.0's "indicate if changes were made" (Task 7: "filtered to
+    /// operating plants of 500 MW or more; units summed per plant"); null when it only selects rows and columns.
+    /// </summary>
+    public string? Changes { get; init; }
+    /// <summary>The licence's own text (a URL), which a CC BY credit links to; null when the licence needs no link.</summary>
+    public string? LicenceUrl { get; init; }
 
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
     {

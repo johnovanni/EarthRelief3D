@@ -29,9 +29,37 @@ public sealed record ExtractRow(string Series, string Iso3, int Year, double Val
 /// <summary>An extract, ready to be written as <c>data.csv</c> and <c>manifest.json</c>.</summary>
 public sealed record Extract(DatasetManifest Manifest, IReadOnlyList<ExtractRow> Rows, IReadOnlyList<string> ExtraColumns);
 
+/// <summary>One row of a point extract's <c>data.csv</c> (<see cref="BundledPoints.Columns"/>), then the source's own columns.</summary>
+public sealed record PointRow(string Name, string Iso3, double Lat, double Lon, double? Capacity, string Unit, string Status, string Type,
+    IReadOnlyDictionary<string, string> Extra);
+
+/// <summary>A point extract (Task 7, the GEM trackers), ready to be written as <c>data.csv</c> and <c>manifest.json</c>.</summary>
+public sealed record PointExtract(DatasetManifest Manifest, IReadOnlyList<PointRow> Rows, IReadOnlyList<string> ExtraColumns);
+
 /// <summary>Writes an extract's folder (P3-10): <c>data.csv</c> (UTF-8, no BOM, LF) and <c>manifest.json</c>.</summary>
 public static class DatasetWriter
 {
+    /// <summary>A point extract's folder: <c>data.csv</c> with <see cref="BundledPoints.Columns"/> and the extra columns, and the manifest.</summary>
+    public static void WritePoints(PointExtract extract, string folder)
+    {
+        ArgumentNullException.ThrowIfNull(extract);
+        Directory.CreateDirectory(folder);
+        var sb = new StringBuilder();
+        sb.Append(string.Join(",", BundledPoints.Columns.Concat(extract.ExtraColumns).Select(Quote))).Append('\n');
+        foreach (var r in extract.Rows)
+        {
+            IEnumerable<string> cells =
+            [
+                r.Name, r.Iso3, Number(r.Lat), Number(r.Lon), r.Capacity is { } c ? Number(c) : "", r.Unit, r.Status, r.Type,
+                .. extract.ExtraColumns.Select(c => r.Extra.TryGetValue(c, out var v) ? v : ""),
+            ];
+            sb.Append(string.Join(",", cells.Select(Quote))).Append('\n');
+        }
+        var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+        File.WriteAllText(Path.Combine(folder, BundledDataset.DataFile), sb.ToString(), utf8);
+        File.WriteAllText(Path.Combine(folder, BundledDataset.ManifestFile), extract.Manifest.ToJson().ReplaceLineEndings("\n") + "\n", utf8);
+    }
+
     public static void Write(Extract extract, string folder)
     {
         ArgumentNullException.ThrowIfNull(extract);

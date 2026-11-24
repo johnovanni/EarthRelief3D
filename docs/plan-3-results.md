@@ -150,3 +150,28 @@ before the snapshot run, from the test's measurement.
     group is open).
 - Not pictured: the water-stress shading (its "baseline 1979–2019 (published 2023)" wording is checked by tests only),
   the camp tooltips' "newest report" (hover), the interim-steps section and the undernourishment row.
+
+## GEM layers (Task 7, 2026-11-24)
+
+- Data: `DataTool gem-power`, `gem-oilgas` and `gem-steel` on the owner's files (docs/data-sources.md §11) wrote
+  `data/datasets/gem-power` (**4,113** operating plants of 500 MW or more, units summed per plant, 118 countries),
+  `gem-oilgas` (**4,933** operating fields; 6,055 with coordinates passed the 5,000 cap, so the fields GEM reports
+  producing under 0.2 million barrels of oil equivalent a year are left out, ruling R23) and `gem-steel` (**600**
+  operating plants of 1 million tonnes of crude steel a year or more, 60 countries). No code was left unplaced. Power
+  rows from TransitionZero (CC BY-NC 4.0) are never bundled (ruling R22); none was 500 MW or more.
+- Tests: Release and Debug builds 0 warnings; `dotnet test` **404 passed, 0 failed** (390 before; `DataToolGemTests` 8,
+  `ResourceMarkersTests` 6).
+- Launch (outside Task 8's budget, ruling R18): `EarthRelief3D.App.exe --offline-samples tests\Samples --snapshot-scenes
+  tests\SnapshotScenes\scenes.json --snapshot-out artifacts\snapshot-gem` (Release, from PowerShell), exit code 0, nine
+  pictures. The `resources` scene now turns on `power`, `oilgas` and `steel` over the oil production shading.
+- `resources.png` (the Gulf, Europe and South Asia): the three layers draw together. Power plants are edged discs in the
+  five fuel colours (orange fossil discs thickest over the Gulf, India and China; pink nuclear and blue hydro in Europe;
+  a large blue disc for a big hydro plant); oil and gas fields are vermillion diamonds, densest over the Gulf, the
+  Caspian, the Volga-Urals and western Siberia; steel plants are green square outlines (Europe, Iran, India, China). The
+  Resources group is open with Oil production and Power plants in view (Oil and gas fields and Steel plants are further
+  down the strip). The legend shows the oil shading, then "Power plants: operating plants of 500 MW or more (units summed
+  per plant), coloured by fuel" with the five fuel keys and four size keys, and GEM's credit starting "Global Integrated
+  Power Tracker, Global Energy Monitor, September 2026 (V2) release. Licence: CC BY 4.0, https://…"; the oil and gas and
+  steel lines are below the legend's fold (it scrolls). Eleven green status dots (GEM's is the last).
+- Not checked by a picture: the hover tooltips (tests pin their wording), the oil and gas and steel legend lines (below
+  the fold), and a close-up: at this zoom the markers crowd each other over the Gulf and eastern China.

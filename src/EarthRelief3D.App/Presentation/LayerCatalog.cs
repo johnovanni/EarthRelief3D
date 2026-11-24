@@ -158,9 +158,9 @@ public static class LayerCatalog
     {
         MarkerLayer.Atrocities => "findings by courts, UN bodies and governments, at the country",
         MarkerLayer.Camps => "documented sites, each with its source",
-        MarkerLayer.PowerPlants => "operating plants of 500 MW or more, coloured by fuel",
-        MarkerLayer.OilGasFields => "operating fields",
-        MarkerLayer.SteelPlants => "operating plants of 1 million tonnes a year or more",
+        MarkerLayer.PowerPlants => "operating plants of 500 MW or more (units summed per plant), coloured by fuel",
+        MarkerLayer.OilGasFields => "operating fields, leaving out the smallest reported producers (the legend gives the threshold)",
+        MarkerLayer.SteelPlants => "operating plants of 1 million tonnes of crude steel a year or more",
         _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "The Plan 2 layers' wording is in LegendViewModel.Measures."),
     };
 

@@ -213,6 +213,120 @@ Checked 2026-11-23 by a download into a scratch folder (nothing in the repo).
 - **Licence confirmed (Task 6, ruling R6, 2026-11-23):** WRI's Open Data Commitment (https://www.wri.org/about/open-data-commitment) says WRI has adopted the Creative Commons Attribution 4.0 International License as its standard licence for publications and data. The extract is bundled under CC BY 4.0 with WRI's citation.
 - **As built (Task 6, 2026-11-23):** `country_baseline` has 2,456 rows: indicators `bws`, `drr`, `rfr`; weights `Tot, Dom, Ind, Irr, Liv, One`. `bws` with `Tot`: 189 countries, every `gid_0` the app's ISO3. Categories and labels: -9999 "NoData" (25), 0 "Low (<10%)" (59), 1 "Low - Medium (10-20%)" (35), 2 "Medium - High (20-40%)" (23), 3 "High (40-80%)" (22), 4 "Extremely High (>80%)" (25). **No country row has cat -1** ("Arid and Low Water Use"), so the legend leaves out the grey arid key (ruling R17b: it shows only when some country has that category); the app's labels for 0 to 4 match WRI's exactly. `DataTool aqueduct` keeps `gid_0, score, cat, label`; the value is `cat` and WRI's label is shown as written; the figures' year is 2019, the end of the 1979-2019 baseline. The figure is a modelled baseline for 1979–2019, published in 2023, so the manifest's date is `dateMeaning` "Baseline" with `dateText` "baseline 1979–2019 (published 2023)", and the legend, source line, status dot, hover and panel all say that, with no year appended (final fix wave I3; it said "estimate year 2019" before). The legend repeats the Read Me's cautions.
 
+## 11. Global Energy Monitor trackers (power plants, oil and gas fields, steel plants; Plan 3, bundled in Task 7)
+
+Built 2026-11-24 from the owner's downloads in `.downloads\gem\` (git-ignored; never committed, never opened except
+through the DataTool's ExcelDataReader). GEM's download form is not scriptable, so the owner downloads new releases.
+
+- **Licence (confirmed 2026-11-24):** GEM's licence page https://globalenergymonitor.org/creative-commons-license gives the
+  full Creative Commons Attribution 4.0 International Public License (CC BY 4.0); each workbook's About sheet says the same.
+  Bundling is allowed with credit, a link to the licence (https://creativecommons.org/licenses/by/4.0/) and a note of the
+  changes. Each manifest (`attribution`, `licence`, `licenceUrl`, `changes`, `filter`) and each legend line carries all
+  three. The citations used (the owner's, verbatim):
+  - "Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release."
+  - "Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026 Release."
+  - "Global Iron and Steel Tracker, Global Energy Monitor, September 2026 (V1) release."
+
+  The workbooks' own wording differs slightly, and is kept in each manifest's notes: the power workbook's About sheet
+  recommends "Global Energy Monitor, Global Integrated Power Tracker, September 2026 release." (no "V2": the version is
+  the file name's); the oil and gas workbook says "Global Oil and Gas Extraction Tracker, 2026 release" and gives no
+  recommended citation; the steel workbook says "September 2026 (V1) release".
+- **Non-commercial rows (ruling R22):** the power workbook's About sheet says records with a "TZ ID" in
+  `Other IDs (unit/phase)` (entries `TZ: <number>`) come partly or wholly from TransitionZero's Solar Asset Mapper
+  (August 2025), licensed **CC BY-NC 4.0**. Non-commercial data is never bundled (C6), so a plant (GEM location ID) with
+  any such unit is left out whole. In this release 18,723 plants with operating units carry one, **none of them 500 MW or
+  more**, so nothing on the map is lost.
+- **Pages (HTTP 200, 2026-11-24):** https://globalenergymonitor.org/projects/global-integrated-power-tracker/ ,
+  https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/ ,
+  https://globalenergymonitor.org/projects/global-iron-and-steel-tracker/ ; each page's download form is at `#download`.
+- **Dates:** GEM names a release by month only. The manifests' `dateMeaning` is `Release` with `dateText` the release as
+  cited ("September 2026 (V2) release"), and `published` is the 1st of that month, for ordering only: the screen never
+  shows a day ("GEM Global Integrated Power Tracker, September 2026 (V2) release").
+- **Checking a new release:** `DataTool describe <xlsx> [--sheet <name>] [--distinct <column>]` lists sheets, columns,
+  row counts and value counts; the extractors refuse a file whose sheet or column is missing, or whose About sheet does
+  not name the release's month and year.
+
+### 11a. Power: `DataTool gem-power` → `data/datasets/gem-power/`
+
+- **File:** `Global Integrated Power September 2026 V2.xlsx` (34 MB). Sheets: `About`, `Power facilities` (183,404 unit
+  rows, 54 columns), `Regions, area, and countries` (252 rows).
+- **Columns used (real names):** `Type, Country/area, Plant / Project name, Unit / Phase name, Capacity (MW), Status,
+  Latitude, Longitude, Location accuracy, Other IDs (unit/phase), GEM location ID, GEM unit/phase ID`; from the regions
+  sheet `GEM Standard Country Name/Area, ISO-alpha3 Code`.
+- **Values seen:** `Type`: utility-scale solar 103,940, wind 35,089, oil/gas 15,203, coal 14,674, hydropower 7,023,
+  bioenergy 4,815, nuclear 1,825, geothermal 835. `Status`: operating 128,100, pre-construction 21,923, announced 7,578,
+  cancelled 7,209, construction 6,235, retired 4,389, "cancelled - inferred 4 y" 2,989, "shelved - inferred 2 y" 2,809,
+  shelved 1,468, mothballed 704. `Location accuracy`: exact, approximate (and 71 "Approximate").
+- **Filter (P3-9):** units with `Status` "operating", `Capacity (MW)` summed per `GEM location ID` (108,956 plants);
+  plants of **500 MW or more**: **4,113 plants in 118 countries** (under the cap; not raised). A plant's position is its
+  first operating unit's; its type the `Type` with the most capacity (82 plants mix types, kept in the `types` column).
+  Countries map through the regions sheet's ISO3, then the app's names (GEM's XKX for Kosovo is placed by name as KOS).
+  No code was left unplaced. GEM writes "timepoint" rows for converted oil/gas units: no unit has two operating
+  timepoints (checked), so nothing is counted twice.
+- **Extract columns:** `name, iso3, lat, lon, capacity (MW), unit, status, type`, then `gem_location_id, gem_country,
+  units, types, location_accuracy`.
+- **On screen:** a disc with a dark edge (R8), filled by fuel group: fossil (coal, oil/gas) #E69F00, nuclear #CC79A7,
+  hydro #0072B2, wind or solar #F0E442, other (bioenergy, geothermal) #BBBBBB; sized by class (under 1,000 MW,
+  1,000–2,499, 2,500–4,999, 5,000 or more), each class and group a legend key.
+
+### 11b. Oil and gas: `DataTool gem-oilgas` → `data/datasets/gem-oilgas/`
+
+- **File:** `Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx` (5.4 MB). Sheets: `About`, `Field-level main data`
+  (7,673 fields), `Field-level reserves data`, `Field-level production data` (11,834 rows), and project-level sheets
+  (999 rows each, not used).
+- **Columns used:** main: `Unit ID, Unit Name, Fuel type, Country/Area, Status, Latitude, Longitude, Location accuracy,
+  Onshore/Offshore, Production Type`; production: `Unit ID, Fuel description, Quantity (converted), Units (converted),
+  Data Year`.
+- **Values seen:** `Status`: operating 6,481, discovered 455, mothballed 240, in-development 229, blank 213, abandoned
+  21, decommissioning 17, cancelled 10, "underground gas storage" 6, exploration 1. `Fuel type`: oil and gas 4,945, oil
+  1,376, gas 1,296, gas and condensate 56. `Units (converted)`: million bbl/y 6,749, million m³/y 5,025, million boe/y
+  60. `Data Year` runs from 1975 to 2029.
+- **Filter (P3-9, ruling R23):** operating fields with coordinates number 6,055 (426 operating fields have none), over the
+  5,000 cap. So the fields GEM reports producing under a threshold are left out, the threshold rising from 0.1 million
+  barrels of oil equivalent a year in 0.1 steps: at **0.2 million boe/y**, 1,122 fields go and **4,933 fields in 79
+  countries** remain. A field with no usable field-level figure (653 of those kept) stays: GEM reports some of the
+  largest only at project level, so dropping the unmeasured would hide giants. A field's production is each fuel's
+  newest `Data Year` before the release year (a 2026 or later year, such as Wafra's 2028, is a forecast: not used; a
+  row with no year is not used), summed in boe: oil, condensate and NGL in million bbl/y as they are, gas at 6,000 cubic
+  feet per boe (1 million m³ = 0.0058858 million boe), GEM's own million boe/y as given.
+- **Extract columns:** `name, iso3, lat, lon, capacity (million boe/y, or blank), unit, status, type (Fuel type)`, then
+  `gem_unit_id, gem_country, detail` (production as GEM gives it, "oil 518 million bbl/y (2022)"), `production_type,
+  onshore_offshore, location_accuracy`.
+- **On screen:** a vermillion diamond, one size (years and units differ, and many fields have no figure); the tooltip
+  gives GEM's production figures with their year, or "no production figure in GEM's field data".
+
+### 11c. Steel: `DataTool gem-steel` → `data/datasets/gem-steel/`
+
+- **File chosen:** `Plant-level data - Global Iron and Steel Tracker - September 2026 (V1).xlsx`, the only one of the
+  three that gives each plant's coordinates with its status and capacity. The `Steel unit data` and `Iron unit data`
+  files list furnaces (`Current capacity (ttpa)`, `Unit status`) with no coordinates; the met-coal summary is not needed.
+- **Sheets and columns used:** `Plant data` (1,293 plants): `GEM plant ID, Plant name (English), Country/area,
+  Coordinates, Coordinate accuracy`; `Plant capacities and status` (1,848 rows, one per plant, status and equipment):
+  `GEM plant ID, Status, Nominal crude steel capacity (ttpa), Main production equipment`. `Coordinates` is one text cell,
+  "36.7474130, 36.2173300".
+- **Values seen:** `Status`: operating 935, announced 288, retired 233, construction 140, "operating pre-retirement" 97,
+  cancelled 76, mothballed 72, "mothballed pre-retirement" 7. Capacities are numbers or "N/A", "unknown", ">0".
+- **Filter (P3-9):** a plant's `Nominal crude steel capacity (ttpa)` summed over its rows with `Status` "operating" or
+  "operating pre-retirement" (still producing; the status says which), divided by 1,000 to give million tonnes a year;
+  plants of **1 Mt/yr or more**: **600 plants in 60 countries** (918 plants have an operating steel capacity; 29 kept
+  plants sum two rows). Iron-only capacity (a DRI line with no steel) is not counted.
+- **Extract columns:** `name, iso3, lat, lon, capacity (Mt/yr), unit, status, type (Main production equipment)`, then
+  `gem_plant_id, gem_country, crude_steel_ttpa, coordinate_accuracy`.
+- **On screen:** a bluish-green square outline, sized by class (1–2.9, 3–9.9, 10 or more million tonnes a year); the
+  tooltip names the furnaces in words ("blast furnace, basic oxygen furnace").
+
+### 11d. Hand checks against the raw files (2026-11-24)
+
+- Bruce nuclear power plant (Canada): units A1–A4 and B5–B8 operating, 868 + 836 + 865 + 868 + 872 + 891 + 872 + 872 =
+  **6,944 MW**; C1–C4 (1,000 MW each) announced, not counted. Three Gorges: one row, 22,500 MW, operating.
+- Kosovo B: Unit 1 and Unit 2, 340 MW each, operating: **680 MW** (neither unit passes 500 MW alone). Kosovo A: units 3
+  to 5 operating (610 MW), units 1 and 2 retired.
+- Rumaila (Iraq): oil 518.3 million bbl/y, Data Year 2022. Burgan (Kuwait): "hydrocarbons" 620.5 million boe/y, 2023.
+  Ain Dar (Ghawar, Saudi Arabia): oil 63.9 million bbl/y, 2020.
+- POSCO Gwangyang: BF; BOF operating 22,999 ttpa (EAF 2,500 under construction, not counted): **23.0 Mt/yr**. Taranto:
+  BF; BOF "operating pre-retirement" 7,800 ttpa. Voestalpine Linz: 4,000 operating + 2,000 operating pre-retirement.
+  Port Talbot is not in the extract (its blast furnaces are retired).
+
 ## Offline samples (`--offline-samples`)
 
 The app's diagnostic handler (`src/EarthRelief3D.App/Diagnostics/OfflineSamples.cs`) maps each live URL to a file in
@@ -236,7 +350,7 @@ changes in a feed, or a new feed with no sample, fails a test.
 | https://api.github.com/repos/nvkelso/natural-earth-vector/releases/latest (Borders) | inline: v5.1.2, the bundled edition, so nothing is downloaded |
 
 Not through the handler, and the same in every run, offline too: the bundled extracts (FAO, US EIA, WRI Aqueduct; sections
-8 to 10) load from `data/datasets` beside the program, and the curated designations and camp sites from `data/curated`.
+8 to 10; and GEM's power, oil and gas, and steel points, section 11) load from `data/datasets` beside the program, and the curated designations and camp sites from `data/curated`.
 
 The Nigeria area samples (`hdx_ipc_nga_package.json`, `ipc_nga.geojson`, `ipc_nga_national_long_latest.csv`) are not served
 offline: their analysis is a projection (`ipc_period` P), as is Nigeria's record in the national sample, so R4 could

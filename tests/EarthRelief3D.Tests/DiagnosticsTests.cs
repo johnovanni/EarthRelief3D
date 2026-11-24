@@ -95,7 +95,9 @@ public class SnapshotScenesTests
         var resources = scenes.Single(s => s.Name == "resources");
         Assert.Equal(new GeoPosition(25, 50), resources.LookAt);
         Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.OilProduction, resources.Shading);
-        Assert.Empty(resources.Markers);   // ruling R18: Task 7's GEM layers have not run
+        // Task 7 (after ruling R18): the three GEM marker layers over the oil production shading.
+        Assert.Equal([EarthRelief3D.App.Presentation.MarkerLayer.PowerPlants, EarthRelief3D.App.Presentation.MarkerLayer.OilGasFields,
+            EarthRelief3D.App.Presentation.MarkerLayer.SteelPlants], resources.Markers);
         var myanmar = scenes.Single(s => s.Name == "myanmar-panel");
         Assert.True(myanmar.ShowDrafts);
         Assert.Equal("MMR", myanmar.Panel);

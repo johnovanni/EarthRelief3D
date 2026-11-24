@@ -156,12 +156,13 @@ internal static class SourceZips
                     var cells = sheets[i].Rows[r];
                     for (int c = 0; c < cells.Length; c++)
                     {
-                        var at = $"{(char)('A' + c)}{r + 1}";
+                        var at = $"{ColumnName(c)}{r + 1}";
                         sheet.Append(cells[c] switch
                         {
-                            string s => $"<c r=\"{at}\" t=\"inlineStr\"><is><t>{SecurityElement.Escape(s)}</t></is></c>",
+                            null => "",   // a blank cell (GEM's sheets have many)
+                            string s => $"<c r=\"{at}\" t=\"inlineStr\"><is><t xml:space=\"preserve\">{SecurityElement.Escape(s)}</t></is></c>",
                             double d => $"<c r=\"{at}\"><v>{d.ToString("R", CultureInfo.InvariantCulture)}</v></c>",
-                            _ => throw new ArgumentException("text or double cells only"),
+                            _ => throw new ArgumentException("text, double or null cells only"),
                         });
                     }
                     sheet.Append("</row>");
@@ -177,4 +178,43 @@ internal static class SourceZips
         }
         return ms.ToArray();
     }
+
+    /// <summary>A spreadsheet column's letters: 0 is A, 25 Z, 26 AA (GEM's power sheet has 54 columns).</summary>
+    public static string ColumnName(int index)
+    {
+        var name = "";
+        for (int n = index + 1; n > 0; n = (n - 1) / 26) name = (char)('A' + (n - 1) % 26) + name;
+        return name;
+    }
+
+    // ---------------------------------------------------------------- Global Energy Monitor (Task 7)
+
+    /// <summary>
+    /// A workbook rebuilt from one of the real small excerpts (at most 20 rows a sheet) in tests/Samples (<c>gem_*_excerpt.json</c>, made by
+    /// <c>DataTool excerpt</c> from the owner's GEM files; CC BY 4.0, credited in tests/Samples/README.md): the same sheets,
+    /// column names and cells (numbers as numbers, text as text, blanks blank). <paramref name="edit"/> may change the
+    /// sheets first (a test's own variant).
+    /// </summary>
+    public static SourceFile Gem(TempDir dir, string excerpt, DateOnly published, Action<List<(string Name, List<object?[]> Rows)>>? edit = null)
+    {
+        using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Samples.Path(excerpt)));
+        var sheets = new List<(string Name, List<object?[]> Rows)>();
+        foreach (var s in doc.RootElement.GetProperty("sheets").EnumerateArray())
+        {
+            var rows = new List<object?[]> { s.GetProperty("header").EnumerateArray().Select(Cell).ToArray() };
+            rows.AddRange(s.GetProperty("rows").EnumerateArray().Select(r => r.EnumerateArray().Select(Cell).ToArray()));
+            sheets.Add((s.GetProperty("name").GetString()!, rows));
+        }
+        edit?.Invoke(sheets);
+        var path = dir.File(doc.RootElement.GetProperty("file").GetString()!);
+        File.WriteAllBytes(path, Xlsx([.. sheets.Select(s => (s.Name, (IReadOnlyList<object[]>)[.. s.Rows.Select(r => r.Select(c => c!).ToArray())]))]));
+        return new SourceFile(path, published, Downloaded);
+    }
+
+    private static object? Cell(System.Text.Json.JsonElement e) => e.ValueKind switch
+    {
+        System.Text.Json.JsonValueKind.Number => e.GetDouble(),
+        System.Text.Json.JsonValueKind.String => e.GetString(),
+        _ => null,
+    };
 }

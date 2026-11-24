@@ -6,9 +6,16 @@ namespace EarthRelief3D.App.Layers;
 
 /// <summary>
 /// The points of one marker layer drawn from a list, and where they come from: the legend names the citation's source and
-/// as-of date, and the filter (P3-9, such as "operating plants of 500 MW or more") under it.
+/// as-of date, with <see cref="Filter"/> as its note (camps: why none are shown; GEM: the CC BY 4.0 credit).
 /// </summary>
-public sealed record PointSet(IReadOnlyList<PointItem> Items, SourceCitation Citation, string? Filter = null);
+public sealed record PointSet(IReadOnlyList<PointItem> Items, SourceCitation Citation, string? Filter = null)
+{
+    /// <summary>
+    /// What the legend line says the layer shows, from the data (GEM: "Power plants: operating plants of 500 MW or more
+    /// (units summed per plant), coloured by fuel", the filter P3-9 records); null: the layer's own wording.
+    /// </summary>
+    public string? Measures { get; init; }
+}
 
 /// <summary>
 /// The point sets by marker layer (camps, Task 5; GEM power, oil and gas, and steel, Task 7). A layer with no set has no

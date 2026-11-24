@@ -358,6 +358,7 @@ public static class CrisisText
         CitationDate.Checked => "checked " + Date(c.AsOfUtc),
         CitationDate.Year => "year " + c.AsOfUtc.Year.ToString(Inv),
         CitationDate.Baseline => c.DateText ?? "baseline ending " + c.AsOfUtc.Year.ToString(Inv),
+        CitationDate.Release => c.DateText ?? c.AsOfUtc.ToString("MMMM yyyy", Inv) + " release",
         _ => IsFuture(c, nowUtc) ? "retrieved " + Date(c.RetrievedUtc) : AsOf(c.AsOfUtc),
     };
 

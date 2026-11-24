@@ -1,0 +1,66 @@
+{
+  "id": "gem-power",
+  "publisher": "Global Energy Monitor",
+  "dataset": "Global Integrated Power Tracker",
+  "version": "September 2026 (V2) release",
+  "sourceUrl": "https://globalenergymonitor.org/projects/global-integrated-power-tracker/#download",
+  "pageUrl": "https://globalenergymonitor.org/projects/global-integrated-power-tracker/",
+  "licence": "CC BY 4.0",
+  "attribution": "Global Integrated Power Tracker, Global Energy Monitor, September 2026 (V2) release.",
+  "dateMeaning": "Release",
+  "dateText": "September 2026 (V2) release",
+  "asOf": "Global Integrated Power Tracker, September 2026 (V2) release: the status GEM recorded for that release",
+  "published": "2026-09-01",
+  "downloaded": "2026-11-24",
+  "fileName": "Global Integrated Power September 2026 V2.xlsx",
+  "fileSha256": "34749042643b15cac4423ae67864ad36c391013aa2d5acc65ae7492c5e33ee27",
+  "command": "DataTool gem-power \"<downloads>/Global Integrated Power September 2026 V2.xlsx\" --release \"September 2026 (V2) release\" --published 2026-09-01 --downloaded 2026-11-24",
+  "series": [
+    {
+      "id": "gem.power",
+      "measures": "Power plants: operating plants of 500 MW or more (units summed per plant)",
+      "unit": "MW",
+      "sourceItem": "Power facilities: Capacity (MW) of units with Status \"operating\", summed by GEM location ID",
+      "countries": 118
+    }
+  ],
+  "notPlaced": [],
+  "dropped": [],
+  "qualifiersSeen": {
+    "bioenergy": 6,
+    "coal": 1397,
+    "hydropower": 560,
+    "nuclear": 167,
+    "oil/gas": 1489,
+    "utility-scale solar": 280,
+    "wind": 214
+  },
+  "flagsSeen": {
+    "Status announced": 7578,
+    "Status cancelled": 7209,
+    "Status cancelled - inferred 4 y": 2989,
+    "Status construction": 6235,
+    "Status mothballed": 704,
+    "Status operating": 128100,
+    "Status pre-construction": 21923,
+    "Status retired": 4389,
+    "Status shelved": 1468,
+    "Status shelved - inferred 2 y": 2809
+  },
+  "notes": [
+    "Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); GEM's licence page https://globalenergymonitor.org/creative-commons-license (read 2026-11-24) gives the full CC BY 4.0 text. Changed by EarthRelief3D: filtered to operating plants of 500 MW or more (units summed per plant); operating units summed per plant; plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out.",
+    "Release: the workbook names \"September 2026\" without \"(V2)\"; the version is the file name's (Global Integrated Power September 2026 V2.xlsx).",
+    "About sheet: Copyright © Global Energy Monitor. Global Integrated Power Tracker, September 2026 release. Distributed under a Creative Commons Attribution 4.0 International License. (See the CC license for attribution requirements if sharing or adapting the data set.)",
+    "About sheet: Please note records with a “TZ ID” in the Other IDs (unit/phase) column were partially or fully sourced from the TransitionZero, Solar Asset Mapper, August 2025.  Copyright © TransitionZero, Solar Asset Mapper, August 2025. Distributed under a Creative Commons Attribution-Non-Commercial 4.0 International License (CC BY-NC 4.0).",
+    "About sheet: Recommended Citation: \"Global Energy Monitor, Global Integrated Power Tracker, September 2026 release.\"",
+    "Rows: 183,404 units in \"Power facilities\"; 108,956 plants (GEM location ID) with an operating unit; operating units' Capacity (MW) summed per plant.",
+    "Ruling R22: the About sheet says records with a \"TZ ID\" in Other IDs (unit/phase) come partly or wholly from TransitionZero's Solar Asset Mapper (August 2025), CC BY-NC 4.0. Non-commercial data is never bundled (C6), so a plant with any such unit is left out whole: 18,723 plants with operating units, 0 of them 500 MW or more (listed under dropped).",
+    "A plant's position is its first operating unit's Latitude and Longitude; 120 kept plants have units more than 0.05 degrees apart. A plant's type is its largest Type by capacity (82 kept plants have more than one; see the types column), and its country the Country/area with the most capacity (0 span two).",
+    "Country/area names map to ISO3 through the workbook's own \"Regions, area, and countries\" sheet (ISO-alpha3 Code), then the app's country names.",
+    "Check: largest plants: Three Gorges Dam hydroelectric plant (CHN, hydropower) 22,500 MW; Baihetan hydroelectric plant (CHN, hydropower) 16,000 MW; Itaipu hydroelectric plant (BRA, hydropower) 14,000 MW; Xiluodu hydroelectric plant (CHN, hydropower) 13,860 MW; Belo Monte hydroelectric plant (BRA, hydropower) 11,233 MW.",
+    "Published: GEM names the release month only; 2026-09-01 stands for September 2026 and is never shown as a day."
+  ],
+  "filter": "operating plants of 500 MW or more (units summed per plant)",
+  "changes": "filtered to operating plants of 500 MW or more (units summed per plant); operating units summed per plant; plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out",
+  "licenceUrl": "https://creativecommons.org/licenses/by/4.0/"
+}

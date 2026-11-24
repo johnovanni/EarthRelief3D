@@ -1,0 +1,601 @@
+name,iso3,lat,lon,capacity,unit,status,type,gem_plant_id,gem_country,crude_steel_ttpa,coordinate_accuracy
+POSCO Gwangyang steel plant,KOR,34.920086,127.74865,22.999,Mt/yr,operating,BF; BOF,P100000120699,South Korea,22999,exact
+Angang Steel Co Ltd,CHN,41.148267,122.983054,20.65,Mt/yr,operating,BF; BOF,P100000120219,China,20650,exact
+Baoshan Iron and Steel Co Ltd Headquarters,CHN,31.41623,121.440087,19.8,Mt/yr,operating,BF; BOF; EAF; Iron other/unspecified,P100000120256,China,19800,exact
+POSCO Pohang steel plant,KOR,36.00931,129.394508,18.758,Mt/yr,operating,BF; BOF; DRI; EAF; Iron other/unspecified,P100000120700,South Korea,18758,exact
+Maanshan Iron and Steel Co Ltd,CHN,31.698884,118.468194,17.34,Mt/yr,operating,BF; BOF; EAF; BOF,P100000120069,China,17340,exact
+Jiangsu Shagang Iron & Steel Co Ltd,CHN,31.983146,120.638992,17.305,Mt/yr,operating,BF; BOF; EAF; BF; EAF,P100000120188,China,17305,approximate
+Inner Mongolia BaoTou Steel Union Co Ltd,CHN,40.647997,109.740898,16.76,Mt/yr,operating,BF; BOF,P100000120182,China,16760,exact
+Hyundai Steel Dangjin steel plant,KOR,36.986282,126.69735,16.2,Mt/yr,operating,BF; BOF; EAF,P100000120695,South Korea,16200,exact
+Wuhan Iron and Steel Co Ltd,CHN,30.616222,114.444975,15.907,Mt/yr,operating,BF; BOF,P100000120171,China,15907,exact
+Magnitogorsk Iron and Steel Works,RUS,53.427593,59.054122,14.5,Mt/yr,operating,BF; BOF; EAF,P100000120807,Russia,14500,exact
+Hoa Phat Dung Quat steel plant,VNM,15.37768,108.793321,14.499,Mt/yr,operating,BF; BOF,P100000121015,Vietnam,14499,exact
+NLMK Lipetsk steel plant,RUS,52.557372,39.629574,14.4,Mt/yr,operating,BF; BOF,P100000120808,Russia,14400,exact
+Baosteel Zhanjiang Iron and Steel Co Ltd,CHN,21.056035,110.48657,14.328,Mt/yr,operating,BF; BOF; DRI; EAF,P100000120085,China,14328,exact
+Shougang Jingtang United Iron and Steel Co Ltd,CHN,38.953664,118.50339,13.7,Mt/yr,operating,BF; BOF,P100000120106,China,13700,exact
+Bengang Steel Plates Co Ltd,CHN,41.274132,123.722099,13.44,Mt/yr,operating,BF; BOF; EAF,P100000120223,China,13440,exact
+JFE West Japan Works (Fukuyama) steel plant,JPN,34.465222,133.431205,13.002,Mt/yr,operating,BF; BOF; DRI,P100000120649,Japan,13002,exact
+Shanxi Taigang Stainless Steel Co Ltd,CHN,37.931488,112.539321,12.46,Mt/yr,operating,BF; BOF; EAF,P100000120258,China,12460,exact
+Severstal Cherepovets steel plant,RUS,59.143998,37.86295,12.201,Mt/yr,operating,BF; BOF; EAF,P100000120818,Russia,12201,exact
+JSW Steel Vijayanagar steel plant,IND,15.180423,76.663134,11.899,Mt/yr,operating,BF; BOF; DRI; EAF; Iron other/unspecified,P100000120519,India,11899,exact
+Rizhao Steel Holding Group Co Ltd,CHN,35.16535,119.366672,11.3,Mt/yr,operating,BF; BOF,P100000120240,China,11300,exact
+Xinyu Iron and Steel Group Co Ltd,CHN,27.786859,114.921595,11.001,Mt/yr,operating,BF; BOF; EAF,P100000120214,China,11001,exact
+Tata Steel Jamshedpur steel plant,IND,22.788598,86.1996,11,Mt/yr,operating,BF; BOF,P100000120529,India,11000,exact
+JSW Steel Dolvi steel plant,IND,18.690312,73.035902,10.2,Mt/yr,operating,BF; BOF; DRI; Steel other/unspecified,P100000120517,India,10200,exact
+Hebei Donghai Special Steel Co Ltd,CHN,39.610605,118.474722,10.001,Mt/yr,operating,BF; BOF,P100000120119,China,10001,exact
+Nippon East Japan Works (Kimitsu) steel plant,JPN,35.360912,139.881953,10.001,Mt/yr,operating,BF; BOF,P100000120659,Japan,10001,exact
+Nanjing Iron and Steel Co Ltd,CHN,32.200797,118.746315,10,Mt/yr,operating,BF; BOF,P100000120190,China,10000,exact
+China Steel Xiaogang steel plant,TWN,22.555442,120.349252,10,Mt/yr,operating,BF; BOF,P100000120897,Taiwan,10000,exact
+JFE West Japan Works (Kurashiki) steel plant,JPN,34.501198,133.722123,9.999,Mt/yr,operating,BF; BOF,P100000120648,Japan,9999,exact
+"Nippon Kyushu Works (Oita Area, Oita) steel plant",JPN,33.260829,131.645527,9.999,Mt/yr,operating,BF; BOF,P100000120662,Japan,9999,exact
+Hebei Yanshan Iron and Steel Group Co Ltd,CHN,39.925508,118.672757,9.99,Mt/yr,operating,BF; BOF; EAF,P100000120111,China,9990,exact
+Guangxi Shenglong Metallurgical Co Ltd,CHN,21.687637,108.412344,9.783,Mt/yr,operating,BF; BOF,P100000120094,China,9783,exact
+ArcelorMittal Nippon Steel Hazira plant,IND,21.112377,72.647304,9.6,Mt/yr,operating,BF; DRI; EAF; Iron other/unspecified; Steel other/unspecified,P100000120513,India,9600,exact
+Liuzhou Iron and Steel Co Ltd Liuzhou Base,CHN,24.385304,109.37963,9.458,Mt/yr,operating,BF; BOF,P100000120092,China,9458,exact
+Hunan Valin Lianyuan Iron and Steel Co Ltd,CHN,27.747782,111.967343,9,Mt/yr,operating,BF; BOF,P100000120179,China,9000,exact
+ThyssenKrupp Steel Duisburg steel plant,DEU,51.491649,6.733051,9,Mt/yr,operating pre-retirement,BF; BOF,P100000120421,Germany,9000,exact
+Evraz ZSMK steel plant,RUS,53.88618,87.257618,8.76,Mt/yr,operating,BF; BOF; EAF; BOF,P100000120822,Russia,8760,exact
+Guangdong Zhongnan Iron & Steel Co Ltd,CHN,24.708232,113.635898,8.698,Mt/yr,operating,BF; BOF; EAF,P100000120084,China,8698,exact
+Shandong Iron and Steel Group Rizhao Co Ltd,CHN,35.188969,119.383723,8.5,Mt/yr,operating,BF; BOF,P100000120312,China,8500,exact
+Chongqing Iron and Steel Co Ltd,CHN,29.790253,107.040368,8.4,Mt/yr,operating,BF; BOF,P100000120074,China,8400,exact
+Guangxi Iron and Steel Group Co Ltd Fangchenggang Iron & Steel Base,CHN,21.580723,108.400896,8.4,Mt/yr,operating,BF; BOF,P100000120306,China,8400,exact
+Shougang Qian an Iron and Steel Co Ltd,CHN,39.976702,118.558788,8.3,Mt/yr,operating,BF; BOF; BOF,P100000120107,China,8300,exact
+Lianfeng Steel Zhangjiagang Co Ltd,CHN,31.855205,120.730505,8.24,Mt/yr,operating,BF; BOF; EAF; BOF,P100000120192,China,8240,exact
+Chengde Iron and Steel Group Co Ltd,CHN,40.947707,117.719747,8,Mt/yr,operating,BF; BOF,P100000120105,China,8000,exact
+Tata Steel Kalinganagar steel plant,IND,20.970411,86.015211,8,Mt/yr,operating,BF; BOF,P100000120530,India,8000,exact
+Acciaierie d'Italia Taranto steel plant,ITA,40.508993,17.207589,7.8,Mt/yr,operating pre-retirement,BF; BOF,P100000120620,Italy,7800,exact
+U.S. Steel Gary Works,USA,41.620799,-87.348266,7.8,Mt/yr,operating,BF; BOF,P100000120966,United States,7800,exact
+Hebei Zongheng Group Fengnan Iron and Steel Co Ltd,CHN,39.222566,118.094201,7.7,Mt/yr,operating,BF; BOF,P100000120311,China,7700,exact
+Gansu Jiu Steel Group Hongxing Iron and Steel Co Ltd,CHN,39.812121,98.295555,7.65,Mt/yr,operating,BF; BOF; EAF,P100000120082,China,7650,exact
+Shanghai Meishan Iron and Steel Co Ltd,CHN,31.902969,118.61667,7.6,Mt/yr,operating,BF; BOF,P100000120210,China,7600,exact
+ArcelorMittal Tubarão steel plant,BRA,-20.253447,-40.242298,7.5,Mt/yr,operating,BF; BOF,P100000120034,Brazil,7500,exact
+Cangzhou China Railway Equipment Manufacture Material Co Ltd,CHN,38.289221,117.814367,7.5,Mt/yr,operating,BF; BOF,P100000120125,China,7500,exact
+Angang Steel Co Ltd Bayuquan branch,CHN,40.308494,122.13079,7.5,Mt/yr,operating,BF; BOF,P100000120220,China,7500,exact
+Tata Steel IJmuiden steel plant,NLD,52.484118,4.615584,7.5,Mt/yr,operating pre-retirement,BF; BOF,P100000120758,Netherlands,7500,exact
+Formosa Ha Tinh Steel plant,VNM,18.036333,106.428271,7.5,Mt/yr,operating,BF; BOF; DRI,P100000121011,Vietnam,7500,exact
+Hbis Laoting Steel Co Ltd,CHN,39.257823,119.033567,7.45,Mt/yr,operating,BF; BOF,P100000120315,China,7450,exact
+Baosteel Group Xinjiang Bayi Iron and Steel Co Ltd,CHN,43.852147,87.304639,7.3,Mt/yr,operating,BF; BOF; EAF; Iron other/unspecified,P100000120289,China,7300,exact
+RINL Vizag Steel plant,IND,17.612846,83.191918,7.3,Mt/yr,operating,BF; BOF,P100000120531,India,7300,exact
+Hunan Valin Xiangtan Iron and Steel Co Ltd,CHN,27.81413,112.897377,7.25,Mt/yr,operating,BF; BOF,P100000120178,China,7250,exact
+Shaanxi Longmen Steel Co Ltd,CHN,35.618466,110.575788,7.2,Mt/yr,operating,BF; BOF; BOF,P100000120234,China,7200,exact
+Hebei Anfeng Iron and Steel Co Ltd,CHN,39.65849,118.894804,7.1,Mt/yr,operating,BF; BOF,P100000121045,China,7100,exact
+Qian an Jiujiang Wire Co Ltd,CHN,39.952209,118.559444,7.079,Mt/yr,operating,BF; BOF; EAF,P100000120110,China,7079,exact
+Yunnan Yuxi Iron and Steel Group Yukun Iron and Steel Co Ltd,CHN,24.465884,102.543682,7.042,Mt/yr,operating,BF; BOF,P100000120300,China,7042,exact
+Dexin Steel Morowali plant,IDN,-2.829514,122.174896,7,Mt/yr,operating,BF; BOF,P100000120504,Indonesia,7000,exact
+SAIL Bhilai steel plant,IND,21.185157,81.394207,6.999,Mt/yr,operating,BF; BOF,P100000120525,India,6999,exact
+Cleveland-Cliffs Indiana Harbor steel plant,USA,41.669553,-87.438429,6.8,Mt/yr,operating,BF; BOF,P100000120926,United States,6800,exact
+Sansteel Minguang Co Ltd Fujian plant,CHN,26.261109,117.614709,6.799,Mt/yr,operating,BF; BOF,P100000120076,China,6799,exact
+Jiangyin Xingcheng Special Steel Works Co Ltd,CHN,31.950191,120.328449,6.797,Mt/yr,operating,BF; BOF; EAF,P100000120191,China,6797,exact
+ArcelorMittal Dunkerque steel plant,FRA,51.041274,2.292948,6.75,Mt/yr,operating,BF; BOF,P100000120472,France,6750,exact
+Tianjin Iron and Steel Group Co Ltd,CHN,39.031083,117.499246,6.65,Mt/yr,operating,BF; BOF; EAF,P100000120281,China,6650,exact
+Kobe Kakogawa Works steel plant,JPN,34.720268,134.826275,6.591,Mt/yr,operating,BF; BOF; DRI; BOF,P100000120655,Japan,6591,exact
+ArcelorMittal Lázaro Cárdenas steel plant,MEX,17.930688,-102.201498,6.5,Mt/yr,operating,BF; BOF; DRI; EAF,P100000120725,Mexico,6500,exact
+Jingye Iron and Steel Co Ltd,CHN,38.391372,114.139998,6.4,Mt/yr,operating,BF; BOF,P100000120120,China,6400,exact
+JSOL Angul steel plant,IND,20.874713,84.944082,6.3,Mt/yr,operating,BF; BOF,P100001044907,India,6300,exact
+CSN Volta Redonda steel plant,BRA,-22.512631,-44.11287,6.251,Mt/yr,operating,BF; BOF; EAF,P100000120039,Brazil,6251,exact
+Tosyali Algerie Oran steel plant,DZA,35.770912,-0.263031,6.2,Mt/yr,operating,DRI; EAF,P100000120441,Algeria,6200,exact
+Fujian Sanbao Steel Co Ltd,CHN,24.635769,117.603677,6.196,Mt/yr,operating,BF; BOF; EAF,P100000120078,China,6196,exact
+Dragon Steel Taichung steel plant,TWN,24.226897,120.493911,6.081,Mt/yr,operating,BF; BOF; EAF,P100000120898,Taiwan,6081,exact
+Chengyu Vanadium and Titanium Technology Co Ltd,CHN,29.732143,104.504339,6.05,Mt/yr,operating,BF; BOF,P100000120279,China,6050,exact
+Guangxi Guixin Iron and Steel Group Co Ltd,CHN,23.978962,111.735523,6.05,Mt/yr,operating,BF; BOF; EAF,P100000120368,China,6050,exact
+U.S. Steel Big River Steel plant,USA,35.644264,-89.941659,6.022,Mt/yr,operating,EAF,P100000120928,United States,6022,exact
+Voestalpine Stahl Linz steel plant,AUT,48.274023,14.33434,6,Mt/yr,operating,BF; BOF,P100000120010,Austria,6000,exact
+Jindal Steel Angul steel plant,IND,20.884896,84.991539,6,Mt/yr,operating,BF; BOF; DRI; EAF,P100000120515,India,6000,exact
+Nippon Nagoya steel plant,JPN,35.027575,136.870552,6,Mt/yr,operating,BF; BOF,P100000120661,Japan,6000,exact
+Kim Chaek Iron and Steel Complex steel plant,PRK,41.753784,129.752681,6,Mt/yr,operating,BF; BOF; EAF; Steel other/unspecified,P100000120691,North Korea,6000,exact
+Qarmet steel plant,KAZ,50.031766,72.994863,6,Mt/yr,operating,BF; BOF,P100000120710,Kazakhstan,6000,exact
+SABIC Hadeed Al Jubail steel plant,SAU,27.018411,49.576356,6,Mt/yr,operating,DRI; EAF,P100000120833,Saudi Arabia,6000,exact
+Lingyuan Iron and Steel Co Ltd,CHN,41.271048,119.41374,5.994,Mt/yr,operating,BF; BOF,P100000120225,China,5994,exact
+Nippon East Japan Works (Kashima) steel plant,JPN,35.93437,140.681019,5.918,Mt/yr,operating,BF; BOF; BOF,P100000120664,Japan,5918,exact
+Pangang Group Panzhihua Steel Vanadium Co Ltd,CHN,26.565265,101.673737,5.9,Mt/yr,operating,BF; BOF,P100000120277,China,5900,exact
+Zenith Steel Group Nantong Co Ltd,CHN,32.133954,121.513173,5.85,Mt/yr,operating,BF; BOF,P100000120332,China,5850,exact
+Isdemir Payas steel plant,TUR,36.735672,36.204581,5.8,Mt/yr,operating,BF; BOF,P100000120875,Türkiye,5800,exact
+Mechel Chelyabinsk Metallurgical Plant,RUS,55.27073,61.436492,5.799,Mt/yr,operating,BF; BOF; EAF,P100000120805,Russia,5799,exact
+Tangshan Ganglu Iron and Steel Co Ltd,CHN,40.183913,118.073913,5.614,Mt/yr,operating,BF; BOF,P100000120118,China,5614,exact
+Laiwu Iron and Steel Group Yinshan Section Steel Co Ltd,CHN,36.106143,117.820108,5.6,Mt/yr,operating,BF; BOF,P100000120254,China,5600,exact
+Hebei Puyang Iron and Steel Co Ltd,CHN,36.733675,113.925995,5.567,Mt/yr,operating,BF; BOF,P100000120113,China,5567,exact
+Tata Steel Meramandali steel plant,IND,20.796053,85.260382,5.51,Mt/yr,operating,BF; BOF; DRI; EAF; IF; Steel other/unspecified,P100000120511,India,5510,exact
+Jingye (Yingkou) Medium Plate Co Ltd,CHN,40.671136,122.395441,5.5,Mt/yr,operating,BF; BOF,P100000120222,China,5500,exact
+Tangshan Donghai Iron and Steel Group Co Ltd,CHN,39.748373,118.624794,5.499,Mt/yr,operating,BF; BOF,P100000120146,China,5499,exact
+Alchevsk Metallurgical Plant,UKR,48.478111,38.770787,5.472,Mt/yr,operating,BF; BOF,P100000120905,Ukraine,5472,exact
+Jiangsu Binxin Steel Group Co Ltd,CHN,35.09556,119.279989,5.4,Mt/yr,operating,BF; BOF,P100000120196,China,5400,exact
+Zhongxin Iron and Steel Group Co Ltd,CHN,34.368618,118.31556,5.4,Mt/yr,operating,BF; BOF,P100000120209,China,5400,exact
+Shandong Iron and Steel Group Yongfeng Lingang Co Ltd,CHN,35.137061,119.068319,5.4,Mt/yr,operating,BF; BOF,P100000120414,China,5400,exact
+ArcelorMittal Gent steel plant,BEL,51.169929,3.804462,5.2,Mt/yr,operating,BF; BOF,P100000120027,Belgium,5200,exact
+Ternium Brasil Santa Cruz steel plant,BRA,-22.912549,-43.741614,5.2,Mt/yr,operating,BF; BOF,P100000120038,Brazil,5200,exact
+Jinan Iron and Steel Group Co Ltd,CHN,36.718952,114.111677,5.2,Mt/yr,operating,BF; BOF,P100000120373,China,5200,exact
+Salzgitter Flachstahl steel plant,DEU,52.161794,10.409371,5.2,Mt/yr,operating pre-retirement,BF; BOF,P100000120424,Germany,5200,exact
+Fujian Dadonghai Industrial Group Co Ltd plant,CHN,25.737777,119.592239,5.128,Mt/yr,operating,BF; BOF,P100000120345,China,5128,exact
+ArcelorMittal Méditerranée Fos sur Mer steel plant,FRA,43.43283,4.887166,5.1,Mt/yr,operating,BF; BOF,P100000120473,France,5100,exact
+Wuyang Iron and Steel Co Ltd,CHN,33.287536,113.474328,5.04,Mt/yr,operating,BF; BOF; EAF,P100000120161,China,5040,exact
+Henan Jiyuan Iron and Steel Group Co Ltd,CHN,35.086396,112.553774,5.038,Mt/yr,operating,BF; BOF; BOF,P100000120164,China,5038,exact
+ArcelorMittal Dąbrowa Górnicza steel plant,POL,50.342417,19.285037,5.001,Mt/yr,operating,BF; BOF,P100000120785,Poland,5001,exact
+Cleveland-Cliffs Burns Harbor steel plant,USA,41.631221,-87.143846,5.001,Mt/yr,operating,BF; BOF,P100000120923,United States,5001,exact
+Usiminas Ipatinga steel plant,BRA,-19.491277,-42.544253,5,Mt/yr,operating,BF; BOF,P100000120043,Brazil,5000,exact
+Tangshan Songting Iron and Steel Co Ltd,CHN,39.938866,118.576678,5,Mt/yr,operating,BF; BOF,P100000120112,China,5000,exact
+Hebei Jinxi Iron and Steel Group Co Ltd,CHN,40.209844,118.220547,5,Mt/yr,operating,BF; BOF,P100000120117,China,5000,exact
+Hebei Xinda Iron and Steel Group Co Ltd,CHN,39.898362,118.579364,5,Mt/yr,operating,BF; BOF,P100000120142,China,5000,exact
+Quzhou Yuanli Metal Products Co Ltd,CHN,28.893407,118.867125,5,Mt/yr,operating pre-retirement,BF; BOF,P100000120304,China,5000,exact
+JSW BPSL Jharsuguda steel plant,IND,21.763989,84.022529,5,Mt/yr,operating,BF; DRI; EAF; Steel other/unspecified,P100000120510,India,5000,exact
+JSW Vijayanagar Metallics steel plant,IND,15.203176,76.659122,5,Mt/yr,operating,BF; BOF,P100000120538,India,5000,approximate
+İÇDAŞ Biga steel plant,TUR,40.441491,27.137563,5,Mt/yr,operating,EAF,P100000120873,Türkiye,5000,exact
+Baowu Group Echeng Iron and Steel Co Ltd,CHN,30.39574,114.861313,4.971,Mt/yr,operating,BF; BOF,P100000120172,China,4971,exact
+JFE East Japan Works (Chiba) steel plant,JPN,35.580917,140.104196,4.915,Mt/yr,operating,BF; BOF; EAF,P100000120647,Japan,4915,exact
+Tianjin Iron Plant,CHN,36.58967,113.745792,4.87,Mt/yr,operating,BF; BOF,P100000120280,China,4870,exact
+Shanxi Jinnan Iron and Steel Group Co Ltd,CHN,35.678541,111.51465,4.8,Mt/yr,operating,BF; BOF,P100000120316,China,4800,exact
+Guangxi Chiji Iron and Steel Co Ltd,CHN,23.402121,111.134606,4.8,Mt/yr,operating,BF; BOF; Iron other/unspecified,P100000120370,China,4800,exact
+Tangshan Donghua Iron and Steel Enterprise Group Co Ltd,CHN,39.468366,118.256774,4.75,Mt/yr,operating,BF; BOF,P100000120108,China,4750,exact
+Shanxi Jianlong Industrial Co Ltd,CHN,35.417405,111.303919,4.75,Mt/yr,operating,BF; BOF,P100000120274,China,4750,exact
+Jiujiang Pinggang Iron and Steel Co Ltd,CHN,29.778431,116.27527,4.7,Mt/yr,operating,BF; BOF,P100000120213,China,4700,exact
+Hyundai Steel Incheon steel plant,KOR,37.489678,126.637942,4.697,Mt/yr,operating,EAF,P100000120696,South Korea,4697,exact
+SAIL Bokaro steel plant,IND,23.671677,86.10687,4.652,Mt/yr,operating,BF; BOF,P100000120526,India,4652,exact
+Shiheng Special Steel Group Co Ltd,CHN,36.229201,116.533981,4.65,Mt/yr,operating,BF; BOF,P100000120246,China,4650,exact
+Osaka Steel Sakai Works,JPN,34.59822,135.45439,4.65,Mt/yr,operating,EAF,P100000120677,Japan,4650,exact
+Jincheng Fusheng Iron and Steel Co Ltd,CHN,35.662985,112.882395,4.6,Mt/yr,operating,BF; BOF,P100000120273,China,4600,exact
+Tonghua Iron and Steel Co Ltd,CHN,41.779125,126.022349,4.59,Mt/yr,operating,BF; BOF,P100000120216,China,4590,exact
+Tangshan Ruifeng Iron and Steel Group Co Ltd,CHN,39.497472,118.272056,4.5,Mt/yr,operating,BF; BOF,P100000120109,China,4500,exact
+Tianjin Rockcheck Steel Group Co Ltd,CHN,38.970638,117.495794,4.5,Mt/yr,operating,BF; BOF; BOF,P100000120283,China,4500,exact
+Tianjin New Tiangang United Special Steel Co Ltd,CHN,39.300258,117.800231,4.5,Mt/yr,operating,BF; BOF,P100000120284,China,4500,exact
+British Steel Scunthorpe plant,GBR,53.580827,-0.616509,4.5,Mt/yr,operating pre-retirement,BF; BOF,P100000120483,United Kingdom,4500,exact
+U. S. Steel Košice steel plant,SVK,48.612001,21.191401,4.5,Mt/yr,operating,BF; BOF,P100000120854,Slovakia,4500,exact
+Colakoglu Metallurgical Dilovasi steel plant,TUR,40.768409,29.529979,4.5,Mt/yr,operating,EAF,P100000120867,Türkiye,4500,exact
+Habas Aliaga steel plant,TUR,38.751462,26.950172,4.5,Mt/yr,operating,EAF,P100000120872,Türkiye,4500,exact
+Handan Steel Group Handan Bao Steel Co Ltd,CHN,36.685881,113.837073,4.488,Mt/yr,operating,BF; BOF,P100000120326,China,4488,exact
+Chengde Jianlong Special Steel Co Ltd,CHN,40.515035,117.596071,4.4,Mt/yr,operating,BF; BOF,P100000120123,China,4400,exact
+Evraz NTMK steel plant,RUS,57.922851,60.033543,4.4,Mt/yr,operating,BF; BOF,P100000120811,Russia,4400,exact
+Finarvedi Cremona steel plant,ITA,45.145949,9.950821,4.3,Mt/yr,operating,EAF,P100000120619,Italy,4300,exact
+Tangshan Medium Thick Plate Co Ltd,CHN,39.268452,119.024819,4.2,Mt/yr,operating,BF; BOF,P100000120127,China,4200,exact
+Jianlong Xilin Iron and Steel Co Ltd,CHN,47.495036,129.287919,4.2,Mt/yr,operating,BF; BOF,P100000120158,China,4200,exact
+Hüttenwerke Krupp Mannesmann (HKM) steel plant,DEU,51.371279,6.72331,4.2,Mt/yr,operating pre-retirement,BF; BOF,P100000120422,Germany,4200,exact
+ArcelorMittal Asturias (Aviles) steel plant,ESP,43.554741,-5.87259,4.2,Mt/yr,operating,BOF,P100000120459,Spain,4200,exact
+SAIL Rourkela steel plant,IND,22.210804,84.86895,4.2,Mt/yr,operating,BF; BOF; BOF,P100000120528,India,4200,exact
+Qingdao Special Iron and Steel Co Ltd,CHN,35.6296,119.722335,4.17,Mt/yr,operating,BF; BOF; EAF,P100000120239,China,4170,exact
+Tangshan Fengnan District Jing an Iron and Steel Co Ltd,CHN,39.600956,118.358726,4.125,Mt/yr,operating,BF; BOF; BOF,P100000120128,China,4125,exact
+Metinvest Zaporizhstal steel plant,UKR,47.86838,35.161773,4.102,Mt/yr,operating,BF; Steel other/unspecified,P100000120916,Ukraine,4102,exact
+Cleveland-Cliffs Cleveland steel plant,USA,41.464041,-81.676499,4.1,Mt/yr,operating,BF; BOF,P100000120927,United States,4100,exact
+ArcelorMittal Dofasco steel plant,CAN,43.269255,-79.804858,4.05,Mt/yr,operating,BF; BOF; EAF,P100000120058,Canada,4050,exact
+Jiugang Group Yuzhong Iron and Steel Co Ltd,CHN,36.033646,104.035535,4,Mt/yr,operating,BF; BOF,P100000120083,China,4000,exact
+Krakatau Steel Cilegon plant,IDN,-6.007021,106.001766,4,Mt/yr,operating,EAF,P100000120501,Indonesia,4000,exact
+Toscelik Iskenderun steel plant,TUR,36.687943,36.214871,4,Mt/yr,operating,EAF,P100000120886,Türkiye,4000,exact
+Ningbo Iron and Steel Co Ltd,CHN,29.918776,121.876423,3.999,Mt/yr,operating,BF; BOF,P100000120305,China,3999,exact
+ArcelorMittal Bremen steel plant,DEU,53.133305,8.688193,3.96,Mt/yr,operating,BF; BOF,P100000120426,Germany,3960,exact
+Hebei Taihang Iron and Steel Group Co Ltd,CHN,36.613716,114.082349,3.95,Mt/yr,operating,BF; BOF,P100000120325,China,3950,exact
+Pangang Group Xichang Steel and Vanadium Co Ltd,CHN,27.74799,102.20517,3.9,Mt/yr,operating,BF; BOF,P100000120278,China,3900,exact
+Shandong Iron and Steel Co Ltd Laiwu Branch Aishan Street,CHN,36.087717,117.827927,3.85,Mt/yr,operating,BF; BOF,P100000121150,China,3850,exact
+Erdemir Eregli steel plant,TUR,41.261469,31.420106,3.801,Mt/yr,operating,BF; BOF,P100000120871,Türkiye,3801,exact
+Anhui Changjiang Steel Co Ltd,CHN,31.502272,118.465162,3.8,Mt/yr,operating,BF; BOF; EAF,P100000120070,China,3800,exact
+"Nippon Kyushu Works (Yawata Area, Tobata) steel plant",JPN,33.911803,130.838014,3.726,Mt/yr,operating pre-retirement,BOF,P100000120663,Japan,3726,exact
+Zenith Steel Group Co Ltd,CHN,31.707656,120.079591,3.7,Mt/yr,operating,BF; BOF,P100000120193,China,3700,exact
+Gerdau Açominas Ouro Branco steel plant,BRA,-20.543507,-43.75295,3.6,Mt/yr,operating,BF; BOF,P100000120033,Brazil,3600,exact
+Xinji Aosen Iron and Steel Group Co Ltd,CHN,37.752351,115.184798,3.6,Mt/yr,operating,BF; BOF,P100000120155,China,3600,exact
+Angang Group Xinyang Iron and Steel Co Ltd,CHN,32.488704,114.038243,3.6,Mt/yr,operating,BF; BOF,P100000120163,China,3600,exact
+Shanxi Zhongyang Iron and Steel Co Ltd,CHN,37.370796,111.161118,3.6,Mt/yr,operating,BF; BOF,P100000120259,China,3600,exact
+Shougang Changzhi Iron and Steel Co Ltd,CHN,36.356404,113.060809,3.6,Mt/yr,operating,BF; BOF,P100000120275,China,3600,exact
+Guangdong Jinshenglan Metallurgical Technology Co Ltd,CHN,22.888729,112.263081,3.6,Mt/yr,operating,EAF,P100000120319,China,3600,exact
+Jindal Steel Raigarh steel plant,IND,21.922703,83.347178,3.6,Mt/yr,operating,BF; DRI; EAF,P100000120516,India,3600,exact
+Esfahan Steel Isfahan plant,IRN,32.418304,51.331314,3.6,Mt/yr,operating,BF; BOF,P100000120580,Iran,3600,exact
+Nippon Setouchi Works (Hirohata Area) steel plant,JPN,34.786879,134.625301,3.536,Mt/yr,operating,BOF; DRI; EAF,P100000120658,Japan,3536,exact
+Ternium Siderar San Nicolás steel plant,ARG,-33.37365,-60.138697,3.501,Mt/yr,operating,BF; BOF,P100000120008,Argentina,3501,exact
+Shougang Shuicheng Iron and Steel Group Co Ltd,CHN,26.595229,104.877413,3.501,Mt/yr,operating,BF; BOF,P100000120096,China,3501,exact
+Kardemir Merkez steel plant,TUR,41.180307,32.634343,3.501,Mt/yr,operating,BF; BOF,P100000120877,Türkiye,3501,exact
+Emsteel Abu Dhabi steel plant,ARE,24.322033,54.467987,3.5,Mt/yr,operating,DRI; EAF,P100000120001,United Arab Emirates,3500,exact
+Alliance Steel Kuantan plant,MYS,4.007595,103.344458,3.5,Mt/yr,operating,BF; BOF,P100000120750,Malaysia,3500,exact
+Metalloinvest OEMK steel plant,RUS,51.142738,37.940532,3.5,Mt/yr,operating,DRI; EAF,P100000120812,Russia,3500,exact
+Metallurgical Plant Kametstal,UKR,48.528019,34.640915,3.5,Mt/yr,operating,BF; BOF,P100000120909,Ukraine,3500,exact
+Ningxia Jianlong Special Steel Co Ltd,CHN,39.215452,106.688294,3.5,Mt/yr,operating,BF; BOF,P100000121052,China,3500,exact
+Qinhuangdao Hongxing Iron and Steel Co Ltd,CHN,39.700721,118.871477,3.45,Mt/yr,operating,BF; BOF,P100000120152,China,3450,exact
+Daye Special Steel Co Ltd,CHN,30.204603,115.125838,3.42,Mt/yr,operating,BF; BOF; EAF,P100000120173,China,3420,exact
+Guangxi Beigang New Material Co Ltd,CHN,21.519924,109.506427,3.4,Mt/yr,operating,BF; EAF,P100000120093,China,3400,exact
+Hyundai Steel Pohang steel plant,KOR,36.004981,129.384829,3.4,Mt/yr,operating,EAF,P100000120697,South Korea,3400,exact
+Steel Dynamics Columbus plant,USA,33.44758,-88.572683,3.4,Mt/yr,operating,EAF,P100000120959,United States,3400,exact
+Jiangsu Shagang Group Huaigang Special Steel Co Ltd,CHN,33.566039,118.988442,3.364,Mt/yr,operating,BF; BOF; EAF,P100000120189,China,3364,exact
+ArcelorMittal Vanderbijlpark Steel Works,ZAF,-26.657367,27.82231,3.36,Mt/yr,operating,BF; BOF; DRI,P100000121028,South Africa,3360,exact
+Al-Ezz Dekheila Steel Alexandria plant,EGY,31.123467,29.80987,3.34,Mt/yr,operating,DRI; EAF,P100000120446,Egypt,3340,exact
+Changzhou Eastern Special Steel Co Ltd,CHN,31.602554,119.724256,3.3,Mt/yr,operating,BF; BOF,P100000120201,China,3300,exact
+Jilin Xinda Iron and Steel Co Ltd,CHN,42.3249,125.246892,3.3,Mt/yr,operating pre-retirement,BF; BOF,P100000120217,China,3300,exact
+Golgohar Iron and Steel Company Kerman,IRN,29.134614,55.360773,3.3,Mt/yr,operating,DRI; EAF,P100000120613,Iran,3300,exact
+Yangzhou Hengrun Ocean Heavy Industry Co Ltd,CHN,32.249602,119.620438,3.3,Mt/yr,operating,BF; BOF,P100000121048,China,3300,exact
+Hubei Jinshenglan Metallurgical Technology Co Ltd,CHN,29.916729,113.822921,3.25,Mt/yr,operating,BF; BOF,P100000120318,China,3250,exact
+Baosteel Desheng Stainless Steel Co Ltd,CHN,26.48747,119.654461,3.22,Mt/yr,operating,BF; BOF,P100000120336,China,3220,exact
+Changshu Longteng Special Steel Co Ltd,CHN,31.723833,120.835685,3.203,Mt/yr,operating,BF; BOF; EAF,P100000120194,China,3203,exact
+BlueScope Port Kembla steel plant,AUS,-34.463834,150.886191,3.2,Mt/yr,operating,BOF,P100000120012,Australia,3200,exact
+Yancheng Lianxin Iron and Steel Co Ltd,CHN,33.211332,120.774892,3.2,Mt/yr,operating,BF; BOF; EAF,P100000120310,China,3200,exact
+Nucor-Yamato Steel Blytheville plant,USA,35.941421,-89.713819,3.174,Mt/yr,operating,EAF,P100000120949,United States,3174,exact
+VAS Nghi Son Cast Iron and Steel plant,VNM,19.326924,105.777449,3.15,Mt/yr,operating,EAF; IF,P100000121016,Vietnam,3150,exact
+İDÇ Izdemir Aliaga steel plant,TUR,38.739596,26.929091,3.1,Mt/yr,operating,EAF,P100000120874,Türkiye,3100,exact
+Nucor Steel Decatur plant,USA,34.63963,-87.085738,3.1,Mt/yr,operating,EAF,P100000120945,United States,3100,exact
+Xingtai Iron and Steel Co Ltd,CHN,37.041601,114.452352,3.06,Mt/yr,operating pre-retirement,BF; BOF,P100000120116,China,3060,exact
+Zhuhai Yueyufeng Iron and Steel Co Ltd,CHN,21.96092,113.198718,3.051,Mt/yr,operating,BF; BOF,P100000120086,China,3051,exact
+Jiangsu Xugang Iron and Steel Group Co Ltd,CHN,34.577016,117.339638,3.05,Mt/yr,operating,BF; BOF,P100000120198,China,3050,exact
+ArcelorMittal Pecém steel plant,BRA,-3.585917,-38.858932,3.046,Mt/yr,operating,BF; BOF,P100000120040,Brazil,3046,exact
+"Nippon Kansai Works (Wakayama Area, Wakayama) steel plant",JPN,34.233519,135.135443,3.043,Mt/yr,operating,BF; BOF; EAF,P100000120666,Japan,3043,exact
+Hebei Tianzhu Iron and Steel Group Co Ltd,CHN,39.270032,119.01376,3.034,Mt/yr,operating,BF; BOF,P100000120324,China,3034,exact
+BlueScope North Star Steel plant,USA,41.568783,-84.048129,3.034,Mt/yr,operating,EAF,P100000120937,United States,3034,exact
+Byelorussian Steel Works,BLR,52.849321,29.988985,3,Mt/yr,operating,EAF,P100000120056,Belarus,3000,exact
+Sichuan Desheng Group Vanadium and Titanium Co Ltd,CHN,29.39798,103.542532,3,Mt/yr,operating,BF; BOF,P100000120075,China,3000,exact
+Fujian Tsingtuo Nickel Industry Co Ltd,CHN,26.768925,119.765203,3,Mt/yr,operating,BF; EAF,P100000120081,China,3000,exact
+Delong Steel Co Ltd,CHN,37.086116,114.384832,3,Mt/yr,operating,BF; BOF,P100000120121,China,3000,exact
+Jinding Heavy Industry Co Ltd,CHN,36.718952,114.111677,3,Mt/yr,operating,BF; BOF,P100000120132,China,3000,exact
+Nanyang Hanye Special Steel Co Ltd,CHN,33.269324,111.534635,3,Mt/yr,operating,BF; BOF,P100000120165,China,3000,exact
+Lengshuijiang Steel Co Ltd,CHN,27.690401,111.437288,3,Mt/yr,operating,BF; BOF,P100000120181,China,3000,exact
+Jiangsu Jingye Iron and Steel Co Ltd,CHN,34.38381,119.786878,3,Mt/yr,operating,BF; BOF,P100000120197,China,3000,exact
+Shaanxi Steel Group Hanzhong Iron and Steel Co Ltd,CHN,33.133192,106.671859,3,Mt/yr,operating,BF; BOF,P100000120235,China,3000,exact
+Weifang Special Steel Group Co Ltd,CHN,36.644469,119.238427,3,Mt/yr,operating pre-retirement,BF; BOF,P100000120244,China,3000,exact
+Shanxi Xintai Iron and Steel Co Ltd,CHN,37.075017,111.985148,3,Mt/yr,operating,BF; BOF,P100000120261,China,3000,exact
+Tianjin Pipe Corporation,CHN,39.034002,117.486798,3,Mt/yr,operating,BF; DRI; EAF,P100000120282,China,3000,exact
+Anhui Shoukuang Dachang Metal Material Co Ltd,CHN,32.329171,115.954963,3,Mt/yr,operating,BF; BOF,P100000120313,China,3000,exact
+Lianyungang Yaxin Iron and Steel Co Ltd,CHN,34.423786,119.778311,3,Mt/yr,operating,BF; BOF,P100000120348,China,3000,exact
+Tangshan Guotang Steel Co Ltd,CHN,39.293147,119.046972,3,Mt/yr,operating,BF; BOF,P100000120379,China,3000,exact
+Egyptian Sponge Iron and Steel Company Sadat City plant,EGY,30.393079,30.58773,3,Mt/yr,operating,DRI; EAF,P100000120445,Egypt,3000,exact
+KS Posco Cilegon steel plant,IDN,-5.998661,105.99866,3,Mt/yr,operating,BF; BOF,P100000120502,Indonesia,3000,exact
+NMDC Nagarnar steel plant,IND,19.0931901,82.17,3,Mt/yr,operating,BF; BOF,P100000120523,India,3000,exact
+KISCO steel Changwon plant,KOR,35.216552,128.640158,3,Mt/yr,operating,EAF,P100000120698,South Korea,3000,exact
+Cleveland-Cliffs Middletown steel plant,USA,39.488589,-84.386197,3,Mt/yr,operating,BF; BOF,P100000120921,United States,3000,exact
+Steel Dynamics Butler plant,USA,41.37064,-84.917454,3,Mt/yr,operating,DRI; EAF,P100000120957,United States,3000,exact
+Yunnan Yuxi Xianfu Iron and Steel Group Co Ltd,CHN,24.012309,102.186364,2.98,Mt/yr,operating,BF; BOF; EAF,P100000120321,China,2980,exact
+Nucor Steel Berkeley plant,USA,33.004319,-79.880955,2.956,Mt/yr,operating,EAF,P100000120938,United States,2956,exact
+Industries Qatar Steel Mesaieed plant,QAT,24.952688,51.584777,2.9,Mt/yr,operating,DRI; EAF,P100000120795,Qatar,2900,exact
+Ezz Flat Steel Ain Sokhna plant,EGY,29.692045,32.322117,2.88,Mt/yr,operating,DRI; EAF,P100000120447,Egypt,2880,exact
+Shandong Shouguang Juneng Special Steel Co Ltd,CHN,36.939125,118.785598,2.85,Mt/yr,operating,BF; BOF; EAF,P100000120247,China,2850,exact
+Shandong Jinguan Metallurgical Technology Co Ltd,CHN,37.449126,116.396787,2.81,Mt/yr,operating,EAF,P100001063692,China,2810,approximate
+Fangda Special Steel Technology Co Ltd,CHN,28.645441,115.99204,2.8,Mt/yr,operating,BF; BOF,P100000120211,China,2800,exact
+Yingkou Iron and Steel Co Ltd,CHN,40.664651,122.415057,2.8,Mt/yr,operating,BF; BOF,P100000120230,China,2800,exact
+TZMS Třinecké železárny Trinec steel plant,CZE,49.689053,18.654557,2.8,Mt/yr,operating,BF; BOF; BF; BOF; EAF,P100000120419,Czech Republic,2800,exact
+Gunung Raja Paksi West Java steel plant,IDN,-6.282658,107.117683,2.8,Mt/yr,operating,BF; BOF; EAF,P100000120499,Indonesia,2800,exact
+Shanxi Tongcai Industry and Trade Co Ltd,CHN,35.694321,111.429381,2.78,Mt/yr,operating,BF; BOF; EAF,P100000120264,China,2780,exact
+Liyang Baorun Steel Co Ltd,CHN,31.471123,119.485941,2.76,Mt/yr,operating,EAF,P100000120382,China,2760,exact
+AG der Dillinger Hüttenwerke Dillingen steel plant,DEU,49.353884,6.746603,2.76,Mt/yr,operating pre-retirement,BF; BOF,P100000120423,Germany,2760,exact
+Nucor Steel Gallatin plant,USA,38.759878,-84.996204,2.722,Mt/yr,operating,EAF,P100000120946,United States,2722,exact
+Steel Dynamics Sinton plant,USA,28.05182,-97.48804,2.722,Mt/yr,operating,EAF,P100000120960,United States,2722,exact
+Anhui Guihang Special Steel Co Ltd,CHN,30.531068,117.251147,2.7,Mt/yr,operating,BF; BOF,P100000120071,China,2700,exact
+Wu an Yuhua Iron and Steel Co Ltd,CHN,36.731752,114.098377,2.7,Mt/yr,operating pre-retirement,BF; BOF,P100000120114,China,2700,exact
+Hebei Xinjin Iron and Steel Co Ltd,CHN,36.715632,114.208992,2.7,Mt/yr,operating,BF; BOF,P100000120137,China,2700,exact
+Jilin Jianlong Steel Co Ltd,CHN,44.011951,126.537086,2.7,Mt/yr,operating,BF; BOF,P100000120215,China,2700,exact
+Fushun New Steel Co Ltd,CHN,41.841223,123.753895,2.7,Mt/yr,operating,BOF,P100000120226,China,2700,exact
+Shandong Fulun Iron and Steel Co Ltd,CHN,36.308447,117.540425,2.7,Mt/yr,operating,BF; BOF,P100000120249,China,2700,exact
+Shanxi Gaoyi Steel Co Ltd,CHN,35.586841,111.258436,2.7,Mt/yr,operating,BF; BOF,P100000120268,China,2700,exact
+Chifeng Zhongtang Special Steel Co Ltd,CHN,41.834064,119.281883,2.7,Mt/yr,operating,BF; BOF,P100000120327,China,2700,exact
+Linyi Iron and Steel Investment Group Special Steel Co Ltd,CHN,35.15735,119.133999,2.7,Mt/yr,operating,BF; BOF,P100000120330,China,2700,exact
+Minyuan Iron and Steel Group Co Ltd,CHN,34.013369,116.422599,2.7,Mt/yr,operating,BF; BOF,P100000120339,China,2700,exact
+Tongling Xuanli Special Steel Co Ltd,CHN,31.062807,117.956015,2.7,Mt/yr,operating,BF; BOF,P100000120356,China,2700,exact
+Saarstahl Völklingen steel plant,DEU,49.247635,6.848662,2.7,Mt/yr,operating pre-retirement,BOF,P100000120432,Germany,2700,exact
+Eastern Steel Kemaman plant,MYS,4.285062,103.432551,2.7,Mt/yr,operating,BF; BOF,P100000120747,Malaysia,2700,exact
+Dongbei Special Steel Group Dalian Special Steel Co Ltd,CHN,39.193697,122.057788,2.695,Mt/yr,operating,BF; BOF; EAF,P100000120227,China,2695,exact
+Fujian Luoyuan Minguang Iron and Steel Co Ltd,CHN,26.483815,119.67105,2.65,Mt/yr,operating,BF; BOF,P100000120080,China,2650,exact
+Pingxiang Pinggang Anyuan Iron and Steel Co Ltd,CHN,27.64555,113.902126,2.65,Mt/yr,operating,BF; BOF,P100000120212,China,2650,exact
+Shagang Group Anyang Yongxing Special Steel Co Ltd,CHN,36.143573,114.149964,2.6,Mt/yr,operating,BF; BOF,P100000120162,China,2600,exact
+Benxi Beiying Iron and Steel Group Co Ltd Beitai Town,CHN,41.224814,123.608374,2.6,Mt/yr,operating,BF; BOF,P100000120224,China,2600,exact
+Houying Group Haicheng Iron and Steel Co Ltd Datun Branch,CHN,40.981855,122.948643,2.6,Mt/yr,operating pre-retirement,BF; BOF,P100000120229,China,2600,exact
+Yunnan Qujing Iron and Steel Group Chenggang Iron and Steel Co Ltd,CHN,25.45543,103.547242,2.6,Mt/yr,operating,BF; BOF,P100000120302,China,2600,exact
+SSAB Raahe steel plant,FIN,64.651111,24.418544,2.6,Mt/yr,operating pre-retirement,BF; BOF,P100000120468,Finland,2600,exact
+Tokyo Steel Tahara plant,JPN,34.702012,137.249114,2.6,Mt/yr,operating,EAF,P100000120670,Japan,2600,exact
+Al Ittefaq Arab Steel Dammam plant,SAU,26.277917,49.949177,2.6,Mt/yr,operating,DRI; EAF,P100000120835,Saudi Arabia,2600,exact
+U.S. Steel Edgar Thomson Plant,USA,40.39514,-79.859645,2.6,Mt/yr,operating,BF; BOF,P100000120964,United States,2600,exact
+Jianlong Beiman Special Steel Co Ltd,CHN,47.191285,123.616512,2.57,Mt/yr,operating,BF; BOF; EAF,P100000120159,China,2570,exact
+Hoa Phat Hai Duong Steel plant,VNM,21.01536,106.536023,2.525,Mt/yr,operating,BF; BOF,P100000121019,Vietnam,2525,exact
+Cleveland-Cliffs Lake Erie steel plant,CAN,42.805448,-80.095313,2.5,Mt/yr,operating,BF; BOF,P100000120061,Canada,2500,exact
+Hebei Xinxing Ductile Iron Pipes Co Ltd,CHN,36.621504,114.128189,2.5,Mt/yr,operating,BF; BOF,P100000120099,China,2500,exact
+Kehler Baden Steel Works,DEU,48.595058,7.821633,2.5,Mt/yr,operating,EAF,P100000120429,Germany,2500,exact
+Celsa Barcelona Castellbisbal steel plant,ESP,41.454855,1.980107,2.5,Mt/yr,operating,EAF,P100000120456,Spain,2500,exact
+Jindal Steel Sohar plant,OMN,24.502551,56.600739,2.5,Mt/yr,operating,DRI; EAF,P100000120762,Oman,2500,exact
+Shanxi Tongde Xinghua Special Steel Co Ltd,CHN,40.183517,113.305462,2.5,Mt/yr,operating,BF; BOF,P100000121087,China,2500,exact
+"Guangdong Guoxin Industrial Co., Ltd.",CHN,23.407415,116.570818,2.5,Mt/yr,operating,BF; BOF,P100001062833,China,2500,exact
+SAIL IISCO steel plant,IND,23.673236,86.926179,2.499,Mt/yr,operating,BF; BOF,P100000120524,India,2499,exact
+SAIL Durgapur steel plant,IND,23.54843,87.245247,2.499,Mt/yr,operating,BF; BOF,P100000120527,India,2499,exact
+Chifeng Yuanlian Steel Co Ltd,CHN,42.278115,119.015289,2.45,Mt/yr,operating,BF; BOF,P100000120183,China,2450,exact
+Nucor Steel Hickman plant,USA,35.901162,-89.77619,2.45,Mt/yr,operating,EAF,P100000120942,United States,2450,exact
+Tangshan Zhengfeng Steel Co Ltd,CHN,39.85271,118.181279,2.439,Mt/yr,operating,EAF,P100000120342,China,2439,exact
+ArcelorMittal Montreal steel plant,CAN,45.835148,-73.254957,2.4,Mt/yr,operating,DRI; EAF,P100000120057,Canada,2400,exact
+Yangchun New Steel Co Ltd,CHN,22.084904,111.642187,2.4,Mt/yr,operating,BF; BOF,P100000120088,China,2400,exact
+Tangshan Chunxing Special Steel Co Ltd,CHN,39.676326,118.427914,2.4,Mt/yr,operating pre-retirement,BF; BOF,P100000120147,China,2400,exact
+Yangzhou Qinyou Special Metal Materials Co Ltd,CHN,32.838703,119.425236,2.4,Mt/yr,operating,BF; BOF,P100000120203,China,2400,exact
+Guangdong Nanfang Donghai Iron and Steel Co Ltd,CHN,22.907614,112.224952,2.4,Mt/yr,operating,EAF,P100000120380,China,2400,approximate
+ArcelorMittal Eisenhüttenstadt steel plant,DEU,52.168649,14.623473,2.4,Mt/yr,operating,BF; BOF,P100000120425,Germany,2400,exact
+Kish South Kaveh Steel Hormuzgan plant,IRN,27.169696,56.095207,2.4,Mt/yr,operating,DRI; EAF,P100000120596,Iran,2400,exact
+Ternium Guerrero San Nicolás de los Garza steel plant,MEX,25.720327,-100.301175,2.4,Mt/yr,operating,DRI; EAF,P100000120729,Mexico,2400,exact
+SSAB Luleå steel plant,SWE,65.559719,22.219699,2.313,Mt/yr,operating,BF; BOF; DRI; EAF,P100000120845,Sweden,2313,exact
+Nucor Steel Crawfordsville plant,USA,39.976379,-86.830727,2.304,Mt/yr,operating,EAF,P100000120939,United States,2304,exact
+Fujian Quanzhou Minguang Iron and Steel Co Ltd,CHN,25.244396,118.029905,2.3,Mt/yr,operating,BF; BOF,P100000120077,China,2300,exact
+Hebei Rongxin Steel Co Ltd,CHN,39.880661,118.558755,2.3,Mt/yr,operating,BF; BOF,P100000120145,China,2300,exact
+Shanxi Hongda Iron and Steel Group Co Ltd,CHN,35.701895,110.786826,2.3,Mt/yr,operating,BF; BOF,P100000120266,China,2300,exact
+Hebei Tangyin Iron and Steel Co Ltd Caofeidian base,CHN,39.160401,118.429806,2.3,Mt/yr,operating,BF; BOF,P100000120328,China,2300,exact
+Liaoyang United Steel Co Ltd,CHN,41.19138,122.877311,2.3,Mt/yr,operating,BF; BOF,P100000120333,China,2300,exact
+Sichuan Dazhou Iron and Steel Group Co Ltd,CHN,31.18945,107.453099,2.3,Mt/yr,operating,BF; BOF,P100000120377,China,2300,exact
+DEACERO Celaya steel plant,MEX,20.518556,-100.925556,2.3,Mt/yr,operating,EAF,P100000120726,Mexico,2300,exact
+MMK Türkiye Metallurgical Payas steel plant,TUR,36.768975,36.213842,2.3,Mt/yr,operating,EAF,P100000120880,Türkiye,2300,exact
+WISCO Group Kunming Steel Co Ltd New District Branch,CHN,24.953261,102.378082,2.276,Mt/yr,operating pre-retirement,BOF,P100000120299,China,2276,exact
+Qinhuangdao Baigong Steel Co Ltd,CHN,39.748773,118.819472,2.26,Mt/yr,operating,BF; BOF; EAF,P100000120372,China,2260,exact
+Zhongpu Handan Iron and Steel Co Ltd,CHN,36.721376,113.910271,2.25,Mt/yr,operating,BF; BOF; EAF,P100000120129,China,2250,exact
+ArcelorMittal Esch-Belval steel plant,LUX,49.504175,5.993759,2.25,Mt/yr,operating,EAF,P100000120715,Luxembourg,2250,exact
+BMM Ispat Danapur steel plant,IND,15.16972,76.37971,2.208,Mt/yr,operating,BF; BOF; DRI; EAF; IF,P100000120512,India,2208,exact
+Jindal Stainless Jajpur steel plant,IND,20.954939,86.051986,2.2,Mt/yr,operating,BF; EAF,P100000120543,India,2200,exact
+Pittini Ferriere Nord Osoppo steel plant,ITA,46.232199,13.079104,2.2,Mt/yr,operating,EAF,P100000120628,Italy,2200,exact
+North Nippon Muroran Works steel plant,JPN,42.341873,140.997803,2.2,Mt/yr,operating,BF; BOF; EAF,P100000120660,Japan,2200,exact
+Dongkuk Steel Incheon steel plant,KOR,37.486465,126.638607,2.2,Mt/yr,operating,EAF,P100000120693,South Korea,2200,exact
+DEACERO Ramos Arizpe steel plant,MEX,25.511162,-100.961848,2.2,Mt/yr,operating,EAF,P100000120730,Mexico,2200,exact
+Yenakiieve Metallurgical Plant,UKR,48.220502,38.228626,2.2,Mt/yr,operating,BF; BOF,P100000120912,Ukraine,2200,exact
+HBIS GROUP Serbia Iron & Steel plant Belgrade,SRB,44.606332,20.970066,2.199,Mt/yr,operating,BF; BOF,P100000120800,Serbia,2199,exact
+SeAH Besteel Gunsan steel plant,KOR,35.968596,126.609524,2.101,Mt/yr,operating,EAF,P100000120701,South Korea,2101,exact
+Ansteel Group Chaoyang Steel and Iron Co Ltd,CHN,41.528945,120.369983,2.1,Mt/yr,operating,BF; BOF,P100000120221,China,2100,exact
+Algerian Qatari Steel Jijel plant,DZA,36.753961,6.24442,2.1,Mt/yr,operating,DRI; EAF,P100000120439,Algeria,2100,exact
+Suez Steel Solb Misr Attaka plant,EGY,29.927875,32.437744,2.08,Mt/yr,operating,DRI; EAF,P100000120449,Egypt,2080,exact
+Guangdong Yuebei United Steel Co Ltd,CHN,24.262452,113.728198,2.055,Mt/yr,operating,BF; BOF; EAF,P100000121044,China,2055,exact
+Ural Steel Metallurgical Plant,RUS,51.214781,58.353913,2.05,Mt/yr,operating,BF; EAF,P100000120819,Russia,2050,exact
+Guangdong Guangqing Metal Technology Co Ltd,CHN,21.697069,111.848841,2.04,Mt/yr,operating,EAF,P100000120087,China,2040,exact
+Xining Special Steel Co Ltd,CHN,36.66856,101.671414,2.04,Mt/yr,operating,BF; BOF; EAF,P100000120233,China,2040,exact
+Heilongjiang Jianlong Iron and Steel Co Ltd,CHN,46.602297,131.071877,2.001,Mt/yr,operating,BF; BOF,P100000120157,China,2001,exact
+ArcelorMittal Acindar Villa Constitución steel plant,ARG,-33.249936,-60.300415,2,Mt/yr,operating,DRI; EAF,P100000120006,Argentina,2000,exact
+Wuhu Xinxing Ductile Iron Pipes Co Ltd,CHN,31.229893,118.150867,2,Mt/yr,operating,BF; BOF; EAF,P100000120068,China,2000,exact
+Wuhu Fuxin Iron and Steel Co Ltd,CHN,31.194505,118.067833,2,Mt/yr,operating,BF; BOF,P100000120073,China,2000,exact
+Tangshan Wenfeng Special Steel Co Ltd,CHN,39.146541,118.432261,2,Mt/yr,operating,BF; BOF; EAF,P100000120148,China,2000,exact
+Henan Yaxin Iron and Steel Group Co Ltd,CHN,35.879956,114.334825,2,Mt/yr,operating,BF; BOF,P100000120168,China,2000,exact
+Inner Mongolia Yaxin Longshun Special Steel Co Ltd,CHN,40.689778,110.214707,2,Mt/yr,operating,BF; BOF,P100000120187,China,2000,exact
+Jiangsu Changqiang Iron and Steel Co Ltd,CHN,31.952064,120.189749,2,Mt/yr,operating,BF; BOF,P100000120199,China,2000,exact
+Xinjiang Tianshan Iron and Steel Bazhou Co Ltd,CHN,42.333321,86.302481,2,Mt/yr,operating,BF; BOF,P100000120291,China,2000,exact
+Shijiazhuang Iron and Steel Co Ltd Special Steel Branch,CHN,38.075008,114.033043,2,Mt/yr,operating,EAF,P100000120322,China,2000,exact
+Luzhou Xinyang Vanadium Titanium Steel Co Ltd,CHN,28.851779,105.70509,2,Mt/yr,operating,EAF,P100000120335,China,2000,exact
+Wuhai Baogang Wanteng Iron and Steel Co Ltd,CHN,39.855971,106.886647,2,Mt/yr,operating,BF; BOF,P100000120340,China,2000,exact
+Hubei Shunle Steel Co Ltd plant,CHN,29.925026,113.826118,2,Mt/yr,operating,EAF,P100000120343,China,2000,exact
+Zhongye Dongfang Jiangsu Heavy Industry Co Ltd,CHN,32.104319,119.792126,2,Mt/yr,operating,EAF,P100000120346,China,2000,exact
+Fuzhou Wuhang Steel Products Co Ltd,CHN,25.995101,119.495725,2,Mt/yr,operating,EAF,P100000120358,China,2000,exact
+Guangdong Jingye Iron and Steel Co Ltd,CHN,23.454666,116.498483,2,Mt/yr,operating,BF; BOF,P100000120362,China,2000,exact
+ArcelorMittal Sestao steel plant,ESP,43.313144,-2.998964,2,Mt/yr,operating,EAF,P100000120453,Spain,2000,exact
+Alfa Acciai Brescia steel plant,ITA,45.508698,10.248464,2,Mt/yr,operating,EAF,P100000120623,Italy,2000,exact
+Ch'ŏngjin Ironworks steel plant,PRK,41.777936,129.792399,2,Mt/yr,operating,BF; BOF; DRI; EAF,P100000120687,North Korea,2000,exact
+Panhua Group Sarangani steel plant,PHL,5.86655,125.078751,2,Mt/yr,operating,BF; BOF,P100000120775,Philippines,2000,exact
+IMH Tula steel plant,RUS,54.156726,37.725551,2,Mt/yr,operating,BF; BOF,P100000120806,Russia,2000,exact
+Promsort Ural steel plant,RUS,56.849666,59.908414,2,Mt/yr,operating,EAF,P100000120810,Russia,2000,exact
+Toscelik Toprakkale steel plant,TUR,37.016956,36.10911,2,Mt/yr,operating,EAF,P100000120885,Türkiye,2000,exact
+Steel Dynamics Columbia City plant,USA,41.121613,-85.348602,2,Mt/yr,operating,EAF,P100000120958,United States,2000,exact
+Fujian Wuhang Stainless Steel Products Co Ltd,CHN,25.95923,119.452018,2,Mt/yr,operating,EAF,P100000121064,China,2000,exact
+Hubei Lijin Steel Group Co Ltd,CHN,32.127263,112.715688,2,Mt/yr,operating,EAF,P100000121070,China,2000,exact
+Master Steel Jakarta Steel plant,IDN,-6.18421,106.920067,2,Mt/yr,operating,EAF,P100000121169,Indonesia,2000,exact
+Guizhou United Iron and Steel Group Co Ltd,CHN,27.591691,106.814024,1.99,Mt/yr,operating,EAF,P100000120097,China,1990,exact
+Pavgord Zenica steel plant,BIH,44.224446,17.899815,1.94,Mt/yr,operating,BF; BOF; EAF,P100000120017,Bosnia and Herzegovina,1940,exact
+Angang Lianzhong Stainless Steel Co Ltd,CHN,23.126822,113.505817,1.9,Mt/yr,operating,EAF,P100000120089,China,1900,exact
+Shaanxi Lueyang Iron and Steel Co Ltd,CHN,33.323678,106.167206,1.9,Mt/yr,operating pre-retirement,BOF,P100000120236,China,1900,exact
+Changzhi Xingbao Steel Co Ltd,CHN,36.332449,113.15509,1.9,Mt/yr,operating,BF; BOF,P100000120265,China,1900,exact
+ShiGangJingCheng Equipment Development and Manufacturing Co Ltd,CHN,40.626396,122.38884,1.9,Mt/yr,operating,BOF; EAF,P100001063815,China,1900,exact
+Shandong Taigang Xinhai Stainless Steel Co Ltd,CHN,35.228556,119.084178,1.86,Mt/yr,operating,BF; BOF,P100001063638,China,1860,approximate
+Wuzhou Yongda Iron and Steel Co Ltd,CHN,23.524465,111.2402,1.851,Mt/yr,operating pre-retirement,EAF,P100000120365,China,1851,exact
+Algoma steel plant,CAN,46.518984,-84.374068,1.85,Mt/yr,operating,EAF,P100000120059,Canada,1850,exact
+Hebei Huaxi Special Steel Co Ltd,CHN,39.260784,119.005925,1.824,Mt/yr,operating,BF; BOF,P100000120323,China,1824,exact
+Anshan Baode Iron and Steel Co Ltd,CHN,41.173613,122.945501,1.8,Mt/yr,operating,BF; BOF,P100000120231,China,1800,exact
+Ningxia Iron and Steel Group Co Ltd,CHN,37.503054,105.078348,1.8,Mt/yr,operating,BF; BOF,P100000120232,China,1800,exact
+Hebei Zhangxuan High Tech Co Ltd,CHN,40.607977,115.067516,1.8,Mt/yr,operating,DRI; EAF,P100000120401,China,1800,approximate
+Riva Brandenburg Electric Steel Works,DEU,52.402617,12.496135,1.8,Mt/yr,operating,EAF,P100000120430,Germany,1800,exact
+Nippon Rayong Steel plant,THA,12.793786,101.244592,1.8,Mt/yr,operating,EAF,P100000120858,Thailand,1800,exact
+Feng Hsin Taichung Steel plant,TWN,24.31287,120.712774,1.8,Mt/yr,operating,EAF,P100000120899,Taiwan,1800,exact
+Henan Angang Zhoukou Iron and Steel Co Ltd,CHN,33.364534,115.099661,1.75,Mt/yr,operating,BF; BOF,P100000120331,China,1750,exact
+Fujian Dingsheng Iron and Steel Co Ltd,CHN,27.224477,120.328828,1.726,Mt/yr,operating,EAF,P100000120314,China,1726,exact
+Guangxi Guifeng Special Steel Co Ltd,CHN,23.987136,111.914197,1.725,Mt/yr,operating,EAF,P100000120395,China,1725,exact
+TenarisSiderca Campana steel plant,ARG,-34.152554,-58.977388,1.72,Mt/yr,operating,DRI; EAF,P100000120007,Argentina,1720,exact
+Libyan Iron and Steel Misrata plant,LBY,32.335185,15.215053,1.71,Mt/yr,operating,DRI; EAF,P100000120717,Libya,1710,exact
+Licheng Taihang Iron and Steel Co Ltd,CHN,36.472303,113.344155,1.7,Mt/yr,operating,BF; BOF,P100000120269,China,1700,exact
+Shanxi Meijin Iron and Steel Co Ltd Dongyu Town,CHN,37.571354,112.229791,1.7,Mt/yr,operating,BOF,P100000120308,China,1700,exact
+CMC Zawiercie steel plant,POL,50.487463,19.456759,1.7,Mt/yr,operating,EAF,P100000120787,Poland,1700,exact
+TYASA steel plant,MEX,18.869272,-97.047263,1.65,Mt/yr,operating,EAF,P100000120732,Mexico,1650,exact
+Heyuan Derun Steel Co Ltd LanTang Industrial Park,CHN,23.39775,114.898646,1.65,Mt/yr,operating,EAF,P100000121139,China,1650,exact
+Hebei Yongyang Special Steel Group Co Ltd,CHN,36.786851,114.376132,1.61,Mt/yr,operating,BF; BOF; EAF,P100000120131,China,1610,exact
+Shyam Metalics Sambalpur steel plant,IND,21.680344,84.04179,1.606,Mt/yr,operating,DRI; IF,P100000121184,India,1606,exact
+Guangxi Deyuan Metallurgy Co Ltd (Nayangdaqiao),CHN,22.712996,109.33725,1.6,Mt/yr,operating pre-retirement,EAF,P100000120398,China,1600,exact
+Jianglong Acheng Iron and Steel Co Ltd,CHN,45.562002,126.968128,1.6,Mt/yr,operating,BF; BOF,P100000120418,China,1600,exact
+West Alborz Ana Steel Zanjan plant,IRN,36.119574,49.306253,1.6,Mt/yr,operating,EAF; IF,P100000120591,Iran,1600,exact
+Abinsk Electric Steel Works,RUS,44.881938,38.12751,1.6,Mt/yr,operating,EAF,P100000120802,Russia,1600,exact
+North American Stainless Ghent steel plant,USA,38.725418,-85.076015,1.6,Mt/yr,operating,EAF,P100000120936,United States,1600,exact
+U.S. Steel Fairfield plant,USA,33.480697,-86.937854,1.6,Mt/yr,operating,EAF,P100000120965,United States,1600,exact
+Mobarakeh Saba Steel Chamgordan plant,IRN,32.40787,51.338985,1.6,Mt/yr,operating,DRI; EAF,P100000121197,Iran,1600,exact
+Nippon Sanyo Special Steel,JPN,34.788074,134.672046,1.596,Mt/yr,operating,EAF,P100000120667,Japan,1596,exact
+Jiangsu Hongtai Iron and Steel Co Ltd,CHN,32.138393,119.554693,1.576,Mt/yr,operating,EAF,P100000120386,China,1576,exact
+Hebei Xinwuan Iron and Steel Group Xinhui Metallurgy Co Ltd,CHN,36.664097,114.115263,1.575,Mt/yr,operating,EAF,P100000120130,China,1575,exact
+Voestalpine Stahl Donawitz steel plant,AUT,47.380455,15.065182,1.57,Mt/yr,operating,BF; BOF; BF; BOF; DRI,P100000120011,Austria,1570,exact
+Nucor Steel Hertford plant,USA,36.353006,-76.811471,1.542,Mt/yr,operating,EAF,P100000120941,United States,1542,exact
+Shanxi Changxin Industrial Co Ltd,CHN,36.326589,113.117181,1.52,Mt/yr,operating pre-retirement,BF; BOF,P100000120270,China,1520,exact
+Qian an Zhayi Steel Group Co Ltd,CHN,40.044026,118.552001,1.5,Mt/yr,operating,EAF,P100000120100,China,1500,exact
+Henan Fengbao Special Steel Co Ltd,CHN,36.131666,113.872158,1.5,Mt/yr,operating pre-retirement,BOF,P100000120167,China,1500,exact
+Danyang Longjiang Steel Co Ltd,CHN,32.027791,119.57706,1.5,Mt/yr,operating,BF; BOF,P100000120202,China,1500,exact
+Jiangyin Huaxi Iron and Steel Co Ltd,CHN,31.816482,120.424347,1.5,Mt/yr,operating,BF; BOF,P100000120205,China,1500,exact
+Jilin Jingang Iron and Steel Co Ltd,CHN,43.20023,124.335697,1.5,Mt/yr,operating,BF; BOF,P100000120218,China,1500,exact
+Chengdu Changfeng Iron and Steel Group Co Ltd,CHN,31.031921,103.672956,1.5,Mt/yr,operating,EAF,P100000120329,China,1500,exact
+Guangxi Wuzhou Jinhai Stainless Steel Co Ltd,CHN,23.518229,111.235509,1.5,Mt/yr,operating,EAF,P100000120369,China,1500,exact
+Ningxia Xinghua Iron and Steel Co Ltd,CHN,39.309571,106.79093,1.5,Mt/yr,operating,BF; BOF,P100000120411,China,1500,exact
+Longnan Fuxin Iron and Steel Co Ltd,CHN,24.912904,114.844503,1.5,Mt/yr,operating,EAF,P100000120412,China,1500,exact
+Electrosteel Bokaro steel plant,IND,23.632907,86.293671,1.5,Mt/yr,operating,BF; BOF,P100000120534,India,1500,exact
+Mobarakeh Steel Hormuzgan Steel Company plant,IRN,27.161426,56.10058,1.5,Mt/yr,operating,DRI; EAF,P100000120581,Iran,1500,exact
+Pasargad Steel Complex Fars,IRN,29.191019,52.845405,1.5,Mt/yr,operating,DRI; EAF,P100000120586,Iran,1500,exact
+Zarand Iranian Steel Company Kerman plant,IRN,30.749633,56.6675096,1.5,Mt/yr,operating,BF; BOF,P100000120588,Iran,1500,exact
+Butia Iranian Steel Kerman plant,IRN,30.4912,56.8214,1.5,Mt/yr,operating,DRI; EAF,P100000120592,Iran,1500,exact
+Danieli ABS Pozzuolo del Friuli steel plant,ITA,46.008483,13.255117,1.5,Mt/yr,operating,EAF,P100000120621,Italy,1500,exact
+Daido Steel Chita plant (Tokai),JPN,35.016404,136.864744,1.5,Mt/yr,operating,EAF,P100000120645,Japan,1500,exact
+Hwanghae Iron and Steel Complex steel plant,PRK,38.742224,125.616814,1.5,Mt/yr,operating,BF; EAF; Steel other/unspecified,P100000120688,North Korea,1500,exact
+Promsort Kaluga steel plant,RUS,55.233675,36.679192,1.5,Mt/yr,operating,EAF,P100000120809,Russia,1500,exact
+SSAB Oxelösund steel plant,SWE,58.670789,17.127786,1.5,Mt/yr,operating pre-retirement,BF; BOF,P100000120844,Sweden,1500,exact
+Nippon Chonburi steel plant,THA,13.054668,101.078842,1.5,Mt/yr,operating,EAF,P100000120859,Thailand,1500,exact
+Kroman Steel Darica plant,TUR,40.801101,29.374115,1.5,Mt/yr,operating,EAF,P100000120879,Türkiye,1500,exact
+Gerdau Midlothian Steel Mill,USA,32.457544,-97.034246,1.5,Mt/yr,operating,EAF,P100000120931,United States,1500,exact
+JSW Steel USA Ohio plant,USA,40.314891,-80.605553,1.5,Mt/yr,operating,EAF,P100000120935,United States,1500,exact
+ArcelorMittal Calvert steel plant,USA,31.148446,-87.990521,1.5,Mt/yr,operating,EAF,P100000120997,United States,1500,exact
+Aichi Steel Chita plant (Tokai),JPN,35.044558,136.900772,1.495,Mt/yr,operating,EAF,P100000120644,Japan,1495,exact
+ArcelorMittal Olaberria-Bergara (Olaberria) steel plant,ESP,43.03829,-2.219625,1.45,Mt/yr,operating,EAF,P100000120458,Spain,1450,exact
+Torbat Heydarieh Khorasan Steel Complex,IRN,35.594882,59.205984,1.45,Mt/yr,operating,DRI; EAF,P100000120616,Iran,1450,exact
+Finarvedi Acciai Speciali Terni steel plant,ITA,42.564752,12.66936,1.45,Mt/yr,operating,EAF,P100000120630,Italy,1450,exact
+Nucor Steel Brandenburg plant,USA,37.9999454,-86.1398738,1.45,Mt/yr,operating,EAF,P100000120953,United States,1450,exact
+Jishan Mingfu Steel Products Co Ltd,CHN,35.665945,111.025976,1.433,Mt/yr,operating,BF; BOF,P100000121057,China,1433,exact
+Abul Khair Steel Sitakunda plant,BGD,22.472008,91.734827,1.4,Mt/yr,operating,EAF,P100000120020,Bangladesh,1400,exact
+Stomana Industry Pernik steel plant,BGR,42.595629,23.093095,1.4,Mt/yr,operating,EAF,P100000120031,Bulgaria,1400,exact
+Heping Yueshen Steel Industry Co Ltd,CHN,24.49796,114.93888,1.4,Mt/yr,operating,EAF,P100000120091,China,1400,exact
+Guangxi Guigang Iron and Steel Group Co Ltd,CHN,23.088182,109.634638,1.4,Mt/yr,operating,BOF,P100000120095,China,1400,exact
+Hebei Xin Wuan Steel Group Wenan Iron and Steel Co Ltd,CHN,36.679431,114.169024,1.4,Mt/yr,operating pre-retirement,BF; BOF,P100000120133,China,1400,exact
+Shandong Luli Steel Co Ltd,CHN,36.970875,118.955444,1.4,Mt/yr,operating,BF; BOF; DRI,P100000120248,China,1400,exact
+Yantai Walsin Stainless Steel Co Ltd,CHN,37.548627,121.277488,1.4,Mt/yr,operating,EAF,P100000120253,China,1400,exact
+Lvliang Jianlong Industrial Co Ltd,CHN,37.47311,112.06093,1.4,Mt/yr,operating,BF; BOF,P100000120260,China,1400,exact
+Yunnan Qujing Iron and Steel Group Fenghuang Steel Co Ltd,CHN,26.275342,104.168311,1.4,Mt/yr,operating,EAF,P100000120303,China,1400,exact
+ESF Elbe Stahlwerke Feralpi Riesa steel plant,DEU,51.3128,13.280386,1.4,Mt/yr,operating,EAF,P100000120436,Germany,1400,exact
+Lech Stahlwerke Meitingen steel plant,DEU,48.512051,10.855292,1.4,Mt/yr,operating,EAF,P100000120437,Germany,1400,exact
+Khorasan Steel Complex,IRN,36.3445,58.67875,1.4,Mt/yr,operating,DRI; EAF,P100000120582,Iran,1400,exact
+Dongkuk Steel Pohang steel plant,KOR,36.00147,129.397609,1.4,Mt/yr,operating,EAF,P100000120694,South Korea,1400,exact
+OMK Vyksa Casting and Rolling Complex,RUS,55.382815,42.188954,1.4,Mt/yr,operating,EAF,P100000120831,Russia,1400,exact
+Kaptan Ereglisi steel plant,TUR,41.015222,27.959978,1.4,Mt/yr,operating,EAF,P100000120876,Türkiye,1400,exact
+Southern Steel Prai Penang plant,MYS,5.399453,100.382177,1.4,Mt/yr,operating,EAF,P100000121055,Malaysia,1400,exact
+Henan Jinhui Industrial Group,CHN,34.263509,113.853979,1.4,Mt/yr,operating,EAF,P100000121086,China,1400,exact
+Grupo Acerero steel plant,MEX,22.087328,-100.901902,1.375,Mt/yr,operating,EAF,P100000120736,Mexico,1375,exact
+Fujian Yixin Steel Co Ltd,CHN,26.491308,119.63624,1.36,Mt/yr,operating pre-retirement,BF; BOF,P100000120079,China,1360,exact
+Tongling Fuxin Iron and Steel Co Ltd,CHN,30.907561,117.772866,1.35,Mt/yr,operating,BF; BOF,P100000120072,China,1350,exact
+Hebei Xin Wuan Steel Group Hongrong Iron and Steel Co Ltd,CHN,36.640411,113.981172,1.35,Mt/yr,operating,BF; BOF,P100000120136,China,1350,exact
+Inner Mongolia Desheng Metal Products Co Ltd,CHN,39.867015,106.890377,1.35,Mt/yr,operating,BF; BOF,P100000120185,China,1350,exact
+Yunnan Desheng Iron and Steel Co Ltd,CHN,25.142516,102.077727,1.35,Mt/yr,operating,BF; BOF,P100000120301,China,1350,exact
+Jiangsu Delong Nickel Industry Co Ltd,CHN,34.443469,119.816574,1.35,Mt/yr,operating,EAF,P100000120349,China,1350,exact
+Wulanhot Steel Co Ltd,CHN,46.055685,122.063282,1.35,Mt/yr,operating,BF; BOF,P100000120354,China,1350,exact
+Hebei Huaxin Special Steel Co Ltd,CHN,36.53048,114.245262,1.35,Mt/yr,operating,BF; BOF,P100000120378,China,1350,exact
+Sovel Almyros steel plant,GRC,39.169632,22.840216,1.35,Mt/yr,operating,EAF,P100000120492,Greece,1350,exact
+ArcelorMittal Differdange steel plant,LUX,49.527966,5.900398,1.35,Mt/yr,operating,EAF,P100000120714,Luxembourg,1350,exact
+U.S. Steel Granite City Works,USA,38.695049,-90.136073,1.35,Mt/yr,operating,BF; BOF,P100000120968,United States,1350,exact
+Qinglong Manchu Autonomous County Delong Foundry Development Co Ltd,CHN,40.427008,119.219855,1.35,Mt/yr,operating,BF; BOF,P100001063756,China,1350,exact
+Xinjiang Kingtec Steel Co Ltd,CHN,42.674192,86.280156,1.334,Mt/yr,operating,BF; BOF,P100000120290,China,1334,exact
+Ternium Puebla steel plant,MEX,19.169532,-98.318659,1.33,Mt/yr,operating,DRI; EAF,P100000120728,Mexico,1330,exact
+Guizhou Ganglian Industrial Group Co Ltd,CHN,27.615147,106.949926,1.325,Mt/yr,operating,EAF,P100000120098,China,1325,exact
+BlueScope New Zealand Steel Glenbrook,NZL,-37.206878,174.728098,1.32,Mt/yr,operating,BOF; DRI; DRI; EAF,P100000120761,New Zealand,1320,exact
+Interpipe Steel Plant,UKR,48.498914,35.096336,1.32,Mt/yr,operating,EAF,P100000120915,Ukraine,1320,exact
+Sulb Bahrain Al Hidd steel plant,BHR,26.198152,50.679893,1.3,Mt/yr,operating,DRI; EAF,P100000120032,Bahrain,1300,exact
+Orion Regina Steel plant,CAN,50.51499,-104.630589,1.3,Mt/yr,operating,EAF,P100000120060,Canada,1300,exact
+Anyang Iron and Steel Co Ltd,CHN,36.122129,114.283145,1.3,Mt/yr,operating pre-retirement,EAF,P100000120160,China,1300,exact
+Hengyang Valin Steel Tube Co Ltd,CHN,26.865484,112.576853,1.3,Mt/yr,operating,BF; EAF,P100000120180,China,1300,exact
+ArcelorMittal Duisburg steel plant,DEU,51.462987,6.744612,1.3,Mt/yr,operating pre-retirement,BOF,P100000120428,Germany,1300,exact
+Grupo Gallardo Siderurgica Balboa Jerez de los Caballeros steel plant,ESP,38.326405,-6.767326,1.3,Mt/yr,operating,EAF,P100000120455,Spain,1300,exact
+Riva Siderurgica Sevillana steel plant,ESP,37.362968,-5.886865,1.3,Mt/yr,operating,EAF,P100000120457,Spain,1300,exact
+Iran Alloy Steel Company Yazd plant,IRN,31.940106,54.037614,1.3,Mt/yr,operating,EAF,P100000120599,Iran,1300,exact
+Diler Iron and Steel Dilovasi plant,TUR,40.783161,29.533568,1.3,Mt/yr,operating,EAF,P100000120868,Türkiye,1300,exact
+Yesilyurt Iron and Steel Tekkekoy plant,TUR,41.241199,36.442055,1.3,Mt/yr,operating,EAF,P100000120888,Türkiye,1300,exact
+Hoa Sen Phu My steel plant,VNM,10.595295,107.044846,1.3,Mt/yr,operating,EAF,P100000121022,Vietnam,1300,exact
+Kyoei Steel Nagoya Division (Tokai),JPN,35.065055,136.815384,1.265,Mt/yr,operating,EAF,P100000120682,Japan,1265,exact
+JSW Steel Salem steel plant,IND,11.814912,77.918465,1.26,Mt/yr,operating,BF; BOF,P100000120518,India,1260,exact
+Mass Iron and Steel Industry Co Sulaimaniya plant,IRQ,35.660125,45.039062,1.25,Mt/yr,operating,EAF,P100000120577,Iraq,1250,exact
+Pittini Acciaierie di Verona steel plant,ITA,45.42882,11.000861,1.25,Mt/yr,operating,EAF,P100000120627,Italy,1250,exact
+Aceros Arequipa Pisco steel plant,PER,-13.788622,-76.168173,1.25,Mt/yr,operating,EAF,P100000120768,Peru,1250,exact
+Balakovo Steel Plant,RUS,51.936009,47.81591,1.25,Mt/yr,operating,EAF,P100000120817,Russia,1250,exact
+Ekinciler Iron and Steel Iskenderun plant,TUR,36.690115,36.205739,1.25,Mt/yr,operating,EAF,P100000120870,Türkiye,1250,exact
+Kardemir Celik Sanayi Izmir steel plant,TUR,38.743652,26.964746,1.25,Mt/yr,operating,EAF,P100000120894,Türkiye,1250,approximate
+SSAB Americas Alabama steel plant,USA,30.941783,-88.012437,1.25,Mt/yr,operating,EAF,P100000120933,United States,1250,exact
+Tenaris TAMSA Veracruz steel plant,MEX,19.182499,-96.237284,1.23,Mt/yr,operating,EAF,P100000120731,Mexico,1230,exact
+Celsa Huta Ostrowiec steel plant,POL,50.947305,21.448763,1.22,Mt/yr,operating,EAF,P100000120788,Poland,1220,exact
+Feralpi Siderurgica Lonato steel plant,ITA,45.460582,10.456748,1.216,Mt/yr,operating,EAF,P100000120626,Italy,1216,exact
+Fujian Longgang New Materials Co Ltd,CHN,25.357408,117.362096,1.21,Mt/yr,operating,BF; BOF,P100000120413,China,1210,exact
+GFG Liberty Steel Australia Whyalla steel plant,AUS,-33.009381,137.587836,1.2,Mt/yr,operating pre-retirement,BF; BOF,P100000120013,Australia,1200,exact
+Aperam Stainless Belgium Genk steel plant,BEL,50.933973,5.511494,1.2,Mt/yr,operating,EAF,P100000120028,Belgium,1200,exact
+ArcelorMittal Monlevade steel plant,BRA,-19.832129,-43.130164,1.2,Mt/yr,operating,BF; BOF,P100000120035,Brazil,1200,exact
+Gerdau Whitby Steel Mill,CAN,43.856461,-78.908997,1.2,Mt/yr,operating,EAF,P100000120062,Canada,1200,exact
+Shaanxi Huaxin Special Steel Group Co Ltd,CHN,34.523278,109.986042,1.2,Mt/yr,operating pre-retirement,EAF,P100000120237,China,1200,exact
+Guangxi Guigang Iron and Steel Group Guigang Guibao Special Steel Co Ltd,CHN,23.089502,109.63938,1.2,Mt/yr,operating,EAF,P100000120363,China,1200,exact
+Guilin Pinggang Iron and Steel Co Ltd,CHN,24.673567,110.78959,1.2,Mt/yr,operating,EAF,P100000120367,China,1200,exact
+Lishui Huahong Iron and Steel Products Co Ltd,CHN,28.090098,119.519509,1.2,Mt/yr,operating,EAF,P100000120399,China,1200,exact
+Zhejiang Wantai Special Steel Co Ltd,CHN,30.944342,120.971803,1.2,Mt/yr,operating,EAF,P100000120408,China,1200,exact
+Egyptian American Steel Rolling Company Sadat City plant,EGY,30.389174,30.571894,1.2,Mt/yr,operating,EAF,P100000120443,Egypt,1200,exact
+ArcelorMittal Asturias (Gijón) steel plant,ESP,43.525092,-5.731926,1.2,Mt/yr,operating,BOF,P100000120452,Spain,1200,exact
+Acerinox Europa Los Barrios steel plant,ESP,36.181686,-5.426626,1.2,Mt/yr,operating,EAF,P100000120454,Spain,1200,exact
+Outokumpu Tornio steel plant,FIN,65.767115,24.176472,1.2,Mt/yr,operating,EAF,P100000120469,Finland,1200,exact
+Celsa France Boucau steel plant,FRA,43.529693,-1.500971,1.2,Mt/yr,operating,EAF,P100000120474,France,1200,exact
+Se.ven GI Cardiff steel plant,GBR,51.479757,-3.137056,1.2,Mt/yr,operating,EAF,P100000120484,United Kingdom,1200,exact
+Tata Steel Gamharia steel plant,IND,22.812895,86.084022,1.2,Mt/yr,operating,BF; DRI; EAF,P100000120535,India,1200,exact
+Jayaswal Neco Industries Raipur steel plant,IND,21.354495,81.676444,1.2,Mt/yr,operating,BF; DRI; EAF,P100000120547,India,1200,exact
+Mesco Steel Kalinganagar plant,IND,20.976277,86.044419,1.2,Mt/yr,operating,BF; BOF,P100000120559,India,1200,exact
+Arvand Jahanara Steel Khouzestan plant,IRN,30.510886,48.241356,1.2,Mt/yr,operating,EAF,P100000120590,Iran,1200,exact
+Bafgh Mineral Complex Iron and Steel Yazd plant,IRN,31.699307,55.440187,1.2,Mt/yr,operating,DRI; EAF,P100000120606,Iran,1200,exact
+AFV Accaierie Beltrame Vicenza steel plant,ITA,45.522097,11.499295,1.2,Mt/yr,operating,EAF,P100000120624,Italy,1200,exact
+SeAH Changwon Integrated Special Steel plant,KOR,35.204191,128.604277,1.2,Mt/yr,operating,EAF,P100000120702,South Korea,1200,exact
+SeAH Steel Pohang plant,KOR,35.991176,129.375791,1.2,Mt/yr,operating,EAF,P100000120706,South Korea,1200,exact
+United Steel Industrial Kuwait Steel Sharq plant,KWT,28.989306,48.128118,1.2,Mt/yr,operating,EAF,P100000120709,Kuwait,1200,exact
+Solb Steel Jizan plant,SAU,17.298475,42.352338,1.2,Mt/yr,operating,EAF,P100000120834,Saudi Arabia,1200,exact
+Ege Steel Aliaga plant,TUR,38.728005,26.940095,1.2,Mt/yr,operating,EAF,P100000120869,Türkiye,1200,exact
+Koc Metallurgical Toprakkale steel plant,TUR,37.01488,36.104416,1.2,Mt/yr,operating,EAF,P100000120878,Türkiye,1200,exact
+Ozkan Iron and Steel Aliaga plant,TUR,38.737005,26.950824,1.2,Mt/yr,operating,EAF,P100000120883,Türkiye,1200,exact
+Tung Ho Steel Miaoli plant,TWN,24.568401,120.74062,1.2,Mt/yr,operating,EAF,P100000120903,Taiwan,1200,exact
+SSAB Americas Iowa steel plant,USA,41.482009,-90.820921,1.2,Mt/yr,operating,EAF,P100000120934,United States,1200,exact
+Nucor Steel Tuscaloosa plant,USA,33.234761,-87.508498,1.2,Mt/yr,operating,EAF,P100000120950,United States,1200,exact
+Daye Xinye Special Steel Co Ltd,CHN,30.067469,114.934091,1.2,Mt/yr,operating,BF; BOF,P100000121072,China,1200,exact
+Chadormalu Mining and Industrial Company Yazd steel plant,IRN,32.387328,53.747706,1.2,Mt/yr,operating,DRI; EAF,P100000121225,Iran,1200,exact
+Vina One Steel Ben Luc steel plant,VNM,10.636835,106.517595,1.2,Mt/yr,operating,IF,P100001045578,Vietnam,1200,exact
+Henan Fuhua Steel Group Co Ltd,CHN,34.462949,113.700844,1.2,Mt/yr,operating,EAF,P100001064248,China,1200,exact
+Prakash Industries Janjgir steel plant,IND,22.004694,82.671666,1.19,Mt/yr,operating,DRI; IF,P100000120558,India,1190,exact
+BSRM Ltd Mirsarai steel plant,BGD,22.870631,91.545862,1.15,Mt/yr,operating,IF,P100000120022,Bangladesh,1150,exact
+Shanxi Huaxinyuan Steel and Iron Group Co Ltd,CHN,35.605506,110.652056,1.15,Mt/yr,operating,BF; BOF,P100000120267,China,1150,exact
+Zunyi Fuxin Special Steel Equipment Manufacturing Co Ltd,CHN,27.591697,106.815453,1.15,Mt/yr,operating pre-retirement,EAF,P100000120359,China,1150,exact
+Daye Huaxin Industrial Co Ltd,CHN,30.070219,114.926251,1.15,Mt/yr,operating pre-retirement,BF; BOF,P100000120376,China,1150,exact
+Guangxi Hezhou Kexinda Metal Products Co Ltd,CHN,23.979937,111.745037,1.15,Mt/yr,operating,EAF,P100000120397,China,1150,exact
+Amurstal steel plant,RUS,50.563131,136.976362,1.15,Mt/yr,operating,EAF,P100000120803,Russia,1150,exact
+Shyam Metalics Jamuria steel plant,IND,23.693749,87.122711,1.144,Mt/yr,operating,BF; DRI; IF,P100000121183,India,1144,exact
+Grupo Simec Apizaco Cholula steel plant,MEX,19.395628,-98.088777,1.14,Mt/yr,operating,EAF,P100000120733,Mexico,1140,exact
+Xinjiang Minxin Iron and Steel Group Minhang Special Steel Co Ltd,CHN,44.080866,88.417209,1.11,Mt/yr,operating,EAF,P100000120410,China,1110,exact
+ArcelorMittal Piracicaba steel plant,BRA,-22.698154,-47.657146,1.1,Mt/yr,operating,EAF,P100000120041,Brazil,1100,exact
+ArcelorMittal Juiz de Fora steel plant,BRA,-21.626963,-43.462361,1.1,Mt/yr,operating,BF; EAF,P100000120045,Brazil,1100,exact
+Posco Zhangjiagang Stainless Steel Co Ltd,CHN,31.980237,120.571455,1.1,Mt/yr,operating,EAF,P100000120206,China,1100,exact
+Lanxin Steel Group Co Ltd plant,CHN,36.488866,103.922,1.1,Mt/yr,operating,BF; BOF; EAF,P100000120344,China,1100,exact
+Panshi Jianlong Iron and Steel Co Ltd,CHN,43.196537,126.00063,1.1,Mt/yr,operating,BF; BOF,P100000120387,China,1100,exact
+Zhejiang Yuxin Industrial Co Ltd,CHN,28.787202,120.248592,1.1,Mt/yr,operating,EAF,P100000120404,China,1100,exact
+ArcelorMittal Hamburg steel plant,DEU,53.522601,9.900749,1.1,Mt/yr,operating,DRI; EAF,P100000120427,Germany,1100,exact
+CSN Stahlwerk Thüringen Unterwellenborn steel plant,DEU,50.654574,11.43745,1.1,Mt/yr,operating,EAF,P100000120434,Germany,1100,exact
+Neelachal Ispat Nigam steel plant,IND,20.998641,86.019102,1.1,Mt/yr,operating,BF; BOF,P100000120540,India,1100,exact
+SN SEIXAL Siderurgia Nacional steel plant,PRT,38.616023,-9.068527,1.1,Mt/yr,operating,EAF,P100000120793,Portugal,1100,exact
+Aba Iron and Steel Payas plant,TUR,36.747413,36.21733,1.1,Mt/yr,operating,EAF,P100000120882,Türkiye,1100,exact
+Orion Pueblo steel plant,USA,38.22577,-104.607895,1.1,Mt/yr,operating,EAF,P100000120930,United States,1100,exact
+Uzmetkombinat steel plant,UZB,40.233432,69.290873,1.1,Mt/yr,operating,EAF,P100000121001,Uzbekistan,1100,exact
+Leggett & Platt Sterling Steel plant,USA,41.785971,-89.710947,1.09,Mt/yr,operating,EAF,P100000120961,United States,1090,exact
+Nucor Steel Norfolk plant,USA,42.078908,-97.360854,1.088,Mt/yr,operating,EAF,P100000120943,United States,1088,exact
+Metallus Faircrest steel plant,USA,40.755388,-81.439369,1.088,Mt/yr,operating,EAF,P100000120962,United States,1088,exact
+Evonith Value Steel Wardha steel plant,IND,20.696412,78.638548,1.08,Mt/yr,operating,EAF,P100000121236,India,1080,exact
+GPH Steel Sitakunda plant,BGD,22.536569,91.700729,1.051,Mt/yr,operating,EAF; IF,P100000120018,Bangladesh,1051,exact
+Esteel Eden Flame Johor steel plant,MYS,1.451512,103.917306,1.05,Mt/yr,operating,EAF,P100000120743,Malaysia,1050,exact
+Yazici Iron and Steel Iskenderun plant,TUR,36.685932,36.206275,1.05,Mt/yr,operating,EAF,P100000120887,Türkiye,1050,exact
+Sidor Ciudad Guayana steel plant,VEN,8.259073,-62.841126,1.02,Mt/yr,operating,DRI; EAF,P100000121004,Venezuela,1020,exact
+Guangdong Taidu Iron & Steel Co Ltd,CHN,23.504558,112.962693,1.02,Mt/yr,operating,EAF,P100001063532,China,1020,exact
+Chongqing Zuhang Iron and Steel Co Ltd,CHN,29.440056,105.741929,1.01,Mt/yr,operating pre-retirement,EAF,P100000120317,China,1010,exact
+Arjas Steel Tadipatri plant,IND,14.873471,78.048425,1.005,Mt/yr,operating,BF; BOF,P100000120568,India,1005,exact
+BILDCO Abu Dhabi steel plant,ARE,24.37872,54.475153,1,Mt/yr,operating,EAF,P100000120002,United Arab Emirates,1000,exact
+Aperam Stainless Belgium Châtelet steel plant,BEL,50.414998,4.532443,1,Mt/yr,operating,EAF,P100000120029,Belgium,1000,exact
+ArcelorMittal Resende steel plant,BRA,-22.493597,-44.512628,1,Mt/yr,operating,EAF,P100000120036,Brazil,1000,exact
+Vallourec Jeceaba steel plant,BRA,-20.582683,-43.971555,1,Mt/yr,operating,BF; EAF,P100000120044,Brazil,1000,exact
+Jingzhou Qunli Metal Products Co Ltd,CHN,30.3505,112.353782,1,Mt/yr,operating,EAF,P100000120175,China,1000,exact
+Xinjiang Yili Iron and Steel Co Ltd,CHN,43.526808,83.294323,1,Mt/yr,operating,BF; BOF,P100000120293,China,1000,exact
+Xinjiang Daan Special Steel Co Ltd,CHN,42.700465,93.542466,1,Mt/yr,operating,BF; BOF,P100000120295,China,1000,exact
+Sichuan Shengquan Iron and Steel Group Co Ltd,CHN,31.255961,104.190612,1,Mt/yr,operating,EAF,P100000120320,China,1000,exact
+Hangda Steel Co Ltd,CHN,31.435149,107.685981,1,Mt/yr,operating,EAF,P100000120334,China,1000,exact
+Wuzhou Yongda Special Steel Co Ltd,CHN,23.520307,111.229981,1,Mt/yr,operating,EAF,P100000120366,China,1000,exact
+Xuzhou Jinhong Iron and Steel Group Co Ltd,CHN,34.500122,116.908897,1,Mt/yr,operating,EAF,P100000120381,China,1000,exact
+Cangzhou Lingang Sanling Metal Co Ltd,CHN,38.311738,117.457779,1,Mt/yr,operating,EAF,P100000120385,China,1000,exact
+Anhui Langxi Hongtai Iron and Steel Co Ltd,CHN,31.246635,119.120443,1,Mt/yr,operating,EAF,P100000120402,China,1000,exact
+Riva Hennigsdorfer Electric Steel Works,DEU,52.650903,13.212683,1,Mt/yr,operating,EAF,P100000120431,Germany,1000,exact
+Salzgitter Peiner Träger Peine steel plant,DEU,52.313935,10.258482,1,Mt/yr,operating,EAF,P100000120433,Germany,1000,exact
+Celsa Nervacero steel plant,ESP,43.30806,-3.026309,1,Mt/yr,operating,EAF,P100000120467,Spain,1000,exact
+CNR Mandan Steel South Kalimantan plant,IDN,-3.339296,115.927125,1,Mt/yr,operating,BF; BOF,P100000120503,Indonesia,1000,approximate
+Jahan Foolad Sirjan Steel Kerman plant,IRN,29.13806,55.375073,1,Mt/yr,operating,DRI; EAF,P100000120589,Iran,1000,exact
+Arfa Iron and Steel Yazd plant,IRN,32.39309,53.7566,1,Mt/yr,operating,DRI; EAF,P100000120597,Iran,1000,exact
+Sirjan Iranian Steel Kerman Plant,IRN,29.928062,56.736539,1,Mt/yr,operating,DRI; EAF,P100000120598,Iran,1000,exact
+Neyriz Ghadir Steel Company Fars plant,IRN,29.168087,54.621487,1,Mt/yr,operating,DRI; EAF,P100000120611,Iran,1000,exact
+Mobarakeh Steel Sefid Dasht Steel Complex,IRN,32.19669,51.184156,1,Mt/yr,operating,DRI; EAF,P100000120612,Iran,1000,exact
+Bonab Steel Complex,IRN,37.417437,46.035778,1,Mt/yr,operating,EAF; IF,P100000120617,Iran,1000,exact
+Ferriera Valsabbia Odolo steel plant,ITA,45.642905,10.380199,1,Mt/yr,operating,EAF,P100000120638,Italy,1000,exact
+Devki Steel Mills Kwale plant,KEN,-3.788806,39.316741,1,Mt/yr,operating,BF; BOF,P100000120685,Kenya,1000,exact
+KG Steel Incheon steel plant,KOR,37.482625,126.670175,1,Mt/yr,operating,EAF,P100000120704,South Korea,1000,exact
+Mahgreb Steel Bled Solb plant,MAR,33.632918,-7.434084,1,Mt/yr,operating,EAF,P100000120718,Morocco,1000,exact
+Gerdau Corsa Ciudad Sahagún steel plant,MEX,19.753326,-98.596483,1,Mt/yr,operating,EAF,P100000120727,Mexico,1000,exact
+SteelAsia Compostela steel plant,PHL,10.45078,124.006424,1,Mt/yr,operating,EAF,P100000120773,Philippines,1000,exact
+Ashinskiy Metallurgical plant,RUS,54.99484,57.277548,1,Mt/yr,operating,EAF,P100000120825,Russia,1000,exact
+Al Ittefaq National Steel Dammam plant,SAU,26.244786,49.969064,1,Mt/yr,operating,EAF,P100000120836,Saudi Arabia,1000,exact
+Mescier Iron and Steel Bartin plant,TUR,41.565932,32.427758,1,Mt/yr,operating,EAF,P100000120881,Türkiye,1000,exact
+Yieh United Steel Kaohsiung plant,TWN,22.830857,120.300604,1,Mt/yr,operating,EAF,P100000120900,Taiwan,1000,exact
+Tung Ho Steel Taoyuan plant,TWN,25.067119,121.141176,1,Mt/yr,operating,EAF,P100000120902,Taiwan,1000,exact
+Yuzovsky Metallurgical Plant,UKR,47.982276,37.810634,1,Mt/yr,operating,EAF,P100000120908,Ukraine,1000,exact
+Outokumpu Stainless USA steel plant,USA,31.148179,-87.98866,1,Mt/yr,operating,EAF,P100000120954,United States,1000,exact
+Pomina Steel 3 Phu My plant,VNM,10.577042,107.040324,1,Mt/yr,operating,BF; EAF,P100000121013,Vietnam,1000,exact
+Tung Ho Steel Phu My plant,VNM,10.551445,107.04368,1,Mt/yr,operating,EAF,P100000121014,Vietnam,1000,exact
+POSCO Vietnam Phu My steel plant,VNM,10.560316,107.02684,1,Mt/yr,operating,EAF,P100000121020,Vietnam,1000,exact
+Vina Kyoei Steel Phu My plant,VNM,10.601423,107.040679,1,Mt/yr,operating,EAF,P100000121023,Vietnam,1000,exact
+Chizhou Guichi Guihang Metal Products Co Ltd,CHN,30.532786,117.25166,1,Mt/yr,operating,EAF,P100000121041,China,1000,exact
+Jiangxi Taixin Iron and Steel Co Ltd,CHN,28.60445,118.163615,1,Mt/yr,operating,EAF,P100000121050,China,1000,exact
+Shadegan Steel Complex,IRN,30.565979,48.939846,1,Mt/yr,operating,DRI; EAF,P100000121164,Iran,1000,exact
+DaehanSteel Noksan steel plant,KOR,35.099098,128.860339,1,Mt/yr,operating,EAF,P100000121170,South Korea,1000,exact
+Hellenic Halyvourgia Velestino steel plant,GRC,39.38588,22.80745,1,Mt/yr,operating,EAF,P100000121196,Greece,1000,exact
+Xinjiang Ka Steel Group Co,CHN,39.142997,76.161589,1,Mt/yr,operating,BF; BOF,P100001023534,China,1000,approximate
+"Shengli (Qingyuan) Steel Products Co., Ltd.",CHN,23.553041,113.119942,1,Mt/yr,operating,EAF,P100001063176,China,1000,exact
+Fujian Hongfeng Industrial Group Co Ltd,CHN,26.868423,117.776369,1,Mt/yr,operating,EAF,P100001064195,China,1000,approximate
+Walsin Lihwa Tainan stainless steel plant,TWN,23.295835858147463,120.24399172517494,1,Mt/yr,operating,EAF,P100001082548,Taiwan,1000,approximate
+Dniprospetstaal Zaporizhzhia steel plant,UKR,47.8599249,35.1613272,1,Mt/yr,operating,EAF; IF,P100001082556,Ukraine,1000,exact

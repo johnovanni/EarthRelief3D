@@ -65,7 +65,7 @@ public class AppStartupTests
             // One dot per source: the feeds grey until each reports, then the bundled extracts (Task 6), green from the start.
             Assert.Equal(AppServices.StatusDotNames, vm.Status.Dots.Select(d => d.Name));
             Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "WHO GHO", "UN HNO", "Borders"], AppServices.FeedNames);
-            Assert.Equal([.. AppServices.FeedNames, "FAO", "US EIA", "WRI Aqueduct"], AppServices.StatusDotNames);
+            Assert.Equal([.. AppServices.FeedNames, "FAO", "US EIA", "WRI Aqueduct", "GEM"], AppServices.StatusDotNames);
             var feedDots = vm.Status.Dots.Take(AppServices.FeedNames.Count).ToList();
             var bundledDots = vm.Status.Dots.Skip(AppServices.FeedNames.Count).ToList();
             Assert.All(feedDots, d => Assert.Equal(FeedState.NotStarted, d.State));
@@ -102,7 +102,7 @@ public class AppStartupTests
 
     /// <summary>The snapshot without the bundled extracts' "not placed" rows (Task 6), to compare with a cached one.</summary>
     private static CrisisSnapshot WithoutBundled(CrisisSnapshot s) =>
-        s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source))] };
+        s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source) && u.Source != ResourceMarkers.DotName)] };
 
     /// <summary>A log that also records the thread each line was written on.</summary>
     private sealed class ThreadLog : GlobeCore.Logging.IAppLog
@@ -504,8 +504,8 @@ public class AppStartupTests
             Assert.Contains("Steel plants", texts);
             Assert.Equal(0, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
-            // The four sources, the two needs feeds, Borders, and the three bundled extracts (Task 6).
-            Assert.Equal(10, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
+            // The four sources, the two needs feeds, Borders, the three bundled extracts (Task 6) and GEM's (Task 7).
+            Assert.Equal(11, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));

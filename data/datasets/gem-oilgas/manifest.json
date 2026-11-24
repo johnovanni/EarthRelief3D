@@ -1,0 +1,62 @@
+{
+  "id": "gem-oilgas",
+  "publisher": "Global Energy Monitor",
+  "dataset": "Global Oil and Gas Extraction Tracker",
+  "version": "March 2026 Release",
+  "sourceUrl": "https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/#download",
+  "pageUrl": "https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/",
+  "licence": "CC BY 4.0",
+  "attribution": "Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026 Release.",
+  "dateMeaning": "Release",
+  "dateText": "March 2026 Release",
+  "asOf": "Global Oil and Gas Extraction Tracker, March 2026 Release: the status GEM recorded for that release",
+  "published": "2026-03-01",
+  "downloaded": "2026-11-24",
+  "fileName": "Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx",
+  "fileSha256": "10ed7bc007e47895c2f387449365c20d0a87679cb8c69be678d0cc60df4d1aa5",
+  "command": "DataTool gem-oilgas \"<downloads>/Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx\" --release \"March 2026 Release\" --published 2026-03-01 --downloaded 2026-11-24",
+  "series": [
+    {
+      "id": "gem.oilgas",
+      "measures": "Oil and gas fields: operating fields with coordinates, leaving out those GEM reports producing under 0.2 million barrels of oil equivalent a year",
+      "unit": "million boe/y",
+      "sourceItem": "Field-level main data: fields with Status \"operating\" and a Latitude and Longitude; Field-level production data: newest Quantity (converted) per fuel",
+      "countries": 79
+    }
+  ],
+  "notPlaced": [],
+  "dropped": [],
+  "qualifiersSeen": {
+    "gas": 741,
+    "gas and condensate": 19,
+    "oil": 779,
+    "oil and gas": 3394
+  },
+  "flagsSeen": {
+    "Status (blank)": 213,
+    "Status abandoned": 21,
+    "Status cancelled": 10,
+    "Status decommissioning": 17,
+    "Status discovered": 455,
+    "Status exploration": 1,
+    "Status in-development": 229,
+    "Status mothballed": 240,
+    "Status operating": 6481,
+    "Status underground gas storage": 6,
+    "operating, no Latitude/Longitude: left out (426)": 1,
+    "production row with Data Year 2026 or later (not over at the release): not used": 6,
+    "production row with no Data Year: not used": 20
+  },
+  "notes": [
+    "Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); GEM's licence page https://globalenergymonitor.org/creative-commons-license (read 2026-11-24) gives the full CC BY 4.0 text. Changed by EarthRelief3D: filtered to operating fields with coordinates, leaving out those GEM reports producing under 0.2 million barrels of oil equivalent a year (each fuel's newest reported year, summed; gas converted at 6,000 cubic feet per barrel of oil equivalent).",
+    "About sheet: Copyright © Global Energy Monitor. Global Oil and Gas Extraction Tracker, 2026 release. Distributed under a Creative Commons Attribution 4.0 International License.",
+    "Rows: 7,673 fields in \"Field-level main data\"; 6,481 with Status \"operating\", of which 426 have no Latitude/Longitude (left out).",
+    "Production: \"Field-level production data\", each fuel's newest Data Year, in GEM's converted units (the detail column, as GEM gives them). The capacity column is their total in million barrels of oil equivalent a year (boe): oil, condensate and NGL in million bbl/y as they are, gas at 6,000 cubic feet per boe (1 million m³ = 0.0058858 million boe), GEM's own million boe/y as given. The years differ between fields.",
+    "P3-9 cap: 6,055 operating fields with coordinates, over the 5,000 markers a layer draws, so the fields GEM reports producing less than a threshold are left out (ruling R23), the threshold starting at 0.1 million boe/y and raised in steps of 0.1: at 0.2 million boe/y, 1,122 fields are left out and 4,933 remain, 653 of them with no field-level production figure (kept: some of the largest are reported only at project level).",
+    "Check: largest fields: Burgan Oil and Gas Field (Kuwait) (KWT) hydrocarbons 620 million boe/y (2023); Rumaila Oil Field (Iraq) (IRQ) oil 518 million bbl/y (2022); Tupi Oil and Gas Field (Rio de Janeiro, Brazil) (BRA) gas 15,009 million m³/y, oil 299 million bbl/y (2024); Shaybah Oil and Gas Field (Saudi Arabia) (SAU) gas 45.5 million m³/y, oil 365 million bbl/y (2023); Spraberry (Trend Area) - Pioneer Natural Res. Usa, (Unconventional) Oil and Gas Asset (Texas, United States) (USA) NGL 70 million bbl/y, gas 16,801 million m³/y, oil and condensate 182 million bbl/y (2024).",
+    "Published: GEM names the release month only; 2026-03-01 stands for March 2026 and is never shown as a day."
+  ],
+  "filter": "operating fields with coordinates, leaving out those GEM reports producing under 0.2 million barrels of oil equivalent a year",
+  "changes": "filtered to operating fields with coordinates, leaving out those GEM reports producing under 0.2 million barrels of oil equivalent a year (each fuel's newest reported year, summed; gas converted at 6,000 cubic feet per barrel of oil equivalent)",
+  "licenceUrl": "https://creativecommons.org/licenses/by/4.0/"
+}

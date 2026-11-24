@@ -14,10 +14,16 @@ namespace EarthRelief3D.App.ViewModels;
 /// <param name="IsOutline">Drawn as an outline sample (a ring), not a filled swatch: the food layer's outline (R17).</param>
 /// <param name="IsFaint">Drawn as a ring around a faint fill: the food layer's faint tint and outline (round 2).</param>
 /// <param name="IsNone">Drawn as an empty box with a thin grey edge: "no figure: not shaded" under a country-value shading.</param>
-public sealed record LegendKey(string Label, Color Color, bool IsOutline = false, bool IsFaint = false, bool IsNone = false)
+/// <param name="Swatch">The swatch's width and height in pixels (a size class's key is about the marker's size, Task 7).</param>
+/// <param name="IsRound">Drawn as a circle (the power plants' discs, Task 7).</param>
+public sealed record LegendKey(string Label, Color Color, bool IsOutline = false, bool IsFaint = false, bool IsNone = false,
+    double Swatch = 12, bool IsRound = false)
 {
     /// <summary>For the view: one shared frozen brush per colour (computed, so it takes no part in the record's equality).</summary>
     public SolidColorBrush Brush => LayerStyle.Frozen(Color);
+
+    /// <summary>The swatch's corner radius: a circle for round keys (the power plants' discs), else slightly rounded.</summary>
+    public double Radius => IsRound ? Swatch / 2 : 2;
 
     /// <summary>The faint tint's brush: the colour at the map's faint opacity (computed, not part of equality).</summary>
     public SolidColorBrush FaintBrush => LayerStyle.Frozen(Color.FromArgb((byte)Layers.FoodImageLayer.FaintAlpha, Color.R, Color.G, Color.B));
@@ -286,8 +292,35 @@ public sealed partial class LegendViewModel : ObservableObject
         if (_markerData?.Get(layer) is not { } set)
             return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), NotLoaded, []);
         var c = set.Citation;
-        return new LegendEntry(id, symbol, color, measures, $"{c.Publisher}, {c.Dataset}", CrisisText.DataDate(c, now), [], set.Filter);
+        return new LegendEntry(id, symbol, color, set.Measures ?? measures, $"{c.Publisher}, {c.Dataset}", CrisisText.DataDate(c, now),
+            ResourceKeys(layer), set.Filter);
     }
+
+    /// <summary>The swatch for a size class: about the marker's own diameter (its radius in pixels, doubled).</summary>
+    private static double SwatchFor(double sizePx) => Math.Round(2 * sizePx + 1);
+
+    /// <summary>
+    /// A GEM layer's keys (Task 7): for power plants one round key per fuel group, then the size classes as grey discs; for
+    /// steel plants the size classes as square outlines in the layer's colour; none for oil and gas fields (one size).
+    /// </summary>
+    private static IReadOnlyList<LegendKey> ResourceKeys(MarkerLayer layer)
+    {
+        if (!LayerCatalog.ResourceMarkers.Contains(layer)) return [];
+        var sizes = ResourceMarkers.SizeClasses(layer);
+        return layer switch
+        {
+            MarkerLayer.PowerPlants =>
+            [
+                .. Enum.GetValues<FuelGroup>().Select(g => new LegendKey(ResourceMarkers.FuelGroupLabel(g), ResourceMarkers.FuelGroupColor(g), IsRound: true)),
+                .. sizes.Select(s => new LegendKey(s.Label, SizeKeyColor, Swatch: SwatchFor(s.SizePx), IsRound: true)),
+            ],
+            MarkerLayer.SteelPlants => [.. sizes.Select(s => new LegendKey(s.Label, LayerStyle.SteelColor, IsOutline: true, Swatch: SwatchFor(s.SizePx)))],
+            _ => [],
+        };
+    }
+
+    /// <summary>The power plants' size keys: a neutral light grey, as size says nothing about fuel.</summary>
+    public static Color SizeKeyColor { get; } = Color.FromRgb(0xD5, 0xDC, 0xE8);
 
     /// <summary>The atrocities line's note when the user sees no designation at all (P3-4).</summary>
     public const string NoneApprovedNote = "None approved yet: each entry is shown after the owner's review";

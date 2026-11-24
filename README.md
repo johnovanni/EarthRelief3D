@@ -9,9 +9,10 @@ Status: version 0.1.0, work in progress. Public repository: https://github.com/j
 2026-11-22). Plan 2 built the four crisis layers from open, key-free sources: armed conflict (UCDP), food crises (IPC),
 disease outbreaks (WHO) and people forced from home (UNHCR). Plan 3 (2026-11-23) added IPC food-crisis areas, the
 curated atrocity designations and prison camps (drafts until the owner reviews them), the Needs shadings (water,
-sanitation, health care, hunger, shelter need) and the Resources shadings (oil production, water stress). The power,
-oil and gas, and steel marker layers are named in the strip and wait for the Global Energy Monitor (GEM) files; the
-Getting help in group comes in a later version.
+sanitation, health care, hunger, shelter need) and the Resources shadings (oil production, water stress). Task 7
+(2026-11-24) added the Resources marker layers from Global Energy Monitor's trackers (CC BY 4.0): power plants of
+500 MW or more coloured by fuel, oil and gas fields, and steel plants of 1 million tonnes a year or more. The Getting
+help in group comes in a later version.
 
 ## Features
 

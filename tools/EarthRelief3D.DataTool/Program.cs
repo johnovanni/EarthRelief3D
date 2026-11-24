@@ -5,20 +5,28 @@ using EarthRelief3D.DataTool;
 const string Usage = """
     EarthRelief3D DataTool: makes the bundled extracts in data\datasets from files downloaded into .downloads\ (never committed).
 
-      DataTool fao      <zip>      --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool eia      <INTL.zip> --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool aqueduct <zip>      --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool simplify <geojson> <tolerance in degrees> [--out <file>]
+      DataTool fao        <zip>      --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool eia        <INTL.zip> --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool aqueduct   <zip>      --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool gem-power  <xlsx>     --release "<release>" --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool gem-oilgas <xlsx>     --release "<release>" --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool gem-steel  <plant-level xlsx> --release "<release>" --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool simplify   <geojson> <tolerance in degrees> [--out <file>]
+      DataTool describe   <xlsx>     [--sheet <name>] [--rows <n>] [--distinct <column>] [--header-row <n>]
+      DataTool excerpt    <xlsx>     --take "<sheet>|<column>|<value;value...>"... --out <json>   (a sheet's first N rows: "<sheet>||N")
 
-    --published: the source file's own date (its Last-Modified). --downloaded: the day it was downloaded (default: the
-    file's modified date). --out: default data\datasets\<id> in the repository. --note: added to the manifest's notes.
+    --published: the source file's own date (its Last-Modified; for GEM, the 1st of the release month). --downloaded: the day
+    it was downloaded (default: the file's modified date). --out: default data\datasets\<id> in the repository. --note: added
+    to the manifest's notes. --release: GEM's release as its citation words it ("September 2026 (V2) release").
     """;
 
 if (args.Length < 2) { Console.Error.WriteLine(Usage); return 2; }
 var verb = args[0];
 var path = args[1];
-string? published = null, downloaded = null, output = null;
+string? published = null, downloaded = null, output = null, sheet = null, distinct = null, release = null;
+int sampleRows = 3, headerRow = 1;
 var notes = new List<string>();
+var takes = new List<string>();
 var positional = new List<string>();
 for (int i = 2; i < args.Length; i++)
 {
@@ -29,6 +37,12 @@ for (int i = 2; i < args.Length; i++)
         case "--downloaded": downloaded = Next(); break;
         case "--out": output = Next(); break;
         case "--note": notes.Add(Next()); break;
+        case "--release": release = Next(); break;
+        case "--take": takes.Add(Next()); break;
+        case "--sheet": sheet = Next(); break;
+        case "--distinct": distinct = Next(); break;
+        case "--rows": sampleRows = int.Parse(Next(), CultureInfo.InvariantCulture); break;
+        case "--header-row": headerRow = int.Parse(Next(), CultureInfo.InvariantCulture); break;
         default: positional.Add(args[i]); break;
     }
 }
@@ -45,10 +59,43 @@ try
         Console.WriteLine($"{target}: {new FileInfo(target).Length:N0} bytes (from {new FileInfo(path).Length:N0})");
         return 0;
     }
+    if (verb == "excerpt")
+    {
+        if (takes.Count == 0 || output is null) { Console.Error.WriteLine(Usage); return 2; }
+        File.WriteAllText(output, WorkbookDescriber.Excerpt(path, takes).ReplaceLineEndings("\n") + "\n", new System.Text.UTF8Encoding(false));
+        Console.WriteLine($"{output}: {new FileInfo(output).Length:N0} bytes");
+        return 0;
+    }
+    if (verb == "describe")
+    {
+        Console.Write(WorkbookDescriber.Describe(path, sheet, sampleRows, distinct, headerRow));
+        return 0;
+    }
     if (positional.Count != 0 || published is null) { Console.Error.WriteLine(Usage); return 2; }
 
     var src = new SourceFile(path, Day(published), downloaded is null ? DateOnly.FromDateTime(File.GetLastWriteTimeUtc(path)) : Day(downloaded));
     var codes = CountryCodes.Default;
+    if (verb.StartsWith("gem-", StringComparison.Ordinal))
+    {
+        if (release is null) { Console.Error.WriteLine(Usage); return 2; }
+        PointExtract points = verb switch
+        {
+            "gem-power" => GemExtractor.Power(src, release, codes),
+            "gem-oilgas" => GemExtractor.OilGas(src, release, codes),
+            "gem-steel" => GemExtractor.Steel(src, release, codes),
+            _ => throw new ArgumentException($"unknown command \"{verb}\""),
+        };
+        if (notes.Count > 0) points = points with { Manifest = points.Manifest with { Notes = [.. points.Manifest.Notes, .. notes] } };
+        var pointFolder = output ?? Path.Combine(RepoRoot(), "data", "datasets", points.Manifest.Id);
+        DatasetWriter.WritePoints(points, pointFolder);
+        var pm = points.Manifest;
+        Console.WriteLine($"{pointFolder}:");
+        Console.WriteLine($"  {points.Rows.Count:N0} sites in {pm.Series[0].Countries} countries: {pm.Filter}");
+        Console.WriteLine($"  not placed: {pm.NotPlaced.Count}{(pm.NotPlaced.Count > 0 ? " (" + string.Join("; ", pm.NotPlaced.Select(n => $"{n.Code}: {n.Reason}")) + ")" : "")}");
+        Console.WriteLine($"  dropped: {pm.Dropped.Count}");
+        foreach (var n in pm.Notes) Console.WriteLine("  " + n);
+        return 0;
+    }
     Extract extract = verb switch
     {
         "fao" => FaoExtractor.Run(src, codes),
