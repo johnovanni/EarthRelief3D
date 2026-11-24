@@ -301,6 +301,92 @@ public class AtrocityLayerTests
     }
 
     [Fact]
+    public void DraftsCanBeTurnedOnForOneScene()
+    {
+        // Task 8: a scene's "showDrafts" switches the drafts on for its picture and off again for the next one, and every
+        // view of the curated rows (camps, legend) follows.
+        var settings = new MemorySettingsStore(new App.Settings.AppSettings { Markers = [MarkerLayer.Atrocities, MarkerLayer.Camps] });
+        var store = new CuratedStore(Tables([Row("draft", "MMR", status: Review.Draft, continuing: Still(new DateOnly(2026, 7, 13)))],
+            [Camp(status: Review.Draft)]), showDrafts: false);
+        var vm = new MainViewModel(new CrisisStore(), settings, iso => Countries.ByIso3(iso)?.Name, null, () => Now, curated: store);
+        int changes = 0;
+        store.Changed += (_, _) => changes++;
+        Assert.Empty(vm.MarkerData.Items(MarkerLayer.Camps));
+
+        store.SetShowDrafts(true);
+        Assert.True(store.ShowDrafts);
+        Assert.Single(store.Visible);
+        Assert.Single(vm.MarkerData.Items(MarkerLayer.Camps));
+        Assert.Contains(CampMarkers.DraftsNote, vm.Legend.Entries.Single(e => e.Id == "atrocities").Note);
+        store.SetShowDrafts(true);   // no change, no event
+        Assert.Equal(1, changes);
+
+        store.SetShowDrafts(false);
+        Assert.Equal(2, changes);
+        Assert.Empty(store.Visible);
+        Assert.Empty(vm.MarkerData.Items(MarkerLayer.Camps));
+        Assert.Equal(LegendViewModel.NoneApprovedNote, vm.Legend.Entries.Single(e => e.Id == "atrocities").Note);
+        // The chosen governments survive the switch.
+        Assert.Equal(store.Tables.OfferedGovernments.Select(g => g.Iso3).Order(), store.GovernmentsOn.Order());
+    }
+
+    [Fact]
+    public void PalestineTooltipFitsOnScreen() => StaAsync.Sta(() =>
+    {
+        // Task 5's deferred minor: Palestine has the most current lines (the pending case, the provisional measures, the
+        // warrants and the COI finding). A hover tooltip is not in the snapshot pictures, so its size is checked here: at
+        // the snapshot time, with the drafts shown, it must fit the default window (1200 x 760) with room to spare. Before
+        // the wrap, the ICC warrants' line was 215 characters, about 1,140 px: nearly the window's width.
+        var real = new CuratedStore(CuratedTables.Load(System.IO.Path.Combine(AppContext.BaseDirectory, "data", "curated")), showDrafts: true);
+        var at = new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc);
+        var current = AtrocityLayer.CurrentByCountry(real, at)["PSE"];
+        string country = Countries.ByIso3("PSE")!.Name;
+        var text = AtrocityLayer.Tooltip(country, current, real.Tables.Governments);
+        var entries = text.Split(Environment.NewLine).Where(l => !l.StartsWith(' ')).ToList();
+        Assert.Equal(6, current.Count);   // the pending case, three provisional-measures orders, the warrants, the COI finding
+        Assert.Equal(current.Count, entries.Count);
+        Assert.All(entries, l => Assert.StartsWith(country + " · " + DesignationText.DraftLabel, l, StringComparison.Ordinal));
+        Assert.All(text.Split(Environment.NewLine), l => Assert.True(l.Length <= TooltipText.MaxLineChars, l));
+        // Nothing is lost by the wrap.
+        Assert.Equal(string.Join(" ", current.Select(d => DesignationText.Hover(d, country, real.Tables.Governments))),
+            string.Join(" ", text.Split(Environment.NewLine).Select(l => l.Trim())));
+        var (width, height) = TooltipSize(text);
+        Console.WriteLine($"PSE tooltip: {text.Split(Environment.NewLine).Length} lines, {width:0} x {height:0} px");
+        Assert.True(width <= 800, $"The Palestine tooltip is {width:0} px wide.");
+        Assert.True(height <= 250, $"The Palestine tooltip is {height:0} px high.");
+
+        // The camp tooltips (name, position source, status notes) fit too.
+        foreach (var item in CampMarkers.For(real)!.Items)
+        {
+            var (w, h) = TooltipSize(item.Tooltip);
+            Console.WriteLine($"Camp tooltip: {w:0} x {h:0} px");
+            Assert.True(w <= 800 && h <= 250, item.Tooltip);
+        }
+    });
+
+    [Fact]
+    public void WrapBreaksAtSpacesAndIndents()
+    {
+        Assert.Equal("short", TooltipText.Wrap("short"));
+        var words = string.Join(" ", Enumerable.Repeat("abcdefghi", 30));   // 299 characters
+        var lines = TooltipText.Wrap(words).Split(Environment.NewLine);
+        Assert.Equal(3, lines.Length);
+        Assert.All(lines, l => Assert.True(l.Length <= TooltipText.MaxLineChars));
+        Assert.All(lines.Skip(1), l => Assert.StartsWith("    a", l, StringComparison.Ordinal));
+        Assert.Equal(words, string.Join(" ", lines.Select(l => l.Trim())));
+    }
+
+    /// <summary>The size of a hover tooltip: GlobeCore's dark style, 12 px text with 8 px and 6 px padding and a 1 px border.</summary>
+    private static (double Width, double Height) TooltipSize(string text)
+    {
+        var typeface = new System.Windows.Media.Typeface(System.Windows.SystemFonts.MessageFontFamily, System.Windows.FontStyles.Normal,
+            System.Windows.FontWeights.Normal, System.Windows.FontStretches.Normal);
+        var formatted = new System.Windows.Media.FormattedText(text, System.Globalization.CultureInfo.InvariantCulture,
+            System.Windows.FlowDirection.LeftToRight, typeface, 12, System.Windows.Media.Brushes.White, 1.0);
+        return (formatted.WidthIncludingTrailingWhitespace + 18, formatted.Height + 14);
+    }
+
+    [Fact]
     public void ShowDraftsIsADiagnosticOption()
     {
         Assert.False(App.Diagnostics.LaunchOptions.Parse([]).ShowDrafts);

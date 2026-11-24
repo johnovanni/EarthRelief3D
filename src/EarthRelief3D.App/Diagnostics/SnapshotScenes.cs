@@ -7,6 +7,7 @@ using AstroCore.Earth;
 using EarthRelief3D.App.Controllers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.ViewModels;
+using EarthRelief3D.Core.Curated;
 using GlobeCore.Feeds;
 using GlobeCore.Logging;
 using GlobeCore.Wpf.Diagnostics;
@@ -17,11 +18,18 @@ namespace EarthRelief3D.App.Diagnostics;
 /// One picture of a <c>--snapshot-scenes</c> run. <paramref name="LookAt"/> null means the home view; layers not named are
 /// off; <paramref name="Panel"/> (an ISO3 code, ruling R4) opens the country panel for that country before the picture, and
 /// null leaves it closed. <paramref name="PanelFocus"/> (a layer name) opens the panel scrolled to that layer's section, as a
-/// click on its marker does; a long panel does not otherwise show its later sections in one picture.
+/// click on its marker does; a long panel does not otherwise show its later sections in one picture. Besides the Plan 2
+/// layer names it may be "atrocities" or "camps" (the panel's genocide and prison-camp sections, as a click on a triangle
+/// or a square opens them). <paramref name="ShowDrafts"/> shows the curated rows the owner has not approved yet, labelled
+/// "Draft: not yet reviewed", for this picture only, as <c>--show-drafts</c> does for a whole run (P3-4).
 /// </summary>
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
-                                   string? PanelFocus = null)
+                                   string? PanelFocus = null, bool ShowDrafts = false)
 {
+    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3).</summary>
+    public static IReadOnlyList<string> PanelFocusNames { get; } =
+        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps)];
+
     /// <summary>The shading the scene names ("food", "water", ...; at most one), or none.</summary>
     public ShadingLayer Shading => Layers.Select(n => LayerCatalog.TryParse(n, out var sh, out _) ? sh : null)
         .FirstOrDefault(sh => sh is not null) ?? ShadingLayer.None;
@@ -35,6 +43,12 @@ public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosi
     {
         "conflict" => CrisisLayer.Conflict, "food" => CrisisLayer.Food, "outbreaks" => CrisisLayer.Outbreaks,
         "displacement" => CrisisLayer.Displacement, _ => null,
+    };
+
+    /// <summary>The curated marker layer a <see cref="PanelFocus"/> name stands for ("atrocities", "camps"), or null.</summary>
+    public MarkerLayer? FocusMarker => PanelFocus?.ToLowerInvariant() switch
+    {
+        "atrocities" => MarkerLayer.Atrocities, "camps" => MarkerLayer.Camps, _ => null,
     };
 }
 
@@ -56,7 +70,7 @@ public static class SnapshotScenes
 
     /// <summary>
     /// Reads a scenes file: <c>{"scenes":[{"name":"africa","displayTimeUtc":"2026-11-22T12:00:00Z","lookAt":[10,25],
-    /// "layers":["conflict","food"],"panel":"SDN","panelFocus":"food"}]}</c>. All but name and time are optional.
+    /// "layers":["conflict","food"],"panel":"SDN","panelFocus":"food","showDrafts":false}]}</c>. All but name and time are optional.
     /// Throws <see cref="FormatException"/> with a plain message when the file is not usable.
     /// </summary>
     public static IReadOnlyList<SnapshotScene> Load(string path)
@@ -91,9 +105,16 @@ public static class SnapshotScenes
                 if (panel is not null && !LaunchOptions.IsIso3(panel))
                     throw new FormatException($"Scene {name}: panel '{panel}' is not a three-letter country code.");
                 string? focus = e.TryGetProperty("panelFocus", out var pf) && pf.ValueKind == JsonValueKind.String ? pf.GetString() : null;
-                if (focus is not null && (panel is null || !LaunchOptions.LayerNames.Contains(focus.ToLowerInvariant())))
-                    throw new FormatException($"Scene {name}: panelFocus needs a panel and one of {string.Join(", ", LaunchOptions.LayerNames)}.");
-                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant()));
+                if (focus is not null && (panel is null || !SnapshotScene.PanelFocusNames.Contains(focus.ToLowerInvariant())))
+                    throw new FormatException($"Scene {name}: panelFocus needs a panel and one of {string.Join(", ", SnapshotScene.PanelFocusNames)}.");
+                bool drafts = false;
+                if (e.TryGetProperty("showDrafts", out var sd))
+                {
+                    if (sd.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                        throw new FormatException($"Scene {name}: showDrafts is true or false.");
+                    drafts = sd.GetBoolean();
+                }
+                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts));
             }
             if (list.Count == 0) throw new FormatException("The file has no scenes.");
             return list;
@@ -119,13 +140,16 @@ public static class SnapshotScenes
     }
 
     /// <summary>
-    /// For each scene: moves <paramref name="displayClock"/> to its time, sets exactly its layers, camera and panel, waits
+    /// For each scene: moves <paramref name="displayClock"/> to its time, shows or hides the curated drafts (the scene's
+    /// <c>showDrafts</c>, or <paramref name="draftsForAll"/>), sets exactly its layers, camera and panel, waits
     /// (every feed reported once, a compose for that time on the globe, the host idle for a while) and saves
     /// <c>&lt;outDir&gt;\&lt;name&gt;.png</c> with GlobeCore's <c>SnapshotRenderer.SavePng</c> (RenderTargetBitmap). A scene
     /// that fails is logged and the run goes on; the app exits with 0, or 1 if any scene failed or the globe never showed.
     /// </summary>
+    /// <param name="draftsForAll">The run was started with <c>--show-drafts</c>: every scene shows the drafts.</param>
     public static async Task RunAsync(Window window, SceneController scene, MainViewModel vm, IReadOnlyList<SnapshotScene> scenes,
-                                      SettableClock displayClock, string outDir, int delayMs, Task dataReady, IAppLog log)
+                                      SettableClock displayClock, string outDir, int delayMs, Task dataReady, IAppLog log,
+                                      bool draftsForAll = false)
     {
         int exitCode = 0;
         try
@@ -138,8 +162,14 @@ public static class SnapshotScenes
                 {
                     await dataReady.WaitAsync(DataTimeout);   // a timeout is a failure: the picture would lack data
                     displayClock.Now = s.DisplayTimeUtc;      // stands still until the next scene
+                    bool drafts = draftsForAll || s.ShowDrafts;
+                    if (drafts != vm.Curated.ShowDrafts)
+                        log.Info($"Diagnostics: scene {s.Name} {(drafts ? "shows" : "hides")} the curated drafts (\"{DesignationText.DraftLabel}\")");
+                    vm.Curated.SetShowDrafts(drafts);         // before the layers and the panel, which read the curated rows
+                    var plainTitle = window.Title.Replace(LaunchOptions.DraftsTitleNote, "", StringComparison.Ordinal);
+                    window.Title = drafts ? plainTitle + LaunchOptions.DraftsTitleNote : plainTitle;
                     vm.Layers.SetLayers(s.Shading, s.Markers);
-                    if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer);
+                    if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
                     scene.LookAt(s.LookAt ?? SceneController.HomeView);
                     var host = scene.Host ?? throw new InvalidOperationException("The globe is not loaded yet.");

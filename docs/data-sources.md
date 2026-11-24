@@ -216,8 +216,9 @@ Checked 2026-11-23 by a download into a scratch folder (nothing in the repo).
 ## Offline samples (`--offline-samples`)
 
 The app's diagnostic handler (`src/EarthRelief3D.App/Diagnostics/OfflineSamples.cs`) maps each live URL to a file in
-`tests/Samples`; anything else is a 404. `OfflineSamplesTests` runs the six feeds (the four sources and the two needs feeds) through it, so a URL that changes in a
-feed fails a test.
+`tests/Samples`; anything else is a 404. `OfflineSamplesTests` runs the six data feeds (the four sources, the two needs feeds,
+and the IPC feed with its area step) through it and checks that they are every data feed the app has, so a URL that
+changes in a feed, or a new feed with no sample, fails a test.
 
 | Live URL | Sample file |
 |---|---|
@@ -231,9 +232,22 @@ feed fails a test.
 | https://ghoapi.azureedge.net/api/WSH_WATER_BASIC, `.../WSH_SANITATION_BASIC`, `.../UHC_INDEX_REPORTED` | `gho_wsh_water_basic.json`, `gho_wsh_sanitation_basic.json`, `gho_uhc_index.json` (synthetic) |
 | https://data.humdata.org/api/3/action/package_show?id=global-hpc-hno | `hdx_hno_package.json` |
 | the `hpc_hno_2026.csv` resource URL named in that package | `hpc_hno_2026.csv` |
+| https://data.humdata.org/api/3/action/package_search (the IPC area search, any country) | inline: no package (as HDX answers for `groups:ukr`), so every country keeps R17 offline |
+| https://api.github.com/repos/nvkelso/natural-earth-vector/releases/latest (Borders) | inline: v5.1.2, the bundled edition, so nothing is downloaded |
+
+Not through the handler, and the same in every run, offline too: the bundled extracts (FAO, US EIA, WRI Aqueduct; sections
+8 to 10) load from `data/datasets` beside the program, and the curated designations and camp sites from `data/curated`.
+
+The Nigeria area samples (`hdx_ipc_nga_package.json`, `ipc_nga.geojson`, `ipc_nga_national_long_latest.csv`) are not served
+offline: their analysis is a projection (`ipc_period` P), as is Nigeria's record in the national sample, so R4 could
+never match it and an offline picture would show nothing more. `IpcAreaFeedTests` uses them, with a current-period
+variant made in the test, and `FoodAreaMapTests` checks the drawing pixel by pixel on small synthetic areas (Plan 3
+ruling R19).
 
 The samples are from Nov 2026, so offline runs use `--display-time 2026-11-22T12:00:00Z`. The WHO sample has no report for
-Sudan, so Sudan's panel shows conflict, food crisis and displacement (three sections); that is what the samples hold.
+Sudan, so Sudan's panel shows conflict, food crisis and displacement (three crisis sections), then the Plan 3 sections
+(basic needs, people in need, resources); that is what the samples hold. The GHO samples are synthetic (Plan 3 ruling
+R5), so the water, sanitation and health-care figures in offline runs and pictures are invented.
 
 ## Boundaries (Natural Earth, updatable; Plan 2b)
 

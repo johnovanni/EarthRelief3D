@@ -26,6 +26,8 @@ public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? D
                                    bool ShowDrafts = false)
 {
     public const int DefaultDelayMs = 1500;
+    /// <summary>Added to the window title while drafts are shown, so unreviewed rows are never taken for reviewed ones.</summary>
+    public const string DraftsTitleNote = " - DRAFTS SHOWN (not yet reviewed)";
     /// <summary>The Plan 2 layers: the default of <c>--layers</c>, and the names a <c>panelFocus</c> may use.</summary>
     public static readonly string[] LayerNames = ["conflict", "food", "outbreaks", "displacement"];
 

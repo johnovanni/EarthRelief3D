@@ -77,7 +77,8 @@ public class SnapshotScenesTests
     public void TheCommittedScenesLoad()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel"], scenes.Select(s => s.Name));
+        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "myanmar-panel", "dprk-camps"],
+            scenes.Select(s => s.Name));
         Assert.All(scenes, s => Assert.Equal(new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc), s.DisplayTimeUtc));
         Assert.Equal(new GeoPosition(10, 25), scenes[0].LookAt);
         Assert.Equal(["outbreaks"], scenes[1].Layers);
@@ -85,6 +86,28 @@ public class SnapshotScenesTests
         Assert.Equal("ISL", scenes.Single(s => s.Name == "no-crisis-panel").Panel);
         Assert.Null(scenes[0].Panel);
         Assert.Equal(EarthRelief3D.App.Presentation.CrisisLayer.Displacement, scenes.Single(s => s.Name == "sudan-panel-food").FocusLayer);
+
+        // Plan 3 (Task 8): the five Plan 2 scenes keep their drafts off, so their pictures compare with the baseline.
+        Assert.All(scenes.Take(5), s => Assert.False(s.ShowDrafts));
+        var water = scenes.Single(s => s.Name == "water");
+        Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Water, water.Shading);
+        Assert.Empty(water.Markers);
+        var resources = scenes.Single(s => s.Name == "resources");
+        Assert.Equal(new GeoPosition(25, 50), resources.LookAt);
+        Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.OilProduction, resources.Shading);
+        Assert.Empty(resources.Markers);   // ruling R18: Task 7's GEM layers have not run
+        var myanmar = scenes.Single(s => s.Name == "myanmar-panel");
+        Assert.True(myanmar.ShowDrafts);
+        Assert.Equal("MMR", myanmar.Panel);
+        Assert.Equal(EarthRelief3D.App.Presentation.MarkerLayer.Atrocities, myanmar.FocusMarker);
+        Assert.Null(myanmar.FocusLayer);
+        var camps = scenes.Single(s => s.Name == "dprk-camps");
+        Assert.True(camps.ShowDrafts);
+        Assert.Equal(new GeoPosition(40, 127), camps.LookAt);
+        Assert.Equal([EarthRelief3D.App.Presentation.MarkerLayer.Camps], camps.Markers);
+        Assert.Equal(EarthRelief3D.App.Presentation.MarkerLayer.Camps, camps.FocusMarker);
+        // Ruling R19: no nigeria-areas scene (the offline NGA record is projection-only; FoodAreaMapTests draws the areas).
+        Assert.DoesNotContain(scenes, s => s.Name == "nigeria-areas");
     }
 
     [Theory]
@@ -94,6 +117,8 @@ public class SnapshotScenesTests
     [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"S"}]}""", "country code")]
     [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z"},{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z"}]}""", "used twice")]
     [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panelFocus":"food"}]}""", "needs a panel")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"MMR","panelFocus":"oil"}]}""", "needs a panel")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","showDrafts":"yes"}]}""", "true or false")]
     [InlineData("not json", "cannot read")]
     public void BadFilesGetPlainMessages(string json, string expected)
     {
@@ -123,6 +148,32 @@ public class SnapshotScenesTests
         Assert.Equal(3, old.Markers.Count);
         Assert.Null(LaunchOptions.Parse(["--layers", "oil,steel,camps"]).Error);
         Assert.NotNull(LaunchOptions.Parse(["--layers", "oil,hunger"]).Error);
+    }
+
+    [Fact]
+    public void ScenesMayFocusTheCuratedSectionsAndShowDrafts()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"pse","panelFocus":"Atrocities","showDrafts":true},
+                  {"name":"c","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"PRK","panelFocus":"camps","showDrafts":false},
+                  {"name":"f","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN","panelFocus":"food"}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.Equal("PSE", scenes[0].Panel);
+            Assert.Equal(EarthRelief3D.App.Presentation.MarkerLayer.Atrocities, scenes[0].FocusMarker);
+            Assert.True(scenes[0].ShowDrafts);
+            Assert.Equal(EarthRelief3D.App.Presentation.MarkerLayer.Camps, scenes[1].FocusMarker);
+            Assert.False(scenes[1].ShowDrafts);
+            Assert.Equal(EarthRelief3D.App.Presentation.CrisisLayer.Food, scenes[2].FocusLayer);
+            Assert.Null(scenes[2].FocusMarker);
+            Assert.False(scenes[2].ShowDrafts);   // absent means off
+            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps"], SnapshotScene.PanelFocusNames);
+        }
+        finally { File.Delete(path); }
     }
 
     [Fact]
@@ -156,13 +207,17 @@ public class OfflineSamplesTests
         IFeed[] feeds =
         [
             new UcdpCandidateFeed(http, store, clock, log, countries),
-            new IpcNationalFeed(http, store, clock, log, countries),
+            // With the IPC area step (P3-2), as the app runs it: the offline search finds no area package for any country.
+            new IpcNationalFeed(http, store, clock, log, countries, new IpcAreaFeed(http, store, clock, log, cacheDir: null, pause: TimeSpan.Zero)),
             new WhoOutbreakFeed(http, store, clock, log, countries),
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
             new GhoFeed(http, indicators, store, clock, log, countries),
             new HnoFeed(http, indicators, store, clock, log, countries),
         ];
+        // Every data feed of the app is here (Borders has its own test: BoundaryTests).
+        Assert.Equal(EarthRelief3D.App.Services.AppServices.FeedNames.Where(n => n != "Borders"), feeds.Select(f => f.Name));
         foreach (var f in feeds) Assert.Equal(FeedRunResult.Ok, await f.RunOnceAsync(CancellationToken.None));
+        Assert.Contains(log.Lines, l => l.Contains("IPC areas: 0 countries drawn by area", StringComparison.Ordinal));
         Assert.NotNull(indicators.Snapshot.Get("gho.water"));
         Assert.NotEmpty(indicators.Snapshot.Needs);
 

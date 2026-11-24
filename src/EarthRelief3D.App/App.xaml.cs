@@ -116,14 +116,15 @@ public partial class App : Application
 
         var window = new MainWindow(services.Main, services.Store, services.Countries, displayClock ?? clock, log);
         if (samplesDir is not null) window.Title += " - SAMPLE DATA (offline)";   // sample data is never mistaken for live data
-        if (options.ShowDrafts) window.Title += " - DRAFTS SHOWN (not yet reviewed)";   // nor unreviewed rows for reviewed ones
+        if (options.ShowDrafts) window.Title += LaunchOptions.DraftsTitleNote;   // nor unreviewed rows for reviewed ones
         window.Closed += (_, _) => ShutDownServices();
         MainWindow = window;
         // Subscribed before the feeds start, so no first report is missed.
         var dataReady = scenes is null ? Task.CompletedTask : SnapshotScenes.AllFeedsOkOnce(services.Scheduler, AppServices.FeedNames);
         services.Start();
         if (scenes is not null && displayClock is not null && sceneOut is not null)
-            _ = SnapshotScenes.RunAsync(window, window.Scene, services.Main, scenes, displayClock, sceneOut, options.DelayMs, dataReady, log);
+            _ = SnapshotScenes.RunAsync(window, window.Scene, services.Main, scenes, displayClock, sceneOut, options.DelayMs, dataReady, log,
+                draftsForAll: options.ShowDrafts);
         else if (options.OpenPanel is { } iso)
             window.Loaded += (_, _) => services.Main.Panel.Show(iso);
         window.Show();

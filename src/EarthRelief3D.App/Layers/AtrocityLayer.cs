@@ -60,9 +60,13 @@ public sealed class AtrocityLayer : SceneLayer, IPickable
             .Where(x => x.Current.Count > 0)
             .ToDictionary(x => x.Key, x => x.Current, StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>The hover text: one line per current designation, newest first ("Myanmar · UN body finding: ... (..., 2018)").</summary>
+    /// <summary>
+    /// The hover text: one entry per current designation, newest first ("Myanmar · UN body finding: ... (..., 2018)"). A
+    /// long entry (Palestine's ICC warrants name every charge) is wrapped (<see cref="TooltipText.Wrap"/>), so the tooltip
+    /// stays well inside the window.
+    /// </summary>
     public static string Tooltip(string country, IReadOnlyList<Designation> current, IReadOnlyList<Government> governments) =>
-        string.Join(Environment.NewLine, current.Select(d => DesignationText.Hover(d, country, governments)));
+        string.Join(Environment.NewLine, current.Select(d => TooltipText.Wrap(DesignationText.Hover(d, country, governments))));
 
     public override void Update(SceneContext ctx)
     {

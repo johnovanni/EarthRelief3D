@@ -9,7 +9,10 @@ namespace EarthRelief3D.App.Diagnostics;
 /// <summary>
 /// The <c>--offline-samples &lt;dir&gt;</c> diagnostic: every feed request is answered from the sample files in
 /// <c>tests\Samples</c> (captured 2026-11-22; the WHO and WHO GHO files are synthetic), so the app can be checked without a network.
-/// Anything not mapped gets a 404, which the feeds treat as a failure.
+/// Anything not mapped gets a 404, which the feeds treat as a failure. Every feed is answered here (the four Plan 2
+/// sources, WHO GHO, UN HNO, the IPC area search and the Borders release check). The Plan 3 bundled extracts (FAO, EIA,
+/// WRI Aqueduct) need no handler: they load from <c>data\datasets</c> beside the program in every run, offline too, as the
+/// curated tables load from <c>data\curated</c>.
 /// </summary>
 public static class OfflineSamples
 {

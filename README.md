@@ -1,12 +1,17 @@
 # EarthRelief3D
 
 A Windows (WPF, .NET 10) app that shows humanitarian crises on a 3D globe: conflict, food insecurity, disease
-outbreaks and displacement, each with its source and an "as of" date. It is built on the shared libraries
-GlobeCore and AstroCore (git submodules in `external/`).
+outbreaks, displacement, genocide and mass atrocities, prison camps, basic needs and where some resources sit, each
+with its source and an "as of" date. It is built on the shared libraries GlobeCore and AstroCore (git submodules in
+`external/`).
 
-Status: version 0.1.0, work in progress (a local repo with no remote yet). It shows four crisis layers from
-open, key-free sources: armed conflict (UCDP), food crises (IPC), disease outbreaks (WHO) and people forced from home
-(UNHCR). The Needs, Resources and Getting help in groups are named in the layer strip and come in a later version.
+Status: version 0.1.0, work in progress. Public repository: https://github.com/johnovanni/EarthRelief3D (since
+2026-11-22). Plan 2 built the four crisis layers from open, key-free sources: armed conflict (UCDP), food crises (IPC),
+disease outbreaks (WHO) and people forced from home (UNHCR). Plan 3 (2026-11-23) added IPC food-crisis areas, the
+curated atrocity designations and prison camps (drafts until the owner reviews them), the Needs shadings (water,
+sanitation, health care, hunger, shelter need) and the Resources shadings (oil production, water stress). The GEM
+power, oil and gas, and steel marker layers are named in the strip and wait for the GEM files (Plan 3 Task 7); the
+Getting help in group comes in a later version.
 
 ## Features
 
@@ -15,15 +20,29 @@ open, key-free sources: armed conflict (UCDP), food crises (IPC), disease outbre
   whole conflict); bigger dots for more deaths of that conflict in that country over the data window (band 1 at least),
   lighter dots for newer events. Each event belongs to the country UCDP names, except that events in a territory UCDP
   does not list as a country (Gaza and the West Bank, coded Israel) belong to that territory.
-- **Food crisis:** each country with people in IPC Phase 3 or higher is shaded in the IPC's phase colour (Phase 3 Crisis,
-  Phase 4 Emergency, Phase 5 Catastrophe/Famine).
+- **Food crisis:** each country is shaded by IPC's 20% rule in the IPC's phase colour (Phase 3 Crisis, Phase 4
+  Emergency, Phase 5 Catastrophe/Famine), with an outline for a worse phase that has people in it. Where IPC publishes
+  areas for the same analysis (HDX's per-country GeoJSON), each area is shaded in IPC's own area classification instead.
 - **Disease outbreaks:** a cross at each country with a WHO Disease Outbreak News report in the last 90 days, labelled
   with the disease.
 - **People forced from home:** a ring per country of origin, its area growing with the number (refugees, asylum-seekers,
   internally displaced). Displacement is a layer value, not a crisis.
-- A legend whose every line names its source and "as of" date; hover tips and a country panel (click a country or a
+- **Genocide and mass atrocities:** a hollow triangle on a country with a current court judgment, UN body finding or
+  government determination (with a statement from the last 12 months that the situation continues). Provisional
+  measures, arrest warrants and pending cases are labelled as such and never draw a triangle alone; past designations
+  are listed in the country panel's history. The rows are curated with citations (`data/curated`); each is shown only
+  after the owner approves it (`docs/curated-review.md`). Settings chooses whose government determinations are shown.
+- **Prison camps:** a square at each documented North Korean political prison camp (UN Commission of Inquiry and HRNK),
+  curated and reviewed like the designations.
+- **Needs** (one shading at a time, across all groups): the share of people without at least basic drinking water or
+  sanitation and the essential health services not covered (WHO GHO), undernourishment (FAOSTAT) and people in need of
+  shelter (UN humanitarian needs overviews). The country panel adds "Basic needs", "People in need" and "Resources".
+- **Resources:** crude oil production (US EIA) and baseline water stress (WRI Aqueduct). FAOSTAT, EIA and Aqueduct are
+  small extracts bundled in `data/datasets`, made by `tools/EarthRelief3D.DataTool` from the downloaded files.
+- A legend whose every line names its source and "as of" date (a shading's line says exactly what is measured, with the
+  year, and "no figure: not shaded"); hover tips and a country panel (click a country or a
   marker) that list every source's finding with its source and date, or "No crisis recorded by these sources".
-- Status dots for the four sources; the last good data is cached in your data folder and shown at once, offline too.
+- Status dots for every source (the live feeds, Borders and the bundled extracts); the last good data is cached in your data folder and shown at once, offline too.
 - No sound, no graphic images, no pop-up alarms and no personal data collected.
 
 ## Build
@@ -41,7 +60,10 @@ under `%TEMP%\EarthRelief3D.build`.
 
 See [docs/data-sources.md](docs/data-sources.md) for each source, its licence and its "as of" field, and
 [docs/severity-bands.md](docs/severity-bands.md) for how each source's own scale sets marker sizes and colours. Test
-samples are in `tests/Samples` (refresh with `pwsh tools/fetch-samples.ps1`; the WHO sample is synthetic).
+samples are in `tests/Samples` (refresh with `pwsh tools/fetch-samples.ps1`; the WHO and WHO GHO samples are synthetic).
+The bundled extracts in `data/datasets` are rebuilt with `dotnet run --project tools/EarthRelief3D.DataTool -- fao|eia|aqueduct
+<downloaded file> --published <date>` (the downloads go in the git-ignored `.downloads/`). The curated designations and
+camp sites are in `data/curated`, listed for review in [docs/curated-review.md](docs/curated-review.md).
 
 ## Diagnostics
 
@@ -55,9 +77,11 @@ itself to a PNG with WPF's `RenderTargetBitmap`):
 | `--snapshot-scenes <json> --snapshot-out <dir>` | Take one picture per scene, saved as `<dir>\<name>.png`, in one launch, then exit. Needs `--offline-samples`. Exit code 1 if any picture failed. |
 | `--snapshot <png>` | One picture, with `--look-at lat,lon`, `--layers` (a comma list: at most one shading of food, water, sanitation, health, hunger, shelter, oil, waterstress, and any of the markers conflict, outbreaks, displacement, atrocities, camps, power, oilgas, steel; default `conflict,food,outbreaks,displacement`) and `--open-panel ISO3`. Scenes files take the same names. |
 | `--delay-ms N` | Wait N ms after the data is drawn before each picture (default 1500). |
+| `--show-drafts` | Also show the curated rows the owner has not approved yet, each labelled "Draft: not yet reviewed"; the window title says DRAFTS SHOWN. |
 
 A scenes file (`tests/SnapshotScenes/scenes.json`) is
-`{"scenes":[{"name","displayTimeUtc","lookAt":[lat,lon],"layers":[...],"panel":"ISO3","panelFocus":"conflict|food|outbreaks|displacement"}]}`.
+`{"scenes":[{"name","displayTimeUtc","lookAt":[lat,lon],"layers":[...],"panel":"ISO3","panelFocus":"conflict|food|outbreaks|displacement|atrocities|camps","showDrafts":true}]}`;
+`showDrafts` shows the drafts for that picture only, as `--show-drafts` does for a whole run.
 Runs repeat exactly: the display clock stands still at each scene's time, the feeds' clock stands still at the first
 scene's time (so the feeds run once and their "checked" dates do not move), and the camera moves at once.
 
@@ -69,7 +93,8 @@ src\EarthRelief3D.App\bin\Release\net10.0-windows\EarthRelief3D.App.exe --offlin
 To compare two runs, use EarthWatch3D's PngDiff, referenced by path (it is not copied into this repo):
 `dotnet run --project C:\repos\EarthWatch3D\tools\PngDiff -c Release -- artifacts\snapshot-baseline artifacts\snapshot-baseline-2`
 (exit code 0 only when every picture is identical). Pictures go to `artifacts\`, which git ignores. Results of the
-first baseline are in [docs/plan-2-results.md](docs/plan-2-results.md).
+first baseline are in [docs/plan-2-results.md](docs/plan-2-results.md), and of Plan 3's nine scenes in
+[docs/plan-3-results.md](docs/plan-3-results.md).
 
 ## Licence
 

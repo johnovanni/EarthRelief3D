@@ -12,21 +12,20 @@ public sealed class CuratedStore
 {
     private volatile State _state;
 
-    private sealed record State(CuratedTables Tables, ImmutableHashSet<string> Governments, IReadOnlyList<Designation> Visible,
-        IReadOnlyList<CampSite> VisibleCamps);
+    private sealed record State(CuratedTables Tables, bool ShowDrafts, ImmutableHashSet<string> Governments,
+        IReadOnlyList<Designation> Visible, IReadOnlyList<CampSite> VisibleCamps);
 
     /// <param name="showDrafts">Show the rows the owner has not approved yet, labelled (a diagnostic run only).</param>
     public CuratedStore(CuratedTables tables, bool showDrafts)
     {
         ArgumentNullException.ThrowIfNull(tables);
-        ShowDrafts = showDrafts;
-        _state = Make(tables, tables.OfferedGovernments.Select(g => g.Iso3));
+        _state = Make(tables, showDrafts, tables.OfferedGovernments.Select(g => g.Iso3));
     }
 
     /// <summary>No tables (tests, or a packaging fault that was logged): every curated layer is empty.</summary>
     public static CuratedStore Empty() => new(CuratedTables.Empty, showDrafts: false);
 
-    public bool ShowDrafts { get; }
+    public bool ShowDrafts => _state.ShowDrafts;
 
     public CuratedTables Tables => _state.Tables;
 
@@ -45,7 +44,7 @@ public sealed class CuratedStore
     public void SetGovernments(IEnumerable<string> iso3)
     {
         ArgumentNullException.ThrowIfNull(iso3);
-        var next = Make(_state.Tables, iso3);
+        var next = Make(_state.Tables, _state.ShowDrafts, iso3);
         if (next.Governments.SetEquals(_state.Governments)) return;
         _state = next;
         Changed?.Invoke(this, EventArgs.Empty);
@@ -55,15 +54,26 @@ public sealed class CuratedStore
     public void Replace(CuratedTables tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
-        _state = Make(tables, _state.Governments);
+        _state = Make(tables, _state.ShowDrafts, _state.Governments);
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    private State Make(CuratedTables tables, IEnumerable<string> governments)
+    /// <summary>
+    /// Shows or hides the drafts (a <c>--snapshot-scenes</c> scene with <c>"showDrafts": true</c> turns them on for that
+    /// picture only, as <c>--show-drafts</c> does for a whole run). Raises <see cref="Changed"/> when it changes anything.
+    /// </summary>
+    public void SetShowDrafts(bool showDrafts)
+    {
+        if (showDrafts == _state.ShowDrafts) return;
+        _state = Make(_state.Tables, showDrafts, _state.Governments);
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private static State Make(CuratedTables tables, bool showDrafts, IEnumerable<string> governments)
     {
         var offered = tables.OfferedGovernments.Select(g => g.Iso3).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var on = governments.Where(offered.Contains).Select(g => g.ToUpperInvariant()).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
-        var filter = new CuratedFilter(ShowDrafts, on);
-        return new State(tables, on, tables.VisibleDesignations(filter), tables.VisibleCamps(filter));
+        var filter = new CuratedFilter(showDrafts, on);
+        return new State(tables, showDrafts, on, tables.VisibleDesignations(filter), tables.VisibleCamps(filter));
     }
 }

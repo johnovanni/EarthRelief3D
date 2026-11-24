@@ -39,11 +39,12 @@ public static class CampMarkers
     }
 
     /// <summary>"Political Prison Camp No. 14 (Kaechon) (Kwan-li-so No. 14) · position: HRNK, 22 Dec 2021"; drafts are marked first.</summary>
-    /// <remarks>Status notes follow, each with its source and year ("UN Commission of Inquiry (2014): reported closed in 2006 (...)").</remarks>
-    public static string Tooltip(CampSite c) =>
+    /// <remarks>Status notes follow, each with its source and year ("UN Commission of Inquiry (2014): reported closed in 2006 (...)").
+    /// Long lines are wrapped (<see cref="TooltipText.Wrap"/>).</remarks>
+    public static string Tooltip(CampSite c) => TooltipText.Wrap(
         (c.Review.IsApproved ? "" : DesignationText.DraftLabel + " · ")
         + $"{c.Name}{(c.LocalName is { } l ? $" ({l})" : "")} · position: {c.PositionSource.Publisher}, {DesignationText.Date(c.PositionSource.Date)}"
-        + string.Concat(c.StatusNotes.Select(n => Environment.NewLine + n.Text));
+        + string.Concat(c.StatusNotes.Select(n => Environment.NewLine + n.Text)));
 
     /// <summary>"reported closed (UN Commission of Inquiry, 2014)" (ruling R14b).</summary>
     public static string ClosedLabel(CampStatement closed) =>
