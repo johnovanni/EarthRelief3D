@@ -23,48 +23,7 @@
       "countries": 210
     }
   ],
-  "notPlaced": [
-    {
-      "code": "MTQ",
-      "name": "Martinique",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "GIB",
-      "name": "Gibraltar",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "GLP",
-      "name": "Guadeloupe",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "WAK",
-      "name": "Wake Island",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "USIQ",
-      "name": "U.S. Pacific Islands",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "NLDA",
-      "name": "Netherlands Antilles",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "REU",
-      "name": "Reunion",
-      "reason": "no unit in the boundary set for this code or name"
-    },
-    {
-      "code": "GUF",
-      "name": "French Guiana",
-      "reason": "no unit in the boundary set for this code or name"
-    }
-  ],
+  "notPlaced": [],
   "dropped": [
     {
       "code": "WP21",
@@ -280,6 +239,46 @@
       "code": "YUG",
       "name": "Former Yugoslavia",
       "reason": "no figure since 1991 (a former country, or no recent data): dropped"
+    },
+    {
+      "code": "MTQ",
+      "name": "Martinique",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "GIB",
+      "name": "Gibraltar",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "GLP",
+      "name": "Guadeloupe",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "WAK",
+      "name": "Wake Island",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "USIQ",
+      "name": "U.S. Pacific Islands",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "NLDA",
+      "name": "Netherlands Antilles",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "REU",
+      "name": "Reunion",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
+    },
+    {
+      "code": "GUF",
+      "name": "French Guiana",
+      "reason": "no unit in the boundary set, and production was 0 in 2025: recorded here, not listed in the app (ruling R16)"
     }
   ],
   "qualifiersSeen": {},
@@ -291,7 +290,7 @@
     "EIA's file has no per-value estimate flag: each series has a frequency f (all \"A\", annual) and \"--\" marks no value. A year counts as full when the series was last updated after that year ended; each country's newest full year is kept.",
     "Series with no figure in the last 10 years of the file (newest year 2025) are dropped as former countries or stale.",
     "Check: top 5 producers: USA 13,662 (2025); RUS 9,885 (2025); SAU 9,549 (2025); CAN 4,964 (2025); IRQ 4,388 (2025).",
-    "Hand check 2026-11-23 (a separate script read INTL.txt, not the DataTool): all 210 values equal the newest numeric year of the country's series; the top 5 producers are USA, RUS, SAU, CAN and IRQ (2025), as the plan expected. The 8 codes not placed (MTQ, GIB, GLP, WAK, USIQ, NLDA, REU, GUF) all have 0 in 2025.",
+    "Hand check 2026-11-23 (a separate script read INTL.txt, not the DataTool): all 210 values equal the newest numeric year of the country's series; the top 5 producers are USA, RUS, SAU, CAN and IRQ (2025), as the plan expected. The 8 codes with no unit in the boundary set (MTQ, GIB, GLP, WAK, USIQ, NLDA, REU, GUF) all have 0 in 2025, so they are recorded under dropped (ruling R16) and not listed in the app.",
     "User-Agent: the zip answered HTTP 200 to the app's User-Agent on 2026-11-23; EIA's bulk-files page (https://www.eia.gov/opendata/bulk/) answered 403 to it and to curl's default, so the page text was not read. The citation links https://www.eia.gov/international/ (HTTP 200)."
   ]
 }

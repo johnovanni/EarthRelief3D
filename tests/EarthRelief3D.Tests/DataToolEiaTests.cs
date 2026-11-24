@@ -58,6 +58,24 @@ public class DataToolEiaTests
     }
 
     [Fact]
+    public void ZeroProducersWithNoUnitAreRecordedNotListed()
+    {
+        // Ruling R16: a code with no map unit and 0 production is recorded in the manifest, not listed "Not placed on the
+        // map"; one with a figure above 0 is still listed.
+        var e = Run(
+            EiaSeries("USA", "United States", "USA", Updated, ("2025", 13661.93)),
+            EiaSeries("GUF", "French Guiana", "GUF", Updated, ("2025", 0.0), ("2024", 0.0)),
+            EiaSeries("HITZ", "Hawaiian Trade Zone", "HITZ", Updated, ("2025", 1.5)));
+
+        Assert.Equal(["USA"], e.Rows.Select(r => r.Iso3));
+        Assert.Equal("HITZ", Assert.Single(e.Manifest.NotPlaced).Code);
+        var guf = Assert.Single(e.Manifest.Dropped, d => d.Code == "GUF");
+        Assert.Equal("French Guiana", guf.Name);
+        Assert.Contains("0 in 2025", guf.Reason);
+        Assert.Contains("R16", guf.Reason);
+    }
+
+    [Fact]
     public void AChangedUnitIsAFormatChange()
     {
         using var dir = new TempDir();

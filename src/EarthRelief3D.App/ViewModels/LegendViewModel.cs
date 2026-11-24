@@ -226,17 +226,38 @@ public sealed partial class LegendViewModel : ObservableObject
         var values = series.Values.Select(v => v.Iso3.ToUpperInvariant()).Distinct()
             .Select(iso => series.For(iso)!).Where(v => CountryValueLayer.HasFigure(v, scale)).ToList();
         var newest = values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
-        var measures = values.Count == 0 ? series.Measures : $"{series.Measures}, {YearText(values.Select(v => v.Year))}";
+        // 3-year averages (FAO) are shown as ranges, never as their last year (fix round 1).
+        bool averages = values.Count > 0 && values.All(v => v.Citation.DateMeaning == Core.Model.CitationDate.ThreeYearAverage);
+        var measures = values.Count == 0 ? series.Measures
+            : $"{series.Measures}, {(averages ? AverageText(values.Select(v => v.Year)) : YearText(values.Select(v => v.Year)))}";
+        // Ruling R17b: the grey arid key only when some country in the data is in that category.
         IReadOnlyList<LegendKey> keys =
         [
-            .. scale.ClassLabels.Select((label, i) => new LegendKey(label, scale.Colors[i])),
+            .. scale.ClassLabels.Select((label, i) => (label, i))
+                .Where(x => scale.Colors[x.i] != ShadingScales.AridColor || values.Any(v => scale.ClassOf(v.Value) == x.i))
+                .Select(x => new LegendKey(x.label, scale.Colors[x.i])),
             new LegendKey(NoFigureKeyLabel, NoFigureColor, IsNone: true),
         ];
-        var note = layer == ShadingLayer.WaterStress ? WaterStressNote : null;
+        var note = layer == ShadingLayer.WaterStress ? WaterStressNote
+            : averages ? AverageNote(values.Min(v => v.Year), values.Max(v => v.Year)) : null;
         return newest is null
             ? new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), "no figures in the data", keys, note)
-            : new LegendEntry(id, symbol, color, measures, $"{newest.Publisher}, {newest.Dataset}", CrisisText.DataDate(newest, now), keys, note);
+            : new LegendEntry(id, symbol, color, measures, $"{newest.Publisher}, {newest.Dataset}", CrisisText.SeriesDate(newest, now), keys, note);
     }
+
+    /// <summary>"2023–2025", or "2017–2019 to 2023–2025 (each country's latest average)" when the countries' latest averages differ.</summary>
+    public static string AverageText(IEnumerable<int> lastYears)
+    {
+        var list = lastYears.ToList();
+        int min = list.Min(), max = list.Max();
+        return min == max ? CrisisText.AverageRange(max) : $"{CrisisText.AverageRange(min)} to {CrisisText.AverageRange(max)} (each country's latest average)";
+    }
+
+    /// <summary>The note under a legend of 3-year averages: some countries' latest is older; the hover shows each one's range.</summary>
+    public static string AverageNote(int oldestLastYear, int newestLastYear) => oldestLastYear == newestLastYear
+        ? "These figures are 3-year averages; hover over a country to see its range."
+        : $"These figures are 3-year averages. Some countries' latest average is older (the oldest ends in {oldestLastYear}); "
+          + "hover over a country to see its own range.";
 
     /// <summary>
     /// The water-stress legend's note: the cautions of the Aqueduct 4.0 workbook's Read Me (docs/data-sources.md §10).

@@ -49,9 +49,10 @@ public class AppStartupTests
 
             // The cached snapshot is shown at once: the legend carries its dates and the panel its sections.
             Assert.True(services.CacheLoaded);
-            // Task 6: the bundled extracts add their codes with no country (EIA's zero-production territories) to the list.
+            // Task 6: the bundled extracts list their codes with no country; EIA's are all zero producers, recorded in its
+            // manifest and not listed (ruling R16).
             Assert.Equal(cached, WithoutBundled(services.Store.Snapshot));
-            Assert.Contains(services.Store.Snapshot.Unplaced, u => u.Source == "US EIA" && u.Title.StartsWith("US EIA figures for GUF", StringComparison.Ordinal));
+            Assert.DoesNotContain(services.Store.Snapshot.Unplaced, u => u.Source == "US EIA");
             Assert.Equal(4, services.Store.Snapshot.CheckedUtc.Count);   // the cache keeps when each source was checked
             Assert.Equal(4, vm.Legend.Lines.Count);
             Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NotChecked, l.AsOf));
@@ -73,7 +74,8 @@ public class AppStartupTests
                 Assert.Equal(FeedState.Ok, d.State);
                 Assert.EndsWith(" · " + BundledDataset.StatusNote, d.Tooltip);
             });
-            Assert.EndsWith("estimate year 2025 · bundled; updated with the app", bundledDots[0].Tooltip);
+            Assert.EndsWith("3-year averages, latest ending 2025 · bundled; updated with the app", bundledDots[0].Tooltip);
+            Assert.EndsWith("estimate year 2025 · bundled; updated with the app", bundledDots[1].Tooltip);
             // The bundled series are in the store at once, offline.
             Assert.Equal(51.4, services.Indicators.Snapshot.Get("fao.undernourishment")!.For("HTI")!.Value);
             Assert.NotNull(services.Indicators.Snapshot.Get("fao.energyAdequacy"));

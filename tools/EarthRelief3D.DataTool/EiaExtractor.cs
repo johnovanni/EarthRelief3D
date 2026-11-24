@@ -131,6 +131,9 @@ public static partial class EiaExtractor
         {
             if (codes.FromName(c.Name) is { } iso && placed.TryAdd(iso, c))
                 notes.Add($"{c.Code} ({c.Name}) placed by its name as {iso}.");
+            else if (c.Value == 0)   // ruling R16: nothing to show, so recorded here and not listed "Not placed on the map"
+                dropped.Add(new ManifestCode(c.Code, c.Name,
+                    $"no unit in the boundary set, and production was 0 in {c.Year}: recorded here, not listed in the app (ruling R16)"));
             else
                 notPlaced.Add(new ManifestCode(c.Code, c.Name, "no unit in the boundary set for this code or name"));
         }

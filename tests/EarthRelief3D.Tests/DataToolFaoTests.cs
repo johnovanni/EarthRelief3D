@@ -109,7 +109,7 @@ public class DataToolFaoTests
         Assert.Equal(FaoExtractor.FolderName, m.Id);
         Assert.Equal("CC BY 4.0", m.Licence);
         Assert.StartsWith("FAO. 2026. FAOSTAT: Suite of Food Security Indicators. Accessed on 23 November 2026.", m.Attribution);
-        Assert.Equal("EstimateYear", m.DateMeaning);
+        Assert.Equal("ThreeYearAverage", m.DateMeaning);   // fix round 1: shown as the range, never one year
         Assert.Equal(64, m.FileSha256.Length);
         Assert.StartsWith("DataTool fao ", m.Command);
         Assert.Equal([FaoExtractor.Undernourishment, FaoExtractor.EnergyAdequacy], m.Series.Select(s => s.Id));

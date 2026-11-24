@@ -70,6 +70,9 @@ public static class BundledDataset
                 if (!rows.MoveNext()) throw new InvalidDataException("data.csv is empty");
                 var col = Columns.Select(c => Array.IndexOf(rows.Current, c)).ToArray();
                 if (col.Any(i => i < 0)) throw new InvalidDataException("data.csv lacks a column of: " + string.Join(", ", Columns));
+                // A 3-year average is shown as the range ending in its year, so the file's own range must be exactly that.
+                int periodCol = Array.IndexOf(rows.Current, "period");
+                if (meaning == CitationDate.ThreeYearAverage && periodCol < 0) throw new InvalidDataException("3-year averages need a period column");
                 int line = 1;
                 while (rows.MoveNext())
                 {
@@ -85,6 +88,8 @@ public static class BundledDataset
                         continue;
                     }
                     int year = int.Parse(r[col[2]], NumberStyles.Integer, CultureInfo.InvariantCulture);
+                    if (meaning == CitationDate.ThreeYearAverage && (r.Length <= periodCol || r[periodCol] != $"{year - 2}-{year}"))
+                        throw new InvalidDataException($"data.csv line {line}: period \"{(r.Length > periodCol ? r[periodCol] : "")}\" is not the 3 years ending {year}");
                     double value = double.Parse(r[col[3]], NumberStyles.Float, CultureInfo.InvariantCulture);
                     var qualifier = string.IsNullOrWhiteSpace(r[col[4]]) ? null : r[col[4]];
                     list.Add(new CountryValue(iso3, value, year, Cite(year), qualifier));

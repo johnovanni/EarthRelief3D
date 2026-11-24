@@ -7,7 +7,7 @@
   "pageUrl": "https://www.fao.org/faostat/en/#data/FS",
   "licence": "CC BY 4.0",
   "attribution": "FAO. 2026. FAOSTAT: Suite of Food Security Indicators. Accessed on 23 November 2026. https://www.fao.org/faostat/en/#data/FS Licence: CC-BY-4.0.",
-  "dateMeaning": "EstimateYear",
+  "dateMeaning": "ThreeYearAverage",
   "asOf": "each country's latest 3-year average, 2017-2019 to 2023-2025 (FAO's estimates, flag E)",
   "published": "2026-11-23",
   "downloaded": "2026-11-23",
@@ -17,14 +17,14 @@
   "series": [
     {
       "id": "fao.undernourishment",
-      "measures": "Prevalence of undernourishment (share of people, average of the 3 years up to the year shown)",
+      "measures": "Prevalence of undernourishment (share of people, 3-year average)",
       "unit": "%",
       "sourceItem": "210041 Prevalence of undernourishment (percent) (3-year average)",
       "countries": 169
     },
     {
       "id": "fao.energyAdequacy",
-      "measures": "Average dietary energy supply adequacy (supply as a share of the average requirement, average of the 3 years up to the year shown)",
+      "measures": "Average dietary energy supply adequacy (supply as a share of the average requirement, 3-year average)",
       "unit": "%",
       "sourceItem": "21010 Average dietary energy supply adequacy (percent) (3-year average)",
       "countries": 160
@@ -252,7 +252,8 @@
   },
   "notes": [
     "Read as Latin-1 (FAO's encoding). Areas are M49 codes, placed through Natural Earth's UN_A3 (ISO_N3_EH where UN_A3 is missing: Norway, Taiwan); P3-11.",
-    "A 3-year average such as 2023-2025 is stored with the year 2025, the last of its three; the range is in the period column.",
+    "A 3-year average such as 2023-2025 is stored with the year 2025, the last of its three, and the range in the period column; dateMeaning ThreeYearAverage makes the app show every figure with its range (\"average 2023–2025\"), never as one year.",
+    "Only 3-year ranges are read: a single-year value of these items would be refused by the app's loader (period must be the 3 years ending in year).",
     "Values written \"<x\" are stored as x with the qualifier \"<x\" and shown \"under x%\" (ruling R3). Qualifiers seen: \"<2.5\" (1452 rows).",
     "Rows with no value (flag O, Q or L) are skipped, so a country's latest figure can be an older range than the newest in the file.",
     "Check: SDN undernourishment 10.9% (2020-2022).",

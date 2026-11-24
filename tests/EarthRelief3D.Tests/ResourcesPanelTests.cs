@@ -71,10 +71,10 @@ public class ResourcesPanelTests
 
         layers.Shading = App.Presentation.ShadingLayer.Hunger;
         var hunger = Assert.Single(legend.Entries);
-        // Each country's latest 3-year average: Sudan's is 2020-2022, North Korea's 2017-2019 (later ranges missing in FAO's file).
-        Assert.Equal("Prevalence of undernourishment (share of people, average of the 3 years up to the year shown), 2019–2025 (each country's latest year)",
+        // Each country's latest 3-year average, as ranges (fix round 1): North Korea's is 2017-2019, most end in 2025.
+        Assert.Equal("Prevalence of undernourishment (share of people, 3-year average), 2017–2019 to 2023–2025 (each country's latest average)",
             hunger.Measures);
-        Assert.Equal("Food and Agriculture Organization of the United Nations (FAO), FAOSTAT: Suite of Food Security Indicators · estimate year 2025", hunger.SourceLine);
+        Assert.Equal("Food and Agriculture Organization of the United Nations (FAO), FAOSTAT: Suite of Food Security Indicators · 3-year averages, latest ending 2025", hunger.SourceLine);
 
         layers.Shading = App.Presentation.ShadingLayer.OilProduction;
         var oil = Assert.Single(legend.Entries);
@@ -88,6 +88,28 @@ public class ResourcesPanelTests
         // WRI's own caution travels with the layer (docs/data-sources.md §10).
         Assert.Equal(LegendViewModel.WaterStressNote, water.Note);
         Assert.Contains("not been validated", water.Note);
+    }
+
+    [Fact]
+    public void TheAridKeyShowsOnlyWhenTheDataHasIt()
+    {
+        // Ruling R17b: Aqueduct 4.0 has no country in "Arid and Low Water Use" (cat -1), so its grey key is not shown.
+        var layers = new App.ViewModels.LayerStripViewModel(new MemorySettingsStore());
+        var store = Bundled();
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, indicators: store);
+        layers.Shading = App.Presentation.ShadingLayer.WaterStress;
+        var keys = Assert.Single(legend.Entries).Keys.Select(k => k.Label).ToList();
+        Assert.DoesNotContain("Arid and Low Water Use", keys);
+        Assert.Equal(["Low (<10%)", "Low - Medium (10-20%)", "Medium - High (20-40%)", "High (40-80%)", "Extremely High (>80%)",
+            LegendViewModel.NoFigureKeyLabel], keys);
+
+        // A country in that category brings the key back, in its place and colour.
+        var bws = store.Snapshot.Get("wri.bws")!;
+        var arid = bws.Values[0] with { Iso3 = "ESH", Value = -1, Qualifier = "Arid and Low Water Use" };
+        store.Replace("wri.bws", bws with { Values = [.. bws.Values.Where(v => v.Iso3 != "ESH"), arid] });
+        var withArid = Assert.Single(legend.Entries).Keys;
+        Assert.Equal("Arid and Low Water Use", withArid[0].Label);
+        Assert.Equal(App.Presentation.ShadingScales.AridColor, withArid[0].Color);
     }
 
     [Fact]

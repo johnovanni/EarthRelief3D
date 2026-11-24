@@ -25,9 +25,9 @@ public static class FaoExtractor
     private static readonly Item[] Items =
     [
         new("210041", "Prevalence of undernourishment (percent) (3-year average)", Undernourishment,
-            "Prevalence of undernourishment (share of people, average of the 3 years up to the year shown)"),
+            "Prevalence of undernourishment (share of people, 3-year average)"),
         new("21010", "Average dietary energy supply adequacy (percent) (3-year average)", EnergyAdequacy,
-            "Average dietary energy supply adequacy (supply as a share of the average requirement, average of the 3 years up to the year shown)"),
+            "Average dietary energy supply adequacy (supply as a share of the average requirement, 3-year average)"),
     ];
 
     /// <summary>FAO's "China" (mainland, Hong Kong, Macao and Taiwan together): dropped so China is counted once (P3-11).</summary>
@@ -132,7 +132,9 @@ public static class FaoExtractor
         List<string> notes =
         [
             "Read as Latin-1 (FAO's encoding). Areas are M49 codes, placed through Natural Earth's UN_A3 (ISO_N3_EH where UN_A3 is missing: Norway, Taiwan); P3-11.",
-            "A 3-year average such as 2023-2025 is stored with the year 2025, the last of its three; the range is in the period column.",
+            "A 3-year average such as 2023-2025 is stored with the year 2025, the last of its three, and the range in the period column; "
+                + "dateMeaning ThreeYearAverage makes the app show every figure with its range (\"average 2023–2025\"), never as one year.",
+            "Only 3-year ranges are read: a single-year value of these items would be refused by the app's loader (period must be the 3 years ending in year).",
             "Values written \"<x\" are stored as x with the qualifier \"<x\" and shown \"under x%\" (ruling R3). Qualifiers seen: "
                 + (qualifiers.Count == 0 ? "none" : string.Join(", ", qualifiers.Select(q => $"\"{q.Key}\" ({q.Value} rows)"))) + ".",
             "Rows with no value (flag O, Q or L) are skipped, so a country's latest figure can be an older range than the newest in the file.",
@@ -154,7 +156,7 @@ public static class FaoExtractor
             Licence = "CC BY 4.0",
             Attribution = $"FAO. {src.Published.Year}. FAOSTAT: Suite of Food Security Indicators. Accessed on "
                 + $"{src.Downloaded.ToString("d MMMM yyyy", CultureInfo.InvariantCulture)}. {PageUrl} Licence: CC-BY-4.0.",
-            DateMeaning = "EstimateYear",
+            DateMeaning = "ThreeYearAverage",
             AsOf = periods.Count == 0 ? "no figures" : $"each country's latest 3-year average, {periods[0]} to {periods[^1]} (FAO's estimates, flag E)",
             Published = src.Published.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Downloaded = src.Downloaded.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),

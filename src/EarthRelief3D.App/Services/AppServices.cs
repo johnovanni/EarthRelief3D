@@ -169,7 +169,7 @@ public sealed class AppServices : IDisposable
             curated: curated);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
-        foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.DataDate(c, clock.UtcNow)));
+        foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.SeriesDate(c, clock.UtcNow)));
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke
         return new AppServices(store, cache, indicators, indicatorCache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log)
         {

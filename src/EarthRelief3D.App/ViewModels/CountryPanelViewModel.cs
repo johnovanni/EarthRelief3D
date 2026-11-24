@@ -444,7 +444,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         if (snap.Get(EnergyAdequacySeries) is not { } series) return LayerCatalog.NotLoaded;
         if (series.For(iso3) is not { } v || double.IsNaN(v.Value) || v.Value < 0) return "No figure from FAO";
         var value = v.Qualifier is { Length: > 0 } q ? q : v.Value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + "%";
-        return $"dietary energy adequacy {value}, {v.Year - 2}–{v.Year}, FAO";
+        var years = v.Citation.DateMeaning == CitationDate.ThreeYearAverage ? CrisisText.AverageRange(v.Year) : v.Year.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return $"dietary energy adequacy {value}, {years}, FAO";
     }
 
     /// <summary>The store id of FAO's dietary energy supply adequacy (bundled, Task 6): shown in the panel, not shaded.</summary>
@@ -474,7 +475,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             var any = series.Values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
             if (any is not null)
             {
-                sources.Add(($"{any.Publisher}, {CrisisText.DataDate(any, now)}", true));
+                sources.Add(($"{any.Publisher}, {CrisisText.SeriesDate(any, now)}", true));
                 links.Add(new PanelLink(any.Publisher, any.Url));
             }
             else sources.Add(($"{LayerCatalog.SourceName(layer)}, no figures in the data", true));

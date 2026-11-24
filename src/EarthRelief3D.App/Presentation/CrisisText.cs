@@ -354,8 +354,21 @@ public static class CrisisText
     {
         CitationDate.FileLoaded => "file loaded " + Date(c.AsOfUtc),
         CitationDate.EstimateYear => "estimate year " + c.AsOfUtc.Year.ToString(Inv),
+        CitationDate.ThreeYearAverage => "average " + AverageRange(c.AsOfUtc.Year),
         _ => IsFuture(c, nowUtc) ? "retrieved " + Date(c.RetrievedUtc) : AsOf(c.AsOfUtc),
     };
+
+    /// <summary>
+    /// A whole series' date from its newest citation, for a legend's source line or a status dot: as
+    /// <see cref="DataDate"/>, except that 3-year averages say so, "3-year averages, latest ending 2025", because the
+    /// countries' own ranges differ (each figure shows its own: <see cref="DataDate"/>).
+    /// </summary>
+    public static string SeriesDate(SourceCitation newest, DateTime nowUtc) => newest.DateMeaning == CitationDate.ThreeYearAverage
+        ? "3-year averages, latest ending " + newest.AsOfUtc.Year.ToString(Inv)
+        : DataDate(newest, nowUtc);
+
+    /// <summary>The 3 years of an average that ends in <paramref name="lastYear"/>: "2020–2022".</summary>
+    public static string AverageRange(int lastYear) => $"{(lastYear - 2).ToString(Inv)}–{lastYear.ToString(Inv)}";
 
     /// <summary>True when the citation's as-of date has not come yet.</summary>
     public static bool IsFuture(SourceCitation c, DateTime nowUtc) => c.AsOfUtc > nowUtc;

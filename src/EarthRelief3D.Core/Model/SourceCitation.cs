@@ -13,4 +13,9 @@ public enum CitationDate
     FileLoaded,
     /// <summary>Only the estimate's year is known (WHO GHO); AsOfUtc is 31 Dec of it and the day is never shown: "estimate year 2024".</summary>
     EstimateYear,
+    /// <summary>
+    /// A 3-year average (FAOSTAT's food security suite): AsOfUtc is 31 Dec of its last year, and the figure is always shown with
+    /// its range, "average 2020–2022", never as one year (Task 6 fix round 1).
+    /// </summary>
+    ThreeYearAverage,
 }

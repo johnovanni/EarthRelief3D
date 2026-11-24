@@ -116,6 +116,9 @@ public sealed class CountryValueLayer : ImageLayer, IPickable
         var source = LayerCatalog.SourceName(which);
         if (series.For(iso3) is not { } v || !HasFigure(v, scale))
             return $"{countryName} · No figure from {source} for the {LayerCatalog.LowerFirst(series.Measures)}: not shaded";
+        // A 3-year average names its own range after the figure (fix round 1): "…: 10.9%, average 2020–2022 · FAO".
+        if (v.Citation.DateMeaning == CitationDate.ThreeYearAverage)
+            return $"{countryName} · {series.Measures}: {ValueText(v, series.Unit, scale)}, average {CrisisText.AverageRange(v.Year)} · {source}";
         return $"{countryName} · {series.Measures}, {v.Year}: {ValueText(v, series.Unit, scale)} · {source}";
     }
 
