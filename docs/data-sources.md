@@ -335,7 +335,7 @@ through the DataTool's ExcelDataReader). GEM's download form is not scriptable, 
   separate solar thermal Type: "Solar Thermal" is a `Technology` within `utility-scale solar`, so it is included with
   it. Not included: `coal`, `oil/gas`, `nuclear`.
 - **Rows:** units of those Types with `Status` "operating", summed per `GEM location ID` (101,731 plants). A plant's
-  units of other fuels are not counted here (7 kept plants have some; the Power plants layer counts every fuel). R22: a
+  units of other fuels are not counted here (7 kept plants have some; the Power plants layer counts every fuel). Those units are written to an extra `other_fuels` column (R26, e.g. Drax "oil/gas 96 MW"), and the tooltip says "renewable units only; the plant also has 96 MW of oil/gas"; the legend measure ends "a plant's units of other fuels are not counted". The gem-power extract does not have the column and is unchanged. R22: a
   plant with any TransitionZero unit is left out whole (18,723 plants; none of 200 MW or more).
 - **Threshold (P3-9 cap, R25):** tried in turn, counting plants with coordinates: **100 MW: 9,047; 150 MW: 5,379;
   200 MW: 4,021**. Kept at **200 MW**: **4,020 plants in 109 countries** (one plant in Réunion, 212 MW, has no unit in

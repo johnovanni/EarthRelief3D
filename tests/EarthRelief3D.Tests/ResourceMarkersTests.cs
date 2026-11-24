@@ -280,7 +280,7 @@ public class ResourceMarkersTests
         layers.Show(MarkerLayer.Renewables, true);
         var e = Assert.Single(legend.Entries);
         Assert.Equal("renewables", e.Id);
-        Assert.Equal($"Renewable power plants: {load.Manifest!.Filter}, coloured by its largest fuel", e.Measures);
+        Assert.Equal($"Renewable power plants: {load.Manifest!.Filter}, coloured by its largest fuel; a plant's units of other fuels are not counted", e.Measures);
         Assert.Matches(@"^operating renewable plants of \d+ MW or more \(renewable units summed per plant\)$", load.Manifest.Filter);
         // Only the fuel groups present (no fossil, no nuclear), then the size classes.
         Assert.Equal(["hydro", "wind or solar", "other (bioenergy, geothermal)", "under 500 MW", "500–999 MW", "1,000–4,999 MW", "5,000 MW or more"],
@@ -291,7 +291,26 @@ public class ResourceMarkersTests
     }
 
     [Fact]
-    public void CommittedRenewablesExtractIsUnderTheCapWithHandCheckedPlants()
+    public void AMixedRenewablePlantSaysItsOtherFuelsAreNotCounted()
+    {
+        // R26: Drax is 2,580 MW of bioenergy here (4 units) and 2,676 MW in the Power plants layer, which counts its
+        // 96 MW of oil/gas too. Its tooltip says so.
+        var load = Committed(MarkerLayer.Renewables);
+        var drax = Assert.Single(load.Points, p => p.Name == "Drax power station");
+        Assert.Equal((2580.0, "bioenergy", "oil/gas 96 MW"), (drax.Capacity!.Value, drax.Type, drax.OtherFuels));
+        var tip = OneLine(Assert.Single(ResourceMarkers.For(MarkerLayer.Renewables, load)!.Items, i => i.Tooltip.StartsWith("Drax power station ·", StringComparison.Ordinal)).Tooltip);
+        Assert.StartsWith("Drax power station · bioenergy · 2,580 MW · renewable units only; the plant also has 96 MW of oil/gas · operating · GEM ", tip);
+        Assert.Equal(2676.0, Assert.Single(Committed(MarkerLayer.PowerPlants).Points, p => p.Name == "Drax power station").Capacity);
+        // A plant with no other fuels says nothing more; several are listed, largest first.
+        Assert.DoesNotContain("renewable units only", OneLine(Assert.Single(ResourceMarkers.For(MarkerLayer.Renewables, load)!.Items,
+            i => i.Tooltip.StartsWith("Three Gorges Dam hydroelectric plant ·", StringComparison.Ordinal)).Tooltip));
+        Assert.Equal("renewable units only; the plant also has 410 MW of coal, 50.5 MW of oil/gas", ResourceMarkers.OtherFuelsText("coal 410 MW; oil/gas 50.5 MW"));
+        // Only the renewables layer says it (the power layer counts every fuel).
+        Assert.DoesNotContain("renewable units only", ResourceMarkers.Tooltip(MarkerLayer.PowerPlants, drax, PowerCite));
+        Assert.Equal(7, load.Points.Count(p => p.OtherFuels.Length > 0));
+    }
+
+    [Fact]    public void CommittedRenewablesExtractIsUnderTheCapWithHandCheckedPlants()
     {
         var load = Committed(MarkerLayer.Renewables);
         Assert.InRange(load.Points.Count, 1000, PointMarkerLayer.MaxMarkers);

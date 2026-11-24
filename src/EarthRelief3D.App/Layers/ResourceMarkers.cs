@@ -126,6 +126,21 @@ public static class ResourceMarkers
     /// <summary>The power legend's colour rule (R24): a plant of several fuels takes its largest fuel's colour.</summary>
     public const string ColouredByLargestFuel = "coloured by its largest fuel";
 
+    /// <summary>The renewables legend measure's last words (R26).</summary>
+    public const string OtherFuelsNotCounted = "a plant's units of other fuels are not counted";
+
+    /// <summary>
+    /// A renewable plant's other fuels in the tooltip (R26): "renewable units only; the plant also has 96 MW of oil/gas"
+    /// (several: "410 MW of coal, 50 MW of oil/gas"), from the extract's <c>other_fuels</c> column ("oil/gas 96 MW").
+    /// </summary>
+    public static string OtherFuelsText(string otherFuels) => "renewable units only; the plant also has " + string.Join(", ",
+        otherFuels.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(part =>
+        {
+            var words = FuelsText(part);   // "oil/gas 96 MW"
+            int at = words.LastIndexOf(' ', words.Length - 4);
+            return at > 0 && words.EndsWith(" MW", StringComparison.Ordinal) ? $"{words[(at + 1)..]} of {words[..at]}" : words;
+        }));
+
     /// <summary>The renewables legend's note (R25): the two layers overlap on purpose.</summary>
     public const string OverlapNote = "The Power plants layer shows every fuel at 500 MW or more, so a large renewable plant appears in both layers when both are on.";
 
@@ -169,7 +184,8 @@ public static class ResourceMarkers
         string[] parts = layer switch
         {
             MarkerLayer.PowerPlants or MarkerLayer.Renewables => [p.Name, p.Types.Length > 0 ? FuelsText(p.Types) : p.Type,
-                p.Capacity is { } mw ? mw.ToString("N0", inv) + " MW" : "capacity not given", p.Status],
+                p.Capacity is { } mw ? mw.ToString("N0", inv) + " MW" : "capacity not given",
+                layer == MarkerLayer.Renewables && p.OtherFuels.Length > 0 ? OtherFuelsText(p.OtherFuels) : "", p.Status],
             MarkerLayer.OilGasFields => [p.Name, p.Type, p.Detail.Length > 0 ? "production: " + p.Detail : "no production figure in GEM's field data", p.Status],
             MarkerLayer.SteelPlants => [p.Name, EquipmentText(p.Type),
                 p.Capacity is { } mt ? mt.ToString("0.#", inv) + " million tonnes of crude steel a year" : "capacity not given", p.Status],
@@ -190,7 +206,8 @@ public static class ResourceMarkers
             p.Iso3, ColorOf(layer, p))).ToList();
         var filter = load.Manifest!.Filter!;
         bool byFuel = layer is MarkerLayer.PowerPlants or MarkerLayer.Renewables;
-        var measures = $"{LayerCatalog.Label(layer)}: {filter}{(byFuel ? ", " + ColouredByLargestFuel : "")}";
+        var measures = $"{LayerCatalog.Label(layer)}: {filter}{(byFuel ? ", " + ColouredByLargestFuel : "")}"
+            + (layer == MarkerLayer.Renewables ? "; " + OtherFuelsNotCounted : "");
         var note = (layer == MarkerLayer.Renewables ? OverlapNote + " " : "") + Credit(load.Manifest);
         return new PointSet(items, c, note) { Measures = measures };
     }

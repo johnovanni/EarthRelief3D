@@ -187,6 +187,9 @@ public static class GemExtractor
                 ["types"] = p.ByType.Count == 1 ? "" : string.Join("; ", p.ByType.OrderByDescending(kv => kv.Value)
                     .Select(kv => string.Create(CultureInfo.InvariantCulture, $"{kv.Key} {kv.Value:0.###} MW"))),
                 ["location_accuracy"] = p.Accuracy,
+                // R26: the plant's operating units of the fuels not counted (renewables only; gem-power does not write the column).
+                ["other_fuels"] = string.Join("; ", p.Others.OrderByDescending(kv => kv.Value)
+                    .Select(kv => string.Create(CultureInfo.InvariantCulture, $"{kv.Key} {kv.Value:0.###} MW"))),
             }));
         }
         return (outRows, NotPlaced(unresolved, "plants", "MW"), types, dropped);
@@ -312,7 +315,7 @@ public static class GemExtractor
                 $"{PowerSheet}: Capacity (MW) of units of Type {string.Join(", ", RenewableTypes)} with Status \"operating\", summed by GEM location ID",
                 outRows.Select(r => r.Iso3).Distinct().Count()),
             notPlaced, dropped, read.Statuses, read.Flags, types, notes) with { Thresholds = tried.ToDictionary(s => s.Mw.ToString("0", CultureInfo.InvariantCulture) + " MW", s => s.Plants) },
-            outRows, ["gem_location_id", "gem_country", "units", "types", "location_accuracy"]);
+            outRows, ["gem_location_id", "gem_country", "units", "types", "location_accuracy", "other_fuels"]);
     }
 
     // ------------------------------------------------------------------------------------------------ oil and gas

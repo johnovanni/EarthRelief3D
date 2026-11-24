@@ -295,6 +295,11 @@ public class DataToolGemTests
         var kosovoA = Row(e, "Kosovo A power station");
         Assert.Equal((200.0, "bioenergy", ""), (kosovoA.Capacity!.Value, kosovoA.Type, kosovoA.Extra["types"]));
         Assert.Contains(e.Manifest.Notes, n => n.StartsWith("1 kept plants also have operating units of other fuels", StringComparison.Ordinal));
+        // R26: those other fuels are written, largest first, so the tooltip can say they are not counted.
+        Assert.Equal("coal 410 MW", kosovoA.Extra["other_fuels"]);
+        Assert.Equal("", kitka.Extra["other_fuels"]);
+        Assert.Contains("other_fuels", e.ExtraColumns);
+        Assert.DoesNotContain("other_fuels", Power().ExtraColumns);   // gem-power is unchanged
     }
 
     [Fact]

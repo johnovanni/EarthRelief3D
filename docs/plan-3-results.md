@@ -170,8 +170,8 @@ before the snapshot run, from the test's measurement.
   Caspian, the Volga-Urals and western Siberia; steel plants are green square outlines (Europe, Iran, India, China). The
   Resources group is open with Oil production and Power plants in view (Oil and gas fields and Steel plants are further
   down the strip). The legend shows the oil shading, then "Power plants: operating plants of 500 MW or more (units summed
-  per plant), coloured by fuel" (since R24: "coloured by its largest fuel") with the five fuel keys and four size keys, and GEM's credit starting "Global Integrated
-  Power Tracker, Global Energy Monitor, September 2026 (V2) release. Licence: CC BY 4.0, https://…"; the oil and gas and
+  per plant), coloured by fuel" (since R24: "coloured by its largest fuel") with the five fuel keys and four size keys, and GEM's credit (R24 wording) starting "Global Energy
+  Monitor, Global Integrated Power Tracker, September 2026 release." with "(file V2)" as the version note, then "Licence: CC BY 4.0, https://…"; the oil and gas and
   steel lines are below the legend's fold (it scrolls). Eleven green status dots (GEM's is the last).
 - Not checked by a picture: the hover tooltips (tests pin their wording), the oil and gas and steel legend lines (below
   the fold), and a close-up: at this zoom the markers crowd each other over the Gulf and eastern China.
