@@ -144,12 +144,13 @@ public class AtrocityLayerTests
     [Fact]
     public void ACampReportedClosedIsHistoryWithoutAMarker() => StaAsync.Sta(() =>
     {
-        // Ruling R14: data on the row (a cited closure statement), not code that knows a camp.
+        // Ruling R14b: data on the row (a cited closure statement from its newest report), not code that knows a camp. Synthetic:
+        // no real row is closed.
         var open = Camp("open");
         var closed = Camp("closed") with
         {
-            ReportedClosed = new CampClosure("The site was closed down in 2006.", "UN Commission of Inquiry",
-                new DocumentCitation("Test COI report", "UN Commission of Inquiry", new Uri("https://example.org/coi"), new DateOnly(2014, 2, 7))),
+            ReportedClosed = new CampStatement("The site was closed down in 2006.", "UN Commission of Inquiry",
+                new DocumentCitation("Test COI report", "UN Commission of Inquiry", new Uri("https://example.org/coi"), new DateOnly(2025, 2, 7))),
         };
         var store = new CuratedStore(Tables(c: [open, closed]), showDrafts: false);
         Assert.Equal(["Test camp"], CampMarkers.For(store)!.Items.Select(i => i.Tooltip.Split(" · ")[0]));
@@ -160,7 +161,7 @@ public class AtrocityLayerTests
         Assert.Single(Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.CampsHeading).Rows);
         var history = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.CampsHistoryHeading);
         var row = Assert.Single(history.Rows);
-        Assert.EndsWith("reported closed (UN Commission of Inquiry, 2014)", row.Label, StringComparison.Ordinal);
+        Assert.EndsWith("reported closed (UN Commission of Inquiry, 2025)", row.Label, StringComparison.Ordinal);
         Assert.StartsWith("The site was closed down in 2006.", row.Value, StringComparison.Ordinal);
         Assert.False(panel.HasNoCrisis);   // the open camp is a crisis
 
@@ -171,6 +172,26 @@ public class AtrocityLayerTests
         p2.Show("PRK");
         Assert.True(p2.HasNoCrisis);
         Assert.Contains(p2.Sections, s => s.Heading == CountryPanelViewModel.CampsHistoryHeading);
+    });
+
+    [Fact]
+    public void Camp18KeepsItsMarkerAndShowsBothSources() => StaAsync.Sta(() =>
+    {
+        // R14b: the newest report (HRNK, 2024) says parts remain active, so the camp keeps its marker and is a crisis; the COI's
+        // earlier report of closure is shown beside it, each with its source.
+        var real = new CuratedStore(CuratedTables.Load(System.IO.Path.Combine(AppContext.BaseDirectory, "data", "curated")), showDrafts: true);
+        var item = Assert.Single(CampMarkers.For(real)!.Items, i => i.Tooltip.Contains("Kwan-li-so No. 18"));
+        Assert.Contains("UN Commission of Inquiry (2014): reported closed in 2006 (A/HRC/25/CRP.1, para. 739)", item.Tooltip);
+        Assert.Contains("HRNK (2024): parts remain active", item.Tooltip);
+        Assert.Equal(5, CampMarkers.For(real)!.Items.Count);
+
+        var panel = Panel(real);
+        panel.Show("PRK", marker: MarkerLayer.Camps);
+        var camps = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.CampsHeading);
+        var row = Assert.Single(camps.Rows, r => r.Label.Contains("Kwan-li-so No. 18"));
+        Assert.Contains("Status: UN Commission of Inquiry (2014): reported closed in 2006 (A/HRC/25/CRP.1, para. 739); HRNK (2024): parts remain active.", row.Value);
+        Assert.DoesNotContain(panel.Sections, s => s.Heading == CountryPanelViewModel.CampsHistoryHeading);
+        Assert.False(panel.HasNoCrisis);
     });
 
     [Fact]

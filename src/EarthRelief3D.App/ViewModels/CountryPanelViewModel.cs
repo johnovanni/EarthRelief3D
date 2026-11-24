@@ -382,6 +382,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
                 label += " · " + CampMarkers.ClosedLabel(closed);
                 value = $"{closed.Statement} ({closed.Source.Publisher}, \"{closed.Source.Title}\", {DesignationText.Date(closed.Source.Date)}). " + value;
             }
+            // R14b: where sources differ on its status, each statement is shown with its source and year.
+            if (c.StatusNotes.Count > 0) value += " Status: " + string.Join("; ", c.StatusNotes.Select(n => n.Text)) + ".";
             rows.Add((label, value));
             links.AddRange(c.DocumentedBy.Select(r => new PanelLink($"{r.Publisher}, {DesignationText.Date(r.Date)}: {r.Title}", r.Url)));
         }

@@ -79,7 +79,7 @@
     "id": "ffm-sudan-later-reports",
     "what": "Fact-Finding Mission for the Sudan: the July 2026 paper (reported as A/HRC/62/CRP.4) and the September 2026 report A/HRC/63/23",
     "status": "not entered",
-    "reason": "The ohchr.org link to A/HRC/62/CRP.4 given by UN News returned 'page not found'. documents.un.org redirected every request for A/HRC/63/23 ('Fuelling Sudan's conflict: weapons, fighters and external support networks') to its error page, and no ohchr.org copy was found. Neither could be read. The Task 5 reviewer reports that A/HRC/63/23 does not say atrocity crimes continue.",
+    "reason": "The ohchr.org link to A/HRC/62/CRP.4 given by UN News returned 'page not found'. documents.un.org redirected every request for A/HRC/63/23 ('Fuelling Sudan's conflict: weapons, fighters and external support networks') to its error page, and no ohchr.org copy was found. Neither could be opened in this task. The Task 5 code reviewer read A/HRC/63/23 on 2026-11-23 and found that it does not say atrocity crimes continue (the reviewer's check, not this task's).",
     "ownerAction": null,
     "links": [
       { "title": "A/HRC/63/23 in the UN Document System viewer", "url": "https://docs.un.org/en/A/HRC/63/23", "kind": "authority" },

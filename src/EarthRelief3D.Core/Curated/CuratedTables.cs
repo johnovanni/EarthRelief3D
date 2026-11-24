@@ -108,7 +108,7 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
 
     private sealed record CampDto(string Id, string Iso3, string Name, string? LocalName, GeoDto? Position, DocumentCitation? PositionSource,
         string Description, List<DocumentCitation>? DocumentedBy, Review? Review, DateOnly CheckedOn, string? Verification,
-        CampClosure? ReportedClosed, string? OwnerQuestion)
+        CampStatement? ReportedClosed, List<CampStatement>? StatusNotes, string? OwnerQuestion)
     {
         public CampSite ToCamp() => new(Id, Iso3, Name, LocalName,
             Position is null ? new GeoPosition(double.NaN, double.NaN) : new GeoPosition(Position.Lat, Position.Lon),
@@ -117,6 +117,7 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
             CheckedOn = CheckedOn,
             Verification = Verification,
             ReportedClosed = ReportedClosed,
+            StatusNotes = StatusNotes ?? [],
             OwnerQuestion = OwnerQuestion,
         };
     }
@@ -205,11 +206,14 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
             if (!IsRealDate(c.CheckedOn)) problems.Add($"{id}: no checkedOn date");
             if (c.ReportedClosed is { } closed)
             {
-                Required(problems, id, closed.Statement, "closure statement");
-                Required(problems, id, closed.ShortSource, "closure short source");
-                if (closed.Source is null) problems.Add($"{id}: the closure statement has no source");
-                else Cited(problems, id, "closure source", closed.Source.Title, closed.Source.Url, closed.Source.Date, closed.Source.Publisher);
+                StatementOk(problems, id, "closure", closed);
+                // R14b: a camp is closed only when its newest cited report says so.
+                var newest = c.DocumentedBy?.Where(r => r is not null).Select(r => r.Date).DefaultIfEmpty().Max() ?? default;
+                if (closed.Source is not null && closed.Source.Date < newest)
+                    problems.Add($"{id}: the closure statement ({closed.Source.Date}) is older than the newest cited report ({newest}); "
+                                 + "a camp is closed only when its newest report says so (R14b): give it as a status note instead");
             }
+            foreach (var note in c.StatusNotes ?? []) StatementOk(problems, id, "status note", note);
             ReviewOk(problems, id, c.Review);
         }
 
@@ -246,6 +250,15 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
         if (url is null || !url.IsAbsoluteUri || url.Scheme != Uri.UriSchemeHttps) problems.Add($"{id}: the {what} needs an absolute https URL");
         if (!IsRealDate(date)) problems.Add($"{id}: the {what} has no date");
         if (string.IsNullOrWhiteSpace(publisher)) problems.Add($"{id}: the {what} has no publisher");
+    }
+
+    private static void StatementOk(List<string> problems, string id, string what, CampStatement? s)
+    {
+        if (s is null) { problems.Add($"{id}: an empty {what}"); return; }
+        Required(problems, id, s.Statement, what + " statement");
+        Required(problems, id, s.ShortSource, what + " short source");
+        if (s.Source is null) problems.Add($"{id}: the {what} has no source");
+        else Cited(problems, id, what + " source", s.Source.Title, s.Source.Url, s.Source.Date, s.Source.Publisher);
     }
 
     private static void ReviewOk(List<string> problems, string id, Review? r)

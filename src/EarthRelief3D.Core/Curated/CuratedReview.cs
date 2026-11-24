@@ -36,7 +36,8 @@ public static class CuratedReview
         L("  listed under the panel's history.");
         L("- A court judgment whose outcome is \"not established\" is never drawn and never counts as a crisis; the panel lists it");
         L("  under \"Cases decided: not established\".");
-        L("- A camp with a cited statement that it closed (`reportedClosed`, ruling R14) has no marker and is listed as history.");
+        L("- A camp keeps its marker unless its newest cited report says it closed (`reportedClosed`, ruling R14b); a closed camp");
+        L("  is listed as history. Where sources differ on a camp's status, each statement is shown with its source (`statusNotes`).");
         L();
         L($"Totals: {t.Designations.Count} designations, {t.Camps.Count} camp sites, {t.Governments.Count} government(s), "
           + $"{t.NotEntered.Count} candidates awaiting confirmation or not entered (last section).");
@@ -97,9 +98,11 @@ public static class CuratedReview
             L("- Documented by (newest first):");
             foreach (var r in c.DocumentedBy) L($"  - [{Md(r.Title)}]({r.Url}) ({r.Publisher}, {Date(r.Date)})");
             if (c.ReportedClosed is { } closed)
-                L($"- **Reported closed** (ruling R14; no marker, panel history): \"{Md(closed.Statement)}\" ([{Md(closed.Source.Title)}]({closed.Source.Url}),"
+                L($"- **Reported closed** by its newest report (ruling R14b; no marker, panel history): \"{Md(closed.Statement)}\" ([{Md(closed.Source.Title)}]({closed.Source.Url}),"
                   + $" {closed.Source.Publisher}, {Date(closed.Source.Date)})");
-            else L("- Status on the map: a marker (no cited report says it closed)");
+            else L("- Status on the map: a marker (its newest cited report does not say it closed)");
+            foreach (var n in c.StatusNotes)
+                L($"- Status note: {Md(n.Text)} ([{Md(n.Source.Title)}]({n.Source.Url}), {n.Source.Publisher}, {Date(n.Source.Date)})");
             L($"- Checked on: {Date(c.CheckedOn)}");
             L($"- What was checked and where: {Md(c.Verification ?? "(not recorded)")}");
             if (c.OwnerQuestion is { Length: > 0 } q) L($"- **Question for the owner:** {Md(q)}");

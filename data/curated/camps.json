@@ -137,19 +137,31 @@
         "date": "2014-02-07"
       }
     ],
-    "reportedClosed": {
-      "statement": "It appears that Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006 (para. 739)",
-      "shortSource": "UN Commission of Inquiry",
-      "source": {
-        "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
-        "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
-        "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
-        "date": "2014-02-07"
+    "statusNotes": [
+      {
+        "statement": "reported closed in 2006 (A/HRC/25/CRP.1, para. 739)",
+        "shortSource": "UN Commission of Inquiry",
+        "source": {
+          "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
+          "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
+          "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
+          "date": "2014-02-07"
+        }
+      },
+      {
+        "statement": "parts remain active",
+        "shortSource": "HRNK",
+        "source": {
+          "title": "North Korea's Political Prison Camp Kwan-li-so No. 18 (Pukch'ang)",
+          "publisher": "HRNK (Committee for Human Rights in North Korea)",
+          "url": "https://www.hrnk.org/wp-content/uploads/2024/07/camp18_240618.pdf",
+          "date": "2024-06-18"
+        }
       }
-    },
+    ],
     "review": { "status": "draft", "approvedOn": null },
     "checkedOn": "2026-11-23",
-    "ownerQuestion": "Ruling R14 makes this camp history, with no marker, because the COI reported it closed. HRNK's newer report (2024) says smaller sections 'remain active as a detention facility'. By R14's own test (the newest cited report does not say it has closed), it would keep its marker. Keep it as history (remove nothing), or remove 'reportedClosed' to show its marker?",
+    "ownerQuestion": "The sources differ: the UN Commission of Inquiry (2014, A/HRC/25/CRP.1 para. 739) reported the site closed in 2006; HRNK's newer report (2024) says smaller sections 'remain active as a detention facility'. Under ruling R14b the newest report decides, so the camp keeps its marker and counts as a current crisis, with both statements shown. Approve this, or correct it?",
     "verification": "Name and description: A/HRC/25/CRP.1, para. 739 (camps of the Ministry of People's Security until 2006: 'Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006. Today, a short-term labour detention facility has been placed on the premises'). HRNK (report dated June 18, 2024; its web page says 2024-06-23): 'large sections of Kwan-li-so No. 18 were deactivated over a period of at least eight years and ... smaller sections remain active as a detention facility'; 'Whether the official designation of this facility remains Kwan-li-so No. 18 is unknown.' The brief allowed No. 18 if HRNK's 2024 report supports it; it does, but the two sources differ on its status, and the description gives both. Position: HRNK's 'CenterPoint Coordinates: 39.552435 N, 126.073063 E'."
   },
   {

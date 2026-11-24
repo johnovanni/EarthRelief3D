@@ -5,9 +5,16 @@ namespace EarthRelief3D.Core.Curated;
 /// <summary>A cited document: its title, who published it, where, and its own date (not a web page's upload date).</summary>
 public sealed record DocumentCitation(string Title, string Publisher, Uri Url, DateOnly Date);
 
-/// <summary>A source's statement that a camp has closed (ruling R14), quoted or closely paraphrased, with its citation.</summary>
-/// <param name="ShortSource">The source's short name in labels ("UN Commission of Inquiry").</param>
-public sealed record CampClosure(string Statement, string ShortSource, DocumentCitation Source);
+/// <summary>
+/// A source's statement about a camp's status ("reported closed in 2006 (A/HRC/25/CRP.1, para. 739)", "parts remain
+/// active"), quoted or closely paraphrased, with its citation. Shown as "&lt;ShortSource&gt; (&lt;year&gt;): &lt;Statement&gt;".
+/// </summary>
+/// <param name="ShortSource">The source's short name in labels ("UN Commission of Inquiry", "HRNK").</param>
+public sealed record CampStatement(string Statement, string ShortSource, DocumentCitation Source)
+{
+    /// <summary>"UN Commission of Inquiry (2014): reported closed in 2006 (...)".</summary>
+    public string Text => $"{ShortSource} ({Source.Date.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)}): {Statement}";
+}
 
 /// <summary>
 /// A documented prison camp (spec §10.2). Its name and description come from the UN Commission of Inquiry; its position
@@ -22,10 +29,17 @@ public sealed record CampSite(string Id, string Iso3, string Name, string? Local
     public DateOnly CheckedOn { get; init; }
 
     /// <summary>
-    /// The cited statement that the camp has closed; null when no source says so (ruling R14). A closed camp has no marker
-    /// and is no crisis: the panel lists it as history.
+    /// The cited statement that the camp has closed, from its newest cited report (ruling R14b: validation refuses a closure
+    /// older than the newest report in <see cref="DocumentedBy"/>); null when the newest report does not say so. A closed camp
+    /// has no marker and is no crisis: the panel lists it as history.
     /// </summary>
-    public CampClosure? ReportedClosed { get; init; }
+    public CampStatement? ReportedClosed { get; init; }
+
+    /// <summary>
+    /// Cited statements about the camp's status shown with it, oldest first, when sources differ (Camp 18: the COI reported it
+    /// closed, HRNK's newer report says parts remain active). They do not change whether it has a marker.
+    /// </summary>
+    public IReadOnlyList<CampStatement> StatusNotes { get; init; } = [];
 
     /// <summary>A question for the owner's review (docs/curated-review.md); never shown in the app.</summary>
     public string? OwnerQuestion { get; init; }
@@ -39,7 +53,7 @@ public sealed record CampSite(string Id, string Iso3, string Name, string? Local
     public bool Equals(CampSite? o) => o is not null && Id == o.Id && Iso3 == o.Iso3 && Name == o.Name && LocalName == o.LocalName
         && Position.Equals(o.Position) && PositionSource == o.PositionSource && Description == o.Description
         && DocumentedBy.SequenceEqual(o.DocumentedBy) && Review == o.Review && CheckedOn == o.CheckedOn && Verification == o.Verification
-        && ReportedClosed == o.ReportedClosed;
+        && ReportedClosed == o.ReportedClosed && StatusNotes.SequenceEqual(o.StatusNotes);
 
     public override int GetHashCode() => HashCode.Combine(Id, Iso3, Name, Position, DocumentedBy.Count);
 }

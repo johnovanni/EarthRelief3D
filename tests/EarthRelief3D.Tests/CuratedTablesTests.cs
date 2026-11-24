@@ -222,13 +222,23 @@ public class CuratedTablesTests
     [Fact]
     public void ACampReportedClosedNeedsACitation()
     {
-        var closed = Camp() with { ReportedClosed = new CampClosure("Closed in 2006.", "UN Commission of Inquiry", null!) };
+        var closed = Camp() with { ReportedClosed = new CampStatement("Closed in 2025.", "HRNK", null!) };
         Assert.Contains(CuratedTables.Validate(Tables(c: [closed])), p => p.Contains("closure"));
         Assert.False(closed.IsActive);
         Assert.True(Camp().IsActive);
-        // The real Camp 18 row carries the COI's statement (ruling R14), cited.
+
+        // R14b: only the newest cited report can close a camp; an older closure statement is refused (use a status note).
+        var old = new DocumentCitation("Older report", "UN Commission of Inquiry", new Uri("https://example.org/coi"), new DateOnly(2014, 2, 7));
+        var outdated = Camp() with { ReportedClosed = new CampStatement("Closed in 2006.", "UN Commission of Inquiry", old) };
+        Assert.Contains(CuratedTables.Validate(Tables(c: [outdated])), p => p.Contains("R14b"));
+        var asNote = Camp() with { StatusNotes = [new CampStatement("reported closed in 2006", "UN Commission of Inquiry", old)] };
+        Assert.Empty(CuratedTables.Validate(Tables(c: [asNote])));
+        Assert.True(asNote.IsActive);
+
+        // The real Camp 18: its newest report (HRNK, 2024) says parts remain active, so it keeps its marker; both statements are cited.
         var c18 = CuratedTables.Load(CuratedDir).Camps.Single(c => c.Id == "prk-kwanliso-18");
-        Assert.False(c18.IsActive);
-        Assert.Equal(new DateOnly(2014, 2, 7), c18.ReportedClosed!.Source.Date);
+        Assert.True(c18.IsActive);
+        Assert.Equal(["UN Commission of Inquiry (2014): reported closed in 2006 (A/HRC/25/CRP.1, para. 739)", "HRNK (2024): parts remain active"],
+            c18.StatusNotes.Select(n => n.Text));
     }
 }
