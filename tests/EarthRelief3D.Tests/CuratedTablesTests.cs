@@ -205,6 +205,8 @@ public class CuratedTablesTests
         Assert.DoesNotContain(".superpowers", text);
         // The owner's question on the US genocide row's continuing statement.
         Assert.Contains("Should this genocide determination count toward Sudan's triangle?", text);
+        // I1: the owner's question on a documented camp whose newest report is old (C11 has no recency rule for camps).
+        Assert.Contains("Should an old report still put a marker on the map?", text);
     }
 
     [Fact]
@@ -213,7 +215,10 @@ public class CuratedTablesTests
         // The State Department counts seven conclusions before Burma; three are in the table, so four earlier ones are missing.
         var t = CuratedTables.Load(CuratedDir);
         var us = t.Governments.Single(g => g.Iso3 == "USA");
-        Assert.Contains("four earlier genocide conclusions (1989–1995)", us.Scope);
+        // Which four is uncertain (the State Department does not name them), so the scope dates them only as before 2001.
+        Assert.Contains("four earlier genocide conclusions (before 2001)", us.Scope);
+        Assert.DoesNotContain("1989", us.Scope);
+        Assert.DoesNotContain("1989", t.NotEntered.Single(n => n.Id == "us-earlier-genocide-conclusions").What);
         Assert.Equal(3, t.Designations.Count(d => d.GovernmentIso3 == "USA" && d.Term.StartsWith("genocide", StringComparison.Ordinal)
             && d.Date < new DateOnly(2022, 3, 21) && d.Id != "us-isis-2016-syr"));
         Assert.Contains(t.NotEntered, n => n.Id == "us-earlier-genocide-conclusions");

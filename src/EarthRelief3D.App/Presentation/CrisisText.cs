@@ -355,6 +355,7 @@ public static class CrisisText
         CitationDate.FileLoaded => "file loaded " + Date(c.AsOfUtc),
         CitationDate.EstimateYear => "estimate year " + c.AsOfUtc.Year.ToString(Inv),
         CitationDate.ThreeYearAverage => "average " + AverageRange(c.AsOfUtc.Year),
+        CitationDate.Checked => "checked " + Date(c.AsOfUtc),
         _ => IsFuture(c, nowUtc) ? "retrieved " + Date(c.RetrievedUtc) : AsOf(c.AsOfUtc),
     };
 

@@ -71,6 +71,7 @@
     ],
     "review": { "status": "draft", "approvedOn": null },
     "checkedOn": "2026-11-23",
+    "ownerQuestion": "The spec's C11 has no recency rule for a documented camp: a camp keeps its marker unless its newest cited report says it closed (ruling R14b). This camp's newest cited report is HRNK's of September 2015, and its later status was not researched. Should an old report still put a marker on the map? If not, say how recent the newest report must be (for example, within 5 years), and the rule will be added for every camp.",
     "verification": "Name and description: A/HRC/25/CRP.1, para. 735. Position: 'Coordinates: 39.671450, 126.852357' printed in both HRNK reports (18 September 2015 and 13 February 2015). Dates are the reports' own: the web page of the February 2015 report says 2024-02-17, a site-migration date. Inconsistency: the COI places Yodok County in South Pyongan Province; HRNK's reports give Hamgyong-namdo (South Hamgyong), which is where Yodok County is; the description names the county only. HRNK (September 2015): 'This imagery analysis confirms the detainee facility and a small number of support buildings were razed between 2013-2014 and that the former \"Revolutionizing Zone\" is no longer used to house detainees.' The camp's later status was not researched."
   },
   {

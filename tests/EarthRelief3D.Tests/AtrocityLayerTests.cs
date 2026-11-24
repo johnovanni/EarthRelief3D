@@ -175,6 +175,43 @@ public class AtrocityLayerTests
     });
 
     [Fact]
+    public void TheCampLegendSaysCheckedAndEachTooltipItsNewestReport() => StaAsync.Sta(() =>
+    {
+        // I1: the date on the camp line is when the list was checked, not an "as of" or "retrieved" date; each camp's
+        // tooltip names its newest report (not the position's source date).
+        var camp = Camp() with
+        {
+            DocumentedBy =
+            [
+                new DocumentCitation("Newer report", "HRNK", new Uri("https://example.org/newer"), new DateOnly(2025, 3, 4)),
+                new DocumentCitation("Test imagery report", "HRNK", new Uri("https://example.org/camp"), new DateOnly(2024, 1, 1)),
+            ],
+            CheckedOn = new DateOnly(2026, 11, 20),
+        };
+        var store = new CuratedStore(Tables(c: [camp]), showDrafts: false);
+        var set = CampMarkers.For(store)!;
+        Assert.Equal(Core.Model.CitationDate.Checked, set.Citation.DateMeaning);
+        Assert.Equal("checked 20 Nov 2026", CrisisText.DataDate(set.Citation, Now));
+        // Even on a day before the check (a snapshot scene's clock): never "retrieved".
+        Assert.Equal("checked 20 Nov 2026", CrisisText.DataDate(set.Citation, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
+        var tip = Assert.Single(set.Items).Tooltip;
+        Assert.Contains("position: HRNK, 1 Jan 2024", tip);
+        Assert.Contains("newest report 4 Mar 2025", tip);
+        Assert.Contains("checked 20 Nov 2026", tip);
+        Assert.DoesNotContain("as of", tip);
+
+        // The legend's camp line.
+        var layers = new LayerStripViewModel(new MemorySettingsStore());
+        layers.SetLayers(ShadingLayer.None, [MarkerLayer.Camps]);
+        var markers = new MarkerDataStore();
+        markers.Replace(MarkerLayer.Camps, set);
+        var legend = new LegendViewModel(new CrisisStore(), layers, nowUtc: () => Now, markerData: markers, curated: store);
+        var entry = Assert.Single(legend.Entries, e => e.Id == "camps");
+        Assert.Equal("checked 20 Nov 2026", entry.AsOf);
+        Assert.Contains("newest report 4 Mar 2025", entry.SourceLine);
+    });
+
+    [Fact]
     public void Camp18KeepsItsMarkerAndShowsBothSources() => StaAsync.Sta(() =>
     {
         // R14b: the newest report (HRNK, 2024) says parts remain active, so the camp keeps its marker and is a crisis; the COI's

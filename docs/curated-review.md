@@ -24,7 +24,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 ## Governments offered in Settings (C15)
 
 - **United States government** (`USA`): curated completely: yes; checked 23 Nov 2026.
-  Scope: Secretary of State determinations published on state.gov and its archives, 2001 onward. Not listed: four earlier genocide conclusions (1989–1995) that the State Department counts but that are not on those sites
+  Scope: Secretary of State determinations published on state.gov and its archives, 2001 onward. Not listed: four earlier genocide conclusions (before 2001) that the State Department counts but that are not on those sites
 
 ## Designations
 
@@ -532,6 +532,7 @@ Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting co
 - Status on the map: a marker (its newest cited report does not say it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735. Position: 'Coordinates: 39.671450, 126.852357' printed in both HRNK reports (18 September 2015 and 13 February 2015). Dates are the reports' own: the web page of the February 2015 report says 2024-02-17, a site-migration date. Inconsistency: the COI places Yodok County in South Pyongan Province; HRNK's reports give Hamgyong-namdo (South Hamgyong), which is where Yodok County is; the description names the county only. HRNK (September 2015): 'This imagery analysis confirms the detainee facility and a small number of support buildings were razed between 2013-2014 and that the former "Revolutionizing Zone" is no longer used to house detainees.' The camp's later status was not researched.
+- **Question for the owner:** The spec's C11 has no recency rule for a documented camp: a camp keeps its marker unless its newest cited report says it closed (ruling R14b). This camp's newest cited report is HRNK's of September 2015, and its later status was not researched. Should an old report still put a marker on the map? If not, say how recent the newest report must be (for example, within 5 years), and the rule will be added for every camp.
 - Status: **draft**
 - Owner: approve / correct: 
 
@@ -602,7 +603,7 @@ from the authority's own site.
   - [Summary 2026/3 of the Judgment of 19 November 2026 (PDF)](https://www.icj-cij.org/sites/default/files/case-related/178/178-20261119-sum-01-00-en.pdf) (authority)
   - [UN News: World's top court finds Myanmar guilty of genocide against Rohingya](https://news.un.org/en/story/2026/11/1168836) (*lead*, not a citation)
 
-### `us-earlier-genocide-conclusions`: United States: the four earlier genocide conclusions (1989-1995) that the State Department counts
+### `us-earlier-genocide-conclusions`: United States: the four earlier genocide conclusions (before 2001) that the State Department counts
 
 - Status: **not entered**
 - Why: The State Department's Burma page says that since the Holocaust 'the United States has concluded only seven other times that genocide was committed'. Three of the seven are in the table (Darfur 2004, ISIS 2016, Xinjiang 2021), so four are earlier. The State Department does not name them, and none is on state.gov or its archives (2001 onward). A 2019 USHMM study (a lead, not a citation) names Bosnia (1993), Rwanda (1994) and Iraq (1995, the campaign against the Kurds), describes a 1989 State Department statement on Cambodia (the Khmer Rouge, testimony of the deputy legal adviser in November 1989), and says a mid-1990s finding on Burundi is suggested by State records but unconfirmed. Which four the Department counts is therefore not certain; Cambodia, Bosnia, Rwanda and Iraq are the likeliest. These were 'acts of genocide' statements, not formal written determinations. governments.json's scope says they are not listed.

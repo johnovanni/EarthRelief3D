@@ -32,18 +32,25 @@ public static class CampMarkers
         var dataset = newest is null ? "curated camp sites" : $"curated camp sites, newest report {DesignationText.Date(newest.Date)}";
         // The newest report shown, or with none shown the newest report in the tables (every row has one).
         var url = (newest ?? all.SelectMany(c => c.DocumentedBy).OrderByDescending(r => r.Date).First()).Url;
-        var citation = new SourceCitation(Publisher, dataset, null, url, "Facts with citations", Publisher, at, at);
+        // The date is when the list was checked (I1): "checked 23 Nov 2026", as the atrocities line says.
+        var citation = new SourceCitation(Publisher, dataset, null, url, "Facts with citations", Publisher, at, at, CitationDate.Checked);
         string? note = store.VisibleCamps.Count == 0 ? NoneApprovedNote
             : store.ShowDrafts && store.VisibleCamps.Any(c => !c.Review.IsApproved) ? DraftsNote : null;
         return new PointSet(items, citation, note);
     }
 
-    /// <summary>"Political Prison Camp No. 14 (Kaechon) (Kwan-li-so No. 14) · position: HRNK, 22 Dec 2021"; drafts are marked first.</summary>
+    /// <summary>
+    /// "Political Prison Camp No. 14 (Kaechon) (Kwan-li-so No. 14) · position: HRNK, 22 Dec 2021 · newest report 7 Feb 2025
+    /// · checked 23 Nov 2026"; drafts are marked first. The newest report is the newest of the camp's documenting reports,
+    /// not the position source's date (I1).
+    /// </summary>
     /// <remarks>Status notes follow, each with its source and year ("UN Commission of Inquiry (2014): reported closed in 2006 (...)").
     /// Long lines are wrapped (<see cref="TooltipText.Wrap"/>).</remarks>
     public static string Tooltip(CampSite c) => TooltipText.Wrap(
         (c.Review.IsApproved ? "" : DesignationText.DraftLabel + " · ")
         + $"{c.Name}{(c.LocalName is { } l ? $" ({l})" : "")} · position: {c.PositionSource.Publisher}, {DesignationText.Date(c.PositionSource.Date)}"
+        + (c.DocumentedBy.Count > 0 ? $" · newest report {DesignationText.Date(c.DocumentedBy.Max(r => r.Date))}" : "")
+        + $" · checked {DesignationText.Date(c.CheckedOn)}"
         + string.Concat(c.StatusNotes.Select(n => Environment.NewLine + n.Text)));
 
     /// <summary>"reported closed (UN Commission of Inquiry, 2014)" (ruling R14b).</summary>

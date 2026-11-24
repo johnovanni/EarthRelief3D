@@ -18,4 +18,9 @@ public enum CitationDate
     /// its range, "average 2020–2022", never as one year (Task 6 fix round 1).
     /// </summary>
     ThreeYearAverage,
+    /// <summary>
+    /// The day a curated list was last checked in its sources (the camp sites): shown "checked 23 Nov 2026", like the
+    /// atrocities line; never "as of" (the list is not data as of that day) and never "retrieved".
+    /// </summary>
+    Checked,
 }
