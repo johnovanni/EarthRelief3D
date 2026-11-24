@@ -232,10 +232,17 @@ public sealed partial class LegendViewModel : ObservableObject
             .. scale.ClassLabels.Select((label, i) => new LegendKey(label, scale.Colors[i])),
             new LegendKey(NoFigureKeyLabel, NoFigureColor, IsNone: true),
         ];
+        var note = layer == ShadingLayer.WaterStress ? WaterStressNote : null;
         return newest is null
-            ? new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), "no figures in the data", keys)
-            : new LegendEntry(id, symbol, color, measures, $"{newest.Publisher}, {newest.Dataset}", CrisisText.DataDate(newest, now), keys);
+            ? new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), "no figures in the data", keys, note)
+            : new LegendEntry(id, symbol, color, measures, $"{newest.Publisher}, {newest.Dataset}", CrisisText.DataDate(newest, now), keys, note);
     }
+
+    /// <summary>
+    /// The water-stress legend's note: the cautions of the Aqueduct 4.0 workbook's Read Me (docs/data-sources.md §10).
+    /// </summary>
+    public const string WaterStressNote = "WRI's indicators are modelled: they cannot be measured directly and have not been validated, "
+        + "and water moved between river basins is not modelled.";
 
     /// <summary>The edge of the "no figure" key.</summary>
     public static Color NoFigureColor { get; } = Color.FromRgb(0x9A, 0xA3, 0xB5);

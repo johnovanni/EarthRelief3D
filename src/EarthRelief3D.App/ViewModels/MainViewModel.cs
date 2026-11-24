@@ -38,7 +38,7 @@ public sealed class MainViewModel
         Layers.Settings = Settings;
         Legend = new LegendViewModel(store, Layers, dispatcher, nowUtc, boundaries, Indicators, MarkerData, Curated);
         Panel = new CountryPanelViewModel(store, countryName, dispatcher, nowUtc, Indicators, Curated);
-        Status = new StatusDotsViewModel(AppServices.FeedNames, dispatcher);
+        Status = new StatusDotsViewModel(AppServices.StatusDotNames, dispatcher);
         // The prison camps layer draws from the marker store: its points follow the curated store (no tables: not loaded, R2).
         PublishCamps();
         Curated.Changed += (_, _) => PublishCamps();

@@ -426,9 +426,66 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var ghoLine = newest is null
             ? $"Source: {ghoPublisher} · {(rows.Any(r => r.Item2 == LayerCatalog.NotLoaded) ? LayerCatalog.NotLoaded : "no figure for this country")} · {CheckedText(checkedUtc, GhoFeed.FeedName)}"
             : $"Source: {newest.Publisher}, Global Health Observatory · {CrisisText.DataDate(newest, now)}, newest (each figure shows its own year)";
+        rows.Add((FoodSupplyLabel, FoodSupply(snap, iso3)));   // FAO, bundled (Task 6): the row names its source and years
         yield return new PanelSection(BasicNeedsHeading, rows, ghoLine, newest?.Url ?? GhoFeed.PageUrl);
 
         yield return PlanSection(snap, checkedUtc, iso3, now);
+        yield return ResourcesSection(snap, iso3, now);
+    }
+
+    public const string FoodSupplyLabel = "Food supply";
+
+    /// <summary>
+    /// "dietary energy adequacy 84%, 2023–2025, FAO": FAO's 3-year average (stored with the last of its years), or "No
+    /// figure from FAO", or "Data not loaded yet".
+    /// </summary>
+    private static string FoodSupply(IndicatorSnapshot snap, string iso3)
+    {
+        if (snap.Get(EnergyAdequacySeries) is not { } series) return LayerCatalog.NotLoaded;
+        if (series.For(iso3) is not { } v || double.IsNaN(v.Value) || v.Value < 0) return "No figure from FAO";
+        var value = v.Qualifier is { Length: > 0 } q ? q : v.Value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + "%";
+        return $"dietary energy adequacy {value}, {v.Year - 2}–{v.Year}, FAO";
+    }
+
+    /// <summary>The store id of FAO's dietary energy supply adequacy (bundled, Task 6): shown in the panel, not shaded.</summary>
+    public const string EnergyAdequacySeries = "fao.energyAdequacy";
+
+    /// <summary>The Resources part of the panel (Task 6): oil production and water stress, from the bundled extracts.</summary>
+    public const string ResourcesHeading = "Resources";
+
+    /// <summary>
+    /// "Resources": crude oil production (EIA) and baseline water stress (WRI), each as the map shows it with its year and
+    /// source; the source line names both publishers with their dates and that the data ship with the app.
+    /// </summary>
+    private static PanelSection ResourcesSection(IndicatorSnapshot snap, string iso3, DateTime now)
+    {
+        var rows = new List<(string, string)>();
+        var sources = new List<(string Text, bool Loaded)>();
+        var links = new List<PanelLink>();
+        foreach (var (layer, label) in new[] { (ShadingLayer.OilProduction, "Crude oil production"), (ShadingLayer.WaterStress, "Water stress") })
+        {
+            if (snap.Get(LayerCatalog.SeriesId(layer)) is not { } series)
+            {
+                rows.Add((label, LayerCatalog.NotLoaded));
+                sources.Add((LayerCatalog.SourceName(layer), false));
+                continue;
+            }
+            var scale = ShadingScales.For(layer);
+            var any = series.Values.Select(v => v.Citation).MaxBy(c => c.AsOfUtc);
+            if (any is not null)
+            {
+                sources.Add(($"{any.Publisher}, {CrisisText.DataDate(any, now)}", true));
+                links.Add(new PanelLink(any.Publisher, any.Url));
+            }
+            else sources.Add(($"{LayerCatalog.SourceName(layer)}, no figures in the data", true));
+            if (series.For(iso3) is not { } v || !CountryValueLayer.HasFigure(v, scale)) { rows.Add((label, $"No figure from {LayerCatalog.SourceName(layer)}")); continue; }
+            var year = scale.Categorical ? $"{v.Year} baseline" : v.Year.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            rows.Add((label, $"{CountryValueLayer.ValueText(v, series.Unit, scale)} ({year}, {LayerCatalog.SourceName(layer)})"));
+        }
+        var line = sources.All(x => !x.Loaded)
+            ? $"Source: {string.Join("; ", sources.Select(x => x.Text))} · {LayerCatalog.NotLoaded} · {BundledDataset.StatusNote}"
+            : $"Source: {string.Join("; ", sources.Select(x => x.Loaded ? x.Text : $"{x.Text} ({LayerCatalog.NotLoaded})"))} · {BundledDataset.StatusNote}";
+        return new PanelSection(ResourcesHeading, rows, line, links.FirstOrDefault()?.Url, Links: links);
     }
 
     private static PanelSection PlanSection(IndicatorSnapshot snap, IReadOnlyDictionary<string, DateTime> checkedUtc, string iso3, DateTime now)

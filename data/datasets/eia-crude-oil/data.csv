@@ -1,0 +1,211 @@
+series,iso3,year,value,qualifier,eia_code,name,last_updated
+eia.crudeOil,ABW,2025,0,,ABW,Aruba,2026-03-27
+eia.crudeOil,AFG,2025,0,,AFG,Afghanistan,2026-03-27
+eia.crudeOil,AGO,2025,1030.8147238615236,,AGO,Angola,2026-03-27
+eia.crudeOil,ALB,2025,12.156394520547945,,ALB,Albania,2026-03-27
+eia.crudeOil,ARE,2025,3771.219178082192,,ARE,United Arab Emirates,2026-06-02
+eia.crudeOil,ARG,2025,794.0044469152623,,ARG,Argentina,2026-03-27
+eia.crudeOil,ARM,2025,0,,ARM,Armenia,2026-03-27
+eia.crudeOil,ASM,2025,0,,ASM,American Samoa,2026-03-27
+eia.crudeOil,ATA,2025,0,,ATA,Antarctica,2026-03-27
+eia.crudeOil,ATG,2025,0,,ATG,Antigua and Barbuda,2026-03-27
+eia.crudeOil,AUS,2025,245.58340250301202,,AUS,Australia,2026-03-27
+eia.crudeOil,AUT,2025,8.754980821917808,,AUT,Austria,2026-03-27
+eia.crudeOil,AZE,2025,571.2641002555181,,AZE,Azerbaijan,2026-10-02
+eia.crudeOil,BDI,2025,0,,BDI,Burundi,2026-03-27
+eia.crudeOil,BEL,2025,0,,BEL,Belgium,2026-03-27
+eia.crudeOil,BEN,2025,0,,BEN,Benin,2026-03-27
+eia.crudeOil,BFA,2025,0,,BFA,Burkina Faso,2026-03-27
+eia.crudeOil,BGD,2025,3,,BGD,Bangladesh,2026-03-27
+eia.crudeOil,BGR,2025,1,,BGR,Bulgaria,2026-03-27
+eia.crudeOil,BHR,2025,175.78082191780823,,BHR,Bahrain,2026-03-27
+eia.crudeOil,BHS,2025,0,,BHS,The Bahamas,2026-03-27
+eia.crudeOil,BIH,2025,0,,BIH,Bosnia and Herzegovina,2026-03-27
+eia.crudeOil,BLR,2025,25.730490410958904,,BLR,Belarus,2026-03-27
+eia.crudeOil,BLZ,2025,0.7871234,,BLZ,Belize,2026-03-27
+eia.crudeOil,BMU,2025,0,,BMU,Bermuda,2026-03-27
+eia.crudeOil,BOL,2025,17.660805479452055,,BOL,Bolivia,2026-03-27
+eia.crudeOil,BRA,2025,3769.407010164946,,BRA,Brazil,2026-03-27
+eia.crudeOil,BRB,2025,1,,BRB,Barbados,2026-03-27
+eia.crudeOil,BRN,2025,100.87573253662481,,BRN,Brunei,2026-03-27
+eia.crudeOil,BTN,2025,0,,BTN,Bhutan,2026-03-27
+eia.crudeOil,BWA,2025,0,,BWA,Botswana,2026-03-27
+eia.crudeOil,CAF,2025,0,,CAF,Central African Republic,2026-03-27
+eia.crudeOil,CAN,2025,4963.934906849316,,CAN,Canada,2026-07-02
+eia.crudeOil,CHE,2025,0,,CHE,Switzerland,2026-03-27
+eia.crudeOil,CHL,2025,1.9683219693957577,,CHL,Chile,2026-03-27
+eia.crudeOil,CHN,2025,4324.684931506849,,CHN,China,2026-03-27
+eia.crudeOil,CIV,2025,55.09230825291715,,CIV,Cote d'Ivoire,2026-03-27
+eia.crudeOil,CMR,2025,59.24383561643835,,CMR,Cameroon,2026-03-27
+eia.crudeOil,COD,2025,16,,COD,Congo-Kinshasa,2026-03-27
+eia.crudeOil,COG,2025,241.23561643835617,,COG,Congo-Brazzaville,2026-03-27
+eia.crudeOil,COK,2025,0,,COK,Cook Islands,2026-03-27
+eia.crudeOil,COL,2025,746.4789698630137,,COL,Colombia,2026-03-27
+eia.crudeOil,COM,2025,0,,COM,Comoros,2026-03-27
+eia.crudeOil,CPV,2025,0,,CPV,Cabo Verde,2026-03-27
+eia.crudeOil,CRI,2025,0,,CRI,Costa Rica,2026-03-27
+eia.crudeOil,CUB,2025,25.46308978224432,,CUB,Cuba,2026-03-27
+eia.crudeOil,CYM,2025,0,,CYM,Cayman Islands,2026-03-27
+eia.crudeOil,CYP,2025,0,,CYP,Cyprus,2026-03-27
+eia.crudeOil,CZE,2025,1.3455506849315069,,CZE,Czechia,2026-03-27
+eia.crudeOil,DEU,2025,31.579964383561645,,DEU,Germany,2026-03-27
+eia.crudeOil,DJI,2025,0,,DJI,Djibouti,2026-03-27
+eia.crudeOil,DMA,2025,0,,DMA,Dominica,2026-03-27
+eia.crudeOil,DNK,2025,71.81064217701133,,DNK,Denmark,2026-07-02
+eia.crudeOil,DOM,2025,0,,DOM,Dominican Republic,2026-03-27
+eia.crudeOil,DZA,2025,1142.958904109589,,DZA,Algeria,2026-03-27
+eia.crudeOil,ECU,2025,440.7002074273973,,ECU,Ecuador,2026-03-27
+eia.crudeOil,EGY,2025,504.7945205479452,,EGY,Egypt,2026-09-03
+eia.crudeOil,ERI,2025,0,,ERI,Eritrea,2026-03-27
+eia.crudeOil,ESH,2025,0,,ESH,Western Sahara,2026-03-27
+eia.crudeOil,ESP,2025,0.026504109589041095,,ESP,Spain,2026-03-27
+eia.crudeOil,EST,2025,0,,EST,Estonia,2026-03-27
+eia.crudeOil,ETH,2025,0,,ETH,Ethiopia,2026-03-27
+eia.crudeOil,FIN,2025,0,,FIN,Finland,2026-03-27
+eia.crudeOil,FJI,2025,0,,FJI,Fiji,2026-03-27
+eia.crudeOil,FLK,2025,0,,FLK,Falkland Islands,2026-03-27
+eia.crudeOil,FRA,2025,10.221830136986302,,FRA,France,2026-03-27
+eia.crudeOil,FRO,2025,0,,FRO,Faroe Islands,2026-03-27
+eia.crudeOil,GAB,2025,239.31506849315068,,GAB,Gabon,2026-03-27
+eia.crudeOil,GBR,2025,615.7787123287671,,GBR,United Kingdom,2026-03-27
+eia.crudeOil,GEO,2025,0.22346849315068493,,GEO,Georgia,2026-03-27
+eia.crudeOil,GHA,2025,182.9808219178082,,GHA,Ghana,2026-03-27
+eia.crudeOil,GIN,2025,0,,GIN,Guinea,2026-03-27
+eia.crudeOil,GMB,2025,0,,GMB,"Gambia, The",2026-03-27
+eia.crudeOil,GNB,2025,0,,GNB,Guinea-Bissau,2026-03-27
+eia.crudeOil,GNQ,2025,76.38650421252973,,GNQ,Equatorial Guinea,2026-03-27
+eia.crudeOil,GRC,2025,1.497,,GRC,Greece,2026-03-27
+eia.crudeOil,GRD,2025,0,,GRD,Grenada,2026-03-27
+eia.crudeOil,GRL,2025,0,,GRL,Greenland,2026-03-27
+eia.crudeOil,GTM,2025,5.384625074259524,,GTM,Guatemala,2026-03-27
+eia.crudeOil,GUM,2025,0,,GUM,Guam,2026-03-27
+eia.crudeOil,GUY,2025,747.4321424657534,,GUY,Guyana,2026-03-27
+eia.crudeOil,HKG,2025,0,,HKG,Hong Kong,2026-03-27
+eia.crudeOil,HND,2025,0,,HND,Honduras,2026-03-27
+eia.crudeOil,HRV,2025,8.996876712328767,,HRV,Croatia,2026-03-27
+eia.crudeOil,HTI,2025,0,,HTI,Haiti,2026-03-27
+eia.crudeOil,HUN,2025,23.419824657534246,,HUN,Hungary,2026-03-27
+eia.crudeOil,IDN,2025,581.668493150685,,IDN,Indonesia,2026-03-27
+eia.crudeOil,IND,2025,580.6003500561703,,IND,India,2026-03-27
+eia.crudeOil,IRL,2025,0,,IRL,Ireland,2026-03-27
+eia.crudeOil,IRN,2025,4051.4246575342468,,IRN,Iran,2026-10-02
+eia.crudeOil,IRQ,2025,4388.068493150685,,IRQ,Iraq,2026-05-07
+eia.crudeOil,ISL,2025,0,,ISL,Iceland,2026-03-27
+eia.crudeOil,ISR,2025,19.52054794520548,,ISR,Israel,2026-03-27
+eia.crudeOil,ITA,2025,83.70368493150684,,ITA,Italy,2026-03-27
+eia.crudeOil,JAM,2025,0,,JAM,Jamaica,2026-03-27
+eia.crudeOil,JOR,2025,0.02,,JOR,Jordan,2026-03-27
+eia.crudeOil,JPN,2025,3.1066301369863014,,JPN,Japan,2026-03-27
+eia.crudeOil,KAZ,2025,2046.610159015274,,KAZ,Kazakhstan,2026-03-27
+eia.crudeOil,KEN,2025,0,,KEN,Kenya,2026-03-27
+eia.crudeOil,KGZ,2025,5.5434027397260275,,KGZ,Kyrgyzstan,2026-03-27
+eia.crudeOil,KHM,2025,0,,KHM,Cambodia,2026-03-27
+eia.crudeOil,KIR,2025,0,,KIR,Kiribati,2026-03-27
+eia.crudeOil,KNA,2025,0,,KNA,Saint Kitts and Nevis,2026-03-27
+eia.crudeOil,KOR,2025,0,,KOR,South Korea,2026-03-27
+eia.crudeOil,KWT,2025,2583.5479452054797,,KWT,Kuwait,2026-05-07
+eia.crudeOil,LAO,2025,0,,LAO,Laos,2026-03-27
+eia.crudeOil,LBN,2025,0,,LBN,Lebanon,2026-03-27
+eia.crudeOil,LBR,2025,0,,LBR,Liberia,2026-03-27
+eia.crudeOil,LBY,2025,1363.041095890411,,LBY,Libya,2026-03-27
+eia.crudeOil,LCA,2025,0,,LCA,Saint Lucia,2026-03-27
+eia.crudeOil,LKA,2025,0,,LKA,Sri Lanka,2026-03-27
+eia.crudeOil,LSO,2025,0,,LSO,Lesotho,2026-03-27
+eia.crudeOil,LTU,2025,0.7,,LTU,Lithuania,2026-03-27
+eia.crudeOil,LUX,2025,0,,LUX,Luxembourg,2026-03-27
+eia.crudeOil,LVA,2025,0,,LVA,Latvia,2026-03-27
+eia.crudeOil,MAC,2025,0,,MAC,Macau,2026-03-27
+eia.crudeOil,MAR,2025,0.025,,MAR,Morocco,2026-03-27
+eia.crudeOil,MDA,2025,0,,MDA,Moldova,2026-03-27
+eia.crudeOil,MDG,2025,0,,MDG,Madagascar,2026-03-27
+eia.crudeOil,MDV,2025,0,,MDV,Maldives,2026-03-27
+eia.crudeOil,MEX,2025,1726.046087671233,,MEX,Mexico,2026-03-27
+eia.crudeOil,MKD,2025,0,,MKD,North Macedonia,2026-03-27
+eia.crudeOil,MLI,2025,0,,MLI,Mali,2026-03-27
+eia.crudeOil,MLT,2025,0,,MLT,Malta,2026-03-27
+eia.crudeOil,MMR,2025,5.555309589041096,,MMR,Burma,2026-03-27
+eia.crudeOil,MNE,2025,0,,MNE,Montenegro,2026-03-27
+eia.crudeOil,MNG,2025,13.671846575342466,,MNG,Mongolia,2026-03-27
+eia.crudeOil,MOZ,2025,0,,MOZ,Mozambique,2026-03-27
+eia.crudeOil,MRT,2025,0,,MRT,Mauritania,2026-03-27
+eia.crudeOil,MSR,2025,0,,MSR,Montserrat,2026-03-27
+eia.crudeOil,MUS,2025,0,,MUS,Mauritius,2026-03-27
+eia.crudeOil,MWI,2025,0,,MWI,Malawi,2026-03-27
+eia.crudeOil,MYS,2025,512.6701369863014,,MYS,Malaysia,2026-07-02
+eia.crudeOil,NAM,2025,0,,NAM,Namibia,2026-03-27
+eia.crudeOil,NCL,2025,0,,NCL,New Caledonia,2026-03-27
+eia.crudeOil,NER,2025,101.41095890410959,,NER,Niger,2026-03-27
+eia.crudeOil,NGA,2025,1605.4142781736975,,NGA,Nigeria,2026-03-27
+eia.crudeOil,NIC,2025,0,,NIC,Nicaragua,2026-03-27
+eia.crudeOil,NIU,2025,0,,NIU,Niue,2026-03-27
+eia.crudeOil,NLD,2025,21.469768621528573,,NLD,Netherlands,2026-03-27
+eia.crudeOil,NOR,2025,1858.4642345479451,,NOR,Norway,2026-07-02
+eia.crudeOil,NPL,2025,0,,NPL,Nepal,2026-03-27
+eia.crudeOil,NRU,2025,0,,NRU,Nauru,2026-03-27
+eia.crudeOil,NZL,2025,7.914704109589041,,NZL,New Zealand,2026-06-02
+eia.crudeOil,OMN,2025,1002.0691753424658,,OMN,Oman,2026-03-27
+eia.crudeOil,PAK,2025,57.51526766573127,,PAK,Pakistan,2026-03-27
+eia.crudeOil,PAN,2025,0,,PAN,Panama,2026-03-27
+eia.crudeOil,PER,2025,44.152745205479455,,PER,Peru,2026-03-27
+eia.crudeOil,PHL,2025,0.502972602739726,,PHL,Philippines,2026-03-27
+eia.crudeOil,PNG,2025,31.515898630136988,,PNG,Papua New Guinea,2026-03-27
+eia.crudeOil,POL,2025,16.541194520547947,,POL,Poland,2026-03-27
+eia.crudeOil,PRI,2025,0,,PRI,Puerto Rico,2026-03-27
+eia.crudeOil,PRK,2025,0,,PRK,North Korea,2026-03-27
+eia.crudeOil,PRT,2025,0,,PRT,Portugal,2026-03-27
+eia.crudeOil,PRY,2025,0,,PRY,Paraguay,2026-03-27
+eia.crudeOil,PSE,2025,0,,PSE,Palestinian Territories,2026-03-27
+eia.crudeOil,PYF,2025,0,,PYF,French Polynesia,2026-03-27
+eia.crudeOil,QAT,2025,1297.384436580822,,QAT,Qatar,2026-05-07
+eia.crudeOil,ROU,2025,51.54805205479452,,ROU,Romania,2026-03-27
+eia.crudeOil,RUS,2025,9885.10903296257,,RUS,Russia,2026-05-07
+eia.crudeOil,RWA,2025,0,,RWA,Rwanda,2026-03-27
+eia.crudeOil,SAU,2025,9548.750630136987,,SAU,Saudi Arabia,2026-10-02
+eia.crudeOil,SDN,2025,30,,SDN,Sudan,2026-03-27
+eia.crudeOil,SEN,2025,100,,SEN,Senegal,2026-03-27
+eia.crudeOil,SGP,2025,0,,SGP,Singapore,2026-03-27
+eia.crudeOil,SHN,2025,0,,SHN,Saint Helena,2026-03-27
+eia.crudeOil,SLB,2025,0,,SLB,Solomon Islands,2026-03-27
+eia.crudeOil,SLE,2025,0,,SLE,Sierra Leone,2026-03-27
+eia.crudeOil,SLV,2025,0,,SLV,El Salvador,2026-03-27
+eia.crudeOil,SOM,2025,0,,SOM,Somalia,2026-03-27
+eia.crudeOil,SPM,2025,0,,SPM,Saint Pierre and Miquelon,2026-03-27
+eia.crudeOil,SRB,2025,11.480917808219179,,SRB,Serbia,2026-03-27
+eia.crudeOil,SSD,2025,112.65753424657534,,SSD,South Sudan,2026-03-27
+eia.crudeOil,STP,2025,0,,STP,Sao Tome and Principe,2026-03-27
+eia.crudeOil,SUR,2025,12.08945095890411,,SUR,Suriname,2026-03-27
+eia.crudeOil,SVK,2025,0.018556164383561644,,SVK,Slovakia,2026-03-27
+eia.crudeOil,SVN,2025,0,,SVN,Slovenia,2026-03-27
+eia.crudeOil,SWE,2025,0,,SWE,Sweden,2026-03-27
+eia.crudeOil,SWZ,2025,0,,SWZ,Eswatini,2026-03-27
+eia.crudeOil,SYC,2025,0,,SYC,Seychelles,2026-03-27
+eia.crudeOil,SYR,2025,75.24657534246575,,SYR,Syria,2026-03-27
+eia.crudeOil,TCA,2025,0,,TCA,Turks and Caicos Islands,2026-03-27
+eia.crudeOil,TCD,2025,126.4904109589041,,TCD,Chad,2026-03-27
+eia.crudeOil,TGO,2025,0,,TGO,Togo,2026-03-27
+eia.crudeOil,THA,2025,161.57890410958905,,THA,Thailand,2026-03-27
+eia.crudeOil,TJK,2025,0.316,,TJK,Tajikistan,2026-03-27
+eia.crudeOil,TKM,2025,190.65793,,TKM,Turkmenistan,2026-03-27
+eia.crudeOil,TLS,2025,2,,TLS,Timor-Leste,2026-03-27
+eia.crudeOil,TON,2025,0,,TON,Tonga,2026-03-27
+eia.crudeOil,TTO,2025,51.19955070497243,,TTO,Trinidad and Tobago,2026-03-27
+eia.crudeOil,TUN,2025,25.326027397260273,,TUN,Tunisia,2026-03-27
+eia.crudeOil,TUR,2025,124.61568767123288,,TUR,Turkiye,2026-03-27
+eia.crudeOil,TWN,2025,0.196,,TWN,Taiwan,2026-03-27
+eia.crudeOil,TZA,2025,0,,TZA,Tanzania,2026-03-27
+eia.crudeOil,UGA,2025,0,,UGA,Uganda,2026-03-27
+eia.crudeOil,UKR,2025,31.23073698630137,,UKR,Ukraine,2026-09-03
+eia.crudeOil,URY,2025,0,,URY,Uruguay,2026-03-27
+eia.crudeOil,USA,2025,13661.933671232877,,USA,United States,2026-10-02
+eia.crudeOil,UZB,2025,29.583860273972604,,UZB,Uzbekistan,2026-03-27
+eia.crudeOil,VCT,2025,0,,VCT,Saint Vincent/Grenadines,2026-03-27
+eia.crudeOil,VEN,2025,972.6164383561644,,VEN,Venezuela,2026-07-02
+eia.crudeOil,VGB,2025,0,,VGB,British Virgin Islands,2026-03-27
+eia.crudeOil,VIR,2025,0,,VIR,U.S. Virgin Islands,2026-03-27
+eia.crudeOil,VNM,2025,164.66995616438356,,VNM,Vietnam,2026-03-27
+eia.crudeOil,VUT,2025,0,,VUT,Vanuatu,2026-03-27
+eia.crudeOil,WSM,2025,0,,WSM,Samoa,2026-03-27
+eia.crudeOil,YEM,2025,15,,YEM,Yemen,2026-03-27
+eia.crudeOil,ZAF,2025,0.3709150684931507,,ZAF,South Africa,2026-06-02
+eia.crudeOil,ZMB,2025,0,,ZMB,Zambia,2026-03-27
+eia.crudeOil,ZWE,2025,0,,ZWE,Zimbabwe,2026-03-27

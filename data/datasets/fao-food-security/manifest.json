@@ -1,0 +1,263 @@
+{
+  "id": "fao-food-security",
+  "publisher": "Food and Agriculture Organization of the United Nations (FAO)",
+  "dataset": "FAOSTAT: Suite of Food Security Indicators",
+  "version": "FAOSTAT domain FS, file of 2026-11-23",
+  "sourceUrl": "https://bulks-faostat.fao.org/production/Food_Security_Data_E_All_Data_(Normalized).zip",
+  "pageUrl": "https://www.fao.org/faostat/en/#data/FS",
+  "licence": "CC BY 4.0",
+  "attribution": "FAO. 2026. FAOSTAT: Suite of Food Security Indicators. Accessed on 23 November 2026. https://www.fao.org/faostat/en/#data/FS Licence: CC-BY-4.0.",
+  "dateMeaning": "EstimateYear",
+  "asOf": "each country's latest 3-year average, 2017-2019 to 2023-2025 (FAO's estimates, flag E)",
+  "published": "2026-11-23",
+  "downloaded": "2026-11-23",
+  "fileName": "Food_Security_Data_E_All_Data_(Normalized).zip",
+  "fileSha256": "dc5b604debef710317979d563028b13daf2b8a0e1d5b6a9d2761c1001e114a9b",
+  "command": "DataTool fao <downloads>/Food_Security_Data_E_All_Data_(Normalized).zip --published 2026-11-23 --downloaded 2026-11-23",
+  "series": [
+    {
+      "id": "fao.undernourishment",
+      "measures": "Prevalence of undernourishment (share of people, average of the 3 years up to the year shown)",
+      "unit": "%",
+      "sourceItem": "210041 Prevalence of undernourishment (percent) (3-year average)",
+      "countries": 169
+    },
+    {
+      "id": "fao.energyAdequacy",
+      "measures": "Average dietary energy supply adequacy (supply as a share of the average requirement, average of the 3 years up to the year shown)",
+      "unit": "%",
+      "sourceItem": "21010 Average dietary energy supply adequacy (percent) (3-year average)",
+      "countries": 160
+    }
+  ],
+  "notPlaced": [],
+  "dropped": [
+    {
+      "code": "FAO 351",
+      "name": "China",
+      "reason": "FAO's China aggregate (mainland, Hong Kong, Macao and Taiwan): dropped so China is counted once (P3-11)"
+    },
+    {
+      "code": "FAO 5000",
+      "name": "World",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5100",
+      "name": "Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5101",
+      "name": "Eastern Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5102",
+      "name": "Middle Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5103",
+      "name": "Northern Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5104",
+      "name": "Southern Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5105",
+      "name": "Western Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 420",
+      "name": "Sub-Saharan Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5208",
+      "name": "Northern America and Europe",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5203",
+      "name": "Northern America",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5400",
+      "name": "Europe",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5401",
+      "name": "Eastern Europe",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5402",
+      "name": "Northern Europe",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5403",
+      "name": "Southern Europe",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5404",
+      "name": "Western Europe",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5205",
+      "name": "Latin America and the Caribbean",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5204",
+      "name": "Central America",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5206",
+      "name": "Caribbean",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5207",
+      "name": "South America",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5300",
+      "name": "Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5301",
+      "name": "Central Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5302",
+      "name": "Eastern Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5303",
+      "name": "Southern Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5304",
+      "name": "South-eastern Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5305",
+      "name": "Western Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5306",
+      "name": "Central Asia and Southern Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5307",
+      "name": "Eastern Asia and South-eastern Asia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5308",
+      "name": "Western Asia and Northern Africa",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5500",
+      "name": "Oceania",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5501",
+      "name": "Australia and New Zealand",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5502",
+      "name": "Melanesia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5504",
+      "name": "Polynesia",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5807",
+      "name": "Oceania excluding Australia and New Zealand",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5801",
+      "name": "Least Developed Countries (LDCs)",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5802",
+      "name": "Land Locked Developing Countries (LLDCs)",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5803",
+      "name": "Small Island Developing States (SIDS)",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5815",
+      "name": "Low Income Food Deficit Countries (LIFDCs)",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5858",
+      "name": "Low-income economies",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 5859",
+      "name": "Lower-middle-income economies",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 9010",
+      "name": "High-income economies",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    },
+    {
+      "code": "FAO 9011",
+      "name": "Upper-middle-income economies",
+      "reason": "aggregate (region or country group): dropped (P3-11)"
+    }
+  ],
+  "qualifiersSeen": {
+    "<2.5": 1452
+  },
+  "flagsSeen": {
+    "E": 9828,
+    "O": 882
+  },
+  "notes": [
+    "Read as Latin-1 (FAO's encoding). Areas are M49 codes, placed through Natural Earth's UN_A3 (ISO_N3_EH where UN_A3 is missing: Norway, Taiwan); P3-11.",
+    "A 3-year average such as 2023-2025 is stored with the year 2025, the last of its three; the range is in the period column.",
+    "Values written \"<x\" are stored as x with the qualifier \"<x\" and shown \"under x%\" (ruling R3). Qualifiers seen: \"<2.5\" (1452 rows).",
+    "Rows with no value (flag O, Q or L) are skipped, so a country's latest figure can be an older range than the newest in the file.",
+    "Check: SDN undernourishment 10.9% (2020-2022).",
+    "Check: YEM has no undernourishment figure in FAO's file (every range is missing).",
+    "Check: HTI undernourishment 51.4% (2023-2025).",
+    "Hand check 2026-11-23 (a separate script read the downloaded CSV, not the DataTool): all 329 values kept (country and item) equal the newest non-empty row for that M49 code; SDN 10.9% for 2020-2022 (2021-2023 to 2023-2025 flagged O, missing); HTI 51.4% for 2023-2025; YEM has no value in any range (all flagged O), so the Hunger layer leaves Yemen unshaded; CHN appears once (FAO 41, China mainland)."
+  ]
+}

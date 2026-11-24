@@ -1,0 +1,330 @@
+series,iso3,year,value,qualifier,period,m49,area,flag
+fao.undernourishment,AFG,2025,27.8,,2023-2025,004,Afghanistan,E
+fao.undernourishment,AGO,2025,17.4,,2023-2025,024,Angola,E
+fao.undernourishment,ALB,2025,5.6,,2023-2025,008,Albania,E
+fao.undernourishment,ARE,2025,2.5,<2.5,2023-2025,784,United Arab Emirates,E
+fao.undernourishment,ARG,2025,2.8,,2023-2025,032,Argentina,E
+fao.undernourishment,ARM,2025,2.5,<2.5,2023-2025,051,Armenia,E
+fao.undernourishment,AUS,2025,2.5,<2.5,2023-2025,036,Australia,E
+fao.undernourishment,AUT,2025,2.5,<2.5,2023-2025,040,Austria,E
+fao.undernourishment,AZE,2025,2.5,<2.5,2023-2025,031,Azerbaijan,E
+fao.undernourishment,BEL,2025,2.5,<2.5,2023-2025,056,Belgium,E
+fao.undernourishment,BEN,2025,11.1,,2023-2025,204,Benin,E
+fao.undernourishment,BFA,2025,11.7,,2023-2025,854,Burkina Faso,E
+fao.undernourishment,BGD,2025,8.2,,2023-2025,050,Bangladesh,E
+fao.undernourishment,BGR,2025,2.5,<2.5,2023-2025,100,Bulgaria,E
+fao.undernourishment,BIH,2025,2.5,<2.5,2023-2025,070,Bosnia and Herzegovina,E
+fao.undernourishment,BLR,2025,2.5,<2.5,2023-2025,112,Belarus,E
+fao.undernourishment,BLZ,2025,4.4,,2023-2025,084,Belize,E
+fao.undernourishment,BOL,2025,19.5,,2023-2025,068,Bolivia (Plurinational State of),E
+fao.undernourishment,BRA,2025,2.5,<2.5,2023-2025,076,Brazil,E
+fao.undernourishment,BRB,2025,5,,2023-2025,052,Barbados,E
+fao.undernourishment,BWA,2025,18.2,,2023-2025,072,Botswana,E
+fao.undernourishment,CAF,2025,29.8,,2023-2025,140,Central African Republic,E
+fao.undernourishment,CAN,2025,2.5,<2.5,2023-2025,124,Canada,E
+fao.undernourishment,CHE,2025,2.5,<2.5,2023-2025,756,Switzerland,E
+fao.undernourishment,CHL,2025,2.5,<2.5,2023-2025,152,Chile,E
+fao.undernourishment,CHN,2025,2.5,<2.5,2023-2025,156,"China, mainland",E
+fao.undernourishment,CIV,2025,11.4,,2023-2025,384,CÃ´te d'Ivoire,E
+fao.undernourishment,CMR,2025,4.9,,2023-2025,120,Cameroon,E
+fao.undernourishment,COD,2025,39.5,,2023-2025,180,Democratic Republic of the Congo,E
+fao.undernourishment,COG,2025,25,,2023-2025,178,Congo,E
+fao.undernourishment,COL,2025,4.1,,2023-2025,170,Colombia,E
+fao.undernourishment,COM,2025,16.5,,2023-2025,174,Comoros,E
+fao.undernourishment,CPV,2025,8.1,,2023-2025,132,Cabo Verde,E
+fao.undernourishment,CRI,2025,2.5,<2.5,2023-2025,188,Costa Rica,E
+fao.undernourishment,CUB,2025,3.5,,2023-2025,192,Cuba,E
+fao.undernourishment,CYP,2025,2.5,<2.5,2023-2025,196,Cyprus,E
+fao.undernourishment,CZE,2025,2.5,<2.5,2023-2025,203,Czechia,E
+fao.undernourishment,DEU,2025,2.5,<2.5,2023-2025,276,Germany,E
+fao.undernourishment,DJI,2025,14.7,,2023-2025,262,Djibouti,E
+fao.undernourishment,DMA,2025,3,,2023-2025,212,Dominica,E
+fao.undernourishment,DNK,2025,2.5,<2.5,2023-2025,208,Denmark,E
+fao.undernourishment,DOM,2025,2.5,<2.5,2023-2025,214,Dominican Republic,E
+fao.undernourishment,DZA,2025,2.5,<2.5,2023-2025,012,Algeria,E
+fao.undernourishment,ECU,2025,10.8,,2023-2025,218,Ecuador,E
+fao.undernourishment,EGY,2025,8.4,,2023-2025,818,Egypt,E
+fao.undernourishment,ESP,2025,2.5,<2.5,2023-2025,724,Spain,E
+fao.undernourishment,EST,2025,2.5,<2.5,2023-2025,233,Estonia,E
+fao.undernourishment,ETH,2025,19.9,,2023-2025,231,Ethiopia,E
+fao.undernourishment,FIN,2025,2.5,<2.5,2023-2025,246,Finland,E
+fao.undernourishment,FJI,2025,7.2,,2023-2025,242,Fiji,E
+fao.undernourishment,FRA,2025,2.5,<2.5,2023-2025,250,France,E
+fao.undernourishment,GAB,2025,23.3,,2023-2025,266,Gabon,E
+fao.undernourishment,GBR,2025,2.5,<2.5,2023-2025,826,United Kingdom of Great Britain and Northern Ireland,E
+fao.undernourishment,GEO,2025,2.5,<2.5,2023-2025,268,Georgia,E
+fao.undernourishment,GHA,2025,6.4,,2023-2025,288,Ghana,E
+fao.undernourishment,GIN,2025,8.7,,2023-2025,324,Guinea,E
+fao.undernourishment,GMB,2025,17.5,,2023-2025,270,Gambia,E
+fao.undernourishment,GNB,2025,20,,2023-2025,624,Guinea-Bissau,E
+fao.undernourishment,GRC,2025,2.5,<2.5,2023-2025,300,Greece,E
+fao.undernourishment,GTM,2025,12.7,,2023-2025,320,Guatemala,E
+fao.undernourishment,GUY,2025,2.5,<2.5,2023-2025,328,Guyana,E
+fao.undernourishment,HND,2025,14.3,,2023-2025,340,Honduras,E
+fao.undernourishment,HRV,2025,2.5,<2.5,2023-2025,191,Croatia,E
+fao.undernourishment,HTI,2025,51.4,,2023-2025,332,Haiti,E
+fao.undernourishment,HUN,2025,2.5,<2.5,2023-2025,348,Hungary,E
+fao.undernourishment,IDN,2025,6.3,,2023-2025,360,Indonesia,E
+fao.undernourishment,IND,2025,9.8,,2023-2025,356,India,E
+fao.undernourishment,IRL,2025,2.5,<2.5,2023-2025,372,Ireland,E
+fao.undernourishment,IRN,2025,6.7,,2023-2025,364,Iran (Islamic Republic of),E
+fao.undernourishment,IRQ,2025,13.4,,2023-2025,368,Iraq,E
+fao.undernourishment,ISL,2025,2.5,<2.5,2023-2025,352,Iceland,E
+fao.undernourishment,ISR,2025,2.5,<2.5,2023-2025,376,Israel,E
+fao.undernourishment,ITA,2025,2.5,<2.5,2023-2025,380,Italy,E
+fao.undernourishment,JAM,2025,8,,2023-2025,388,Jamaica,E
+fao.undernourishment,JOR,2025,12.2,,2023-2025,400,Jordan,E
+fao.undernourishment,JPN,2025,2.5,<2.5,2023-2025,392,Japan,E
+fao.undernourishment,KAZ,2025,2.5,<2.5,2023-2025,398,Kazakhstan,E
+fao.undernourishment,KEN,2025,34.9,,2023-2025,404,Kenya,E
+fao.undernourishment,KGZ,2025,4.8,,2023-2025,417,Kyrgyzstan,E
+fao.undernourishment,KHM,2025,4.7,,2023-2025,116,Cambodia,E
+fao.undernourishment,KIR,2025,3.8,,2023-2025,296,Kiribati,E
+fao.undernourishment,KOR,2025,2.5,<2.5,2023-2025,410,Republic of Korea,E
+fao.undernourishment,KWT,2025,2.5,<2.5,2023-2025,414,Kuwait,E
+fao.undernourishment,LAO,2025,10,,2023-2025,418,Lao People's Democratic Republic,E
+fao.undernourishment,LBN,2025,11.1,,2023-2025,422,Lebanon,E
+fao.undernourishment,LBR,2025,37.3,,2023-2025,430,Liberia,E
+fao.undernourishment,LBY,2025,18.7,,2023-2025,434,Libya,E
+fao.undernourishment,LKA,2025,4.9,,2023-2025,144,Sri Lanka,E
+fao.undernourishment,LTU,2025,2.5,<2.5,2023-2025,440,Lithuania,E
+fao.undernourishment,LUX,2025,2.5,<2.5,2023-2025,442,Luxembourg,E
+fao.undernourishment,LVA,2025,2.5,<2.5,2023-2025,428,Latvia,E
+fao.undernourishment,MAR,2025,6.5,,2023-2025,504,Morocco,E
+fao.undernourishment,MDA,2025,2.5,<2.5,2023-2025,498,Republic of Moldova,E
+fao.undernourishment,MDG,2025,41.8,,2023-2025,450,Madagascar,E
+fao.undernourishment,MEX,2025,3.1,,2023-2025,484,Mexico,E
+fao.undernourishment,MKD,2025,2.5,<2.5,2023-2025,807,North Macedonia,E
+fao.undernourishment,MLI,2025,12.1,,2023-2025,466,Mali,E
+fao.undernourishment,MLT,2025,2.5,<2.5,2023-2025,470,Malta,E
+fao.undernourishment,MMR,2025,4.6,,2023-2025,104,Myanmar,E
+fao.undernourishment,MNE,2025,2.5,<2.5,2023-2025,499,Montenegro,E
+fao.undernourishment,MNG,2025,2.5,<2.5,2023-2025,496,Mongolia,E
+fao.undernourishment,MOZ,2025,22.3,,2023-2025,508,Mozambique,E
+fao.undernourishment,MRT,2025,11,,2023-2025,478,Mauritania,E
+fao.undernourishment,MUS,2025,4.9,,2023-2025,480,Mauritius,E
+fao.undernourishment,MWI,2025,24.5,,2023-2025,454,Malawi,E
+fao.undernourishment,MYS,2025,2.5,<2.5,2023-2025,458,Malaysia,E
+fao.undernourishment,NAM,2025,20.1,,2023-2025,516,Namibia,E
+fao.undernourishment,NCL,2025,4.1,,2023-2025,540,New Caledonia,E
+fao.undernourishment,NER,2025,12.9,,2023-2025,562,Niger,E
+fao.undernourishment,NGA,2025,22.2,,2023-2025,566,Nigeria,E
+fao.undernourishment,NIC,2023,17.3,,2021-2023,558,Nicaragua,E
+fao.undernourishment,NLD,2025,2.5,<2.5,2023-2025,528,Netherlands (Kingdom of the),E
+fao.undernourishment,NOR,2025,2.5,<2.5,2023-2025,578,Norway,E
+fao.undernourishment,NPL,2025,5.2,,2023-2025,524,Nepal,E
+fao.undernourishment,NZL,2025,2.5,<2.5,2023-2025,554,New Zealand,E
+fao.undernourishment,OMN,2025,7.1,,2023-2025,512,Oman,E
+fao.undernourishment,PAK,2025,16.1,,2023-2025,586,Pakistan,E
+fao.undernourishment,PAN,2025,4.7,,2023-2025,591,Panama,E
+fao.undernourishment,PER,2025,5.7,,2023-2025,604,Peru,E
+fao.undernourishment,PHL,2025,3.4,,2023-2025,608,Philippines,E
+fao.undernourishment,PNG,2025,30.5,,2023-2025,598,Papua New Guinea,E
+fao.undernourishment,POL,2025,2.5,<2.5,2023-2025,616,Poland,E
+fao.undernourishment,PRK,2019,47,,2017-2019,408,Democratic People's Republic of Korea,E
+fao.undernourishment,PRT,2025,2.5,<2.5,2023-2025,620,Portugal,E
+fao.undernourishment,PRY,2025,4.1,,2023-2025,600,Paraguay,E
+fao.undernourishment,PYF,2025,2.6,,2023-2025,258,French Polynesia,E
+fao.undernourishment,ROU,2025,2.5,<2.5,2023-2025,642,Romania,E
+fao.undernourishment,RUS,2025,2.5,<2.5,2023-2025,643,Russian Federation,E
+fao.undernourishment,RWA,2025,22.6,,2023-2025,646,Rwanda,E
+fao.undernourishment,SAU,2025,2.5,<2.5,2023-2025,682,Saudi Arabia,E
+fao.undernourishment,SDN,2022,10.9,,2020-2022,729,Sudan,E
+fao.undernourishment,SEN,2025,5.3,,2023-2025,686,Senegal,E
+fao.undernourishment,SLB,2025,27,,2023-2025,090,Solomon Islands,E
+fao.undernourishment,SLE,2025,25.3,,2023-2025,694,Sierra Leone,E
+fao.undernourishment,SLV,2025,5.3,,2023-2025,222,El Salvador,E
+fao.undernourishment,SOM,2025,56.5,,2023-2025,706,Somalia,E
+fao.undernourishment,SRB,2025,2.5,<2.5,2023-2025,688,Serbia,E
+fao.undernourishment,SSD,2025,19.1,,2023-2025,728,South Sudan,E
+fao.undernourishment,STP,2025,23,,2023-2025,678,Sao Tome and Principe,E
+fao.undernourishment,SUR,2025,12.7,,2023-2025,740,Suriname,E
+fao.undernourishment,SVN,2025,2.5,<2.5,2023-2025,705,Slovenia,E
+fao.undernourishment,SWE,2025,2.5,<2.5,2023-2025,752,Sweden,E
+fao.undernourishment,SWZ,2025,15.1,,2023-2025,748,Eswatini,E
+fao.undernourishment,SYC,2025,2.5,<2.5,2023-2025,690,Seychelles,E
+fao.undernourishment,SYR,2025,40.8,,2023-2025,760,Syrian Arab Republic,E
+fao.undernourishment,TCD,2025,33.6,,2023-2025,148,Chad,E
+fao.undernourishment,TGO,2025,10.2,,2023-2025,768,Togo,E
+fao.undernourishment,THA,2025,5.4,,2023-2025,764,Thailand,E
+fao.undernourishment,TJK,2025,8,,2023-2025,762,Tajikistan,E
+fao.undernourishment,TKM,2025,4.1,,2023-2025,795,Turkmenistan,E
+fao.undernourishment,TLS,2025,16.9,,2023-2025,626,Timor-Leste,E
+fao.undernourishment,TTO,2025,10.4,,2023-2025,780,Trinidad and Tobago,E
+fao.undernourishment,TUN,2025,2.8,,2023-2025,788,Tunisia,E
+fao.undernourishment,TUR,2025,2.5,<2.5,2023-2025,792,TÃ¼rkiye,E
+fao.undernourishment,TWN,2025,3.6,,2023-2025,158,"China, Taiwan Province of",E
+fao.undernourishment,TZA,2025,19.1,,2023-2025,834,United Republic of Tanzania,E
+fao.undernourishment,UGA,2025,20.9,,2023-2025,800,Uganda,E
+fao.undernourishment,UKR,2025,10.8,,2023-2025,804,Ukraine,E
+fao.undernourishment,URY,2025,2.5,<2.5,2023-2025,858,Uruguay,E
+fao.undernourishment,USA,2025,2.5,<2.5,2023-2025,840,United States of America,E
+fao.undernourishment,UZB,2025,2.5,<2.5,2023-2025,860,Uzbekistan,E
+fao.undernourishment,VCT,2025,4,,2023-2025,670,Saint Vincent and the Grenadines,E
+fao.undernourishment,VEN,2025,5.3,,2023-2025,862,Venezuela (Bolivarian Republic of),E
+fao.undernourishment,VNM,2025,6.1,,2023-2025,704,Viet Nam,E
+fao.undernourishment,VUT,2025,5.8,,2023-2025,548,Vanuatu,E
+fao.undernourishment,WSM,2025,3.4,,2023-2025,882,Samoa,E
+fao.undernourishment,ZAF,2025,11.2,,2023-2025,710,South Africa,E
+fao.undernourishment,ZMB,2025,41,,2023-2025,894,Zambia,E
+fao.undernourishment,ZWE,2025,18.4,,2023-2025,716,Zimbabwe,E
+fao.energyAdequacy,AFG,2025,108,,2023-2025,004,Afghanistan,E
+fao.energyAdequacy,AGO,2025,111,,2023-2025,024,Angola,E
+fao.energyAdequacy,ALB,2025,131,,2023-2025,008,Albania,E
+fao.energyAdequacy,ARG,2025,138,,2023-2025,032,Argentina,E
+fao.energyAdequacy,ARM,2025,130,,2023-2025,051,Armenia,E
+fao.energyAdequacy,AUS,2025,142,,2023-2025,036,Australia,E
+fao.energyAdequacy,AUT,2025,150,,2023-2025,040,Austria,E
+fao.energyAdequacy,AZE,2025,137,,2023-2025,031,Azerbaijan,E
+fao.energyAdequacy,BEL,2025,156,,2023-2025,056,Belgium,E
+fao.energyAdequacy,BEN,2025,127,,2023-2025,204,Benin,E
+fao.energyAdequacy,BFA,2025,124,,2023-2025,854,Burkina Faso,E
+fao.energyAdequacy,BGD,2025,115,,2023-2025,050,Bangladesh,E
+fao.energyAdequacy,BGR,2025,123,,2023-2025,100,Bulgaria,E
+fao.energyAdequacy,BIH,2025,140,,2023-2025,070,Bosnia and Herzegovina,E
+fao.energyAdequacy,BLR,2025,140,,2023-2025,112,Belarus,E
+fao.energyAdequacy,BLZ,2025,122,,2023-2025,084,Belize,E
+fao.energyAdequacy,BOL,2025,102,,2023-2025,068,Bolivia (Plurinational State of),E
+fao.energyAdequacy,BRA,2025,138,,2023-2025,076,Brazil,E
+fao.energyAdequacy,BRB,2025,126,,2023-2025,052,Barbados,E
+fao.energyAdequacy,BWA,2025,115,,2023-2025,072,Botswana,E
+fao.energyAdequacy,CAN,2025,143,,2023-2025,124,Canada,E
+fao.energyAdequacy,CHE,2025,133,,2023-2025,756,Switzerland,E
+fao.energyAdequacy,CHL,2025,124,,2023-2025,152,Chile,E
+fao.energyAdequacy,CHN,2025,142,,2023-2025,156,"China, mainland",E
+fao.energyAdequacy,CIV,2025,130,,2023-2025,384,CÃ´te d'Ivoire,E
+fao.energyAdequacy,CMR,2025,126,,2023-2025,120,Cameroon,E
+fao.energyAdequacy,COD,2025,97,,2023-2025,180,Democratic Republic of the Congo,E
+fao.energyAdequacy,COG,2025,99,,2023-2025,178,Congo,E
+fao.energyAdequacy,COL,2025,131,,2023-2025,170,Colombia,E
+fao.energyAdequacy,COM,2025,108,,2023-2025,174,Comoros,E
+fao.energyAdequacy,CPV,2025,116,,2023-2025,132,Cabo Verde,E
+fao.energyAdequacy,CRI,2025,123,,2023-2025,188,Costa Rica,E
+fao.energyAdequacy,CZE,2025,136,,2023-2025,203,Czechia,E
+fao.energyAdequacy,DEU,2025,142,,2023-2025,276,Germany,E
+fao.energyAdequacy,DJI,2025,113,,2023-2025,262,Djibouti,E
+fao.energyAdequacy,DMA,2025,129,,2023-2025,212,Dominica,E
+fao.energyAdequacy,DNK,2025,147,,2023-2025,208,Denmark,E
+fao.energyAdequacy,DOM,2025,140,,2023-2025,214,Dominican Republic,E
+fao.energyAdequacy,DZA,2025,147,,2023-2025,012,Algeria,E
+fao.energyAdequacy,ECU,2025,113,,2023-2025,218,Ecuador,E
+fao.energyAdequacy,EGY,2025,134,,2023-2025,818,Egypt,E
+fao.energyAdequacy,ESP,2025,136,,2023-2025,724,Spain,E
+fao.energyAdequacy,EST,2025,131,,2023-2025,233,Estonia,E
+fao.energyAdequacy,ETH,2025,113,,2023-2025,231,Ethiopia,E
+fao.energyAdequacy,FIN,2025,132,,2023-2025,246,Finland,E
+fao.energyAdequacy,FJI,2025,124,,2023-2025,242,Fiji,E
+fao.energyAdequacy,FRA,2025,141,,2023-2025,250,France,E
+fao.energyAdequacy,GAB,2025,114,,2023-2025,266,Gabon,E
+fao.energyAdequacy,GBR,2025,137,,2023-2025,826,United Kingdom of Great Britain and Northern Ireland,E
+fao.energyAdequacy,GEO,2025,124,,2023-2025,268,Georgia,E
+fao.energyAdequacy,GHA,2025,136,,2023-2025,288,Ghana,E
+fao.energyAdequacy,GIN,2025,140,,2023-2025,324,Guinea,E
+fao.energyAdequacy,GMB,2025,105,,2023-2025,270,Gambia,E
+fao.energyAdequacy,GNB,2025,114,,2023-2025,624,Guinea-Bissau,E
+fao.energyAdequacy,GRC,2025,134,,2023-2025,300,Greece,E
+fao.energyAdequacy,GTM,2025,127,,2023-2025,320,Guatemala,E
+fao.energyAdequacy,GUY,2025,145,,2023-2025,328,Guyana,E
+fao.energyAdequacy,HND,2025,114,,2023-2025,340,Honduras,E
+fao.energyAdequacy,HRV,2025,141,,2023-2025,191,Croatia,E
+fao.energyAdequacy,HTI,2025,84,,2023-2025,332,Haiti,E
+fao.energyAdequacy,HUN,2025,142,,2023-2025,348,Hungary,E
+fao.energyAdequacy,IDN,2025,126,,2023-2025,360,Indonesia,E
+fao.energyAdequacy,IND,2025,116,,2023-2025,356,India,E
+fao.energyAdequacy,IRL,2025,157,,2023-2025,372,Ireland,E
+fao.energyAdequacy,IRN,2025,120,,2023-2025,364,Iran (Islamic Republic of),E
+fao.energyAdequacy,IRQ,2025,118,,2023-2025,368,Iraq,E
+fao.energyAdequacy,ISL,2025,141,,2023-2025,352,Iceland,E
+fao.energyAdequacy,ISR,2025,163,,2023-2025,376,Israel,E
+fao.energyAdequacy,ITA,2025,150,,2023-2025,380,Italy,E
+fao.energyAdequacy,JAM,2025,116,,2023-2025,388,Jamaica,E
+fao.energyAdequacy,JOR,2025,111,,2023-2025,400,Jordan,E
+fao.energyAdequacy,KAZ,2025,134,,2023-2025,398,Kazakhstan,E
+fao.energyAdequacy,KEN,2025,94,,2023-2025,404,Kenya,E
+fao.energyAdequacy,KGZ,2025,118,,2023-2025,417,Kyrgyzstan,E
+fao.energyAdequacy,KIR,2025,136,,2023-2025,296,Kiribati,E
+fao.energyAdequacy,KOR,2025,138,,2023-2025,410,Republic of Korea,E
+fao.energyAdequacy,LAO,2025,109,,2023-2025,418,Lao People's Democratic Republic,E
+fao.energyAdequacy,LBN,2025,119,,2023-2025,422,Lebanon,E
+fao.energyAdequacy,LBR,2025,95,,2023-2025,430,Liberia,E
+fao.energyAdequacy,LBY,2025,116,,2023-2025,434,Libya,E
+fao.energyAdequacy,LKA,2025,119,,2023-2025,144,Sri Lanka,E
+fao.energyAdequacy,LTU,2025,135,,2023-2025,440,Lithuania,E
+fao.energyAdequacy,LUX,2025,137,,2023-2025,442,Luxembourg,E
+fao.energyAdequacy,LVA,2025,138,,2023-2025,428,Latvia,E
+fao.energyAdequacy,MAR,2025,139,,2023-2025,504,Morocco,E
+fao.energyAdequacy,MDA,2025,123,,2023-2025,498,Republic of Moldova,E
+fao.energyAdequacy,MDG,2025,89,,2023-2025,450,Madagascar,E
+fao.energyAdequacy,MEX,2025,137,,2023-2025,484,Mexico,E
+fao.energyAdequacy,MKD,2025,141,,2023-2025,807,North Macedonia,E
+fao.energyAdequacy,MLI,2025,126,,2023-2025,466,Mali,E
+fao.energyAdequacy,MLT,2025,133,,2023-2025,470,Malta,E
+fao.energyAdequacy,MMR,2025,123,,2023-2025,104,Myanmar,E
+fao.energyAdequacy,MNE,2025,149,,2023-2025,499,Montenegro,E
+fao.energyAdequacy,MNG,2025,131,,2023-2025,496,Mongolia,E
+fao.energyAdequacy,MOZ,2025,102,,2023-2025,508,Mozambique,E
+fao.energyAdequacy,MRT,2025,130,,2023-2025,478,Mauritania,E
+fao.energyAdequacy,MUS,2025,135,,2023-2025,480,Mauritius,E
+fao.energyAdequacy,MWI,2025,114,,2023-2025,454,Malawi,E
+fao.energyAdequacy,MYS,2025,123,,2023-2025,458,Malaysia,E
+fao.energyAdequacy,NAM,2025,109,,2023-2025,516,Namibia,E
+fao.energyAdequacy,NCL,2025,131,,2023-2025,540,New Caledonia,E
+fao.energyAdequacy,NER,2025,123,,2023-2025,562,Niger,E
+fao.energyAdequacy,NGA,2025,109,,2023-2025,566,Nigeria,E
+fao.energyAdequacy,NIC,2023,120,,2021-2023,558,Nicaragua,E
+fao.energyAdequacy,NLD,2025,135,,2023-2025,528,Netherlands (Kingdom of the),E
+fao.energyAdequacy,NOR,2025,135,,2023-2025,578,Norway,E
+fao.energyAdequacy,NPL,2025,129,,2023-2025,524,Nepal,E
+fao.energyAdequacy,NZL,2025,130,,2023-2025,554,New Zealand,E
+fao.energyAdequacy,OMN,2025,122,,2023-2025,512,Oman,E
+fao.energyAdequacy,PAK,2025,113,,2023-2025,586,Pakistan,E
+fao.energyAdequacy,PAN,2025,134,,2023-2025,591,Panama,E
+fao.energyAdequacy,PER,2025,123,,2023-2025,604,Peru,E
+fao.energyAdequacy,PHL,2025,129,,2023-2025,608,Philippines,E
+fao.energyAdequacy,PNG,2025,96,,2023-2025,598,Papua New Guinea,E
+fao.energyAdequacy,POL,2025,151,,2023-2025,616,Poland,E
+fao.energyAdequacy,PRK,2019,84,,2017-2019,408,Democratic People's Republic of Korea,E
+fao.energyAdequacy,PRT,2025,145,,2023-2025,620,Portugal,E
+fao.energyAdequacy,PRY,2025,131,,2023-2025,600,Paraguay,E
+fao.energyAdequacy,PYF,2025,125,,2023-2025,258,French Polynesia,E
+fao.energyAdequacy,ROU,2025,149,,2023-2025,642,Romania,E
+fao.energyAdequacy,RUS,2025,145,,2023-2025,643,Russian Federation,E
+fao.energyAdequacy,RWA,2025,109,,2023-2025,646,Rwanda,E
+fao.energyAdequacy,SAU,2025,147,,2023-2025,682,Saudi Arabia,E
+fao.energyAdequacy,SDN,2022,118,,2020-2022,729,Sudan,E
+fao.energyAdequacy,SEN,2025,123,,2023-2025,686,Senegal,E
+fao.energyAdequacy,SLB,2025,100,,2023-2025,090,Solomon Islands,E
+fao.energyAdequacy,SLE,2025,106,,2023-2025,694,Sierra Leone,E
+fao.energyAdequacy,SLV,2025,126,,2023-2025,222,El Salvador,E
+fao.energyAdequacy,SOM,2025,80,,2023-2025,706,Somalia,E
+fao.energyAdequacy,SRB,2025,157,,2023-2025,688,Serbia,E
+fao.energyAdequacy,SSD,2025,108,,2023-2025,728,South Sudan,E
+fao.energyAdequacy,STP,2025,99,,2023-2025,678,Sao Tome and Principe,E
+fao.energyAdequacy,SUR,2025,106,,2023-2025,740,Suriname,E
+fao.energyAdequacy,SVN,2025,130,,2023-2025,705,Slovenia,E
+fao.energyAdequacy,SWE,2025,133,,2023-2025,752,Sweden,E
+fao.energyAdequacy,SWZ,2025,111,,2023-2025,748,Eswatini,E
+fao.energyAdequacy,SYR,2025,94,,2023-2025,760,Syrian Arab Republic,E
+fao.energyAdequacy,TCD,2025,96,,2023-2025,148,Chad,E
+fao.energyAdequacy,TGO,2025,117,,2023-2025,768,Togo,E
+fao.energyAdequacy,THA,2025,114,,2023-2025,764,Thailand,E
+fao.energyAdequacy,TJK,2025,121,,2023-2025,762,Tajikistan,E
+fao.energyAdequacy,TKM,2025,123,,2023-2025,795,Turkmenistan,E
+fao.energyAdequacy,TLS,2025,101,,2023-2025,626,Timor-Leste,E
+fao.energyAdequacy,TTO,2025,122,,2023-2025,780,Trinidad and Tobago,E
+fao.energyAdequacy,TUN,2025,145,,2023-2025,788,Tunisia,E
+fao.energyAdequacy,TWN,2025,120,,2023-2025,158,"China, Taiwan Province of",E
+fao.energyAdequacy,TZA,2025,115,,2023-2025,834,United Republic of Tanzania,E
+fao.energyAdequacy,UGA,2025,109,,2023-2025,800,Uganda,E
+fao.energyAdequacy,UKR,2025,108,,2023-2025,804,Ukraine,E
+fao.energyAdequacy,URY,2025,134,,2023-2025,858,Uruguay,E
+fao.energyAdequacy,USA,2025,154,,2023-2025,840,United States of America,E
+fao.energyAdequacy,UZB,2025,142,,2023-2025,860,Uzbekistan,E
+fao.energyAdequacy,VCT,2025,124,,2023-2025,670,Saint Vincent and the Grenadines,E
+fao.energyAdequacy,VEN,2025,118,,2023-2025,862,Venezuela (Bolivarian Republic of),E
+fao.energyAdequacy,VNM,2025,131,,2023-2025,704,Viet Nam,E
+fao.energyAdequacy,VUT,2025,137,,2023-2025,548,Vanuatu,E
+fao.energyAdequacy,WSM,2025,137,,2023-2025,882,Samoa,E
+fao.energyAdequacy,ZAF,2025,111,,2023-2025,710,South Africa,E
+fao.energyAdequacy,ZMB,2025,93,,2023-2025,894,Zambia,E
+fao.energyAdequacy,ZWE,2025,107,,2023-2025,716,Zimbabwe,E

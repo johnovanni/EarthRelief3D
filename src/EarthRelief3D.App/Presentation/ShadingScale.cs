@@ -51,8 +51,9 @@ public static class ShadingScales
     private static readonly ShadingScale OilScale = new([0, 10, 100, 1000, 5000], Resources,
         ["under 10", "10–100", "100–1,000", "1,000–5,000", "5,000 or more"]);
     // WRI Aqueduct 4.0 baseline water stress (bws) categories: cat -1 is arid and low water use, 0 to 4 low to extremely
-    // high; -9999 (no data) has no class. The labels are WRI's (the dataset's `label` column); Task 6 checks them against
-    // the file it extracts.
+    // high; -9999 (no data) has no class. The labels are WRI's (the dataset's `label` column): Task 6 checked cat 0 to 4
+    // against the country_baseline sheet (bws, Tot) on 2026-11-23, and they match exactly. No country row has cat -1 in
+    // Aqueduct 4.0; its class stays for basin-level data and later releases (BundledDatasetTests pins the labels).
     private static readonly ShadingScale WaterStressScale = new([-1, 0, 1, 2, 3, 4], [AridColor, .. Resources],
         ["Arid and Low Water Use", "Low (<10%)", "Low - Medium (10-20%)", "Medium - High (20-40%)", "High (40-80%)", "Extremely High (>80%)"])
     {

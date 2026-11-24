@@ -49,7 +49,9 @@ public class AppStartupTests
 
             // The cached snapshot is shown at once: the legend carries its dates and the panel its sections.
             Assert.True(services.CacheLoaded);
-            Assert.Equal(cached, services.Store.Snapshot);
+            // Task 6: the bundled extracts add their codes with no country (EIA's zero-production territories) to the list.
+            Assert.Equal(cached, WithoutBundled(services.Store.Snapshot));
+            Assert.Contains(services.Store.Snapshot.Unplaced, u => u.Source == "US EIA" && u.Title.StartsWith("US EIA figures for GUF", StringComparison.Ordinal));
             Assert.Equal(4, services.Store.Snapshot.CheckedUtc.Count);   // the cache keeps when each source was checked
             Assert.Equal(4, vm.Legend.Lines.Count);
             Assert.All(vm.Legend.Lines, l => Assert.NotEqual(LegendViewModel.NotChecked, l.AsOf));
@@ -57,27 +59,46 @@ public class AppStartupTests
             vm.Panel.Show("SDN");
             // The four crisis sections, then the two needs sections (nothing loaded for them yet).
             Assert.Equal(4, vm.Panel.Sections.Count(s => s.Heading != CountryPanelViewModel.BasicNeedsHeading
-                && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)));
+                && s.Heading != CountryPanelViewModel.ResourcesHeading && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)));
 
-            // One dot per source, grey until each reports.
-            Assert.Equal(AppServices.FeedNames, vm.Status.Dots.Select(d => d.Name));
+            // One dot per source: the feeds grey until each reports, then the bundled extracts (Task 6), green from the start.
+            Assert.Equal(AppServices.StatusDotNames, vm.Status.Dots.Select(d => d.Name));
             Assert.Equal(["UCDP", "IPC", "WHO", "UNHCR", "WHO GHO", "UN HNO", "Borders"], AppServices.FeedNames);
-            Assert.All(vm.Status.Dots, d => Assert.Equal(FeedState.NotStarted, d.State));
+            Assert.Equal([.. AppServices.FeedNames, "FAO", "US EIA", "WRI Aqueduct"], AppServices.StatusDotNames);
+            var feedDots = vm.Status.Dots.Take(AppServices.FeedNames.Count).ToList();
+            var bundledDots = vm.Status.Dots.Skip(AppServices.FeedNames.Count).ToList();
+            Assert.All(feedDots, d => Assert.Equal(FeedState.NotStarted, d.State));
+            Assert.All(bundledDots, d =>
+            {
+                Assert.Equal(FeedState.Ok, d.State);
+                Assert.EndsWith(" · " + BundledDataset.StatusNote, d.Tooltip);
+            });
+            Assert.EndsWith("estimate year 2025 · bundled; updated with the app", bundledDots[0].Tooltip);
+            // The bundled series are in the store at once, offline.
+            Assert.Equal(51.4, services.Indicators.Snapshot.Get("fao.undernourishment")!.For("HTI")!.Value);
+            Assert.NotNull(services.Indicators.Snapshot.Get("fao.energyAdequacy"));
+            Assert.NotNull(services.Indicators.Snapshot.Get("eia.crudeOil"));
+            Assert.NotNull(services.Indicators.Snapshot.Get("wri.bws"));
 
-            // Every feed fails (no network): amber dots, and the cached data stays.
+            // Every feed fails (no network): amber dots, and the cached data stays. The bundled dots stay green.
             await services.Scheduler.TickAsync(default);
-            Assert.All(vm.Status.Dots, d =>
+            Assert.All(vm.Status.Dots.Take(AppServices.FeedNames.Count), d =>
             {
                 Assert.Equal(FeedState.Retrying, d.State);
                 Assert.Same(StatusDotsBrushes.Retrying, d.Brush);
             });
-            Assert.Equal(cached, services.Store.Snapshot);
+            Assert.All(vm.Status.Dots.Skip(AppServices.FeedNames.Count), d => Assert.Equal(FeedState.Ok, d.State));
+            Assert.Equal(cached, WithoutBundled(services.Store.Snapshot));
             Assert.Equal(4, vm.Legend.Lines.Count(l => l.AsOf != LegendViewModel.NotChecked));
             vm.Panel.Show("ISL");
             Assert.Equal(CountryPanelViewModel.NoCrisisText, vm.Panel.Headline);
         }
         finally { Delete(root); }
     }
+
+    /// <summary>The snapshot without the bundled extracts' "not placed" rows (Task 6), to compare with a cached one.</summary>
+    private static CrisisSnapshot WithoutBundled(CrisisSnapshot s) =>
+        s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source))] };
 
     /// <summary>A log that also records the thread each line was written on.</summary>
     private sealed class ThreadLog : GlobeCore.Logging.IAppLog
@@ -466,7 +487,8 @@ public class AppStartupTests
             Assert.Contains("Water", texts);
             Assert.Contains("Steel plants", texts);
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
-            Assert.Equal(7, Descendants<System.Windows.Shapes.Ellipse>(root).Count());   // the four sources, the two needs feeds and Borders
+            // The four sources, the two needs feeds, Borders, and the three bundled extracts (Task 6).
+            Assert.Equal(10, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));

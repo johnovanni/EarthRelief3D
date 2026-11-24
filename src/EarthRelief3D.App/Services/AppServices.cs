@@ -28,6 +28,20 @@ public sealed class AppServices : IDisposable
     /// <summary>The status dots, in this order: the feeds' <see cref="IFeed.Name"/>s (the four sources, the two needs feeds, then Borders).</summary>
     public static IReadOnlyList<string> FeedNames { get; } = [.. SourceDates.SourceNames, .. SourceDates.NeedsFeedNames, SourceDates.BordersFeedName];
 
+    /// <summary>
+    /// The bundled extracts (Task 6, P3-10) in <c>data\datasets</c>: each one's status dot name (the layer's source name,
+    /// <see cref="LayerCatalog.SourceName(ShadingLayer)"/>) and folder. They are loaded once at start and change only with the app.
+    /// </summary>
+    public static IReadOnlyList<(string Name, string Folder)> BundledDatasets { get; } =
+    [
+        (LayerCatalog.SourceName(ShadingLayer.Hunger), "fao-food-security"),
+        (LayerCatalog.SourceName(ShadingLayer.OilProduction), "eia-crude-oil"),
+        (LayerCatalog.SourceName(ShadingLayer.WaterStress), "aqueduct-water-stress"),
+    ];
+
+    /// <summary>The status dots: the feeds' (<see cref="FeedNames"/>), then the bundled datasets'.</summary>
+    public static IReadOnlyList<string> StatusDotNames { get; } = [.. FeedNames, .. BundledDatasets.Select(d => d.Name)];
+
     private readonly CacheWriter _cacheWriter;
     private readonly CacheWriter _indicatorWriter;
     private readonly FeedHttp _http;
@@ -104,6 +118,16 @@ public sealed class AppServices : IDisposable
             log.Info($"Indicator cache loaded: {cachedSeries.Series.Count} series");
         }
 
+        // Task 6: the bundled extracts (FAO, EIA, WRI) replace any cached copy of their series; one that is missing or
+        // broken is logged, its dot turns amber and its layers say "Data not loaded yet" (the cached copy, if any, stays).
+        var bundled = BundledDatasets.Select(d => BundledDataset.Load(d.Name, Path.Combine(BundledDataset.DatasetsDir, d.Folder),
+            iso => countries.ByIso3(iso) is not null, log)).ToList();
+        indicators.ReplaceAll([.. bundled.SelectMany(b => b.Series)]);
+        foreach (var b in bundled)
+            store.ReplaceUnplaced(b.Name, b.Loaded && b.Newest is { } cite
+                ? [.. b.NotPlaced.Select(n => new UnplacedReport(b.Name, $"{b.Name} figures for {n.Code} ({n.Name})", n.Reason, cite))]
+                : []);
+
         // P3-2: the IPC areas, an extra step of the IPC feed (its status dot): it needs the national records just stored, and
         // a country whose areas cannot be had keeps the 20% rule without failing the national figures. The areas of the last
         // run are on disk (cache\ipc-areas), so they show offline too, while they belong to the cached national records. They
@@ -145,6 +169,7 @@ public sealed class AppServices : IDisposable
             curated: curated);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
+        foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.DataDate(c, clock.UtcNow)));
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke
         return new AppServices(store, cache, indicators, indicatorCache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log)
         {

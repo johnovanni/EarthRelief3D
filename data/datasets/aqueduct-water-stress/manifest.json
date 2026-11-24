@@ -1,0 +1,46 @@
+{
+  "id": "aqueduct-water-stress",
+  "publisher": "World Resources Institute",
+  "dataset": "Aqueduct 4.0 country rankings: baseline water stress",
+  "version": "Aqueduct 4.0, workbook Aqueduct40_rankings_download_Y2023M07D05",
+  "sourceUrl": "https://files.wri.org/aqueduct/aqueduct-4-0-country-rankings.zip",
+  "pageUrl": "https://www.wri.org/data/aqueduct-40-country-rankings",
+  "licence": "CC BY 4.0",
+  "attribution": "World Resources Institute, Aqueduct 4.0 country rankings (2023); CC BY 4.0. Kuzma, S., M.F.P. Bierkens, S. Lakshman, T. Luo, L. Saccoccia, E. H. Sutanudjaja, and R. Van Beek. 2023. Aqueduct 4.0: Updated decision-relevant global water risk indicators. Technical Note. Washington, DC: World Resources Institute. Available online at: doi.org/10.46830/writn.23.00061.",
+  "dateMeaning": "EstimateYear",
+  "asOf": "baseline period 1979 to 2019 (Aqueduct 4.0, published 2023)",
+  "published": "2023-08-07",
+  "downloaded": "2026-11-23",
+  "fileName": "aqueduct-4-0-country-rankings.zip",
+  "fileSha256": "97d50c4b5ba144523f90a06b95369431d54e0f846b9296b11880ed4d4dbc4ba5",
+  "command": "DataTool aqueduct <downloads>/aqueduct-4-0-country-rankings.zip --published 2023-08-07 --downloaded 2026-11-23",
+  "series": [
+    {
+      "id": "wri.bws",
+      "measures": "Baseline water stress (WRI Aqueduct 4.0 category; baseline period 1979 to 2019)",
+      "unit": "category",
+      "sourceItem": "country_baseline: indicator_name bws, weight Tot (cat and label)",
+      "countries": 189
+    }
+  ],
+  "notPlaced": [],
+  "dropped": [],
+  "qualifiersSeen": {
+    "-9999: NoData": 25,
+    "0: Low (<10%)": 59,
+    "1: Low - Medium (10-20%)": 35,
+    "2: Medium - High (20-40%)": 23,
+    "3: High (40-80%)": 22,
+    "4: Extremely High (>80%)": 25
+  },
+  "flagsSeen": {},
+  "notes": [
+    "Licence: WRI's Open Data Commitment (https://www.wri.org/about/open-data-commitment, read 2026-11-23) says WRI has adopted the Creative Commons Attribution 4.0 International License as its standard licence for publications and data (ruling R6). The workbook's Read Me names no licence; WRI's landing page says \"Creative Commons\".",
+    "Read Me cautions: the indicators cannot be measured directly and have not been validated; interbasin transfers are not modelled; compare the 2023 data with the 2019 release only with caution.",
+    "Rows: sheet country_baseline, indicator_name bws, weight Tot (the other weights are Dom, Ind, Irr, Liv and One). The figures' year is 2019, the end of the 1979-2019 baseline; WRI published Aqueduct 4.0 in 2023.",
+    "WRI's -9999 \"NoData\" rows are kept as WRI wrote them; the map shows them as no figure.",
+    "No country row has cat -1 (\"Arid and Low Water Use\") in this file; the app's scale keeps that class for basins and later releases.",
+    "Check: categories and labels seen (cat: label, rows): -9999: NoData (25); 0: Low (<10%) (59); 1: Low - Medium (10-20%) (35); 2: Medium - High (20-40%) (23); 3: High (40-80%) (22); 4: Extremely High (>80%) (25).",
+    "Hand check 2026-11-23 (a separate script parsed the workbook's XML, not the DataTool): the 189 bws Tot rows' cat and label equal data.csv, every gid_0 is the app's ISO3 code; the labels of cat 0 to 4 equal the app's ShadingScales labels exactly (Low (<10%), Low - Medium (10-20%), Medium - High (20-40%), High (40-80%), Extremely High (>80%))."
+  ]
+}

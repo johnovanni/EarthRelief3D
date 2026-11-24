@@ -1,0 +1,297 @@
+{
+  "id": "eia-crude-oil",
+  "publisher": "U.S. Energy Information Administration",
+  "dataset": "International Energy Statistics: crude oil including lease condensate production",
+  "version": "INTL bulk file of 2026-11-19",
+  "sourceUrl": "https://www.eia.gov/opendata/bulk/INTL.zip",
+  "pageUrl": "https://www.eia.gov/international/",
+  "licence": "Public domain (U.S. government work)",
+  "attribution": "Source: U.S. Energy Information Administration (Nov 2026)",
+  "dateMeaning": "EstimateYear",
+  "asOf": "2025 (each country's latest full year)",
+  "published": "2026-11-19",
+  "downloaded": "2026-11-23",
+  "fileName": "INTL.zip",
+  "fileSha256": "2a79be689b8d93787745b129630b1a5a97365ecb4528381d02da490264628857",
+  "command": "DataTool eia <downloads>/INTL.zip --published 2026-11-19 --downloaded 2026-11-23",
+  "series": [
+    {
+      "id": "eia.crudeOil",
+      "measures": "Crude oil production, including lease condensate, in thousand barrels per day",
+      "unit": "thousand barrels per day",
+      "sourceItem": "INTL.57-1-<country>-TBPD.A, Crude oil including lease condensate production",
+      "countries": 210
+    }
+  ],
+  "notPlaced": [
+    {
+      "code": "MTQ",
+      "name": "Martinique",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "GIB",
+      "name": "Gibraltar",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "GLP",
+      "name": "Guadeloupe",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "WAK",
+      "name": "Wake Island",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "USIQ",
+      "name": "U.S. Pacific Islands",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "NLDA",
+      "name": "Netherlands Antilles",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "REU",
+      "name": "Reunion",
+      "reason": "no unit in the boundary set for this code or name"
+    },
+    {
+      "code": "GUF",
+      "name": "French Guiana",
+      "reason": "no unit in the boundary set for this code or name"
+    }
+  ],
+  "dropped": [
+    {
+      "code": "WP21",
+      "name": "Western Europe",
+      "reason": "aggregate of 43 countries: dropped"
+    },
+    {
+      "code": "OEAO",
+      "name": "OECD - Asia And Oceania",
+      "reason": "aggregate of 6 countries: dropped"
+    },
+    {
+      "code": "CSAM",
+      "name": "Central & South America",
+      "reason": "aggregate of 45 countries: dropped"
+    },
+    {
+      "code": "WP22",
+      "name": "Other Americas",
+      "reason": "aggregate of 47 countries: dropped"
+    },
+    {
+      "code": "WP23",
+      "name": "Other Asia-Pacific",
+      "reason": "aggregate of 43 countries: dropped"
+    },
+    {
+      "code": "WP24",
+      "name": "Eastern Europe and Eurasia",
+      "reason": "aggregate of 14 countries: dropped"
+    },
+    {
+      "code": "WORL",
+      "name": "World",
+      "reason": "EIA region code for WLD, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "OECD",
+      "name": "OECD",
+      "reason": "aggregate of 47 countries: dropped"
+    },
+    {
+      "code": "OEEU",
+      "name": "OECD - Europe",
+      "reason": "aggregate of 30 countries: dropped"
+    },
+    {
+      "code": "EU27",
+      "name": "European Union",
+      "reason": "aggregate of 30 countries: dropped"
+    },
+    {
+      "code": "EURO",
+      "name": "Europe",
+      "reason": "aggregate of 45 countries: dropped"
+    },
+    {
+      "code": "NOEC",
+      "name": "Non-OECD",
+      "reason": "aggregate of 183 countries: dropped"
+    },
+    {
+      "code": "ASOC",
+      "name": "Asia & Oceania",
+      "reason": "aggregate of 49 countries: dropped"
+    },
+    {
+      "code": "OPNO",
+      "name": "Non-OPEC",
+      "reason": "aggregate of 217 countries: dropped"
+    },
+    {
+      "code": "OPEC",
+      "name": "OPEC",
+      "reason": "aggregate of 12 countries: dropped"
+    },
+    {
+      "code": "NOAM",
+      "name": "North America",
+      "reason": "aggregate of 6 countries: dropped"
+    },
+    {
+      "code": "WP27",
+      "name": "United States",
+      "reason": "EIA region code for USA, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "EURA",
+      "name": "Eurasia",
+      "reason": "aggregate of 13 countries: dropped"
+    },
+    {
+      "code": "OENA",
+      "name": "OECD - North America",
+      "reason": "aggregate of 3 countries: dropped"
+    },
+    {
+      "code": "MIDE",
+      "name": "Middle East",
+      "reason": "aggregate of 14 countries: dropped"
+    },
+    {
+      "code": "WP19",
+      "name": "IEO - Middle East",
+      "reason": "aggregate of 14 countries: dropped"
+    },
+    {
+      "code": "PERG",
+      "name": "Persian Gulf",
+      "reason": "aggregate of 7 countries: dropped"
+    },
+    {
+      "code": "AFRC",
+      "name": "Africa",
+      "reason": "aggregate of 57 countries: dropped"
+    },
+    {
+      "code": "WP12",
+      "name": "IEO - Africa",
+      "reason": "aggregate of 57 countries: dropped"
+    },
+    {
+      "code": "WP14",
+      "name": "Canada",
+      "reason": "EIA region code for CAN, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "OPSA",
+      "name": "OPEC - South America",
+      "reason": "EIA region code for VEN, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "WP11",
+      "name": "Australia and New Zealand",
+      "reason": "aggregate of 2 countries: dropped"
+    },
+    {
+      "code": "WP25",
+      "name": "Russia",
+      "reason": "EIA region code for RUS, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "OPAF",
+      "name": "OPEC - Africa",
+      "reason": "aggregate of 6 countries: dropped"
+    },
+    {
+      "code": "WP26",
+      "name": "South Korea and other OECD Asia",
+      "reason": "EIA region code for KOR, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "WP13",
+      "name": "Brazil",
+      "reason": "EIA region code for BRA, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "WP15",
+      "name": "China",
+      "reason": "EIA region code for CHN, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "WP16",
+      "name": "India",
+      "reason": "EIA region code for IND, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "WP17",
+      "name": "Japan",
+      "reason": "EIA region code for JPN, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "WP18",
+      "name": "Mexico",
+      "reason": "EIA region code for MEX, whose own series is kept: dropped so it is not counted twice"
+    },
+    {
+      "code": "DEUW",
+      "name": "Germany, West",
+      "reason": "no full-year figure in the file: dropped"
+    },
+    {
+      "code": "DDR",
+      "name": "Germany, East",
+      "reason": "no full-year figure in the file: dropped"
+    },
+    {
+      "code": "CSK",
+      "name": "Former Czechoslovakia",
+      "reason": "no full-year figure in the file: dropped"
+    },
+    {
+      "code": "HITZ",
+      "name": "Hawaiian Trade Zone",
+      "reason": "no full-year figure in the file: dropped"
+    },
+    {
+      "code": "XKS",
+      "name": "Kosovo",
+      "reason": "no full-year figure in the file: dropped"
+    },
+    {
+      "code": "SCG",
+      "name": "Former Serbia and Montenegro",
+      "reason": "no figure since 2005 (a former country, or no recent data): dropped"
+    },
+    {
+      "code": "SUN",
+      "name": "Former U.S.S.R.",
+      "reason": "no figure since 1991 (a former country, or no recent data): dropped"
+    },
+    {
+      "code": "YUG",
+      "name": "Former Yugoslavia",
+      "reason": "no figure since 1991 (a former country, or no recent data): dropped"
+    }
+  ],
+  "qualifiersSeen": {},
+  "flagsSeen": {
+    "f=A": 261,
+    "value \"--\"": 651
+  },
+  "notes": [
+    "EIA's file has no per-value estimate flag: each series has a frequency f (all \"A\", annual) and \"--\" marks no value. A year counts as full when the series was last updated after that year ended; each country's newest full year is kept.",
+    "Series with no figure in the last 10 years of the file (newest year 2025) are dropped as former countries or stale.",
+    "Check: top 5 producers: USA 13,662 (2025); RUS 9,885 (2025); SAU 9,549 (2025); CAN 4,964 (2025); IRQ 4,388 (2025).",
+    "Hand check 2026-11-23 (a separate script read INTL.txt, not the DataTool): all 210 values equal the newest numeric year of the country's series; the top 5 producers are USA, RUS, SAU, CAN and IRQ (2025), as the plan expected. The 8 codes not placed (MTQ, GIB, GLP, WAK, USIQ, NLDA, REU, GUF) all have 0 in 2025.",
+    "User-Agent: the zip answered HTTP 200 to the app's User-Agent on 2026-11-23; EIA's bulk-files page (https://www.eia.gov/opendata/bulk/) answered 403 to it and to curl's default, so the page text was not read. The citation links https://www.eia.gov/international/ (HTTP 200)."
+  ]
+}
