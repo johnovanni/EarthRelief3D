@@ -28,17 +28,31 @@ namespace EarthRelief3D.Core.Feeds;
 /// logged, and it does not turn the national figures, which are still good, into a failure.
 /// </para>
 /// </summary>
-public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, IAppLog log, string? cacheDir = null)
+/// <param name="pause">The wait between two countries that go to HDX in one run (<see cref="DefaultPause"/>); zero for offline samples.</param>
+public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, IAppLog log, string? cacheDir = null, TimeSpan? pause = null)
 {
     public const string LogName = "IPC areas";
 
     /// <summary>A GeoJSON that was downloaded and turned down (P areas only, two analyses) is fetched again after this long.</summary>
     public static readonly TimeSpan RetryRejectedAfter = TimeSpan.FromHours(24);
 
+    /// <summary>
+    /// A country turned down at the search or CSV stage (no package, licence, period or date of analysis) is not asked
+    /// again for this long under the same national analysis.
+    /// </summary>
+    public static readonly TimeSpan RetrySearchAfter = TimeSpan.FromHours(12);
+
+    /// <summary>The wait between two countries that go to HDX in one run, so the requests are spread out.</summary>
+    public static readonly TimeSpan DefaultPause = TimeSpan.FromMilliseconds(500);
+
+    private readonly TimeSpan _pause = pause ?? DefaultPause;
+    private Task _loading = Task.CompletedTask;
+
     /// <summary>The folder under the cache folder that holds the accepted files.</summary>
     public const string CacheFolder = "ipc-areas";
 
-    private sealed record Entry(string Key, IpcAreaSet? Set, DateTime RejectedUtc);
+    /// <param name="RetryAfter">For a turned-down country, how long after <paramref name="RejectedUtc"/> it is asked again.</param>
+    private sealed record Entry(string Key, IpcAreaSet? Set, DateTime RejectedUtc, TimeSpan RetryAfter = default);
 
     private readonly Dictionary<string, Entry> _entries = new(StringComparer.Ordinal);
     private readonly object _gate = new();
@@ -64,15 +78,12 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
     public int LoadCached(IEnumerable<FoodCrisis> national)
     {
         var sets = new List<IpcAreaSet>();
-        lock (_gate)
+        foreach (var f in CurrentRecords(national, clock.UtcNow))
         {
-            foreach (var f in CurrentRecords(national, clock.UtcNow))
-            {
-                var iso3 = f.CountryIso3.ToUpperInvariant();
-                if (ReadCache(iso3, AnalysisKey(f)) is not { } set) continue;
-                _entries[iso3] = new Entry(AnalysisKey(f), set, default);
-                sets.Add(set);
-            }
+            var iso3 = f.CountryIso3.ToUpperInvariant();
+            if (ReadCache(iso3, AnalysisKey(f)) is not { } set) continue;
+            lock (_gate) _entries[iso3] = new Entry(AnalysisKey(f), set, default);
+            sets.Add(set);
         }
         if (sets.Count > 0)
         {
@@ -83,14 +94,31 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
     }
 
     /// <summary>
+    /// <see cref="LoadCached"/> on a pool thread (start-up: up to a few MB of GeoJSON per country are parsed, never on the UI
+    /// thread). The areas reach the store, and so the map, when it is done; the first <see cref="RunAsync"/> waits for it,
+    /// so a run never races the load. Failures are logged.
+    /// </summary>
+    public Task StartLoadingCached(IEnumerable<FoodCrisis> national)
+    {
+        var records = national.ToList();
+        return _loading = Task.Run(() =>
+        {
+            try { LoadCached(records); }
+            catch (Exception e) { log.Error($"{LogName}: the cached areas could not be loaded", e); }
+        });
+    }
+
+    /// <summary>
     /// Finds the areas of every country whose latest national record is current, and replaces the store's area sets with
     /// the ones that belong to their national record. Per-country problems are logged; cancellation is passed on.
     /// </summary>
     public async Task RunAsync(IEnumerable<FoodCrisis> national, CancellationToken ct)
     {
+        await _loading.ConfigureAwait(false);   // the start-up load first (it never throws)
         var now = clock.UtcNow;
         var sets = new List<IpcAreaSet>();
         var kept = new List<string>();
+        var asked = false;
         foreach (var f in CurrentRecords(national, now))
         {
             ct.ThrowIfCancellationRequested();
@@ -98,7 +126,7 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
             var key = AnalysisKey(f);
             Entry? entry;
             lock (_gate) _entries.TryGetValue(iso3, out entry);
-            if (entry is not null && entry.Key == key && (entry.Set is not null || now - entry.RejectedUtc < RetryRejectedAfter))
+            if (entry is not null && entry.Key == key && (entry.Set is not null || now - entry.RejectedUtc < entry.RetryAfter))
             {
                 if (entry.Set is not null) sets.Add(entry.Set); else kept.Add(iso3);
                 continue;   // the same analysis: nothing is downloaded
@@ -110,14 +138,16 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
                 log.Info($"{LogName}: {iso3} from the cache ({cached.Areas.Count} areas, analysis {cached.AnalysisId})");
                 continue;
             }
+            if (asked && _pause > TimeSpan.Zero) await Task.Delay(_pause, ct).ConfigureAwait(false);   // spread the requests to HDX
+            asked = true;
             try
             {
                 var (set, why, downloaded) = await FetchAsync(iso3, f, now, ct).ConfigureAwait(false);
                 lock (_gate)
                 {
-                    if (set is not null) _entries[iso3] = new Entry(key, set, default);
-                    else if (downloaded) _entries[iso3] = new Entry(key, null, now);   // a GeoJSON turned down: not again for a day
-                    else _entries.Remove(iso3);
+                    // Turned down: a downloaded GeoJSON is not fetched again for a day, a search or CSV answer for 12 hours.
+                    _entries[iso3] = set is not null ? new Entry(key, set, default)
+                        : new Entry(key, null, now, downloaded ? RetryRejectedAfter : RetrySearchAfter);
                 }
                 if (set is not null) sets.Add(set);
                 else
@@ -157,6 +187,15 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
             return (null, $"no current period in {IpcAreaReader.NationalCsvName(iso3)} ({period.Found}); the national record's is {national}", false);
         if (current.From != f.PeriodFrom || current.To != f.PeriodTo)
             return (null, $"the country file's current period is {Period(current.From, current.To)}, the national record's is {national}", false);
+        // R10: the same date of analysis too (trimmed, any case). R11: a blank one on either side cannot confirm it.
+        var fileDate = Normalised(current.DateOfAnalysis);
+        var nationalDate = Normalised(f.Citations.Count > 0 ? f.Citations[0].Version : null);
+        if (fileDate is null || nationalDate is null)
+            return (null, "the date of analysis is blank in " + (fileDate is null && nationalDate is null ? "the country file and the national record"
+                : fileDate is null ? $"the country file (the national record's is {nationalDate})" : $"the national record (the country file's is {fileDate})")
+                + ", so the same analysis cannot be confirmed", false);
+        if (!string.Equals(fileDate, nationalDate, StringComparison.OrdinalIgnoreCase))
+            return (null, $"country file's date of analysis {fileDate}, national record's {nationalDate}", false);
 
         var geojson = await http.GetBytesAsync(package.GeoJsonUrl, ct).ConfigureAwait(false);
         var (set, why) = Build(iso3, package, current, geojson, now);
@@ -180,6 +219,8 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
             + (file.Unreadable > 0 ? $"; {file.Unreadable} features unreadable" : ""));
         return (new IpcAreaSet(iso3, file.AnalysisIds[0], period.DateOfAnalysis, period.From, period.To, file.Current, cite), "");
     }
+
+    private static string? Normalised(string? date) => string.IsNullOrWhiteSpace(date) ? null : date.Trim();
 
     private static string Period(DateOnly from, DateOnly to) =>
         from.ToString("d MMM yyyy", CultureInfo.InvariantCulture) + "–" + to.ToString("d MMM yyyy", CultureInfo.InvariantCulture);

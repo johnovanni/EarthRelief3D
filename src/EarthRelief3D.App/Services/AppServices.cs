@@ -70,8 +70,9 @@ public sealed class AppServices : IDisposable
     public bool CacheLoaded { get; }
 
     /// <param name="dispatcher">The UI thread's dispatcher (null in tests: view models update at once).</param>
+    /// <param name="ipcAreaPause">The IPC area step's wait between countries (null: <see cref="IpcAreaFeed.DefaultPause"/>; zero for offline samples).</param>
     public static AppServices Create(AppDataRoot root, FeedHttp http, IClock clock, IAppLog log, ISettingsStore<AppSettings> settings,
-        Dispatcher? dispatcher)
+        Dispatcher? dispatcher, TimeSpan? ipcAreaPause = null)
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(http);
@@ -102,9 +103,11 @@ public sealed class AppServices : IDisposable
 
         // P3-2: the IPC areas, an extra step of the IPC feed (its status dot): it needs the national records just stored, and
         // a country whose areas cannot be had keeps the 20% rule without failing the national figures. The areas of the last
-        // run are on disk (cache\ipc-areas), so they show at once, offline too, while they belong to the cached national records.
-        var ipcAreas = new IpcAreaFeed(http, store, clock, log, root.CacheDir);
-        ipcAreas.LoadCached(store.Snapshot.Crises.OfType<FoodCrisis>());
+        // run are on disk (cache\ipc-areas), so they show offline too, while they belong to the cached national records. They
+        // are parsed on a pool thread (a few MB per country), not here on the UI thread: the map first composes with the 20%
+        // rule, and the store's change redraws it by area when the load is done. The IPC feed's first run waits for the load.
+        var ipcAreas = new IpcAreaFeed(http, store, clock, log, root.CacheDir, ipcAreaPause);
+        var areasLoaded = ipcAreas.StartLoadingCached(store.Snapshot.Crises.OfType<FoodCrisis>());
 
         IFeed[] feeds =
         [
@@ -127,8 +130,14 @@ public sealed class AppServices : IDisposable
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke
-        return new AppServices(store, cache, indicators, indicatorCache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log);
+        return new AppServices(store, cache, indicators, indicatorCache, countries, boundaries, feeds, scheduler, main, cached is not null, http, log)
+        {
+            IpcAreasLoaded = areasLoaded,
+        };
     }
+
+    /// <summary>The start-up load of the cached IPC areas (off the UI thread); completes when they are in the store. Never faults.</summary>
+    public Task IpcAreasLoaded { get; private init; } = Task.CompletedTask;
 
     /// <summary>Starts the feeds (each runs at once, then on its interval).</summary>
     public void Start() => Scheduler.Start();

@@ -79,6 +79,56 @@ public class AppStartupTests
         finally { Delete(root); }
     }
 
+    /// <summary>A log that also records the thread each line was written on.</summary>
+    private sealed class ThreadLog : GlobeCore.Logging.IAppLog
+    {
+        private readonly object _gate = new();
+        private readonly List<(string Line, int Thread)> _entries = [];
+        public IReadOnlyList<(string Line, int Thread)> Entries { get { lock (_gate) return [.. _entries]; } }
+        public IEnumerable<string> Lines => Entries.Select(e => e.Line);
+        private void Add(string m) { lock (_gate) _entries.Add((m, Environment.CurrentManagedThreadId)); }
+        public void Info(string m) => Add("INFO " + m);
+        public void Warn(string m, Exception? e = null) => Add("WARN " + m);
+        public void Error(string m, Exception? e = null) => Add("ERROR " + m);
+    }
+
+    [Fact]
+    public async Task CachedIpcAreasLoadOffTheUiThreadAndReachTheMap()
+    {
+        var root = TempRoot();
+        try
+        {
+            // The last run: Nigeria's national record (crises.json) and its accepted areas (cache\ipc-areas).
+            Directory.CreateDirectory(root.CacheDir);
+            Assert.True(new CrisisCache(root, new ListLog()).Save(new CrisisSnapshot([IpcAreaFixture.National()], [], [])));
+            var (http, _) = IpcAreaFixture.Http();
+            var lastRun = new CrisisStore();
+            await new IpcAreaFeed(http, lastRun, new FixedClock(IpcAreaFixture.Now), new ListLog(), root.CacheDir, TimeSpan.Zero)
+                .RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+            var expected = Assert.Single(lastRun.Snapshot.IpcAreas);
+
+            var offline = new FeedHttp("test", new SampleHttpHandler());   // every request answers 404
+            var log = new ThreadLog();
+            int uiThread = Environment.CurrentManagedThreadId;
+            using var services = AppServices.Create(root, offline, new FixedClock(IpcAreaFixture.Now), log, new MemorySettingsStore(),
+                dispatcher: null, ipcAreaPause: TimeSpan.Zero);
+            await services.IpcAreasLoaded.WaitAsync(TimeSpan.FromSeconds(30));
+
+            Assert.Equal(expected, Assert.Single(services.Store.Snapshot.IpcAreas));
+            Assert.Contains(log.Lines, l => l.Contains("1 countries loaded from the cache (NGA)"));
+            // Parsed and written on a pool thread, not on the thread that called Create (the UI thread in the app).
+            var loaded = Assert.Single(log.Entries, e => e.Line.Contains("loaded from the cache"));
+            Assert.NotEqual(uiThread, loaded.Thread);
+            // The map draws Nigeria by area.
+            Assert.Same(services.Store.Snapshot.IpcAreas[0], Assert.Single(FoodImageLayer.Plan(services.Store.Snapshot.AsSeenAt(IpcAreaFixture.Now))).Areas);
+
+            // The feeds fail offline (IPC's national file first, so no area step): the cached areas stay.
+            await services.Scheduler.TickAsync(default);
+            Assert.Single(services.Store.Snapshot.IpcAreas);
+        }
+        finally { Delete(root); }
+    }
+
     [Fact]
     public async Task NoCacheStartsEmptyAndShutdownSavesTheCache()
     {

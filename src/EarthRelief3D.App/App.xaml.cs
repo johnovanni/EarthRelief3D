@@ -110,7 +110,9 @@ public partial class App : Application
             : new SystemClock();
         if (samplesDir is not null) log.Info($"Offline samples from {samplesDir}; data folder {root.Root}");
         var http = samplesDir is null ? new FeedHttp(AppInfo.UserAgent) : new FeedHttp(AppInfo.UserAgent, OfflineSamples.CreateHandler(samplesDir));
-        var services = _services = AppServices.Create(root, http, clock, log, _settings, Dispatcher);
+        // Offline samples answer at once: no wait between countries in the IPC area step (it would delay the pictures' data).
+        var services = _services = AppServices.Create(root, http, clock, log, _settings, Dispatcher,
+            ipcAreaPause: samplesDir is null ? null : TimeSpan.Zero);
 
         var window = new MainWindow(services.Main, services.Store, services.Countries, displayClock ?? clock, log);
         if (samplesDir is not null) window.Title += " - SAMPLE DATA (offline)";   // sample data is never mistaken for live data

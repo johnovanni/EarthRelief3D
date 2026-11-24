@@ -81,10 +81,10 @@ public sealed partial class LegendViewModel : ObservableObject
     /// <summary>Which countries the rule shades (P3-2): where IPC publishes areas, they are drawn instead. One wording for the legend and the strip.</summary>
     public const string FoodAreasRule = "Where IPC publishes areas, each area is shaded in IPC's own area classification; "
         + "elsewhere the country is shaded by the 20% rule";
-    /// <summary>The food layer's whole description: the areas, then the rule.</summary>
-    private const string FoodDescription = FoodAreasRule + ". By the 20% rule, " + FoodRule;
+    /// <summary>The food layer's whole description after a colon: the areas (lower-case "where"), then the rule.</summary>
+    private static readonly string FoodDescription = char.ToLowerInvariant(FoodAreasRule[0]) + FoodAreasRule[1..] + ". By the 20% rule, " + FoodRule;
     /// <summary>The layer strip's tooltip for the food toggle.</summary>
-    public const string FoodTooltip = "Food crisis (IPC): " + FoodDescription;
+    public static readonly string FoodTooltip = "Food crisis (IPC): " + FoodDescription;
     /// <summary>The last key under a country-value shading (P3-7): a country with no figure is not filled.</summary>
     public const string NoFigureKeyLabel = "no figure: not shaded";
     /// <summary>A layer whose data is not loaded yet (ruling R2).</summary>

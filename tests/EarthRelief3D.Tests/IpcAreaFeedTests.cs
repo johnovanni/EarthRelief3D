@@ -131,7 +131,7 @@ public class IpcAreaFeedTests
         var (http, h) = IpcAreaFixture.Http(geojson, csv, search);
         var store = new CrisisStore();
         var log = new ListLog();
-        return (new IpcAreaFeed(http, store, clock ?? new FixedClock(Now), log, cacheDir), store, log, h);
+        return (new IpcAreaFeed(http, store, clock ?? new FixedClock(Now), log, cacheDir, TimeSpan.Zero), store, log, h);
     }
 
     private static int Requests(SampleHttpHandler h, Uri url) => h.Requests.Count(r => r == url.ToString());
@@ -177,6 +177,8 @@ public class IpcAreaFeedTests
         Assert.Equal(IpcNationalReader.Publisher, set.Citation.Publisher);
         Assert.Equal("Mar 2026", set.Citation.Version);
         Assert.Equal("CC0", set.Citation.Licence);
+        Assert.Equal(CitationDate.AsOf, set.Citation.DateMeaning);   // AsOf the period's end, shown as the analysis period, never "as of"
+        Assert.All(set.Areas, a => Assert.Equal((CitationDate.AsOf, "CC0"), (a.Citation.DateMeaning, a.Citation.Licence)));
         Assert.Equal(new Uri("https://data.humdata.org/dataset/" + IpcAreaFixture.PackageName), set.Citation.Url);
         Assert.Contains(log.Lines, l => l.Contains("NGA") && l.Contains("38 areas") && l.Contains("2 points"));
     }
@@ -215,6 +217,78 @@ public class IpcAreaFeedTests
             CancellationToken.None);
         Assert.Empty(store.Snapshot.IpcAreas);
         Assert.Empty(h.Requests);
+    }
+
+    [Fact]
+    public async Task SkipsWhenTheDateOfAnalysisDiffers()
+    {
+        // R10: the same period, but another date of analysis in the national record: not the same analysis.
+        var (feed, store, log, h) = Make();
+        await feed.RunAsync([IpcAreaFixture.National(version: "Feb 2026")], CancellationToken.None);
+        Assert.Empty(store.Snapshot.IpcAreas);
+        Assert.Contains(log.Lines, l => l.Contains("NGA keeps the 20% rule") && l.Contains("country file's date of analysis Mar 2026, national record's Feb 2026"));
+        Assert.Equal(0, Requests(h, IpcAreaFixture.GeoJsonUrl));
+
+        // Trimmed and compared in any case: " mar 2026 " is "Mar 2026".
+        (feed, store, _, _) = Make();
+        await feed.RunAsync([IpcAreaFixture.National(version: " mar 2026 ")], CancellationToken.None);
+        Assert.Single(store.Snapshot.IpcAreas);
+    }
+
+    [Fact]
+    public async Task SkipsWhenADateOfAnalysisIsBlank()
+    {
+        // R11: a blank date of analysis on either side cannot confirm the same analysis.
+        var (feed, store, log, _) = Make();
+        await feed.RunAsync([IpcAreaFixture.National(version: "  ")], CancellationToken.None);
+        Assert.Empty(store.Snapshot.IpcAreas);
+        Assert.Contains(log.Lines, l => l.Contains("NGA keeps the 20% rule")
+            && l.Contains("the date of analysis is blank in the national record (the country file's is Mar 2026), so the same analysis cannot be confirmed"));
+
+        (feed, store, log, _) = Make(csv: IpcAreaFixture.CurrentCsv().Replace("Mar 2026,", ",", StringComparison.Ordinal));
+        await feed.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+        Assert.Empty(store.Snapshot.IpcAreas);
+        Assert.Contains(log.Lines, l => l.Contains("NGA keeps the 20% rule")
+            && l.Contains("the date of analysis is blank in the country file (the national record's is Mar 2026)"));
+    }
+
+    [Fact]
+    public async Task ACountryTurnedDownAtTheSearchIsNotAskedAgainFor12Hours()
+    {
+        var clock = new FixedClock(Now);
+        var (feed, _, log, h) = Make(search: IpcAreaFixture.Search(licence: "cc-by-nc-sa"), clock: clock);
+        var search = IpcAreaReader.SearchUrl("NGA");
+        await feed.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+        Assert.Equal(1, Requests(h, search));
+        clock.UtcNow = Now.AddHours(11);
+        await feed.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+        Assert.Equal(1, Requests(h, search));   // remembered under the same analysis
+        clock.UtcNow = Now.AddHours(12);
+        await feed.RunAsync([IpcAreaFixture.National()], CancellationToken.None);
+        Assert.Equal(2, Requests(h, search));
+        // A new national analysis is asked about at once.
+        await feed.RunAsync([IpcAreaFixture.National(version: "Sep 2026")], CancellationToken.None);
+        Assert.Equal(3, Requests(h, search));
+        Assert.Equal(TimeSpan.FromHours(12), IpcAreaFeed.RetrySearchAfter);
+        Assert.Equal(3, log.Lines.Count(l => l.Contains("cc-by-nc-sa")));
+    }
+
+    [Fact]
+    public async Task CountriesAreAskedWithAPauseBetweenThem()
+    {
+        Assert.Equal(TimeSpan.FromMilliseconds(500), IpcAreaFeed.DefaultPause);
+        var h = new SampleHttpHandler();   // every country's search: no package (a turned-down answer, remembered; a 404 would not be)
+        h.MapText("https://data.humdata.org/api/3/action/package_search", """{"success":true,"result":{"count":0,"results":[]}}""");
+        var feed = new IpcAreaFeed(new FeedHttp("test", h), new CrisisStore(), new FixedClock(Now), new ListLog(), pause: TimeSpan.FromMilliseconds(150));
+        var three = new[] { "NGA", "SOM", "SDN" }.Select(iso => IpcAreaFixture.National() with { Id = "ipc-" + iso, CountryIso3 = iso }).ToList();
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        await feed.RunAsync(three, CancellationToken.None);
+        Assert.True(sw.Elapsed >= TimeSpan.FromMilliseconds(290), $"took {sw.Elapsed.TotalMilliseconds} ms");   // two pauses for three countries
+        // Remembered (12 h): the second run asks nobody, so it does not wait.
+        sw.Restart();
+        await feed.RunAsync(three, CancellationToken.None);
+        Assert.True(sw.Elapsed < TimeSpan.FromMilliseconds(150), $"took {sw.Elapsed.TotalMilliseconds} ms");
+        Assert.Equal(3, h.Requests.Count);
     }
 
     [Fact]
@@ -328,7 +402,7 @@ public class IpcAreaFeedTests
         var (http, h) = Samples.IpcHttp();
         var store = new CrisisStore();
         var log = new ListLog();
-        var areas = new IpcAreaFeed(http, store, new FixedClock(SampleStore.Now), log);
+        var areas = new IpcAreaFeed(http, store, new FixedClock(SampleStore.Now), log, pause: TimeSpan.Zero);
         var result = await new IpcNationalFeed(http, store, new FixedClock(SampleStore.Now), log, areas: areas).RunOnceAsync(CancellationToken.None);
         Assert.Equal(FeedRunResult.Ok, result);
         Assert.NotEmpty(store.Snapshot.Crises.OfType<FoodCrisis>());

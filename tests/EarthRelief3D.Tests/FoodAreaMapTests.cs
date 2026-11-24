@@ -173,15 +173,16 @@ public class FoodAreaMapTests
     {
         Assert.Equal("Where IPC publishes areas, each area is shaded in IPC's own area classification; elsewhere the country is shaded by the 20% rule",
             LegendViewModel.FoodAreasRule);
-        Assert.Equal("Food crisis: " + LegendViewModel.FoodAreasRule + ". By the 20% rule, " + LegendViewModel.FoodRule,
-            LegendViewModel.Measures(CrisisLayer.Food));
-        Assert.Equal("Food crisis (IPC): " + LegendViewModel.FoodAreasRule + ". By the 20% rule, " + LegendViewModel.FoodRule,
-            LegendViewModel.FoodTooltip);
+        // After a colon the sentence goes on in lower case.
+        const string inline = "where IPC publishes areas, each area is shaded in IPC's own area classification; elsewhere the country is shaded by the 20% rule";
+        Assert.Equal("Food crisis: " + inline + ". By the 20% rule, " + LegendViewModel.FoodRule, LegendViewModel.Measures(CrisisLayer.Food));
+        Assert.Equal("Food crisis (IPC): " + inline + ". By the 20% rule, " + LegendViewModel.FoodRule, LegendViewModel.FoodTooltip);
+        Assert.StartsWith("Food crisis: where IPC", LegendViewModel.Measures(CrisisLayer.Food));
         var store = new CrisisStore();
         store.Load(Snapshot(Squares()));
         var legend = new LegendViewModel(store, new LayerStripViewModel(new MemorySettingsStore()), nowUtc: () => Now);
         var food = legend.Lines.Single(l => l.Layer == CrisisLayer.Food);
-        Assert.StartsWith("Food crisis: " + LegendViewModel.FoodAreasRule, food.Measures);
+        Assert.Equal(LegendViewModel.Measures(CrisisLayer.Food), food.Measures);
         Assert.Equal(CrisisText.FamineNote, food.Note);   // the country-wide note stays for countries shaded by the rule
     }
 
