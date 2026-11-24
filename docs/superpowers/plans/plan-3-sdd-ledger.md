@@ -127,3 +127,43 @@ Branch `plan-3` was made from main c514ef5; the plan was committed as 029e3ac. G
 - Ruling: R21 accept the fixer's group start rule: a group with an active layer always starts open; otherwise it follows the saved choice, or starts closed if there is none. A failed bundled extract shows nothing and says why. The strip may still scroll when a group is open — the brief's two requirements conflicted; this honours both — cost if wrong: a group stays open by the user's own choice.
 - Scoped re-review of the fix wave dispatched (sonnet).
 - Final fix re-review: all addressed, no new Critical/Important. Minors (fine to leave): a hidden-layer compose still rasterizes; a Baseline without DateText prints 'baseline ending N'; no test for a corrupt rejection file. Controller verified the Release build (0 warnings) and the tests.
+- 2026-11-23: owner chose merge locally. main fast-forwarded to a534db6; 390 tests pass on main; branch plan-3 deleted. Not pushed. The workspace is kept for Task 7.
+- 2026-11-24: the owner reports the GEM licence page https://globalenergymonitor.org/creative-commons-license. The controller read it: the full text is the Creative Commons Attribution 4.0 International Public License (CC BY 4.0). Bundling is allowed with attribution, a licence link and an indication of modification. Task 7 proceeds once the files are in .downloads\gem (not there yet).
+- 2026-11-24: the owner supplied the GEM files: Power (September 2026 V2), Oil and Gas Extraction (March 2026), and Iron and Steel (September 2026 V1; plant-, steel-unit and iron-unit files from gem-download.zip, extracted to .downloads\gem\steel). Branch plan-3-gem from main a534db6. Task 7: dispatched implementer (opus), BASE a534db6
+- Task 7: DONE_WITH_CONCERNS d6ea9a5, 404 tests. Markers: power 4,113 (500 MW or more, summed per plant); oil and gas 4,933; steel 600 (1 Mt/yr or more, plant-level file). One launch: resources.png shows all three layers.
+- Ruling: R22 (implementer's, accepted): power units sourced from TransitionZero (CC BY-NC 4.0) are never bundled; a plant containing one is left out (none of 500 MW or more today) — C6: NC data is never committed — cost if wrong: none.
+- Ruling: R23 (implementer's, accepted): 6,055 oil and gas fields passed the filters, so the cap is met by leaving out fields GEM reports producing under 0.2 million boe/yr; 653 fields with no production figure are kept — P3-9 — cost if wrong: some small fields missing. Decisions T7-1 to T7-3 are in the task-7 report and the spec table.
+- Task 7: review dispatched (sonnet).
+- Task 7: review Approved, no Critical/Important. Spot-checks match the raw workbooks exactly: Three Gorges 22,500 MW, Itaipu, Bruce, Taichung; Burgan, Rumaila, Safaniya; POSCO Gwangyang, Baoshan, Tata. All 4,113 power plants are confirmed free of TZ (no non-commercial units).
+- Ruling: R24 two of the Minors are about accuracy, so they are fixed in one small round:
+  1. GEM's recommended citation verbatim, publisher first ("Global Energy Monitor, Global Integrated Power Tracker, September 2026 release."), with "file V2" as a separate version note;
+  2. multi-fuel power tooltips list each fuel's MW.
+
+  Task 7: minor (deferred): the steel key strokes are heavier than the map's; oil/gas vs fossil power are neighbouring oranges; the licence URL form differs from the steel About sheet's (both are GEM's).
+- Task 7: fix round 1/5 sent (R24).
+- 2026-11-24: the owner asked for a renewables layer.
+- Ruling: R25 add MarkerLayer.Renewables to Resources, from the same GIPT file:
+  - fuels: wind, utility-scale solar (incl. solar thermal if GEM lists it), hydropower, geothermal, bioenergy;
+  - operating units only, summed per plant, R22 still applied;
+  - threshold: start at 100 MW, then raise in steps (150, 200, 300) until the count is at most 5,000. The threshold is recorded in the manifest and legend;
+  - fills use the same fuel colours as the power layer;
+  - shape: a new distinct glyph (a hexagon), not one used by any layer (C8);
+  - the power layer stays all fuels at 500 MW or more, so a large renewable plant appears in both layers when both are on, and the legend says so.
+  — The owner asked for it; the 500 MW cap hid most wind, solar, geothermal and bioenergy — cost if wrong: duplicate markers when both layers are on.
+  Dispatch after the R24 fix round passes re-review (same agent, same files).
+- Task 7: R24 fix c20da59 (405 tests; data.csv byte-identical; manifest asOf/command also changed). Re-review dispatched (haiku).
+- Task 7: R24 re-review: citations in the manifests and legend credit and multi-fuel tooltips are ADDRESSED; data.csv byte-identical. Open: the status dot shows only the release text, not GEM's full citation.
+- Ruling: R24b the status dot keeps the short "<layer> <release>" form, like every other source dot. GEM's full publisher-first citation lives in the legend credit and the manifests, which is where credit is given — R24's "status dot" was my over-reach — cost if wrong: none. Finding closed. Task 7: complete (a534db6..c20da59). Task 7: minor (deferred → folded into R25): the multi-fuel colour test can't tell largest from first-listed.
+- R25 dispatched to the Task 7 implementer, BASE c20da59.
+- R25: done a31acba (415 tests). The threshold stepped 100 MW → 9,047 plants, 150 → 5,379, 200 → 4,021 (4,020 drawn, 1 Réunion not placed). By fuel: wind 1,429, solar 1,271, hydro 1,265, bioenergy 41, geothermal 14. 1,058 plants are also in the Power layer. Gem-power output is byte-identical. One launch: four layers over the Gulf were unreadable, so a new `renewables` scene (Europe + water stress) was added and `resources` keeps three layers. Review dispatched (sonnet).
+- R25 review: Approved. All 4,020 rows match the raw file; the steps and fuel split were recomputed and match; 0 TransitionZero; gem-power unchanged. Spot-checks: Hornsea, Walney, Gemini, Noor Abu Dhabi, Ruoqiang, Bhadla III, Makban, Drax, Three Gorges.
+- Ruling: R26 fold two accuracy Minors into one small round:
+  1. For a renewable plant that also has non-renewable units, the tooltip says "renewable units only (the plant also has N MW of <fuel>)" and the legend measure says other fuels are left out.
+  2. Fix the stale "(V2) release" credit string in plan-3-results.md.
+
+  Deferred, cosmetic: round legend keys for hexagon markers; hydro shares the strip symbol colour; the overlap sentence sits below the legend fold.
+- R26 done a3195a9 (416 tests): an other_fuels column; Drax tooltip "renewable units only; the plant also has 96 MW of oil/gas"; legend note; doc string fixed; gem-power byte-identical.
+- Ruling: R27 a plant whose renewable units total 200 MW or more stays in the renewables layer even when it has more fossil capacity (4 plants, e.g. Polaniec: 225 MW bioenergy against 1,657 MW coal) — the layer maps renewable capacity, and the tooltip names the fossil part — cost if wrong: 4 markers could suggest a green plant; owner may choose otherwise.
+- R26 re-review dispatched (haiku).
+- R26 re-review: all addressed, no new Critical/Important. Minor (deferred): a test attribute is on the same line as its method (formatting); OtherFuelsText needs a length guard for malformed parts. Controller re-ran the build and tests on a3195a9 (closes the raw-output evidence gap).
+- Task 7 + R24–R27: complete on branch plan-3-gem (a534db6..a3195a9 plus the ledger commit). Awaiting the owner's merge decision.
