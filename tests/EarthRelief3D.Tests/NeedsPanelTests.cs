@@ -38,7 +38,8 @@ public class NeedsPanelTests
              ("Without at least basic sanitation", "6.6% of people (2024, WHO GHO)"),
              ("Health services not covered", "57 points (2023, WHO GHO; 100 minus the UHC service coverage index)"),
              // Task 6: FAO's food supply, from a bundled extract (not loaded in this store).
-             ("Food supply", "Data not loaded yet")],
+             ("Food supply", "Data not loaded yet"),
+             ("Undernourishment", "Data not loaded yet")],
             basic.Rows);
         Assert.StartsWith("Source: World Health Organization, Global Health Observatory", basic.SourceLine);
         Assert.Contains("estimate year 2024", basic.SourceLine);
@@ -91,7 +92,7 @@ public class NeedsPanelTests
         Assert.Equal("Data not loaded yet", Section(empty, "People in need (UN humanitarian needs overview)").Rows.Single().Value);
         Assert.DoesNotContain(panel.Sections, s => s.Heading.StartsWith("People in need", StringComparison.Ordinal));
         // The GHO values are still there (and FAO's food supply row after them).
-        Assert.Equal(4, Section(panel, CountryPanelViewModel.BasicNeedsHeading).Rows.Count);
+        Assert.Equal(5, Section(panel, CountryPanelViewModel.BasicNeedsHeading).Rows.Count);
     }
 
     [Fact]

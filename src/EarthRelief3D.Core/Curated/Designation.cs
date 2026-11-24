@@ -97,11 +97,17 @@ public sealed record Designation(string Id, string Iso3, string Situation, strin
 /// <summary>One country's designations as the map and the panel show them.</summary>
 /// <param name="Current">On the map: the current findings, and the interim steps with a recent continuing statement listed with
 /// them (empty unless the country has a current finding). Newest first.</param>
-/// <param name="History">The rest, except "not established" judgments. Newest first.</param>
+/// <param name="History">The rest, except "not established" judgments and <see cref="Interim"/>. Newest first.</param>
 /// <param name="NotEstablished">Court judgments that found the crime not established. Newest first.</param>
 public sealed record CountryDesignations(IReadOnlyList<Designation> Current, IReadOnlyList<Designation> History,
     IReadOnlyList<Designation> NotEstablished)
 {
+    /// <summary>
+    /// Interim steps (provisional measures, warrants, pending cases) with a statement from the last 12 months, in a country
+    /// with no current finding: not on the map, and not history either (final fix wave D2). Newest first.
+    /// </summary>
+    public IReadOnlyList<Designation> Interim { get; init; } = [];
+
     /// <summary>Splits one country's visible designations at <paramref name="nowUtc"/>.</summary>
     public static CountryDesignations Of(IEnumerable<Designation> countryRows, DateTime nowUtc)
     {
@@ -110,7 +116,8 @@ public sealed record CountryDesignations(IReadOnlyList<Designation> Current, IRe
         var rest = rows.Where(d => d.Outcome == FindingOutcome.Established).ToList();
         var onMap = rest.Any(d => d.IsCurrentAt(nowUtc));
         var current = onMap ? rest.Where(d => d.IsCurrentAt(nowUtc) || (d.IsInterim && d.ContinuesAt(nowUtc))).ToList() : [];
-        return new CountryDesignations(current, [.. rest.Except(current)], notEstablished);
+        List<Designation> interim = onMap ? [] : [.. rest.Where(d => d.IsInterim && d.ContinuesAt(nowUtc))];
+        return new CountryDesignations(current, [.. rest.Except(current).Except(interim)], notEstablished) { Interim = interim };
     }
 }
 

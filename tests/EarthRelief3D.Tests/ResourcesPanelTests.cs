@@ -39,6 +39,21 @@ public class ResourcesPanelTests
         var empty = Panel(new IndicatorStore());
         empty.Show("HTI");
         Assert.Equal(("Food supply", "Data not loaded yet"), Section(empty, CountryPanelViewModel.BasicNeedsHeading).Rows[3]);
+        Assert.Equal(("Undernourishment", "Data not loaded yet"), Section(empty, CountryPanelViewModel.BasicNeedsHeading).Rows[4]);
+    }
+
+    [Fact]
+    public void BasicNeedsShowsUndernourishment()
+    {
+        // C7: the Hunger layer's figure is in the panel too, as the map shows it (3-year average with its range), or says
+        // there is none (the same HasFigure rule).
+        var panel = Panel(Bundled());
+        panel.Show("SDN");
+        Assert.Equal(("Undernourishment", "10.9%, average 2020–2022, FAO"), Section(panel, CountryPanelViewModel.BasicNeedsHeading).Rows[4]);
+        panel.Show("ISL");
+        Assert.Equal(("Undernourishment", "under 2.5%, average 2023–2025, FAO"), Section(panel, CountryPanelViewModel.BasicNeedsHeading).Rows[4]);
+        panel.Show("YEM");   // FAO publishes no undernourishment figure for Yemen
+        Assert.Equal(("Undernourishment", "No figure from FAO"), Section(panel, CountryPanelViewModel.BasicNeedsHeading).Rows[4]);
     }
 
     [Fact]

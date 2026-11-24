@@ -32,8 +32,8 @@ public static class CuratedReview
         L("- Provisional measures, arrest warrants and pending cases say they are not verdicts.");
         L("- A country gets a triangle only from a court judgment, UN body finding or government determination whose");
         L("  continuing statement is dated within the last 12 months. Provisional measures, warrants and pending cases never draw");
-        L("  one on their own; when the country has a triangle, those with a recent statement are listed with it. The rest is");
-        L("  listed under the panel's history.");
+        L("  one on their own; when the country has a triangle, those with a recent statement are listed with it, and when it");
+        L("  has none, under \"interim steps: not on the map\". The rest is listed under the panel's history.");
         L("- A court judgment whose outcome is \"not established\" is never drawn and never counts as a crisis; the panel lists it");
         L("  under \"Cases decided: not established\".");
         L("- A camp keeps its marker unless its newest cited report says it closed (`reportedClosed`, ruling R14b); a closed camp");

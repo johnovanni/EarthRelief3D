@@ -12,8 +12,8 @@ How the app uses a row (C14):
 - Provisional measures, arrest warrants and pending cases say they are not verdicts.
 - A country gets a triangle only from a court judgment, UN body finding or government determination whose
   continuing statement is dated within the last 12 months. Provisional measures, warrants and pending cases never draw
-  one on their own; when the country has a triangle, those with a recent statement are listed with it. The rest is
-  listed under the panel's history.
+  one on their own; when the country has a triangle, those with a recent statement are listed with it, and when it
+  has none, under "interim steps: not on the map". The rest is listed under the panel's history.
 - A court judgment whose outcome is "not established" is never drawn and never counts as a crisis; the panel lists it
   under "Cases decided: not established".
 - A camp keeps its marker unless its newest cited report says it closed (`reportedClosed`, ruling R14b); a closed camp

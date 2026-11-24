@@ -119,9 +119,21 @@ public class AtrocityLayerTests
         var panel = Panel(store);
         panel.Show("PSE");
         Assert.DoesNotContain(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
-        var history = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading);
-        Assert.Equal(4, history.Rows.Count);   // the note and the three interim steps, with their labels
+        // D2: with a recent statement but no finding they are not history: their own heading says they are not on the map.
+        Assert.DoesNotContain(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading);
+        var interim = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.InterimHeading);
+        Assert.EndsWith(": not on the map", interim.Heading, StringComparison.Ordinal);
+        Assert.DoesNotContain("history", interim.Heading, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(4, interim.Rows.Count);   // the note and the three interim steps, with their labels
+        Assert.Equal(("Note", CountryPanelViewModel.InterimNote), interim.Rows[0]);
         Assert.True(panel.HasNoCrisis);
+
+        // A past finding beside them is still history, in its own section.
+        var past = Row("old", "PSE", AuthorityType.CourtJudgment);
+        store.Replace(Tables([warrant, pending, measures, past]));
+        panel.Show("PSE");
+        Assert.Single(Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading).Rows, r => r.Label != "Note");
+        Assert.Equal(4, Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.InterimHeading).Rows.Count);
 
         // With a current finding the country is on the map, and the interim steps are listed with it (tooltip and panel).
         var finding = Row("f", "PSE", continuing: Still(new DateOnly(2026, 6, 18)), date: new DateOnly(2025, 9, 16));

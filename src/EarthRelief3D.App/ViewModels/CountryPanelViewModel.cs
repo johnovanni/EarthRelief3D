@@ -47,6 +47,13 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     public const string AtrocityHeading = "Genocide and mass atrocities";
     /// <summary>The country's other designations the user sees: past, or "not established" (C14).</summary>
     public const string AtrocityHistoryHeading = "Genocide and mass atrocities: history";
+    /// <summary>
+    /// Interim steps with a recent statement in a country with no current finding (D2): not on the map, and not history.
+    /// </summary>
+    public const string InterimHeading = "Genocide and mass atrocities, interim steps: not on the map";
+    /// <summary>The note at the top of the interim section.</summary>
+    public const string InterimNote = "Provisional measures, arrest warrants and pending cases are not findings. Even with a statement "
+        + "from the last 12 months that the situation continues, they never put a triangle on the map alone.";
     /// <summary>Court judgments that found the crime alleged not established (ICJ, Croatia v. Serbia): never on the map, never a crisis.</summary>
     public const string NotEstablishedHeading = "Cases decided: not established";
     public const string CampsHeading = "Prison camps";
@@ -179,6 +186,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             var split = CountryDesignations.Of(_curated.Visible.Where(d => string.Equals(d.Iso3, iso3, StringComparison.OrdinalIgnoreCase)), now);
             currentAtrocity = split.Current.Count > 0;
             AddMarker(split.Current.Count == 0 ? null : AtrocitySection(AtrocityHeading, split.Current, governments, now, HistoryKind.None), MarkerLayer.Atrocities);
+            AddMarker(split.Interim.Count == 0 ? null : AtrocitySection(InterimHeading, split.Interim, governments, now, HistoryKind.Interim), MarkerLayer.Atrocities);
             AddMarker(split.History.Count == 0 ? null : AtrocitySection(AtrocityHistoryHeading, split.History, governments, now, HistoryKind.Past), MarkerLayer.Atrocities);
             AddMarker(split.NotEstablished.Count == 0 ? null
                 : AtrocitySection(NotEstablishedHeading, split.NotEstablished, governments, now, HistoryKind.NotEstablished), MarkerLayer.Atrocities);
@@ -340,7 +348,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     /// The country's designations, newest first: each with its label (type and term; drafts marked), the authority and its
     /// kind, the date, the situation and group, and (when current) the continuing statement; a link to every document.
     /// </summary>
-    private enum HistoryKind { None, Past, NotEstablished }
+    private enum HistoryKind { None, Past, NotEstablished, Interim }
 
     private PanelSection AtrocitySection(string heading, IReadOnlyList<Designation> list, IReadOnlyList<Government> governments,
         DateTime now, HistoryKind kind)
@@ -348,6 +356,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var rows = new List<(string, string)>();
         if (kind == HistoryKind.Past) rows.Add(("Note", HistoryNote));
         if (kind == HistoryKind.NotEstablished) rows.Add(("Note", NotEstablishedNote));
+        if (kind == HistoryKind.Interim) rows.Add(("Note", InterimNote));
         var links = new List<PanelLink>();
         foreach (var d in list)
         {
@@ -427,6 +436,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             ? $"Source: {ghoPublisher} · {(rows.Any(r => r.Item2 == LayerCatalog.NotLoaded) ? LayerCatalog.NotLoaded : "no figure for this country")} · {CheckedText(checkedUtc, GhoFeed.FeedName)}"
             : $"Source: {newest.Publisher}, Global Health Observatory · {CrisisText.DataDate(newest, now)}, newest (each figure shows its own year)";
         rows.Add((FoodSupplyLabel, FoodSupply(snap, iso3)));   // FAO, bundled (Task 6): the row names its source and years
+        rows.Add((UndernourishmentLabel, Undernourishment(snap, iso3)));   // the Hunger layer's figure (C7)
         yield return new PanelSection(BasicNeedsHeading, rows, ghoLine, newest?.Url ?? GhoFeed.PageUrl);
 
         yield return PlanSection(snap, checkedUtc, iso3, now);
@@ -434,6 +444,21 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     }
 
     public const string FoodSupplyLabel = "Food supply";
+    public const string UndernourishmentLabel = "Undernourishment";
+
+    /// <summary>
+    /// "10.9%, average 2020–2022, FAO": the Hunger layer's figure as the map shows it (C7), or "No figure from FAO" (the
+    /// <see cref="CountryValueLayer.HasFigure"/> rule), or "Data not loaded yet".
+    /// </summary>
+    private static string Undernourishment(IndicatorSnapshot snap, string iso3)
+    {
+        if (snap.Get(LayerCatalog.SeriesId(ShadingLayer.Hunger)) is not { } series) return LayerCatalog.NotLoaded;
+        var scale = ShadingScales.For(ShadingLayer.Hunger);
+        if (series.For(iso3) is not { } v || !CountryValueLayer.HasFigure(v, scale)) return $"No figure from {LayerCatalog.SourceName(ShadingLayer.Hunger)}";
+        var years = v.Citation.DateMeaning == CitationDate.ThreeYearAverage
+            ? "average " + CrisisText.AverageRange(v.Year) : v.Year.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return $"{CountryValueLayer.ValueText(v, series.Unit, scale)}, {years}, {LayerCatalog.SourceName(ShadingLayer.Hunger)}";
+    }
 
     /// <summary>
     /// "dietary energy adequacy 84%, 2023–2025, FAO": FAO's 3-year average (stored with the last of its years), or "No
