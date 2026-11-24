@@ -119,3 +119,34 @@ From the run's log:
 
 No re-run after tuning was possible within the budget, so nothing was tuned after looking. The tooltip wrap was made
 before the snapshot run, from the test's measurement.
+
+## Final fixes (after the final review, 2026-11-23)
+
+- Fixed: collapsible Needs and Resources groups (R20); a focused panel section opens at its heading; the camp line says
+  "checked <date>" and each camp tooltip its newest report; "UN humanitarian needs overview" (not "plan"), and a
+  country not in the HNO file reads "Not in OCHA's 2026 needs-overview file on HDX"; water stress is dated "baseline
+  1979–2019 (published 2023)" with no year appended; EIA says "year 2025"; hidden shadings free their image; an
+  unreadable IPC feature no longer stops a run; IPC rejections are saved across restarts; a bundled extract that fails
+  shows nothing (not an older cached copy); the panel's "Basic needs" shows FAO's undernourishment; interim steps with
+  no finding sit under "Genocide and mass atrocities, interim steps: not on the map"; the US scope says "before 2001";
+  the spec's rulings table has R20; the README no longer names Task 7.
+- Tests: `dotnet build EarthRelief3D.sln` in Release and Debug (`--no-incremental`): 0 warnings, 0 errors.
+  `dotnet test` in Release and Debug: **390 passed, 0 failed, 0 skipped** (377 before).
+- Launch (the plan's 4th and last): `EarthRelief3D.App.exe --offline-samples tests\Samples --snapshot-scenes
+  tests\SnapshotScenes\scenes.json --snapshot-out artifacts\snapshot-plan3-final` (Release build, from PowerShell),
+  exit code 0, nine pictures.
+- PngDiff against `artifacts\snapshot-plan3`: **all nine differ** (exit code 1), as expected: every scene has the new
+  strip (the closed groups' headers, or a group opened for the scene's layer), and the panel scenes scroll to the
+  focused section's top. Not copied over `artifacts\snapshot-baseline`.
+- What was seen:
+  - `africa`: the strip is shorter (Crises, then "▸ Needs closed" and "▸ Resources closed", "Getting help in" and
+    Settings all in view, no scroll bar), so the legend card starts higher and shows more lines (the food line's phase
+    keys and outline key now in view).
+  - `resources`: the Resources group is open and its active "Oil production" toggle is in view; Needs is closed. The
+    legend's source line ends "year 2025".
+  - `dprk-camps`: the panel opens with the "Prison camps" heading at the top of its view, then Camp 14's row. The
+    legend's camp line reads "... curated camp sites, newest report 18 Jun 2024 · checked 23 Nov 2026".
+  - `water`: the Needs group is open with Water on; Resources is below the strip's fold (the strip still scrolls when a
+    group is open).
+- Not pictured: the water-stress shading (its "baseline 1979–2019 (published 2023)" wording is checked by tests only),
+  the camp tooltips' "newest report" (hover), the interim-steps section and the undernourishment row.
