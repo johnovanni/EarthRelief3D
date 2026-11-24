@@ -46,7 +46,7 @@ public sealed class MainViewModel
 
     private void PublishCamps()
     {
-        if (Curated.Tables.Camps.Count > 0) MarkerData.Replace(MarkerLayer.Camps, CampMarkers.For(Curated));
+        if (CampMarkers.For(Curated) is { } set) MarkerData.Replace(MarkerLayer.Camps, set);
     }
 
     /// <summary>The country-value series the Plan 3 shadings draw (ruling R2: a missing series says "Data not loaded yet").</summary>

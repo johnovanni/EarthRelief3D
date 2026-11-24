@@ -15,6 +15,17 @@ public sealed record Government(string Iso3, string Name, bool CuratedComplete, 
     public string? Scope { get; init; }
 }
 
+/// <summary>A link in a <see cref="Candidate"/>: <paramref name="Kind"/> is "authority" (the authority's own page) or "lead" (news, a study: never a citation).</summary>
+public sealed record CandidateLink(string Title, Uri Url, string Kind);
+
+/// <summary>
+/// A designation or camp that was researched but not entered: why, what the owner could do, and the links. Shown only in
+/// docs/curated-review.md (section "Awaiting confirmation / not entered").
+/// </summary>
+/// <param name="What">The candidate in a few words.</param>
+/// <param name="Status">"awaiting confirmation" (the facts exist but could not be read on the authority's site) or "not entered".</param>
+public sealed record Candidate(string Id, string What, string Status, string Reason, string? OwnerAction, IReadOnlyList<CandidateLink> Links);
+
 /// <summary>What the user sees: drafts only with <c>--show-drafts</c> (P3-4), determinations only of the chosen governments (C15).</summary>
 public sealed record CuratedFilter(bool ShowDrafts, IReadOnlySet<string> Governments);
 
@@ -28,8 +39,13 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
     public const string DesignationsFile = "designations.json";
     public const string CampsFile = "camps.json";
     public const string GovernmentsFile = "governments.json";
+    /// <summary>Candidates researched but not entered (for the owner's review document only; the app never shows them).</summary>
+    public const string NotEnteredFile = "not-entered.json";
 
     public static CuratedTables Empty { get; } = new([], [], []);
+
+    /// <summary>The candidates awaiting confirmation or left out, with the reason and the links (docs/curated-review.md).</summary>
+    public IReadOnlyList<Candidate> NotEntered { get; init; } = [];
 
     /// <summary>The governments the Settings flyout offers (C15): only those curated completely.</summary>
     public IReadOnlyList<Government> OfferedGovernments => [.. Governments.Where(g => g.CuratedComplete)];
@@ -43,7 +59,7 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
                 || d.GovernmentIso3 is { } g && offered.Contains(g) && f.Governments.Contains(g)))];
     }
 
-    /// <summary>The camp sites the user sees under <paramref name="f"/>.</summary>
+    /// <summary>The camp sites the user sees under <paramref name="f"/>, open or reported closed (the panel lists both).</summary>
     public IReadOnlyList<CampSite> VisibleCamps(CuratedFilter f) => [.. Camps.Where(c => c.Review.IsApproved || f.ShowDrafts)];
 
     // ---------------------------------------------------------------- loading
@@ -65,7 +81,11 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
         var designations = Read<List<Designation>>(Path.Combine(dir, DesignationsFile));
         var camps = Read<List<CampDto>>(Path.Combine(dir, CampsFile)).Select(c => c.ToCamp()).ToList();
         var governments = Read<List<GovernmentDto>>(Path.Combine(dir, GovernmentsFile)).Select(g => g.ToGovernment()).ToList();
-        var tables = new CuratedTables(designations, camps, governments);
+        var notEnteredPath = Path.Combine(dir, NotEnteredFile);
+        var tables = new CuratedTables(designations, camps, governments)
+        {
+            NotEntered = File.Exists(notEnteredPath) ? Read<List<Candidate>>(notEnteredPath) : [],
+        };
         var problems = Validate(tables);
         if (problems.Count > 0)
             throw new InvalidDataException($"{dir}: {problems.Count} problem(s) in the curated tables:{Environment.NewLine}" + string.Join(Environment.NewLine, problems));
@@ -87,7 +107,8 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
     private sealed record GeoDto(double Lat, double Lon);
 
     private sealed record CampDto(string Id, string Iso3, string Name, string? LocalName, GeoDto? Position, DocumentCitation? PositionSource,
-        string Description, List<DocumentCitation>? DocumentedBy, Review? Review, DateOnly CheckedOn, string? Verification)
+        string Description, List<DocumentCitation>? DocumentedBy, Review? Review, DateOnly CheckedOn, string? Verification,
+        CampClosure? ReportedClosed, string? OwnerQuestion)
     {
         public CampSite ToCamp() => new(Id, Iso3, Name, LocalName,
             Position is null ? new GeoPosition(double.NaN, double.NaN) : new GeoPosition(Position.Lat, Position.Lon),
@@ -95,6 +116,8 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
         {
             CheckedOn = CheckedOn,
             Verification = Verification,
+            ReportedClosed = ReportedClosed,
+            OwnerQuestion = OwnerQuestion,
         };
     }
 
@@ -180,7 +203,30 @@ public sealed record CuratedTables(IReadOnlyList<Designation> Designations, IRea
                     if (c.DocumentedBy[i]?.Date > c.DocumentedBy[i - 1]?.Date) { problems.Add($"{id}: documentedBy is not newest first"); break; }
             }
             if (!IsRealDate(c.CheckedOn)) problems.Add($"{id}: no checkedOn date");
+            if (c.ReportedClosed is { } closed)
+            {
+                Required(problems, id, closed.Statement, "closure statement");
+                Required(problems, id, closed.ShortSource, "closure short source");
+                if (closed.Source is null) problems.Add($"{id}: the closure statement has no source");
+                else Cited(problems, id, "closure source", closed.Source.Title, closed.Source.Url, closed.Source.Date, closed.Source.Publisher);
+            }
             ReviewOk(problems, id, c.Review);
+        }
+
+        foreach (var n in t.NotEntered)
+        {
+            if (n is null) { problems.Add("not-entered: an empty entry"); continue; }
+            var id = string.IsNullOrWhiteSpace(n.Id) ? "(candidate with no id)" : n.Id;
+            if (!ids.Add(id)) problems.Add($"{id}: id used twice");
+            Required(problems, id, n.What, "description (what)");
+            Required(problems, id, n.Reason, "reason");
+            if (n.Status is not ("awaiting confirmation" or "not entered")) problems.Add($"{id}: status must be \"awaiting confirmation\" or \"not entered\"");
+            foreach (var l in n.Links ?? [])
+            {
+                if (l is null || string.IsNullOrWhiteSpace(l.Title) || l.Url is not { IsAbsoluteUri: true } u || u.Scheme != Uri.UriSchemeHttps)
+                    problems.Add($"{id}: every link needs a title and an absolute https URL");
+                else if (l.Kind is not ("authority" or "lead")) problems.Add($"{id}: link kind must be \"authority\" or \"lead\"");
+            }
         }
         return problems;
     }

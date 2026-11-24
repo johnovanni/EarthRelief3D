@@ -86,10 +86,91 @@ public class AtrocityLayerTests
         Assert.Equal(0, layer.MarkerCount);
         var panel = Panel(store);
         panel.Show("HRV");
-        var history = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading);
-        Assert.Contains(history.Rows, r => r.Label == "Court judgment: genocide not established");
+        // Its own section and note: never the past-history note about continuing statements.
+        var decided = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.NotEstablishedHeading);
+        Assert.Contains(decided.Rows, r => r.Label == "Court judgment: genocide not established");
+        Assert.Contains(decided.Rows, r => r.Value == CountryPanelViewModel.NotEstablishedNote);
+        Assert.DoesNotContain(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading);
+        Assert.DoesNotContain(panel.Sections.SelectMany(s => s.Rows), r => r.Value == CountryPanelViewModel.HistoryNote);
         // "Not established" is not a crisis.
         Assert.True(panel.HasNoCrisis);
+
+        // The real HRV row too: its panel never carries the history note.
+        var real = new CuratedStore(CuratedTables.Load(System.IO.Path.Combine(AppContext.BaseDirectory, "data", "curated")), showDrafts: true);
+        var realPanel = Panel(real);
+        realPanel.Show("HRV");
+        Assert.Contains(realPanel.Sections, s => s.Heading == CountryPanelViewModel.NotEstablishedHeading);
+        Assert.DoesNotContain(realPanel.Sections.SelectMany(s => s.Rows), r => r.Value == CountryPanelViewModel.HistoryNote);
+    });
+
+    [Fact]
+    public void AnInterimStepAloneDrawsNoGlyph() => StaAsync.Sta(() =>
+    {
+        // A warrant and a pending case, each with a recent continuing statement, and no finding: no triangle (C14).
+        var warrant = Row("w", "PSE", AuthorityType.ArrestWarrant, term: "crimes against humanity", continuing: Still(new DateOnly(2026, 6, 18)));
+        var pending = Row("p", "PSE", AuthorityType.PendingCase, continuing: Still(new DateOnly(2026, 6, 18)));
+        var measures = Row("m", "PSE", AuthorityType.CourtProvisionalMeasures, continuing: Still(new DateOnly(2026, 6, 18)));
+        var store = new CuratedStore(Tables([warrant, pending, measures]), showDrafts: false);
+        var layer = Layer(store);
+        var (ctx, projector) = ViewOn("PSE");
+        layer.Update(ctx);
+        Assert.Equal(0, layer.MarkerCount);
+        Assert.Empty(AtrocityLayer.CurrentByCountry(store, Now));
+        var panel = Panel(store);
+        panel.Show("PSE");
+        Assert.DoesNotContain(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
+        var history = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading);
+        Assert.Equal(4, history.Rows.Count);   // the note and the three interim steps, with their labels
+        Assert.True(panel.HasNoCrisis);
+
+        // With a current finding the country is on the map, and the interim steps are listed with it (tooltip and panel).
+        var finding = Row("f", "PSE", continuing: Still(new DateOnly(2026, 6, 18)), date: new DateOnly(2025, 9, 16));
+        store.Replace(Tables([warrant, pending, measures, finding]));
+        layer.Update(ctx);
+        Assert.Equal(1, layer.MarkerCount);
+        Assert.True(projector.TryProject(MarkerMeshes.Above(Countries.ByIso3("PSE")!.LabelPoint, AtrocityLayer.Height), out var at));
+        var tip = layer.HitTest(at, projector, hover: true)!.Tooltip;
+        Assert.Contains("UN body finding: genocide", tip);
+        Assert.Contains("Arrest warrant on charges of crimes against humanity: not a verdict", tip);
+        Assert.Contains("Pending: no finding yet", tip);
+        Assert.Contains("Provisional measures", tip);
+        panel.Show("PSE");
+        var current = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
+        Assert.Equal(4, current.Rows.Count);
+        Assert.Equal("UN body finding: genocide", current.Rows[0].Label);   // newest first
+        Assert.DoesNotContain(panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHistoryHeading);
+    });
+
+    [Fact]
+    public void ACampReportedClosedIsHistoryWithoutAMarker() => StaAsync.Sta(() =>
+    {
+        // Ruling R14: data on the row (a cited closure statement), not code that knows a camp.
+        var open = Camp("open");
+        var closed = Camp("closed") with
+        {
+            ReportedClosed = new CampClosure("The site was closed down in 2006.", "UN Commission of Inquiry",
+                new DocumentCitation("Test COI report", "UN Commission of Inquiry", new Uri("https://example.org/coi"), new DateOnly(2014, 2, 7))),
+        };
+        var store = new CuratedStore(Tables(c: [open, closed]), showDrafts: false);
+        Assert.Equal(["Test camp"], CampMarkers.For(store)!.Items.Select(i => i.Tooltip.Split(" · ")[0]));
+        Assert.Single(CampMarkers.For(store)!.Items);
+
+        var panel = Panel(store);
+        panel.Show("PRK", marker: MarkerLayer.Camps);
+        Assert.Single(Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.CampsHeading).Rows);
+        var history = Assert.Single(panel.Sections, s => s.Heading == CountryPanelViewModel.CampsHistoryHeading);
+        var row = Assert.Single(history.Rows);
+        Assert.EndsWith("reported closed (UN Commission of Inquiry, 2014)", row.Label, StringComparison.Ordinal);
+        Assert.StartsWith("The site was closed down in 2006.", row.Value, StringComparison.Ordinal);
+        Assert.False(panel.HasNoCrisis);   // the open camp is a crisis
+
+        // A country whose only camp is reported closed has no crisis and no marker.
+        var onlyClosed = new CuratedStore(Tables(c: [closed]), showDrafts: false);
+        Assert.Empty(CampMarkers.For(onlyClosed)!.Items);
+        var p2 = Panel(onlyClosed);
+        p2.Show("PRK");
+        Assert.True(p2.HasNoCrisis);
+        Assert.Contains(p2.Sections, s => s.Heading == CountryPanelViewModel.CampsHistoryHeading);
     });
 
     [Fact]
@@ -126,7 +207,7 @@ public class AtrocityLayerTests
         var layer = Layer(hidden);
         layer.Update(ViewOn("MMR").Ctx);
         Assert.Equal(0, layer.MarkerCount);
-        Assert.Empty(CampMarkers.For(hidden).Items);
+        Assert.Empty(CampMarkers.For(hidden)!.Items);
         var panel = Panel(hidden);
         panel.Show("MMR");
         Assert.DoesNotContain(panel.Sections, s => s.Heading.StartsWith("Genocide", StringComparison.Ordinal));
@@ -137,7 +218,7 @@ public class AtrocityLayerTests
         var layer2 = Layer(shown);
         layer2.Update(ViewOn("MMR").Ctx);
         Assert.Equal(1, layer2.MarkerCount);
-        Assert.Single(CampMarkers.For(shown).Items);
+        Assert.Single(CampMarkers.For(shown)!.Items);
     });
 
     [Fact]
@@ -161,7 +242,7 @@ public class AtrocityLayerTests
         panel.Show("PRK");
         var camps = panel.Sections.Single(s => s.Heading == CountryPanelViewModel.CampsHeading);
         Assert.All(camps.Rows, r => Assert.StartsWith(DesignationText.DraftLabel, r.Label, StringComparison.Ordinal));
-        Assert.All(CampMarkers.For(store).Items, i => Assert.StartsWith(DesignationText.DraftLabel, i.Tooltip, StringComparison.Ordinal));
+        Assert.All(CampMarkers.For(store)!.Items, i => Assert.StartsWith(DesignationText.DraftLabel, i.Tooltip, StringComparison.Ordinal));
 
         // An approved row carries no draft label.
         var approved = new CuratedStore(Tables([Row("ok", "MMR", continuing: Still(new DateOnly(2026, 7, 13)))]), showDrafts: true);

@@ -30,13 +30,16 @@ public static class CuratedReview
         L("How the app uses a row (C14):");
         L("- The label always names the authority, what kind of authority it is, and the date.");
         L("- Provisional measures, arrest warrants and pending cases say they are not verdicts.");
-        L("- A row is drawn on the map (a hollow triangle at the country) only while its continuing statement is dated within");
-        L("  the last 12 months. Otherwise it is listed under the panel's history.");
-        L("- A court judgment whose outcome is \"not established\" is never drawn and never counts as a crisis.");
+        L("- A country gets a triangle only from a court judgment, UN body finding or government determination whose");
+        L("  continuing statement is dated within the last 12 months. Provisional measures, warrants and pending cases never draw");
+        L("  one on their own; when the country has a triangle, those with a recent statement are listed with it. The rest is");
+        L("  listed under the panel's history.");
+        L("- A court judgment whose outcome is \"not established\" is never drawn and never counts as a crisis; the panel lists it");
+        L("  under \"Cases decided: not established\".");
+        L("- A camp with a cited statement that it closed (`reportedClosed`, ruling R14) has no marker and is listed as history.");
         L();
-        L($"Totals: {t.Designations.Count} designations, {t.Camps.Count} camp sites, {t.Governments.Count} government(s).");
-        L("Candidates that were researched but not entered (and why) are listed in the Plan 3 Task 5 report,");
-        L("`.superpowers/sdd/2026-11-23-plan-3-atrocities-needs-resources/task-5-report.md`.");
+        L($"Totals: {t.Designations.Count} designations, {t.Camps.Count} camp sites, {t.Governments.Count} government(s), "
+          + $"{t.NotEntered.Count} candidates awaiting confirmation or not entered (last section).");
         L();
 
         L("## Governments offered in Settings (C15)");
@@ -74,6 +77,7 @@ public static class CuratedReview
                 else L("- Continuing: none, so it is panel history only (not on the map).");
                 L($"- Checked on: {Date(d.CheckedOn)}");
                 L($"- What was checked and where: {Md(d.Verification ?? "(not recorded)")}");
+                if (d.OwnerQuestion is { Length: > 0 } q) L($"- **Question for the owner:** {Md(q)}");
                 L($"- Status: **{d.Review.Status}**" + (d.Review.ApprovedOn is { } a ? $", approved {Date(a)}" : ""));
                 L("- Owner: approve / correct: ");
             }
@@ -92,10 +96,35 @@ public static class CuratedReview
               + $" as published in [{Md(c.PositionSource.Title)}]({c.PositionSource.Url}) ({c.PositionSource.Publisher}, {Date(c.PositionSource.Date)})");
             L("- Documented by (newest first):");
             foreach (var r in c.DocumentedBy) L($"  - [{Md(r.Title)}]({r.Url}) ({r.Publisher}, {Date(r.Date)})");
+            if (c.ReportedClosed is { } closed)
+                L($"- **Reported closed** (ruling R14; no marker, panel history): \"{Md(closed.Statement)}\" ([{Md(closed.Source.Title)}]({closed.Source.Url}),"
+                  + $" {closed.Source.Publisher}, {Date(closed.Source.Date)})");
+            else L("- Status on the map: a marker (no cited report says it closed)");
             L($"- Checked on: {Date(c.CheckedOn)}");
             L($"- What was checked and where: {Md(c.Verification ?? "(not recorded)")}");
+            if (c.OwnerQuestion is { Length: > 0 } q) L($"- **Question for the owner:** {Md(q)}");
             L($"- Status: **{c.Review.Status}**" + (c.Review.ApprovedOn is { } a ? $", approved {Date(a)}" : ""));
             L("- Owner: approve / correct: ");
+        }
+        L();
+
+        L("## Awaiting confirmation / not entered");
+        L();
+        L("Researched for this table but not entered. Links marked *lead* (news, studies) are never citations: a row is entered only");
+        L("from the authority's own site.");
+        foreach (var n in t.NotEntered)
+        {
+            L();
+            L($"### `{n.Id}`: {Md(n.What)}");
+            L();
+            L($"- Status: **{n.Status}**");
+            L($"- Why: {Md(n.Reason)}");
+            if (n.OwnerAction is { Length: > 0 } action) L($"- Owner: {Md(action)}");
+            if (n.Links is { Count: > 0 })
+            {
+                L("- Links:");
+                foreach (var l in n.Links) L($"  - [{Md(l.Title)}]({l.Url})" + (l.Kind == "lead" ? " (*lead*, not a citation)" : " (authority)"));
+            }
         }
         return sb.ToString();
     }

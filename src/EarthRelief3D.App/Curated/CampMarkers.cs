@@ -7,8 +7,9 @@ namespace EarthRelief3D.App.Curated;
 
 /// <summary>
 /// The prison camps marker layer's points (a square each, <see cref="PointMarkerLayer"/>) from the camp sites the user
-/// sees, each at its published position with its name, its position's source and date in the tooltip. The legend names the
-/// sources and the date the list was checked; with nothing visible it says why.
+/// sees that are not reported closed (ruling R14), each at its published position with its name and its position's source
+/// and date in the tooltip. The legend names the sources, the date the list was checked and links the newest report; with
+/// nothing visible it says why.
 /// </summary>
 public static class CampMarkers
 {
@@ -17,27 +18,32 @@ public static class CampMarkers
     public const string NoneApprovedNote = "None approved yet: each site is shown after the owner's review";
     /// <summary>The legend's note in a <c>--show-drafts</c> run.</summary>
     public const string DraftsNote = "Drafts shown: not yet reviewed (diagnostic run)";
-    /// <summary>The UN Commission of Inquiry's report on the DPRK, A/HRC/25/63 (7 Feb 2014), on the UN's document system.</summary>
-    public static readonly Uri CoiReport = new("https://documents.un.org/doc/undoc/gen/g14/108/66/pdf/g1410866.pdf");
 
-    public static PointSet For(CuratedStore store)
+    /// <summary>The layer's points, or null when there are no camp tables at all (the legend then says "Data not loaded yet", R2).</summary>
+    public static PointSet? For(CuratedStore store)
     {
         ArgumentNullException.ThrowIfNull(store);
-        var camps = store.VisibleCamps;
-        var items = camps.Select(c => new PointItem(c.Position, PointMarkerLayer.DefaultSizePx + 1, Tooltip(c), c.Iso3)).ToList();
         var all = store.Tables.Camps;
-        var checkedOn = all.Count == 0 ? DateOnly.FromDateTime(DateTime.UtcNow) : all.Max(c => c.CheckedOn);
-        var newest = camps.SelectMany(c => c.DocumentedBy).Select(r => r.Date).DefaultIfEmpty().Max();
-        var at = checkedOn.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var dataset = newest == default ? "curated camp sites" : $"curated camp sites, newest report {DesignationText.Date(newest)}";
-        var url = camps.FirstOrDefault()?.DocumentedBy.LastOrDefault()?.Url ?? CoiReport;
+        if (all.Count == 0) return null;
+        var camps = store.VisibleCamps.Where(c => c.IsActive).ToList();
+        var items = camps.Select(c => new PointItem(c.Position, PointMarkerLayer.DefaultSizePx + 1, Tooltip(c), c.Iso3)).ToList();
+        var at = all.Max(c => c.CheckedOn).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var newest = camps.SelectMany(c => c.DocumentedBy).OrderByDescending(r => r.Date).FirstOrDefault();
+        var dataset = newest is null ? "curated camp sites" : $"curated camp sites, newest report {DesignationText.Date(newest.Date)}";
+        // The newest report shown, or with none shown the newest report in the tables (every row has one).
+        var url = (newest ?? all.SelectMany(c => c.DocumentedBy).OrderByDescending(r => r.Date).First()).Url;
         var citation = new SourceCitation(Publisher, dataset, null, url, "Facts with citations", Publisher, at, at);
-        string? note = camps.Count == 0 ? NoneApprovedNote : store.ShowDrafts && camps.Any(c => !c.Review.IsApproved) ? DraftsNote : null;
+        string? note = store.VisibleCamps.Count == 0 ? NoneApprovedNote
+            : store.ShowDrafts && store.VisibleCamps.Any(c => !c.Review.IsApproved) ? DraftsNote : null;
         return new PointSet(items, citation, note);
     }
 
-    /// <summary>"Kwan-li-so No. 14 (Kaechon) · political prison camp · position: HRNK, 22 Dec 2021"; drafts are marked first.</summary>
+    /// <summary>"Political Prison Camp No. 14 (Kaechon) (Kwan-li-so No. 14) · position: HRNK, 22 Dec 2021"; drafts are marked first.</summary>
     public static string Tooltip(CampSite c) =>
         (c.Review.IsApproved ? "" : DesignationText.DraftLabel + " · ")
         + $"{c.Name}{(c.LocalName is { } l ? $" ({l})" : "")} · position: {c.PositionSource.Publisher}, {DesignationText.Date(c.PositionSource.Date)}";
+
+    /// <summary>"reported closed (UN Commission of Inquiry, 2014)" (ruling R14).</summary>
+    public static string ClosedLabel(CampClosure closed) =>
+        $"reported closed ({closed.ShortSource}, {closed.Source.Date.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)})";
 }

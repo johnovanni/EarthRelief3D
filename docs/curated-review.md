@@ -10,18 +10,20 @@ labelled "Draft: not yet reviewed". To approve a row, set its `review` to
 How the app uses a row (C14):
 - The label always names the authority, what kind of authority it is, and the date.
 - Provisional measures, arrest warrants and pending cases say they are not verdicts.
-- A row is drawn on the map (a hollow triangle at the country) only while its continuing statement is dated within
-  the last 12 months. Otherwise it is listed under the panel's history.
-- A court judgment whose outcome is "not established" is never drawn and never counts as a crisis.
+- A country gets a triangle only from a court judgment, UN body finding or government determination whose
+  continuing statement is dated within the last 12 months. Provisional measures, warrants and pending cases never draw
+  one on their own; when the country has a triangle, those with a recent statement are listed with it. The rest is
+  listed under the panel's history.
+- A court judgment whose outcome is "not established" is never drawn and never counts as a crisis; the panel lists it
+  under "Cases decided: not established".
+- A camp with a cited statement that it closed (`reportedClosed`, ruling R14) has no marker and is listed as history.
 
-Totals: 31 designations, 5 camp sites, 1 government(s).
-Candidates that were researched but not entered (and why) are listed in the Plan 3 Task 5 report,
-`.superpowers/sdd/2026-11-23-plan-3-atrocities-needs-resources/task-5-report.md`.
+Totals: 31 designations, 5 camp sites, 1 government(s), 9 candidates awaiting confirmation or not entered (last section).
 
 ## Governments offered in Settings (C15)
 
 - **United States government** (`USA`): curated completely: yes; checked 23 Nov 2026.
-  Scope: Secretary of State determinations published on state.gov and its archives (2001 onward); the 1990s conclusions on Bosnia, Rwanda and Iraq are not on those sites
+  Scope: Secretary of State determinations published on state.gov and its archives, 2001 onward. Not listed: four earlier genocide conclusions (1989–1995) that the State Department counts but that are not on those sites
 
 ## Designations
 
@@ -416,10 +418,10 @@ Candidates that were researched but not entered (and why) are listed in the Plan
 - Situation: Sudan, since April 2023: crimes against humanity and ethnic cleansing by members of the Rapid Support Forces and allied militias (war crimes by both the Sudanese Armed Forces and the RSF)
 - Date: 6 Dec 2023
 - Document: [War Crimes, Crimes Against Humanity, and Ethnic Cleansing Determination in Sudan (press statement)](https://2021-2025.state.gov/war-crimes-crimes-against-humanity-and-ethnic-cleansing-determination-in-sudan/)
-- Continuing: "As the conflict now moves further, in particular to Kordofan, marked by the same modus operandi, the international community must act decisively to prevent further atrocities (para. 124)."
+- Continuing: "The atrocities committed in and around El Fasher are aggravations of earlier patterns of violence in Darfur, including those previously documented by the mission in Zamzam Camp and elsewhere, demonstrating continuity and escalation. In the absence of effective prevention and accountability, the mission considers that the risk of further genocidal violence remains acute (para. 123). ... As the conflict now moves further, in particular to Kordofan, marked by the same modus operandi, the international community must act decisively to prevent further atrocities (para. 124)."
   Source: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF), 10 Mar 2026. On the map until 10 Mar 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
-- What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated December 6, 2023: 'I have determined that members of the SAF and the RSF have committed war crimes in Sudan. I have also determined that members of the RSF and allied militias have committed crimes against humanity and ethnic cleansing.' The statement names Masalit civilians. Continuing: a UN report, the fact-finding mission's A/HRC/61/77 (10 March 2026), para. 124, about the same RSF conduct moving to Kordofan.
+- What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated December 6, 2023: 'I have determined that members of the SAF and the RSF have committed war crimes in Sudan. I have also determined that members of the RSF and allied militias have committed crimes against humanity and ethnic cleansing.' The statement names Masalit civilians. Continuing: a UN report, the fact-finding mission's A/HRC/61/77 (10 March 2026), paras 123-124: RSF atrocities showing 'continuity and escalation', and the same modus operandi moving to Kordofan. The mission's later report A/HRC/63/23 (September 2026) could not be opened (see un-ffm-sudan-2026).
 - Status: **draft**
 - Owner: approve / correct: 
 
@@ -431,10 +433,11 @@ Candidates that were researched but not entered (and why) are listed in the Plan
 - Situation: Sudan, since April 2023: members of the Rapid Support Forces and allied militias
 - Date: 7 Jan 2025
 - Document: [Genocide Determination in Sudan and Imposing Accountability Measures (press statement)](https://2021-2025.state.gov/genocide-determination-in-sudan-and-imposing-accountability-measures/)
-- Continuing: "As the conflict now moves further, in particular to Kordofan, marked by the same modus operandi, the international community must act decisively to prevent further atrocities (para. 124)."
+- Continuing: "The atrocities committed in and around El Fasher are aggravations of earlier patterns of violence in Darfur, including those previously documented by the mission in Zamzam Camp and elsewhere, demonstrating continuity and escalation. In the absence of effective prevention and accountability, the mission considers that the risk of further genocidal violence remains acute (para. 123). ... As the conflict now moves further, in particular to Kordofan, marked by the same modus operandi, the international community must act decisively to prevent further atrocities (para. 124)."
   Source: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF), 10 Mar 2026. On the map until 10 Mar 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
-- What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated January 7, 2025: 'Based on this information, I have now concluded that members of the RSF and allied militias have committed genocide in Sudan.' It describes the RSF and allied militias having 'systematically murdered men and boys ... on an ethnic basis, and deliberately targeted women and girls from certain ethnic groups'. Continuing as for us-sudan-2023.
+- What was checked and where: Opened the press statement on 2021-2025.state.gov (State Department archive), dated January 7, 2025: 'Based on this information, I have now concluded that members of the RSF and allied militias have committed genocide in Sudan.' It describes the RSF and allied militias having 'systematically murdered men and boys ... on an ethnic basis, and deliberately targeted women and girls from certain ethnic groups'. Continuing as for us-sudan-2023 (A/HRC/61/77, paras 123-124; A/HRC/63/23 could not be opened).
+- **Question for the owner:** Should this genocide determination count toward Sudan's triangle? Its continuing statement (A/HRC/61/77, paras 123-124) says RSF atrocities show 'continuity and escalation' and that 'the risk of further genocidal violence remains acute'; it supports continuing RSF atrocities, not that the genocide itself continues. If not, remove the continuing statement from this row and it becomes panel history (the FFM and the 2023 determination still give Sudan its triangle).
 - Status: **draft**
 - Owner: approve / correct: 
 
@@ -446,10 +449,10 @@ Candidates that were researched but not entered (and why) are listed in the Plan
 - Situation: El Fasher and surrounding areas, Darfur, 2025 (takeover on or around 26–27 October 2025, after an 18-month siege), by the Rapid Support Forces
 - Date: 10 Mar 2026
 - Document: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF)
-- Continuing: "As the conflict now moves further, in particular to Kordofan, marked by the same modus operandi, the international community must act decisively to prevent further atrocities (para. 124)."
+- Continuing: "The atrocities committed in and around El Fasher are aggravations of earlier patterns of violence in Darfur, including those previously documented by the mission in Zamzam Camp and elsewhere, demonstrating continuity and escalation. In the absence of effective prevention and accountability, the mission considers that the risk of further genocidal violence remains acute (para. 123). ... As the conflict now moves further, in particular to Kordofan, marked by the same modus operandi, the international community must act decisively to prevent further atrocities (para. 124)."
   Source: [Sudan: hallmarks of genocide in El Fasher. Report of the independent international fact-finding mission for the Sudan (A/HRC/61/77)](https://documents.un.org/doc/UNDOC/GEN/G26/019/45/PDF/G2601945.PDF), 10 Mar 2026. On the map until 10 Mar 2027 unless a newer statement is added.
 - Checked on: 23 Nov 2026
-- What was checked and where: Opened A/HRC/61/77 on documents.un.org (Distr. 10 March 2026; the mission's press release of February 2026 announced it). Para. 121: 'present indications pointing to genocide in and around El Fasher'; para. 122: 'crimes against humanity, notably extermination and persecution on ethnic, gender and political grounds, as well as war crimes ... were committed'; summary: 'indicators of a genocidal path'. The term keeps the mission's wording (indications, not a finding of genocide). Continuing statement: the same report, para. 124 (the conflict moving to Kordofan 'marked by the same modus operandi'); the owner should judge whether this is a clear enough statement that the situation continues. Not used: a July 2026 paper reported in UN News as A/HRC/62/CRP.4, whose ohchr.org link returned 'page not found'.
+- What was checked and where: Opened A/HRC/61/77 on documents.un.org (Distr. 10 March 2026; the mission's press release of February 2026 announced it). Para. 121: 'present indications pointing to genocide in and around El Fasher'; para. 122: 'crimes against humanity, notably extermination and persecution on ethnic, gender and political grounds, as well as war crimes ... were committed'; summary: 'indicators of a genocidal path'. The term keeps the mission's wording (indications, not a finding of genocide). Continuing statement: the same report, paras 123-124, re-read in the document on 2026-11-23 and quoted exactly ('demonstrating continuity and escalation'; 'the risk of further genocidal violence remains acute'; the conflict moving to Kordofan 'marked by the same modus operandi'). It supports continuing RSF atrocities, not a continuing genocide in so many words. Not used: (a) a July 2026 paper reported in UN News as A/HRC/62/CRP.4, whose ohchr.org link returned 'page not found'; (b) the mission's report A/HRC/63/23 ('Fuelling Sudan's conflict: weapons, fighters and external support networks', presented September 2026): documents.un.org redirected every request to its error page and no ohchr.org copy was found, so I could not read it. The Task 5 reviewer reports that it does not say atrocity crimes continue; that is not confirmed by me.
 - Status: **draft**
 - Owner: approve / correct: 
 
@@ -510,6 +513,7 @@ Candidates that were researched but not entered (and why) are listed in the Plan
   - [North Korea's Political Prison Camp, Kwan-li-so No. 14, Update 1](https://www.hrnk.org/documentations/north-koreas-political-prison-camp-kwan-li-so-no-14-update-1/) (HRNK, 22 Dec 2021)
   - [North Korea: Imagery Analysis of Camp 14](https://www.hrnk.org/documentations/north-korea-imagery-analysis-of-camp-14/) (HRNK, 30 Nov 2015)
   - [Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)](https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc) (UN Commission of Inquiry on Human Rights in the DPRK, 7 Feb 2014)
+- Status on the map: a marker (no cited report says it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1 (Word file on ohchr.org, dated 7 February 2014), para. 735, in section IV.E 'Arbitrary detention, torture, executions, enforced disappearance and political prison camps' (paras 693-845, as the table of contents says). Position: the HRNK report's own 'CenterPoint Coordinates 39.646810, 126.117058' (report dated December 22, 2021, same as its web page). Note: HRNK's 2015 report gives 'Coordinates 39.557817, 126.011499', about 13 km away; the 2021 report puts the camp's south-west entrance at 39.558234, 126.012311, so the 2015 figure seems to mark the entrance. The 2015 report's cover says November 30, 2015 and its inner page 'Date of Report: November 24, 2015'; the cover date is used.
 - Status: **draft**
@@ -524,6 +528,7 @@ Candidates that were researched but not entered (and why) are listed in the Plan
   - [North Korea: Imagery Analysis of Camp 15 "Yodok": Closure of the "Revolutionizing Zone"](https://www.hrnk.org/documentations/imagery-analysis-of-camp-15-yodok-closure-of-the-revolutionizing-zone/) (HRNK, 18 Sep 2015)
   - [North Korea: Imagery Analysis of Camp 15](https://www.hrnk.org/documentations/north-korea-imagery-analysis-of-camp-15/) (HRNK, 13 Feb 2015)
   - [Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)](https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc) (UN Commission of Inquiry on Human Rights in the DPRK, 7 Feb 2014)
+- Status on the map: a marker (no cited report says it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735. Position: 'Coordinates: 39.671450, 126.852357' printed in both HRNK reports (18 September 2015 and 13 February 2015). Dates are the reports' own: the web page of the February 2015 report says 2024-02-17, a site-migration date. Inconsistency: the COI places Yodok County in South Pyongan Province; HRNK's reports give Hamgyong-namdo (South Hamgyong), which is where Yodok County is; the description names the county only. HRNK (September 2015): 'This imagery analysis confirms the detainee facility and a small number of support buildings were razed between 2013-2014 and that the former "Revolutionizing Zone" is no longer used to house detainees.' The camp's later status was not researched.
 - Status: **draft**
@@ -538,6 +543,7 @@ Candidates that were researched but not entered (and why) are listed in the Plan
   - [Switchback: Evidence of a Connection between Kwan-li-so No. 16 and the Punggye-ri Nuclear Test Facility?](https://www.hrnk.org/documentations/switchback-evidence-of-a-connection-between-kwan-li-so-no-16-and-the-punggye-ri-nuclear-test-facility/) (HRNK, 17 Oct 2023)
   - [North Korea: Imagery Analysis of Camp 16](https://www.hrnk.org/documentations/north-korea-imagery-analysis-of-camp-16/) (HRNK, 15 Dec 2015)
   - [Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)](https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc) (UN Commission of Inquiry on Human Rights in the DPRK, 7 Feb 2014)
+- Status on the map: a marker (no cited report says it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735 (it says 'Myonggan'; HRNK's report gives the location as Hwasong-gun, Hamgyong-bukto). Position: 'Coordinates: 41.231091 N, 129.412216 E' in HRNK's 2015 report; its cover says December 15, 2015 (the web page's date too) and its inner page 'Date of Report: November 16, 2015'; the cover date is used. The 2023 'Switchback' report's coordinates (41.2831 N, 129.0981 E) are the Punggye-ri test site's, not the camp's, so they are not used.
 - Status: **draft**
@@ -551,8 +557,10 @@ Candidates that were researched but not entered (and why) are listed in the Plan
 - Documented by (newest first):
   - [North Korea's Political Prison Camp Kwan-li-so No. 18 (Pukch'ang)](https://www.hrnk.org/documentations/north-koreas-political-prison-camp-kwan-li-so-no-18-pukchang/) (HRNK, 18 Jun 2024)
   - [Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)](https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc) (UN Commission of Inquiry on Human Rights in the DPRK, 7 Feb 2014)
+- **Reported closed** (ruling R14; no marker, panel history): "It appears that Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006 (para. 739)" ([Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)](https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc), UN Commission of Inquiry on Human Rights in the DPRK, 7 Feb 2014)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 739 (camps of the Ministry of People's Security until 2006: 'Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006. Today, a short-term labour detention facility has been placed on the premises'). HRNK (report dated June 18, 2024; its web page says 2024-06-23): 'large sections of Kwan-li-so No. 18 were deactivated over a period of at least eight years and ... smaller sections remain active as a detention facility'; 'Whether the official designation of this facility remains Kwan-li-so No. 18 is unknown.' The brief allowed No. 18 if HRNK's 2024 report supports it; it does, but the two sources differ on its status, and the description gives both. Position: HRNK's 'CenterPoint Coordinates: 39.552435 N, 126.073063 E'.
+- **Question for the owner:** Ruling R14 makes this camp history, with no marker, because the COI reported it closed. HRNK's newer report (2024) says smaller sections 'remain active as a detention facility'. By R14's own test (the newest cited report does not say it has closed), it would keep its marker. Keep it as history (remove nothing), or remove 'reportedClosed' to show its marker?
 - Status: **draft**
 - Owner: approve / correct: 
 
@@ -568,7 +576,86 @@ Candidates that were researched but not entered (and why) are listed in the Plan
   - [North Korea's Camp No. 25, Update](https://www.hrnk.org/documentations/north-koreas-camp-no-25-update/) (HRNK, 5 Jun 2014)
   - [Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)](https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc) (UN Commission of Inquiry on Human Rights in the DPRK, 7 Feb 2014)
   - [North Korea's Camp No. 25](https://www.hrnk.org/documentations/north-koreas-camp-no-25/) (HRNK, 25 Feb 2013)
+- Status on the map: a marker (no cited report says it closed)
 - Checked on: 23 Nov 2026
 - What was checked and where: Name and description: A/HRC/25/CRP.1, para. 735. Left out of the description: the COI's figure that the camp 'now covers an area of 980 square metres', which cannot be right for a camp HRNK measures at about 1,400 by 1,000 metres (2014 update). Position: 'CenterPoint Coordinates: 41.834384 N, 129.725280 E' in Update 4 (February 17, 2024); the same figure is in Update 3 (September 30, 2021) and Update 2 (November 29, 2016). All dates are the reports' own cover dates. The 2013 report was prepared by DigitalGlobe Analytics for HRNK.
 - Status: **draft**
 - Owner: approve / correct: 
+
+## Awaiting confirmation / not entered
+
+Researched for this table but not entered. Links marked *lead* (news, studies) are never citations: a row is entered only
+from the authority's own site.
+
+### `icj-gambia-v-myanmar-merits-2026`: ICJ, The Gambia v. Myanmar (11 States intervening): Judgment on the merits of 19 November 2026
+
+- Status: **awaiting confirmation**
+- Why: The case page on icj-cij.org lists the Judgment of 19 November 2026, press release 2026/30 ('The Court delivers its Judgment on the merits'), Summary 2026/3 and 17 opinions and declarations, among them a joint dissenting opinion of Vice-President Sebutinde, Judges Tomka, Abraham, Xue, Nolte and Judge ad hoc Kress. The judgment, summary and press-release PDFs are behind icj-cij.org's bot check (HTTP 403 for automated requests; the built-in browser stopped at 'Performing security verification'), which was not bypassed. So what the Court found could not be read on the Court's own site. News reports (leads only) say that the Court, by nine votes to six, found Myanmar responsible for genocide against the Rohingya in the 2016-2017 clearance operations.
+- Owner: Confirm the operative paragraph from the Court's text (summary or judgment PDF, in a normal browser). If it confirms, add a CourtJudgment row for MMR dated 2026-11-19 with the judgment's title and URL, the term and group as the operative paragraph words them; Claude can do this from the text.
+- Links:
+  - [ICJ case page: Application of the Convention on the Prevention and Punishment of the Crime of Genocide (The Gambia v. Myanmar: 11 States intervening)](https://www.icj-cij.org/case/178) (authority)
+  - [Judgment of 19 November 2026 (PDF)](https://www.icj-cij.org/sites/default/files/case-related/178/178-20261119-jud-01-00-en.pdf) (authority)
+  - [Press release 2026/30: The Court delivers its Judgment on the merits (PDF)](https://www.icj-cij.org/sites/default/files/case-related/178/178-20261119-pre-01-00-en.pdf) (authority)
+  - [Summary 2026/3 of the Judgment of 19 November 2026 (PDF)](https://www.icj-cij.org/sites/default/files/case-related/178/178-20261119-sum-01-00-en.pdf) (authority)
+  - [UN News: World's top court finds Myanmar guilty of genocide against Rohingya](https://news.un.org/en/story/2026/11/1168836) (*lead*, not a citation)
+
+### `us-earlier-genocide-conclusions`: United States: the four earlier genocide conclusions (1989-1995) that the State Department counts
+
+- Status: **not entered**
+- Why: The State Department's Burma page says that since the Holocaust 'the United States has concluded only seven other times that genocide was committed'. Three of the seven are in the table (Darfur 2004, ISIS 2016, Xinjiang 2021), so four are earlier. The State Department does not name them, and none is on state.gov or its archives (2001 onward). A 2019 USHMM study (a lead, not a citation) names Bosnia (1993), Rwanda (1994) and Iraq (1995, the campaign against the Kurds), describes a 1989 State Department statement on Cambodia (the Khmer Rouge, testimony of the deputy legal adviser in November 1989), and says a mid-1990s finding on Burundi is suggested by State records but unconfirmed. Which four the Department counts is therefore not certain; Cambodia, Bosnia, Rwanda and Iraq are the likeliest. These were 'acts of genocide' statements, not formal written determinations. governments.json's scope says they are not listed.
+- Owner: Decide whether the United States still counts as curated completely (C15) with this scope, or whether these four should be researched in another official archive.
+- Links:
+  - [US Department of State: Burma Genocide ('only seven other times')](https://2021-2025.state.gov/burma-genocide/) (authority)
+  - [Todd Buchwald and Adam Keith, By Any Other Name: How, When, and Why the US Government Has Made Genocide Determinations (USHMM, 2019)](https://www.ushmm.org/m/pdfs/Todd_Buchwald_Report_031819.pdf) (*lead*, not a citation)
+
+### `us-isis-reaffirmation-2017`: United States: Secretary Tillerson's reaffirmation of 15 August 2017 that ISIS committed genocide
+
+- Status: **not entered**
+- Why: The page on 2017-2021.state.gov returned 'Technical Difficulties ... Exception: forbidden' on every try, so it could not be read on the State Department's site. It reaffirms the 2016 determination, which is entered (us-isis-2016-irq, us-isis-2016-syr).
+- Owner: Optional: open the page and, if it reads as news reports say, add it as a determination dated 2017-08-15.
+- Links:
+  - [Remarks at the Release of the 2016 International Religious Freedom Report](https://2017-2021.state.gov/remarks-at-the-release-of-the-2016-international-religious-freedom-report/) (authority)
+
+### `icc-other-warrants`: ICC arrest warrants other than the Palestine ones (Darfur, including Omar Al Bashir's 2010 warrant for genocide; Afghanistan, 2025; Ukraine, 2024 warrants charging crimes against humanity; Libya) and the ICC's October 2025 Darfur trial judgment
+
+- Status: **not entered**
+- Why: icc-cpi.int answered one page (the 21 November 2024 Palestine press release, which is entered) and then its Gcore security service blocked every request, including from the built-in browser ('Sorry, you have been blocked'). It was not bypassed. Nothing that could not be read on the Court's site was entered. For Myanmar, the IIMM report A/HRC/63/19 (para. 49) says only that the ICC Prosecutor requested a warrant for Senior General Min Aung Hlaing in November 2024; no warrant issued was found, so there is no row.
+- Owner: Research again later from icc-cpi.int (one request at a time).
+- Links:
+  - [ICC: Al Bashir case](https://www.icc-cpi.int/darfur/albashir) (authority)
+  - [Report of the Independent Investigative Mechanism for Myanmar (A/HRC/63/19), para. 49](https://iimm.un.org/sites/default/files/2026/08/2026 IIMM Annual Report.pdf) (authority)
+
+### `ictr-akayesu-appeal-2001`: ICTR, Akayesu: appeal judgement (2001)
+
+- Status: **not entered**
+- Why: The ICTR case page refused automated access (HTTP 403), so the appeal could not be checked. The trial judgement is entered.
+- Links:
+  - [ICTR case page ICTR-96-4 (Akayesu)](https://unictr.irmct.org/en/cases/ictr-96-4) (authority)
+
+### `eccc-002-02-appeal`: ECCC, Case 002/02: the Supreme Court Chamber's appeal judgement (reported for 2022)
+
+- Status: **not entered**
+- Why: Not opened on eccc.gov.kh in this task; a search result (a lead) put the appeal judgement in September 2022 and says it upheld Khieu Samphan's conviction for genocide of the Vietnamese. The trial judgement is entered.
+- Links:
+  - [ECCC home page](https://www.eccc.gov.kh/en) (authority)
+
+### `dprk-continuing-hrc-res-61-27`: A continuing statement for the DPRK Commission of Inquiry row (Human Rights Council resolution 61/27, 30 March 2026)
+
+- Status: **not entered**
+- Why: The resolution 'condemns ... the long-standing and ongoing systematic, widespread and gross human rights violations' and recalls the commission's findings, but it is a resolution, not a report, and does not itself say the crimes against humanity continue. So the DPRK row is history only; the camps still show.
+- Owner: Decide whether this resolution qualifies as a continuing statement (C14).
+- Links:
+  - [A/HRC/RES/61/27, Situation of human rights in the Democratic People's Republic of Korea](https://documents.un.org/doc/UNDOC/GEN/G26/048/69/PDF/G2604869.PDF) (authority)
+
+### `ffm-sudan-later-reports`: Fact-Finding Mission for the Sudan: the July 2026 paper (reported as A/HRC/62/CRP.4) and the September 2026 report A/HRC/63/23
+
+- Status: **not entered**
+- Why: The ohchr.org link to A/HRC/62/CRP.4 given by UN News returned 'page not found'. documents.un.org redirected every request for A/HRC/63/23 ('Fuelling Sudan's conflict: weapons, fighters and external support networks') to its error page, and no ohchr.org copy was found. Neither could be read. The Task 5 reviewer reports that A/HRC/63/23 does not say atrocity crimes continue.
+- Links:
+  - [A/HRC/63/23 in the UN Document System viewer](https://docs.un.org/en/A/HRC/63/23) (authority)
+  - [UN News, July 2026, on the mission's new report](https://news.un.org/en/story/2026/07/1167897) (*lead*, not a citation)
+
+### `not-researched`: Not researched in this task: the Syria Commission of Inquiry's later reports (including its 2016 finding of genocide by ISIS against the Yazidis), the Commission of Inquiry on Ukraine (a possible continuing statement for the US Russia row), the Ethiopia experts' 2023 report, and continuing statements for Xinjiang, Eritrea and Burundi
+
+- Status: **not entered**
+- Why: Outside the brief's list or its time; each would need checking on the authority's own site.

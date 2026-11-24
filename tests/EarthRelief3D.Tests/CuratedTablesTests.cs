@@ -44,24 +44,27 @@ public class CuratedTablesTests
         Assert.NotEmpty(t.Camps);
         Assert.Empty(CuratedTables.Validate(t));
 
-        static void Cited(string what, string title, Uri url, DateOnly date)
+        // A cited date is real and no later than the day the row was checked (not a fixed day, so newer rows pass too).
+        static void Cited(string what, string title, Uri url, DateOnly date, DateOnly checkedOn)
         {
             Assert.False(string.IsNullOrWhiteSpace(title), $"{what}: no title");
             Assert.True(url.IsAbsoluteUri && url.Scheme == Uri.UriSchemeHttps, $"{what}: {url} is not an absolute https URL");
-            Assert.True(date > new DateOnly(1900, 1, 1) && date <= DateOnly.FromDateTime(Now), $"{what}: date {date} is not a real past date");
+            Assert.True(date > new DateOnly(1900, 1, 1) && date <= checkedOn, $"{what}: date {date} is not a real date on or before its check ({checkedOn})");
+            Assert.True(checkedOn <= DateOnly.FromDateTime(DateTime.UtcNow), $"{what}: checked {checkedOn}, in the future");
         }
         foreach (var d in t.Designations)
         {
-            Cited(d.Id, d.DocumentTitle, d.DocumentUrl, d.Date);
-            if (d.Continuing is { } c) Cited(d.Id + " continuing", c.Title, c.Url, c.Date);
+            Cited(d.Id, d.DocumentTitle, d.DocumentUrl, d.Date, d.CheckedOn);
+            if (d.Continuing is { } c) Cited(d.Id + " continuing", c.Title, c.Url, c.Date, d.CheckedOn);
             Assert.False(string.IsNullOrWhiteSpace(d.Authority), d.Id + ": no authority");
             Assert.False(string.IsNullOrWhiteSpace(d.Term), d.Id + ": no term");
         }
         foreach (var c in t.Camps)
         {
-            Cited(c.Id + " position", c.PositionSource.Title, c.PositionSource.Url, c.PositionSource.Date);
+            Cited(c.Id + " position", c.PositionSource.Title, c.PositionSource.Url, c.PositionSource.Date, c.CheckedOn);
+            if (c.ReportedClosed is { } closed) Cited(c.Id + " closure", closed.Source.Title, closed.Source.Url, closed.Source.Date, c.CheckedOn);
             Assert.NotEmpty(c.DocumentedBy);
-            foreach (var r in c.DocumentedBy) Cited(c.Id + " report", r.Title, r.Url, r.Date);
+            foreach (var r in c.DocumentedBy) Cited(c.Id + " report", r.Title, r.Url, r.Date, c.CheckedOn);
             // Newest first.
             Assert.Equal(c.DocumentedBy.OrderByDescending(r => r.Date).Select(r => r.Date), c.DocumentedBy.Select(r => r.Date));
         }
@@ -192,5 +195,40 @@ public class CuratedTablesTests
         foreach (var d in t.Designations) Assert.Contains(d.Id, text);
         foreach (var c in t.Camps) Assert.Contains(c.Id, text);
         Assert.Contains("approve / correct", text);
+        // The candidates left out are in the document itself (never in an untracked file), with their links (R12, R13).
+        Assert.Contains("## Awaiting confirmation / not entered", text);
+        foreach (var n in t.NotEntered) Assert.Contains(n.Id, text);
+        Assert.Contains("https://www.icj-cij.org/sites/default/files/case-related/178/178-20261119-jud-01-00-en.pdf", text);
+        Assert.Contains("Confirm the operative paragraph from the Court's text", text);
+        Assert.Contains("Bosnia (1993), Rwanda (1994) and Iraq (1995", text);
+        Assert.Contains("Cambodia", text);
+        Assert.DoesNotContain(".superpowers", text);
+        // The owner's question on the US genocide row's continuing statement.
+        Assert.Contains("Should this genocide determination count toward Sudan's triangle?", text);
+    }
+
+    [Fact]
+    public void UsScopeSaysWhatIsNotListed()
+    {
+        // The State Department counts seven conclusions before Burma; three are in the table, so four earlier ones are missing.
+        var t = CuratedTables.Load(CuratedDir);
+        var us = t.Governments.Single(g => g.Iso3 == "USA");
+        Assert.Contains("four earlier genocide conclusions (1989–1995)", us.Scope);
+        Assert.Equal(3, t.Designations.Count(d => d.GovernmentIso3 == "USA" && d.Term.StartsWith("genocide", StringComparison.Ordinal)
+            && d.Date < new DateOnly(2022, 3, 21) && d.Id != "us-isis-2016-syr"));
+        Assert.Contains(t.NotEntered, n => n.Id == "us-earlier-genocide-conclusions");
+    }
+
+    [Fact]
+    public void ACampReportedClosedNeedsACitation()
+    {
+        var closed = Camp() with { ReportedClosed = new CampClosure("Closed in 2006.", "UN Commission of Inquiry", null!) };
+        Assert.Contains(CuratedTables.Validate(Tables(c: [closed])), p => p.Contains("closure"));
+        Assert.False(closed.IsActive);
+        Assert.True(Camp().IsActive);
+        // The real Camp 18 row carries the COI's statement (ruling R14), cited.
+        var c18 = CuratedTables.Load(CuratedDir).Camps.Single(c => c.Id == "prk-kwanliso-18");
+        Assert.False(c18.IsActive);
+        Assert.Equal(new DateOnly(2014, 2, 7), c18.ReportedClosed!.Source.Date);
     }
 }

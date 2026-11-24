@@ -277,8 +277,9 @@ public sealed partial class LegendViewModel : ObservableObject
         var visible = curated.Visible;
         if (visible.Count == 0) return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), asOf, [], NoneApprovedNote);
         int countries = AtrocityLayer.CurrentByCountry(curated, now).Count;
-        var note = $"A triangle: a finding, warrant or case, and a statement from the last 12 months that the situation continues "
-                   + $"({countries} {(countries == 1 ? "country" : "countries")}). Past ones are in the country panel's history.";
+        var note = $"A triangle: a court judgment, UN body finding or government determination, and a statement from the last 12 months "
+                   + $"that the situation continues ({countries} {(countries == 1 ? "country" : "countries")}). Provisional measures, warrants and "
+                   + "pending cases are listed with it but never draw a triangle alone. Past ones are in the country panel's history.";
         if (visible.Any(d => !d.Review.IsApproved)) note += " " + Curated.CampMarkers.DraftsNote + ".";
         return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), asOf, [], note);
     }

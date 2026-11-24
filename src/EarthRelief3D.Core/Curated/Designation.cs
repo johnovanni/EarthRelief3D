@@ -60,18 +60,57 @@ public sealed record Designation(string Id, string Iso3, string Situation, strin
     /// <summary>What was checked, and where (for the owner's review, docs/curated-review.md); never shown in the app.</summary>
     public string? Verification { get; init; }
 
+    /// <summary>A question for the owner's review (docs/curated-review.md); never shown in the app.</summary>
+    public string? OwnerQuestion { get; init; }
+
     /// <summary>The name in tooltips and short lines.</summary>
     public string ShortName => string.IsNullOrWhiteSpace(ShortAuthority) ? Authority : ShortAuthority;
 
     /// <summary>
-    /// On the map at <paramref name="nowUtc"/> (C14): a found (not "not established") designation whose continuing statement
-    /// is dated within the last <see cref="ContinuingMonths"/> months, and not in the future.
+    /// A finding: a court judgment, a UN body finding or a government determination, whose term was found established. Only
+    /// a finding can put a country on the map; interim steps (provisional measures, warrants, pending cases) never can.
     /// </summary>
-    public bool IsCurrentAt(DateTime nowUtc)
+    public bool IsFinding => Outcome == FindingOutcome.Established
+        && Type is AuthorityType.CourtJudgment or AuthorityType.UnBodyFinding or AuthorityType.GovernmentDetermination;
+
+    /// <summary>Provisional measures, an arrest warrant or a pending case: never a verdict (C14).</summary>
+    public bool IsInterim => Type is AuthorityType.CourtProvisionalMeasures or AuthorityType.ArrestWarrant or AuthorityType.PendingCase;
+
+    /// <summary>
+    /// Has a continuing statement dated within the last <see cref="ContinuingMonths"/> months of <paramref name="nowUtc"/>,
+    /// and not in the future; never for a "not established" judgment.
+    /// </summary>
+    public bool ContinuesAt(DateTime nowUtc)
     {
         if (Outcome != FindingOutcome.Established || Continuing is not { } c) return false;
         var today = DateOnly.FromDateTime(nowUtc);
         return c.Date <= today && c.Date >= today.AddMonths(-ContinuingMonths);
+    }
+
+    /// <summary>
+    /// Puts its country on the map at <paramref name="nowUtc"/> (C14): a <see cref="IsFinding">finding</see> whose
+    /// continuing statement is dated within the last 12 months. An interim step never does, even with a statement.
+    /// </summary>
+    public bool IsCurrentAt(DateTime nowUtc) => IsFinding && ContinuesAt(nowUtc);
+}
+
+/// <summary>One country's designations as the map and the panel show them.</summary>
+/// <param name="Current">On the map: the current findings, and the interim steps with a recent continuing statement listed with
+/// them (empty unless the country has a current finding). Newest first.</param>
+/// <param name="History">The rest, except "not established" judgments. Newest first.</param>
+/// <param name="NotEstablished">Court judgments that found the crime not established. Newest first.</param>
+public sealed record CountryDesignations(IReadOnlyList<Designation> Current, IReadOnlyList<Designation> History,
+    IReadOnlyList<Designation> NotEstablished)
+{
+    /// <summary>Splits one country's visible designations at <paramref name="nowUtc"/>.</summary>
+    public static CountryDesignations Of(IEnumerable<Designation> countryRows, DateTime nowUtc)
+    {
+        var rows = countryRows.OrderByDescending(d => d.Date).ToList();
+        var notEstablished = rows.Where(d => d.Outcome == FindingOutcome.NotEstablished).ToList();
+        var rest = rows.Where(d => d.Outcome == FindingOutcome.Established).ToList();
+        var onMap = rest.Any(d => d.IsCurrentAt(nowUtc));
+        var current = onMap ? rest.Where(d => d.IsCurrentAt(nowUtc) || (d.IsInterim && d.ContinuesAt(nowUtc))).ToList() : [];
+        return new CountryDesignations(current, [.. rest.Except(current)], notEstablished);
     }
 }
 

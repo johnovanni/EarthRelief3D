@@ -48,7 +48,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 {
     public const string DeterminationsGroup = "Formal determinations by";
     /// <summary>Under the group's header.</summary>
-    public const string DeterminationsNote = "Court judgments and UN findings are always shown. A government is offered only when every formal determination it has made is listed.";
+    public const string DeterminationsNote = "Court judgments and UN findings are always shown. A government is offered only when every formal determination it has made within the stated scope is listed.";
 
     private readonly ISettingsStore<AppSettings> _settings;
     private readonly CuratedStore _curated;

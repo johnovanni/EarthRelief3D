@@ -47,9 +47,16 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     public const string AtrocityHeading = "Genocide and mass atrocities";
     /// <summary>The country's other designations the user sees: past, or "not established" (C14).</summary>
     public const string AtrocityHistoryHeading = "Genocide and mass atrocities: history";
+    /// <summary>Court judgments that found the crime alleged not established (ICJ, Croatia v. Serbia): never on the map, never a crisis.</summary>
+    public const string NotEstablishedHeading = "Cases decided: not established";
     public const string CampsHeading = "Prison camps";
+    /// <summary>Camps whose newest cited report says they have closed (ruling R14): no marker, no crisis.</summary>
+    public const string CampsHistoryHeading = "Prison camps: reported closed";
     /// <summary>The note at the top of the history section.</summary>
-    public const string HistoryNote = "Not on the map: no statement from the last 12 months, by the designating body or in a UN report, says the situation continues.";
+    public const string HistoryNote = "Not on the map. A triangle needs a court judgment, UN body finding or government determination, "
+        + "and a statement from the last 12 months, by the designating body or in a UN report, that the situation continues.";
+    /// <summary>The note at the top of the not-established section.</summary>
+    public const string NotEstablishedNote = "The court did not find the crime alleged established. This is not a finding of genocide or of another atrocity crime.";
     public const string NoCrisisText = "No crisis recorded by these sources";
     /// <summary>The headline when the only IPC record is a projection and no other source records a crisis.</summary>
     public const string ProjectionOnlyText = "IPC: projection only, no current-period figures; no crisis recorded by the other sources";
@@ -169,16 +176,19 @@ public sealed partial class CountryPanelViewModel : ObservableObject
                 sections.Add(section);
             }
             var governments = _curated.Tables.Governments;
-            var mine = _curated.Visible.Where(d => string.Equals(d.Iso3, iso3, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(d => d.Date).ToList();
-            var current = mine.Where(d => d.IsCurrentAt(now)).ToList();
-            var history = mine.Where(d => !d.IsCurrentAt(now)).ToList();
-            currentAtrocity = current.Count > 0;
-            AddMarker(current.Count == 0 ? null : AtrocitySection(AtrocityHeading, current, governments, now, isHistory: false), MarkerLayer.Atrocities);
-            AddMarker(history.Count == 0 ? null : AtrocitySection(AtrocityHistoryHeading, history, governments, now, isHistory: true), MarkerLayer.Atrocities);
+            var split = CountryDesignations.Of(_curated.Visible.Where(d => string.Equals(d.Iso3, iso3, StringComparison.OrdinalIgnoreCase)), now);
+            currentAtrocity = split.Current.Count > 0;
+            AddMarker(split.Current.Count == 0 ? null : AtrocitySection(AtrocityHeading, split.Current, governments, now, HistoryKind.None), MarkerLayer.Atrocities);
+            AddMarker(split.History.Count == 0 ? null : AtrocitySection(AtrocityHistoryHeading, split.History, governments, now, HistoryKind.Past), MarkerLayer.Atrocities);
+            AddMarker(split.NotEstablished.Count == 0 ? null
+                : AtrocitySection(NotEstablishedHeading, split.NotEstablished, governments, now, HistoryKind.NotEstablished), MarkerLayer.Atrocities);
+            // R14: a camp whose newest cited report says it closed is listed as history, without a marker, and is no crisis.
             var camps = _curated.VisibleCamps.Where(c => string.Equals(c.Iso3, iso3, StringComparison.OrdinalIgnoreCase)).ToList();
-            anyCamp = camps.Count > 0;
-            AddMarker(anyCamp ? CampsSection(camps) : null, MarkerLayer.Camps);
+            var open = camps.Where(c => c.IsActive).ToList();
+            var closed = camps.Where(c => !c.IsActive).ToList();
+            anyCamp = open.Count > 0;
+            AddMarker(open.Count > 0 ? CampsSection(CampsHeading, open) : null, MarkerLayer.Camps);
+            AddMarker(closed.Count > 0 ? CampsSection(CampsHistoryHeading, closed) : null, MarkerLayer.Camps);
         }
 
         // The needs sections follow the crisis ones. They are not crises: the headline rules below ignore them.
@@ -330,22 +340,25 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     /// The country's designations, newest first: each with its label (type and term; drafts marked), the authority and its
     /// kind, the date, the situation and group, and (when current) the continuing statement; a link to every document.
     /// </summary>
+    private enum HistoryKind { None, Past, NotEstablished }
+
     private PanelSection AtrocitySection(string heading, IReadOnlyList<Designation> list, IReadOnlyList<Government> governments,
-        DateTime now, bool isHistory)
+        DateTime now, HistoryKind kind)
     {
         var rows = new List<(string, string)>();
-        if (isHistory) rows.Add(("Note", HistoryNote));
+        if (kind == HistoryKind.Past) rows.Add(("Note", HistoryNote));
+        if (kind == HistoryKind.NotEstablished) rows.Add(("Note", NotEstablishedNote));
         var links = new List<PanelLink>();
         foreach (var d in list)
         {
             var value = $"{d.Authority} ({DesignationText.AuthorityKind(d, governments)}), {DesignationText.Date(d.Date)}. {d.Situation}. Group: {d.Group}.";
             if (d.Continuing is { } c)
-                value += d.IsCurrentAt(now)
+                value += d.ContinuesAt(now)
                     ? $" Continuing: \"{c.Statement}\" ({c.Title}, {DesignationText.Date(c.Date)})"
                     : $" Last statement that it continues: {DesignationText.Date(c.Date)}, more than 12 months ago.";
             rows.Add((DesignationText.DisplayLabel(d, governments), value));
             links.Add(new PanelLink($"{d.ShortName}, {DesignationText.Date(d.Date)}: {d.DocumentTitle}", d.DocumentUrl));
-            if (d.Continuing is { } cont && d.IsCurrentAt(now)) links.Add(new PanelLink($"Continuing: {cont.Title}, {DesignationText.Date(cont.Date)}", cont.Url));
+            if (d.Continuing is { } cont && d.ContinuesAt(now)) links.Add(new PanelLink($"Continuing: {cont.Title}, {DesignationText.Date(cont.Date)}", cont.Url));
         }
         var checkedOn = list.Max(d => d.CheckedOn);
         var drafts = list.Any(d => !d.Review.IsApproved) ? " · drafts shown: not yet reviewed" : "";
@@ -355,20 +368,26 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     }
 
     /// <summary>The country's documented camps: name, description and where the position was published; a link to every report.</summary>
-    private static PanelSection CampsSection(IReadOnlyList<CampSite> camps)
+    private static PanelSection CampsSection(string heading, IReadOnlyList<CampSite> camps)
     {
         var rows = new List<(string, string)>();
         var links = new List<PanelLink>();
         foreach (var c in camps)
         {
             var ps = c.PositionSource;
-            rows.Add(((c.Review.IsApproved ? "" : DesignationText.DraftLabel + " · ") + c.Name + (c.LocalName is { } l ? $" ({l})" : ""),
-                $"{c.Description} Position as published by {ps.Publisher} in \"{ps.Title}\" ({DesignationText.Date(ps.Date)})."));
+            var label = (c.Review.IsApproved ? "" : DesignationText.DraftLabel + " · ") + c.Name + (c.LocalName is { } l ? $" ({l})" : "");
+            var value = $"{c.Description} Position as published by {ps.Publisher} in \"{ps.Title}\" ({DesignationText.Date(ps.Date)}).";
+            if (c.ReportedClosed is { } closed)
+            {
+                label += " · " + CampMarkers.ClosedLabel(closed);
+                value = $"{closed.Statement} ({closed.Source.Publisher}, \"{closed.Source.Title}\", {DesignationText.Date(closed.Source.Date)}). " + value;
+            }
+            rows.Add((label, value));
             links.AddRange(c.DocumentedBy.Select(r => new PanelLink($"{r.Publisher}, {DesignationText.Date(r.Date)}: {r.Title}", r.Url)));
         }
         var newest = camps.SelectMany(c => c.DocumentedBy).Max(r => r.Date);
         var drafts = camps.Any(c => !c.Review.IsApproved) ? " · drafts shown: not yet reviewed" : "";
-        return new PanelSection(CampsHeading, rows,
+        return new PanelSection(heading, rows,
             $"Source: {CampMarkers.Publisher} · newest report {DesignationText.Date(newest)}{drafts}", null, Links: links);
     }
 

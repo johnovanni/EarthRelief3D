@@ -11,9 +11,11 @@ namespace EarthRelief3D.App.Layers;
 
 /// <summary>
 /// Genocide and mass atrocities (spec §10.2, C14): a hollow triangle, near white with a dark edge, at the label point of
-/// each country with a designation the user sees that is current, meaning a statement dated within the last 12 months (by
-/// the designating body or in a UN report) says the situation continues. Other designations are history: the country panel
-/// lists them, the map does not. The tooltip names each current designation's type, authority and year. Data comes from
+/// each country with a current finding the user sees: a court judgment, UN body finding or government determination, with a
+/// statement dated within the last 12 months (by the designating body or in a UN report) that the situation continues.
+/// Interim steps (provisional measures, warrants, pending cases) never draw a triangle on their own; with a current finding
+/// they are listed in its tooltip. Other designations are history: the country panel lists them, the map does not. The
+/// tooltip names each listed designation's type, authority and year. Data comes from
 /// the <see cref="CuratedStore"/> (its Changed may come on any thread: only a flag crosses) and is judged at the display time.
 /// </summary>
 public sealed class AtrocityLayer : SceneLayer, IPickable
@@ -49,14 +51,14 @@ public sealed class AtrocityLayer : SceneLayer, IPickable
     public int MarkerCount { get; private set; }
 
     /// <summary>
-    /// The current designations the user sees, by country, newest first (the map's glyphs and their tooltips; the panel's
-    /// top section).
+    /// The countries on the map, each with what its tooltip lists, newest first (<see cref="CountryDesignations.Current"/>):
+    /// a country is on the map only with a current finding; its interim steps with a recent statement are listed with it.
     /// </summary>
     public static IReadOnlyDictionary<string, IReadOnlyList<Designation>> CurrentByCountry(CuratedStore store, DateTime nowUtc) =>
-        store.Visible.Where(d => d.IsCurrentAt(nowUtc))
-            .GroupBy(d => d.Iso3, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key.ToUpperInvariant(), g => (IReadOnlyList<Designation>)[.. g.OrderByDescending(d => d.Date)],
-                StringComparer.OrdinalIgnoreCase);
+        store.Visible.GroupBy(d => d.Iso3.ToUpperInvariant(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => (g.Key, CountryDesignations.Of(g, nowUtc).Current))
+            .Where(x => x.Current.Count > 0)
+            .ToDictionary(x => x.Key, x => x.Current, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>The hover text: one line per current designation, newest first ("Myanmar · UN body finding: ... (..., 2018)").</summary>
     public static string Tooltip(string country, IReadOnlyList<Designation> current, IReadOnlyList<Government> governments) =>
