@@ -15,14 +15,20 @@ using GlobeCore.Wpf.Rendering;
 
 namespace EarthRelief3D.App.Layers;
 
-/// <summary>One country on the food layer: its fill colour (the 20% rule's phase) and its outline colour (a worse phase with people).</summary>
-public sealed record FoodArea(string Iso3, Color? Fill, Color? Outline, Color? Faint = null);
+/// <summary>
+/// One country on the food layer: its fill colour (the 20% rule's phase) and its outline colour (a worse phase with
+/// people); or, for a country drawn by IPC area (P3-2), no country colours and its <paramref name="Areas"/>.
+/// </summary>
+public sealed record FoodArea(string Iso3, Color? Fill, Color? Outline, Color? Faint = null, IpcAreaSet? Areas = null);
 
 /// <summary>One polygon to draw: its fill, its outline, and its faint tint (an outline-only country, owner's decision round 2).</summary>
 public sealed record FoodPolygon(GeoPolygon Polygon, Color? Fill, Color? Outline, Color? Faint);
 
 /// <summary>
-/// Food crises (IPC national figures, ruling P2-3, shading rule R17): each country with a current analysis is shaded in the
+/// Food crises (IPC national figures, ruling P2-3, shading rule R17; IPC areas, P3-2). Where IPC publishes current areas
+/// that belong to the country's national analysis (ruling R4), each area of Phase 3 to 5 is filled in its IPC colour with a
+/// 1 px edge in that colour, in IPC's own area classification, and the country is not shaded by the rule. Elsewhere each
+/// country with a current analysis is shaded in the
 /// IPC colour of the worst phase that covers at least 20% of the people analysed (IPC's 20% rule, applied to the whole
 /// country; Phases 3 to 5 only), and outlined in the colour of a worse phase that has people in it. Stale analyses (P2-4)
 /// and projection-only records are neither shaded nor outlined. Drawn above the night shade, so the phase colours stay true
@@ -90,15 +96,38 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
     /// when that record is stale or projection only, the country is not drawn. A country is in the plan when it has a
     /// fill, an outline or both.
     /// </summary>
-    public static IReadOnlyList<FoodArea> Plan(IEnumerable<Crisis> crises) =>
-    [
-        .. crises.OfType<FoodCrisis>()
-            .GroupBy(f => f.CountryIso3.ToUpperInvariant())
-            .OrderBy(g => g.Key, StringComparer.Ordinal)
-            .Select(g => (Iso3: g.Key, Style: IpcAreaRule.MapStyle(FoodCrisis.Latest(g)!)))
-            .Where(x => !x.Style.IsEmpty)
-            .Select(x => new FoodArea(x.Iso3, PhaseColor(x.Style.Shaded), PhaseColor(x.Style.Outline), PhaseColor(x.Style.Faint))),
-    ];
+    public static IReadOnlyList<FoodArea> Plan(IEnumerable<Crisis> crises) => Plan(crises, []);
+
+    /// <summary>
+    /// The plan for a snapshot: a country whose latest national record has a matching area set
+    /// (<see cref="CrisisSnapshot.AreasFor"/>) is drawn by its areas instead of by the rule.
+    /// </summary>
+    public static IReadOnlyList<FoodArea> Plan(CrisisSnapshot s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        return Plan(s.Crises, s.IpcAreas);
+    }
+
+    private static IReadOnlyList<FoodArea> Plan(IEnumerable<Crisis> crises, IReadOnlyList<IpcAreaSet> areaSets)
+    {
+        var withAreas = new CrisisSnapshot([], [], []) { IpcAreas = areaSets };
+        var plan = new List<FoodArea>();
+        foreach (var g in crises.OfType<FoodCrisis>().GroupBy(f => f.CountryIso3.ToUpperInvariant()).OrderBy(g => g.Key, StringComparer.Ordinal))
+        {
+            var latest = FoodCrisis.Latest(g)!;
+            if (withAreas.AreasFor(latest) is { } areas)
+            {
+                plan.Add(new FoodArea(g.Key, null, null, null, areas));
+                continue;
+            }
+            var style = IpcAreaRule.MapStyle(latest);
+            if (!style.IsEmpty) plan.Add(new FoodArea(g.Key, PhaseColor(style.Shaded), PhaseColor(style.Outline), PhaseColor(style.Faint)));
+        }
+        return plan;
+    }
+
+    /// <summary>The areas IPC classified in Phase 3 to 5 are drawn; Phase 1 and 2 and unclassified areas are not (as R17's phases).</summary>
+    public static bool IsDrawn(IpcArea a) => a.Phase is >= 3 and <= 5;
 
     private static Color? PhaseColor(int? phase) => phase is { } p ? LayerStyle.IpcPhaseColor(p) : null;
 
@@ -117,17 +146,50 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
         return Math.Max(1.0, Math.Min(OutlineWidthPx, Math.Min(w, h) / 4));
     }
 
-    /// <summary>The key of what is drawn: the boundary version and every country's fill, outline and faint tint (a change rebuilds the image).</summary>
+    /// <summary>
+    /// The key of what is drawn: the boundary version and every country's fill, outline and faint tint, or its areas'
+    /// analysis, period and drawn phases (a change rebuilds the image).
+    /// </summary>
     public static string BuildKey(int boundaryVersion, IReadOnlyList<FoodArea> plan) =>
-        boundaryVersion + "|" + string.Join(";", plan.Select(p => $"{p.Iso3}:{p.Fill}/{p.Outline}/{p.Faint}"));
+        boundaryVersion + "|" + string.Join(";", plan.Select(p => p.Areas is { } a
+            ? $"{p.Iso3}:areas/{a.AnalysisId}/{a.From:yyyyMMdd}-{a.To:yyyyMMdd}/{a.Areas.Count}/{AreaHash(a)}"
+            : $"{p.Iso3}:{p.Fill}/{p.Outline}/{p.Faint}"));
 
-    /// <summary>Draws the plan's countries (their polygons from <paramref name="countries"/>) at the image's size. STA thread.</summary>
+    // The areas' names, drawn phases and part counts, so a reclassified area rebuilds the image.
+    private static string AreaHash(IpcAreaSet set)
+    {
+        var h = new HashCode();
+        foreach (var a in set.Areas)
+        {
+            h.Add(a.Name, StringComparer.Ordinal);
+            h.Add(IsDrawn(a) ? a.Phase : 0);
+            h.Add(a.Polygons.Count);
+        }
+        return h.ToHashCode().ToString("x8", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
+    /// Draws the plan's countries (their polygons from <paramref name="countries"/>) and, for a country drawn by area, its
+    /// Phase 3 to 5 areas: filled as the countries are, with the area rasterizer's 1 px edge in the phase colour (no
+    /// outline band; no edge along ±180°), at the image's size. STA thread.
+    /// </summary>
     public static Bgra32Image Rasterize(IReadOnlyList<FoodArea> plan, CountryIndex countries, int width, int height)
     {
         var areas = new List<FoodPolygon>();
         foreach (var a in plan)
+        {
+            if (a.Areas is { } set)
+            {
+                foreach (var area in set.Areas.Where(IsDrawn))
+                {
+                    var color = LayerStyle.IpcPhaseColor(area.Phase!.Value);
+                    foreach (var poly in area.Polygons) areas.Add(new FoodPolygon(poly, color, null, null));
+                }
+                continue;
+            }
             if (countries.ByIso3(a.Iso3) is { } c)
                 foreach (var poly in c.Polygons) areas.Add(new FoodPolygon(poly, a.Fill, a.Outline, a.Faint));
+        }
         return RasterizeAreas(areas, width, height);
     }
 
@@ -280,7 +342,7 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     protected override async Task PrepareForComposeAsync()
     {
-        var plan = Plan(_store.Snapshot.AsSeenAt(_nowUtc()).Crises);
+        var plan = Plan(_store.Snapshot.AsSeenAt(_nowUtc()));
         int version = Volatile.Read(ref _boundaryVersion);   // before the index is read: a swap meanwhile makes the next compose rebuild
         var key = BuildKey(version, plan);
         if (key == _builtKey) return;
@@ -303,11 +365,24 @@ public sealed class FoodImageLayer : ImageLayer, IPickable
 
     public PickResult? HitTest(Point screen, Projector projector, bool hover)
     {
-        if (Picking.CountryAt(screen, projector, _countries.Index) is not { } country) return null;
-        // The record the map and the panel use; a stale or projection-only one is not on this layer (the borders layer answers).
-        var food = FoodCrisis.Latest(_store.Snapshot.AsSeenAt(_nowUtc()).ByCountry(country.Iso3).OfType<FoodCrisis>());
-        return food is null || food.IsStale || food.ProjectionOnly ? null
-            : new PickResult(LayerId, new CountryPick(country.Iso3, CrisisLayer.Food), CrisisText.FoodHover(country.Name, food));
+        if (Picking.PositionAt(screen, projector) is not { } g || _countries.Index.Find(g) is not { } country) return null;
+        var text = HoverAt(_store.Snapshot.AsSeenAt(_nowUtc()), country.Iso3, country.Name, g);
+        return text is null ? null : new PickResult(LayerId, new CountryPick(country.Iso3, CrisisLayer.Food), text);
+    }
+
+    /// <summary>
+    /// The food tooltip at <paramref name="g"/> in the country <paramref name="iso3"/>, from the record the map and the panel
+    /// use; null for a stale or projection-only one, which is not on this layer (the borders layer answers). For a country
+    /// drawn by area (P3-2): the area under the point, in its IPC area classification, or between areas the country's line in
+    /// area terms.
+    /// </summary>
+    public static string? HoverAt(CrisisSnapshot s, string iso3, string country, GeoPosition g)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        var food = FoodCrisis.Latest(s.ByCountry(iso3).OfType<FoodCrisis>());
+        if (food is null || food.IsStale || food.ProjectionOnly) return null;
+        if (s.AreasFor(food) is not { } set) return CrisisText.FoodHover(country, food);
+        return set.AreaAt(g) is { } area ? CrisisText.AreaHover(area, country) : CrisisText.FoodHoverByArea(country, food);
     }
 
     // Any thread: the host takes the request to the UI thread; the shading is rebuilt at the next compose.

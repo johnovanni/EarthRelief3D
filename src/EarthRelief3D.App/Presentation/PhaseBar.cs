@@ -43,7 +43,8 @@ public sealed record PhaseBar(IReadOnlyList<PhaseBarSegment> Segments, IReadOnly
     public bool HasNote => Note is not null;
 
     /// <summary>The bar for <paramref name="f"/>'s current-period counts (stale analyses too; never for a projection-only record).</summary>
-    public static PhaseBar For(string country, FoodCrisis f)
+    /// <param name="byArea">The country is drawn on the map by IPC area (P3-2): the caption says so, and the 20% rule's famine note is not given.</param>
+    public static PhaseBar For(string country, FoodCrisis f, bool byArea = false)
     {
         ArgumentNullException.ThrowIfNull(f);
         var c = IpcAreaRule.Classify(f);
@@ -75,8 +76,8 @@ public sealed record PhaseBar(IReadOnlyList<PhaseBarSegment> Segments, IReadOnly
         }
 
         var of = CrisisText.OfAnalysed(f, c);
-        var caption = CrisisText.BarCaption(country, f, c);
-        string? note = !f.IsStale && !f.ProjectionOnly && c.ShadedPhase == 5 ? CrisisText.FamineNote : null;
+        var caption = CrisisText.BarCaption(country, f, c, byArea);
+        string? note = !byArea && !f.IsStale && !f.ProjectionOnly && c.ShadedPhase == 5 ? CrisisText.FamineNote : null;
         var parts = rows.Select(r => r.People == CrisisText.NotReported ? $"{r.Name} {CrisisText.NotReported}"
             : r.Percent.Length > 0 ? $"{r.Name} {r.Percent}, {r.People} people" : $"{r.Name} {r.People} people");
         var name = $"IPC phase bar for {country}, {of}: {string.Join("; ", parts)}. "

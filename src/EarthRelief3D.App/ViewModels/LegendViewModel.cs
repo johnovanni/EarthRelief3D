@@ -78,8 +78,13 @@ public sealed partial class LegendViewModel : ObservableObject
     public const string FoodRule = "the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
         + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase; "
         + "a faint tint with an outline alone means some people are in that phase, but no phase covers 20%.";
+    /// <summary>Which countries the rule shades (P3-2): where IPC publishes areas, they are drawn instead. One wording for the legend and the strip.</summary>
+    public const string FoodAreasRule = "Where IPC publishes areas, each area is shaded in IPC's own area classification; "
+        + "elsewhere the country is shaded by the 20% rule";
+    /// <summary>The food layer's whole description: the areas, then the rule.</summary>
+    private const string FoodDescription = FoodAreasRule + ". By the 20% rule, " + FoodRule;
     /// <summary>The layer strip's tooltip for the food toggle.</summary>
-    public const string FoodTooltip = "Food crisis (IPC): " + FoodRule;
+    public const string FoodTooltip = "Food crisis (IPC): " + FoodDescription;
     /// <summary>The last key under a country-value shading (P3-7): a country with no figure is not filled.</summary>
     public const string NoFigureKeyLabel = "no figure: not shaded";
     /// <summary>A layer whose data is not loaded yet (ruling R2).</summary>
@@ -138,7 +143,7 @@ public sealed partial class LegendViewModel : ObservableObject
         Lines = lines;
         Entries = BuildEntries(now);
         Unplaced = [.. s.Unplaced.OrderByDescending(u => u.Citation.AsOfUtc)
-            .Select(u => new UnplacedLine(u.Title, $"{u.Source} · {u.Reason} · {CrisisText.Date(u.Citation.AsOfUtc)}"))];
+            .Select(u => new UnplacedLine(u.Title, $"{u.Source} · {u.Reason} · {CrisisText.DataDate(u.Citation, now)}"))];
         UnplacedHeader = $"{UnplacedTitle} ({Unplaced.Count})";
         HasUnplaced = Unplaced.Count > 0;
     }
@@ -165,7 +170,7 @@ public sealed partial class LegendViewModel : ObservableObject
     public static string Measures(CrisisLayer layer) => layer switch
     {
         CrisisLayer.Conflict => "Armed conflict: UCDP events of conflicts with 25 or more deaths in a calendar year; dot size by the band of that conflict's deaths in the country over the data window, colour by the event's age",
-        CrisisLayer.Food => "Food crisis: " + FoodRule,
+        CrisisLayer.Food => "Food crisis: " + FoodDescription,
         CrisisLayer.Outbreaks => "Disease outbreaks: WHO Outbreak News reports in the last 90 days, at the country",
         CrisisLayer.Displacement => "People forced from home, by country of origin (refugees, asylum-seekers and internally displaced); ring area grows with the number",
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),

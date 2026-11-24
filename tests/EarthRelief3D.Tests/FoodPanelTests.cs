@@ -333,14 +333,16 @@ public class FoodPanelTests
         var strip = new LayerStripViewModel(new MemorySettingsStore());
         Assert.Equal(LegendViewModel.FoodTooltip, strip.Groups.SelectMany(g => g.Toggles).Single(t => t.Id == "food").Tooltip);
         Assert.DoesNotContain("highest phase with people", xaml);
-        Assert.Equal("Food crisis (IPC): " + LegendViewModel.FoodRule, LegendViewModel.FoodTooltip);
-        Assert.Equal("Food crisis: " + LegendViewModel.FoodRule, LegendViewModel.Measures(CrisisLayer.Food));
+        // P3-2: where IPC publishes areas they are used; the rule for the other countries follows.
+        Assert.Equal("Food crisis (IPC): " + LegendViewModel.FoodAreasRule + ". By the 20% rule, " + LegendViewModel.FoodRule, LegendViewModel.FoodTooltip);
+        Assert.Equal("Food crisis: " + LegendViewModel.FoodAreasRule + ". By the 20% rule, " + LegendViewModel.FoodRule, LegendViewModel.Measures(CrisisLayer.Food));
     }
 
     [Fact]
     public void LegendDescribesTheRuleTheOutlineAndTheFamineNote()
     {
-        Assert.Equal("Food crisis: the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
+        Assert.Equal("Food crisis: Where IPC publishes areas, each area is shaded in IPC's own area classification; elsewhere the country is "
+                     + "shaded by the 20% rule. By the 20% rule, the country is shaded by the worst IPC phase that covers at least 20% of the people analysed "
                      + "(IPC's 20% rule, applied to the whole country). An outline in a worse phase's colour means some people are in that phase; "
                      + "a faint tint with an outline alone means some people are in that phase, but no phase covers 20%.",
             LegendViewModel.Measures(CrisisLayer.Food));

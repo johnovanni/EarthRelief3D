@@ -124,7 +124,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         var conflicts = crises.OfType<ConflictCrisis>().OrderByDescending(c => c.Severity.Value).ToList();
         Add(ConflictSection(conflicts, now), CrisisLayer.Conflict);
         var food = FoodCrisis.Latest(crises.OfType<FoodCrisis>());   // the record the map and the hover use too
-        Add(food is null ? null : FoodSection(food, _nameOf(iso3) ?? iso3), CrisisLayer.Food);
+        Add(food is null ? null : FoodSection(food, _nameOf(iso3) ?? iso3, s.AreasFor(food)), CrisisLayer.Food);
         var outbreaks = crises.OfType<OutbreakCrisis>().OrderByDescending(o => o.PublishedUtc).ToList();
         Add(OutbreakSection(outbreaks, now), CrisisLayer.Outbreaks);
         var displaced = s.Displacement.Where(d => string.Equals(d.CountryIso3, iso3, StringComparison.OrdinalIgnoreCase))
@@ -195,7 +195,9 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         return colon >= 0 ? c.Title[(colon + 2)..] : c.Title;
     }
 
-    private static PanelSection FoodSection(FoodCrisis f, string country)
+    /// <param name="areas">The country's IPC areas when they belong to <paramref name="f"/> (P3-2): the map draws them, so the
+    /// rows say so and count them, and R17's shading rows and famine note are not given.</param>
+    private static PanelSection FoodSection(FoodCrisis f, string country, IpcAreaSet? areas = null)
     {
         var cite = f.Citations.Count > 0 ? f.Citations[0]
             : new SourceCitation(IpcNationalReader.Publisher, IpcNationalReader.Dataset, null, IpcNationalReader.PageUrl, "CC0", IpcNationalReader.Attribution, default, default);
@@ -214,10 +216,26 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         // R17: the 20% rule and the phase bar, for a past analysis too. The bar's rows carry the people in every phase (R16:
         // a small Phase 5 count is not read as a whole country in famine).
         var c = IpcAreaRule.Classify(f);
-        var bar = PhaseBar.For(country, f);
+        var byArea = areas is not null && areas.Matches(f);
+        var bar = PhaseBar.For(country, f, byArea);
         List<(string, string)> rows;
         if (f.IsStale)
             rows = [("Last IPC analysis", period), ("Note", "Ended more than 12 months ago, so it is not shown as a current crisis")];
+        else if (byArea)
+        {
+            // P3-2: the map shows IPC's own area classification; the national figures follow, as for any country.
+            var a = areas!;
+            rows =
+            [
+                ("Map shading", CrisisText.ByAreaShading),
+                ("IPC areas", CrisisText.AreaCounts(a)),
+                ("IPC areas source", $"{a.Citation.Publisher}, {a.Citation.Dataset}"
+                    + (string.IsNullOrWhiteSpace(a.AnalysisDate) ? "" : $" (analysed {a.AnalysisDate})")),
+                ("People in Phase 3 or higher", CrisisText.Number(c.Phase3PlusPeople)
+                    + (c.ShareKnown ? $" ({CrisisText.ShareOf(f, c, c.Phase3PlusShare)})" : " (share unknown)")),
+                ("Analysis period", period),
+            ];
+        }
         else
         {
             rows = [("Country shading", CrisisText.FoodShading(c))];

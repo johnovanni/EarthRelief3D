@@ -163,9 +163,11 @@ public static class CrisisText
     /// shaded Crisis, with a Phase 5 outline."; "No phase reaches the worst 20%, so ... is not shaded" (a known share, but
     /// too few people in any reported phase); with no per-phase numbers to draw, the Phase 3 or higher share instead of a
     /// line; "Share unknown: ..." only when there is no denominator at all. For a past analysis, "... This analysis ended
-    /// more than 12 months ago, so &lt;country&gt; is not shaded."
+    /// more than 12 months ago, so &lt;country&gt; is not shaded." For a country drawn by IPC area (P3-2,
+    /// <paramref name="byArea"/>): "... &lt;country&gt; is drawn on the map by IPC area (IPC area classification), not by the
+    /// 20% rule."
     /// </summary>
-    public static string BarCaption(string country, FoodCrisis f, IpcAreaClass c)
+    public static string BarCaption(string country, FoodCrisis f, IpcAreaClass c, bool byArea = false)
     {
         string lead;
         if (!c.ShareKnown)
@@ -178,11 +180,69 @@ public static class CrisisText
         else if (c.LinePhase is { } p) lead = $"The line falls in Phase {p}";
         else lead = "No phase reaches the worst 20%";
         if (f.IsStale) return $"{lead}. This analysis ended more than {FoodCrisis.StaleAfterMonths} months ago, so {country} is not shaded.";
+        if (byArea) return $"{lead}. {country} is drawn on the map by IPC area (IPC area classification), not by the 20% rule.";
         var shading = c.ShadedPhase is { } s ? $"is shaded {LayerStyle.IpcPhaseName(s)}" : "is not shaded";
         var outline = c.FaintPhase is { } t ? $", with a faint Phase {t} tint and outline"
             : c.OutlinePhase is { } o ? $", with a Phase {o} outline" : "";
         return $"{lead}, so {country} {shading}{outline}.";
     }
+
+    // ---------------------------------------------------------------- IPC areas (P3-2; one wording everywhere)
+
+    /// <summary>
+    /// An area IPC classified Phase 5: IPC's Famine classification (for an area, unlike a country shaded by the 20% rule, whose
+    /// note is <see cref="FamineNote"/>).
+    /// </summary>
+    public const string AreaFamineLabel = "Phase 5 Famine (IPC area classification)";
+
+    /// <summary>What a country drawn by area is shaded by (the panel's "Map shading" row).</summary>
+    public const string ByAreaShading = "By IPC area: each area in IPC's own area classification (not the 20% rule)";
+
+    /// <summary>The tooltip's words for a country drawn by area, where the mouse is on no area.</summary>
+    public const string FoodShadingByArea = "shaded by IPC area (IPC area classification)";
+
+    /// <summary>The source's short name at the end of an area's tooltip.</summary>
+    public const string AreaSourceShort = "IPC via HDX";
+
+    /// <summary>
+    /// An area's classification: "IPC area classification Phase 4 Emergency"; Phase 5 is <see cref="AreaFamineLabel"/>; an
+    /// area with phase 0 in the file "IPC area classification: none (area not classified in this analysis)".
+    /// </summary>
+    public static string AreaPhaseText(int? phase) => phase switch
+    {
+        5 => AreaFamineLabel,
+        >= 1 and <= 4 => "IPC area classification " + LayerStyle.IpcPhaseLabel(phase.Value),
+        _ => "IPC area classification: none (area not classified in this analysis)",
+    };
+
+    /// <summary>"IPC analysis period 1 Jun 2026–31 Aug 2026 (analysed Mar 2026)" for an area.</summary>
+    public static string AreaDate(IpcArea a) =>
+        "IPC analysis period " + Period(a.From, a.To) + (string.IsNullOrWhiteSpace(a.Citation.Version) ? "" : $" (analysed {a.Citation.Version})");
+
+    /// <summary>"Bama, Nigeria · IPC area classification Phase 4 Emergency · IPC analysis period ... (analysed Mar 2026) · IPC via HDX".</summary>
+    public static string AreaHover(IpcArea a, string country) =>
+        $"{a.Name}, {country} · {AreaPhaseText(a.Phase)} · {AreaDate(a)} · {AreaSourceShort}";
+
+    /// <summary>
+    /// The panel's "IPC areas" line: "12 in Phase 3, 5 in Phase 4, 1 in Phase 5 Famine (IPC area classification)" (phases
+    /// with no area left out); "none in Phase 3 or higher (of 38 areas)".
+    /// </summary>
+    public static string AreaCounts(IpcAreaSet set)
+    {
+        var parts = new List<string>();
+        for (int p = 3; p <= 5; p++)
+            if (set.CountInPhase(p) is > 0 and var n) parts.Add($"{n} in " + (p == 5 ? AreaFamineLabel : $"Phase {p}"));
+        return parts.Count > 0 ? string.Join(", ", parts)
+            : $"none in Phase 3 or higher (of {set.Areas.Count} area{(set.Areas.Count == 1 ? "" : "s")})";
+    }
+
+    /// <summary>
+    /// The country's food tooltip where it is drawn by area and the mouse is on no area: "Nigeria · food crisis · shaded by
+    /// IPC area (IPC area classification) · people in Phase 3 Crisis ... · IPC analysis period ..." (the national figures,
+    /// never the 20% rule's shading).
+    /// </summary>
+    public static string FoodHoverByArea(string country, FoodCrisis f) =>
+        $"{country} · {FoodKind} · {FoodShadingByArea} · {PhaseCountsText(f)} · {FoodDate(f)}";
 
     /// <summary>The newest as-of time among a crisis's citations.</summary>
     public static DateTime NewestAsOf(Crisis c) => c.Citations.Count == 0 ? default : c.Citations.Max(x => x.AsOfUtc);

@@ -4,6 +4,7 @@ using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.Settings;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
+using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Feeds;
 using GlobeCore.Earth;
@@ -99,10 +100,16 @@ public sealed class AppServices : IDisposable
             log.Info($"Indicator cache loaded: {cachedSeries.Series.Count} series");
         }
 
+        // P3-2: the IPC areas, an extra step of the IPC feed (its status dot): it needs the national records just stored, and
+        // a country whose areas cannot be had keeps the 20% rule without failing the national figures. The areas of the last
+        // run are on disk (cache\ipc-areas), so they show at once, offline too, while they belong to the cached national records.
+        var ipcAreas = new IpcAreaFeed(http, store, clock, log, root.CacheDir);
+        ipcAreas.LoadCached(store.Snapshot.Crises.OfType<FoodCrisis>());
+
         IFeed[] feeds =
         [
             new UcdpCandidateFeed(http, store, clock, log, countries),
-            new IpcNationalFeed(http, store, clock, log, countries),
+            new IpcNationalFeed(http, store, clock, log, countries, ipcAreas),
             new WhoOutbreakFeed(http, store, clock, log, countries),
             new UnhcrDisplacementFeed(http, store, clock, log, countries),
             // Plan 3 needs: weekly, into the country-value store (their unplaced codes go to the crisis store's list).

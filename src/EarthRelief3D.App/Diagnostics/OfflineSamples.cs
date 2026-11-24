@@ -35,6 +35,12 @@ public static class OfflineSamples
     /// <summary>What GitHub's "latest release" answer holds for the Borders feed in an offline run: the bundled edition, so no update.</summary>
     public const string BordersLatestReleaseJson = "{\"tag_name\":\"v5.1.2\",\"published_at\":\"2022-05-13T00:00:00Z\"}";
 
+    /// <summary>Every IPC area search (<see cref="IpcAreaReader.SearchUrl"/>, any country).</summary>
+    public const string IpcAreaSearchPrefix = "https://data.humdata.org/api/3/action/package_search";
+
+    /// <summary>What HDX answers for a country with no IPC dataset (as for groups:ukr on 2026-11-23): no package.</summary>
+    public const string IpcAreaSearchJson = "{\"success\":true,\"result\":{\"count\":0,\"results\":[]}}";
+
     /// <summary>The prefix of the temporary data folders under %TEMP% (one per offline run, deleted on exit).</summary>
     public const string TempFolderPrefix = "EarthRelief3D-offline-";
 
@@ -90,6 +96,10 @@ public static class OfflineSamples
         // IPC: the HDX package, then the resource it names.
         Map(IpcNationalFeed.PackageUrl.ToString(), "hdx_ipc_package.json");
         Map(IpcCsvUrl, "ipc_national_wide_latest.csv");
+        // IPC areas (P3-2): HDX's search finds no country dataset, so every country keeps the 20% rule and the pictures stay
+        // those of the national figures. (The Nigeria area samples are projection-only, as is Nigeria in the national sample:
+        // they could not be drawn; the tests use a current-period variant of them.) Inline: there is no sample file for it.
+        h.MapText(IpcAreaSearchPrefix, IpcAreaSearchJson);
         // WHO: the synthetic sample answers the list request, whatever its query.
         Map(WhoUrlPrefix, "who_don_synthetic.json");
         // UNHCR: only the sample's year has items; any other year is a 404.

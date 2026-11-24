@@ -211,12 +211,12 @@ internal static class Picking
     }
 
     /// <summary>The country under the screen point (units applied: Somaliland is Somalia), or null over the sea or space.</summary>
-    public static Country? CountryAt(Point screen, Projector projector, CountryIndex index)
-    {
-        if (!projector.TryHitUnitSphere(screen, out var hit)) return null;
-        var g = GeoPosition.FromVector(new AstroCore.Astronomy.Vector3d(hit.X, hit.Y, hit.Z));
-        return index.Find(g);
-    }
+    public static Country? CountryAt(Point screen, Projector projector, CountryIndex index) =>
+        PositionAt(screen, projector) is { } g ? index.Find(g) : null;
+
+    /// <summary>The place on the globe under the screen point, or null over space.</summary>
+    public static GeoPosition? PositionAt(Point screen, Projector projector) =>
+        projector.TryHitUnitSphere(screen, out var hit) ? GeoPosition.FromVector(new AstroCore.Astronomy.Vector3d(hit.X, hit.Y, hit.Z)) : null;
 
     public static double Distance(Point a, Point b) => (a - b).Length;
 }

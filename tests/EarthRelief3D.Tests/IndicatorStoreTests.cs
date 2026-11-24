@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Json.Nodes;
 using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Storage;
@@ -72,6 +73,34 @@ public class IndicatorStoreTests
 
             File.WriteAllText(cache.FilePath, """{"SchemaVersion":1,"Series":[{"Id":"x","Measures":null,"Unit":"%","Values":[]}]}""");
             Assert.Null(cache.Load());   // a null the model forbids: discarded
+        }
+        finally { Directory.Delete(root.Root, recursive: true); }
+    }
+
+    [Fact]
+    public void OldCacheWithoutDateMeaningLoadsAsAsOf()
+    {
+        // indicators.json written before Task 3 has no DateMeaning on its citations: they load as AsOf (the default).
+        var root = new AppDataRoot(Path.Combine(Path.GetTempPath(), "er3d-ind-" + Guid.NewGuid().ToString("N")));
+        try
+        {
+            Directory.CreateDirectory(root.CacheDir);
+            var cache = new IndicatorCache(root, new ListLog());
+            var store = new IndicatorStore();
+            store.Replace("gho.water", Water());
+            Assert.True(cache.Save(store.Snapshot));
+            var json = JsonNode.Parse(File.ReadAllText(cache.FilePath))!;
+            int removed = 0;
+            foreach (var v in json["Series"]![0]!["Values"]!.AsArray())
+                if (v!["Citation"]!.AsObject().Remove("DateMeaning")) removed++;
+            Assert.Equal(2, removed);   // the field is written today, so this file really is an old one now
+            File.WriteAllText(cache.FilePath, json.ToJsonString());
+            Assert.DoesNotContain("DateMeaning", File.ReadAllText(cache.FilePath));
+
+            var loaded = cache.Load();
+            Assert.NotNull(loaded);
+            Assert.All(loaded.Get("gho.water")!.Values, v => Assert.Equal(CitationDate.AsOf, v.Citation.DateMeaning));
+            Assert.Equal(store.Snapshot, loaded);
         }
         finally { Directory.Delete(root.Root, recursive: true); }
     }

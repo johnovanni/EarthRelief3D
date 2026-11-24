@@ -103,6 +103,23 @@ public class LegendViewModelTests
     }
 
     [Fact]
+    public void UnplacedDatesFollowTheCitationsDateMeaning()
+    {
+        // Task 3's carry: a GHO code is an estimate year (never "31 Dec 2024"), an HNO code a file load date (never a bare date).
+        var gho = new UnplacedReport("WHO GHO", "XKX", "country code not recognised: XKX",
+            Cite("World Health Organization", new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Utc)) with { DateMeaning = CitationDate.EstimateYear });
+        var hno = new UnplacedReport("UN HNO", "ZZZ", "country code not recognised: ZZZ",
+            Cite("OCHA", new DateTime(2026, 2, 13, 0, 0, 0, DateTimeKind.Utc)) with { DateMeaning = CitationDate.FileLoaded });
+        var who = new UnplacedReport("WHO", "Glimmer fever - Atlantis", "country name not recognised: Atlantis", Cite("WHO", T.AddDays(-2)));
+        var (legend, _, _) = Make(new CrisisSnapshot([], [], [gho, hno, who]));
+        string Detail(string title) => legend.Unplaced.Single(u => u.Title == title).Detail;
+        Assert.Equal("WHO GHO · country code not recognised: XKX · estimate year 2024", Detail("XKX"));
+        Assert.Equal("UN HNO · country code not recognised: ZZZ · file loaded 13 Feb 2026", Detail("ZZZ"));
+        Assert.Equal("WHO · country name not recognised: Atlantis · as of 20 Nov 2026", Detail("Glimmer fever - Atlantis"));
+        Assert.DoesNotContain(legend.Unplaced, u => u.Detail.Contains("31 Dec 2024"));
+    }
+
+    [Fact]
     public void CheckedSourceWithNothingSaysChecked()
     {
         var (legend, _, store) = Make();

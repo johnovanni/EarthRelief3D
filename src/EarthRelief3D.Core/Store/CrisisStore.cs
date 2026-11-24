@@ -38,6 +38,13 @@ public sealed class CrisisStore
         return s with { Unplaced = [.. s.Unplaced.Where(r => r.Source != source), .. fresh] };
     });
 
+    /// <summary>Replaces the countries' IPC area sets (P3-2): one per country, as the IPC feed's area step found them.</summary>
+    public bool ReplaceIpcAreas(IReadOnlyList<IpcAreaSet> sets) => _store.Write(s =>
+    {
+        var fresh = sets.OrderBy(a => a.Iso3, StringComparer.Ordinal).ToList();
+        return s.IpcAreas.SequenceEqual(fresh) ? null : s with { IpcAreas = fresh };
+    });
+
     /// <summary>
     /// Records that <paramref name="source"/> (a feed name) ran successfully at <paramref name="utc"/>, whether or not it
     /// found anything (ruling R12). Feeds call it after their other writes.

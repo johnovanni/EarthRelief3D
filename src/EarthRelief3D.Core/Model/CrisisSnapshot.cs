@@ -18,6 +18,20 @@ public sealed record CrisisSnapshot(IReadOnlyList<Crisis> Crises, IReadOnlyList<
     public IReadOnlyDictionary<string, DateTime> CheckedUtc { get; init; } = NoChecks;
 
     /// <summary>
+    /// The countries' current IPC areas (P3-2, ruling R4), one set per country, as the area step of the IPC feed last found
+    /// them. Not saved in <c>crises.json</c>: the area step keeps its own files and loads them at start-up.
+    /// </summary>
+    public IReadOnlyList<IpcAreaSet> IpcAreas { get; init; } = [];
+
+    /// <summary>
+    /// The area set the map, the hover and the panel use for <paramref name="latest"/> (a country's latest national record,
+    /// <see cref="FoodCrisis.Latest"/>): its country's set when it <see cref="IpcAreaSet.Matches"/> the record, else null (the
+    /// country is shaded by the 20% rule).
+    /// </summary>
+    public IpcAreaSet? AreasFor(FoodCrisis? latest) =>
+        latest is null ? null : IpcAreas.FirstOrDefault(a => string.Equals(a.Iso3, latest.CountryIso3, StringComparison.OrdinalIgnoreCase) && a.Matches(latest));
+
+    /// <summary>
     /// The snapshot as it should be shown at <paramref name="nowUtc"/>: WHO reports older than
     /// <see cref="OutbreakCrisis.Window"/> are left out and IPC analyses past <see cref="FoodCrisis.StaleAfterMonths"/>
     /// are marked stale, even when they were loaded from an old cache or the feeds have not run for a long time. Returns
@@ -51,7 +65,7 @@ public sealed record CrisisSnapshot(IReadOnlyList<Crisis> Crises, IReadOnlyList<
 
     public bool Equals(CrisisSnapshot? o) => o is not null && ListEquality.Equal(Crises, o.Crises)
         && ListEquality.Equal(Displacement, o.Displacement) && ListEquality.Equal(Unplaced, o.Unplaced)
-        && ChecksEqual(CheckedUtc, o.CheckedUtc);
+        && ChecksEqual(CheckedUtc, o.CheckedUtc) && ListEquality.Equal(IpcAreas, o.IpcAreas);
 
     public override int GetHashCode() => HashCode.Combine(Crises.Count, Displacement.Count, Unplaced.Count, CheckedUtc.Count);
 
