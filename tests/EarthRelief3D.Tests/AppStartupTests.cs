@@ -234,12 +234,16 @@ public class AppStartupTests
             (nameof(DisplacementSceneLayer), DisplacementSceneLayer.Order),
             (nameof(ConflictSceneLayer), ConflictSceneLayer.Order),
             (nameof(OutbreakSceneLayer), OutbreakSceneLayer.Order),
+            // Plan 3: the curated atrocity glyphs (Task 5), between the outbreak crosses and the point markers.
+            (nameof(AtrocityLayer), AtrocityLayer.Order),
             // Plan 3: the marker layers drawn from lists (camps, power plants, oil and gas fields, steel plants).
             .. PointMarkerLayer.Layers.Select(l => (nameof(PointMarkerLayer), PointMarkerLayer.OrderOf(l))),
             (nameof(LabelsOverlayLayer), LabelsOverlayLayer.Order),
         ], host.Layers.Select(l => (l.GetType().Name, l.ZOrder)));
         Assert.True(BordersImageLayer.Order < FoodImageLayer.Order && FoodImageLayer.Order < DisplacementSceneLayer.Order);
-        Assert.Equal(5 + CountryValueLayer.Layers.Count + PointMarkerLayer.Layers.Count, host.Layers.Count(l => l is IPickable));
+        Assert.Equal(6 + CountryValueLayer.Layers.Count + PointMarkerLayer.Layers.Count, host.Layers.Count(l => l is IPickable));
+        Assert.True(OutbreakSceneLayer.Order < AtrocityLayer.Order && AtrocityLayer.Order < PointMarkerLayer.OrderOf(MarkerLayer.Camps));
+        Assert.False(host.Layers.OfType<AtrocityLayer>().Single().IsVisible);   // off by default, as the other Plan 3 markers
         Assert.Equal(7, CountryValueLayer.Layers.Count);
         Assert.Equal([MarkerLayer.Camps, MarkerLayer.PowerPlants, MarkerLayer.OilGasFields, MarkerLayer.SteelPlants], PointMarkerLayer.Layers);
         Assert.All(host.Layers.OfType<CountryValueLayer>(), l => Assert.False(l.IsVisible));   // food is today's shading

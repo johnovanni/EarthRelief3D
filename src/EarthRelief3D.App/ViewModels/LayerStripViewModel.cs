@@ -113,6 +113,20 @@ public sealed partial class LayerStripViewModel : ObservableObject
     /// <summary>The Crises, Needs and Resources groups (spec §6), in strip order.</summary>
     public IReadOnlyList<LayerGroup> Groups { get; }
 
+    /// <summary>The Settings flyout opened by the gear at the end of the strip (P3-5); null: no gear.</summary>
+    public SettingsViewModel? Settings
+    {
+        get => _settings;
+        set
+        {
+            if (SetProperty(ref _settings, value)) OnPropertyChanged(nameof(HasSettings));
+        }
+    }
+
+    private SettingsViewModel? _settings;
+
+    public bool HasSettings => _settings is not null;
+
     /// <summary>The groups after Resources, shown as headers only.</summary>
     public IReadOnlyList<ComingGroup> ComingGroups { get; } = [new("Getting help in", ComingNote)];
 

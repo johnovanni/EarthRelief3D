@@ -1,6 +1,8 @@
 using System.IO;
 using System.Windows.Threading;
+using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Presentation;
+using EarthRelief3D.Core.Curated;
 using EarthRelief3D.App.Settings;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
@@ -71,8 +73,9 @@ public sealed class AppServices : IDisposable
 
     /// <param name="dispatcher">The UI thread's dispatcher (null in tests: view models update at once).</param>
     /// <param name="ipcAreaPause">The IPC area step's wait between countries (null: <see cref="IpcAreaFeed.DefaultPause"/>; zero for offline samples).</param>
+    /// <param name="showDrafts">Also show the curated rows the owner has not approved yet (<c>--show-drafts</c>, P3-4).</param>
     public static AppServices Create(AppDataRoot root, FeedHttp http, IClock clock, IAppLog log, ISettingsStore<AppSettings> settings,
-        Dispatcher? dispatcher, TimeSpan? ipcAreaPause = null)
+        Dispatcher? dispatcher, TimeSpan? ipcAreaPause = null, bool showDrafts = false)
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(http);
@@ -125,8 +128,21 @@ public sealed class AppServices : IDisposable
         ];
         if (!feeds.Select(f => f.Name).SequenceEqual(FeedNames)) throw new InvalidOperationException("Feed names and status dots differ.");
 
+        // Plan 3: the curated designations and camp sites (data\curated), validated on load. A bad table is a packaging
+        // fault the tests catch; should one ship anyway, the app runs without the curated layers and the log says why.
+        CuratedTables curatedTables;
+        try { curatedTables = CuratedTables.Load(Path.Combine(BoundaryData.DataDir, "curated")); }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+        {
+            log.Error("The curated tables could not be loaded; the atrocities and camps layers are empty", ex);
+            curatedTables = CuratedTables.Empty;
+        }
+        var curated = new CuratedStore(curatedTables, showDrafts);
+        if (showDrafts) log.Info("Curated drafts are shown (--show-drafts), each labelled \"" + DesignationText.DraftLabel + "\"");
+
         var resolver = countries;
-        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries, indicators);
+        var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries, indicators,
+            curated: curated);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         scheduler.StatusChanged += (_, status) => main.Status.Update(status);   // feed threads: Update uses BeginInvoke

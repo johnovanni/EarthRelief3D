@@ -112,6 +112,17 @@
                                                Visibility="{Binding Link, Converter={x:Static local:NullToCollapsedConverter.Instance}}">
                                         <Hyperlink Foreground="#7FB6FF" Click="OnSourceLinkClick" Tag="{Binding Link}">Source page ↗</Hyperlink>
                                     </TextBlock>
+                                    <!-- Curated sections (Plan 3): a link to each entry's own document. -->
+                                    <ItemsControl ItemsSource="{Binding Links}" Margin="0,2,0,0" Focusable="False"
+                                                  Visibility="{Binding HasLinks, Converter={StaticResource B2V}}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Margin="0,1,0,1" FontSize="12" TextWrapping="Wrap">
+                                                    <Hyperlink Foreground="#7FB6FF" Click="OnSourceLinkClick" Tag="{Binding Url}"><Run Text="{Binding Text, Mode=OneWay}"/> ↗</Hyperlink>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

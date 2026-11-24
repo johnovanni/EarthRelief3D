@@ -10,7 +10,11 @@ using GlobeCore.Wpf.Rendering;
 namespace EarthRelief3D.App.Layers;
 
 /// <summary>What a click or hover found: the country whose panel opens, and the section to open it at (C1).</summary>
-public sealed record CountryPick(string Iso3, CrisisLayer? Focus);
+public sealed record CountryPick(string Iso3, CrisisLayer? Focus)
+{
+    /// <summary>A Plan 3 marker layer whose section the panel opens at (atrocities); null for none.</summary>
+    public MarkerLayer? Marker { get; init; }
+}
 
 /// <summary>
 /// Builds marker meshes on the globe (unit equatorial radius): filled discs, rings and crosses, each laid in the tangent

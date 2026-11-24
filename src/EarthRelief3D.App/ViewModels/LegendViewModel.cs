@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Store;
@@ -93,6 +94,7 @@ public sealed partial class LegendViewModel : ObservableObject
     private readonly CrisisStore _store;
     private readonly IndicatorStore? _indicators;
     private readonly MarkerDataStore? _markerData;
+    private readonly CuratedStore? _curated;
     private readonly LayerStripViewModel _layers;
     private readonly Dispatcher? _dispatcher;
     private readonly Func<DateTime> _nowUtc;
@@ -110,8 +112,9 @@ public sealed partial class LegendViewModel : ObservableObject
     /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
     /// <param name="indicators">The country-value series the shadings draw (none: every shading says "Data not loaded yet").</param>
     /// <param name="markerData">The point sets of the marker layers drawn from lists (none: those say "Data not loaded yet").</param>
+    /// <param name="curated">The curated designations as the user sees them (the atrocities line); null: that line says "Data not loaded yet".</param>
     public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null,
-        CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null)
+        CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null, CuratedStore? curated = null)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
@@ -119,9 +122,11 @@ public sealed partial class LegendViewModel : ObservableObject
         _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _indicators = indicators;
         _markerData = markerData;
+        _curated = curated;
         _store.Changed += OnStoreChanged;
         if (_indicators is not null) _indicators.Changed += OnStoreChanged;
         if (_markerData is not null) _markerData.Changed += OnMarkerDataChanged;
+        if (_curated is not null) _curated.Changed += OnStoreChanged;
         _layers.PropertyChanged += OnLayersChanged;
         // The set in use at start; after a swap the scene calls ShowBoundaries once the new borders are drawn.
         if (boundaries is not null) BoundaryText = NoteFor(boundaries.Set);
@@ -199,7 +204,7 @@ public sealed partial class LegendViewModel : ObservableObject
     {
         var entries = new List<LegendEntry>();
         foreach (var m in LayerCatalog.CrisisMarkersAdded)
-            if (_layers.IsShown(m)) entries.Add(MarkerEntry(m, now));
+            if (_layers.IsShown(m)) entries.Add(m == MarkerLayer.Atrocities && _curated is not null ? AtrocityEntry(_curated, now) : MarkerEntry(m, now));
         if (_layers.Shading is not ShadingLayer.None and not ShadingLayer.Food) entries.Add(ShadingEntry(_layers.Shading, now));
         foreach (var m in LayerCatalog.ResourceMarkers)
             if (_layers.IsShown(m)) entries.Add(MarkerEntry(m, now));
@@ -252,6 +257,30 @@ public sealed partial class LegendViewModel : ObservableObject
             return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), NotLoaded, []);
         var c = set.Citation;
         return new LegendEntry(id, symbol, color, measures, $"{c.Publisher}, {c.Dataset}", CrisisText.DataDate(c, now), [], set.Filter);
+    }
+
+    /// <summary>The atrocities line's note when the user sees no designation at all (P3-4).</summary>
+    public const string NoneApprovedNote = "None approved yet: each entry is shown after the owner's review";
+
+    /// <summary>
+    /// The atrocities line (C14): what a triangle means, how many countries have one, the date the tables were checked, and
+    /// in a <c>--show-drafts</c> run that drafts are shown.
+    /// </summary>
+    private static LegendEntry AtrocityEntry(CuratedStore curated, DateTime now)
+    {
+        const MarkerLayer layer = MarkerLayer.Atrocities;
+        string id = LayerCatalog.Id(layer), symbol = LayerStyle.Symbol(layer), measures = LayerCatalog.Measures(layer);
+        var color = LayerStyle.SymbolColor(layer);
+        var all = curated.Tables.Designations;
+        if (all.Count == 0) return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), NotLoaded, []);
+        var asOf = "checked " + Core.Curated.DesignationText.Date(all.Max(d => d.CheckedOn));
+        var visible = curated.Visible;
+        if (visible.Count == 0) return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), asOf, [], NoneApprovedNote);
+        int countries = AtrocityLayer.CurrentByCountry(curated, now).Count;
+        var note = $"A triangle: a finding, warrant or case, and a statement from the last 12 months that the situation continues "
+                   + $"({countries} {(countries == 1 ? "country" : "countries")}). Past ones are in the country panel's history.";
+        if (visible.Any(d => !d.Review.IsApproved)) note += " " + Curated.CampMarkers.DraftsNote + ".";
+        return new LegendEntry(id, symbol, color, measures, LayerCatalog.SourceName(layer), asOf, [], note);
     }
 
     private void OnMarkerDataChanged(object? sender, MarkerLayer layer) => OnStoreChanged(sender, EventArgs.Empty);

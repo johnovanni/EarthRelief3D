@@ -31,6 +31,12 @@ public sealed record AppSettings
     /// <summary>The marker layers shown (they stack); null in a Plan 2 file (then the three Plan 2 flags say).</summary>
     public IReadOnlyList<MarkerLayer>? Markers { get; init; }
 
+    /// <summary>
+    /// The governments whose formal determinations are shown (Settings, "Formal determinations by"; C15), by ISO3; null
+    /// (no choice saved yet): every government offered, which in Plan 3 is the United States (P3-5, on by default).
+    /// </summary>
+    public IReadOnlyList<string>? DeterminationGovernments { get; init; }
+
     /// <summary>The shading to show: <see cref="Shading"/>, or for a Plan 2 file food when <see cref="ShowFood"/>, else none.</summary>
     [JsonIgnore]
     public ShadingLayer EffectiveShading => Shading ?? (ShowFood ? ShadingLayer.Food : ShadingLayer.None);

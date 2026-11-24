@@ -1,0 +1,199 @@
+[
+  {
+    "id": "prk-kwanliso-14",
+    "iso3": "PRK",
+    "name": "Political Prison Camp No. 14 (Kaechon)",
+    "localName": "Kwan-li-so No. 14",
+    "position": { "lat": 39.646810, "lon": 126.117058 },
+    "positionSource": {
+      "title": "North Korea's Political Prison Camp, Kwan-li-so No. 14, Update 1",
+      "publisher": "HRNK (Committee for Human Rights in North Korea)",
+      "url": "https://www.hrnk.org/wp-content/uploads/2024/07/Camp-14-v.8.pdf",
+      "date": "2021-12-22"
+    },
+    "description": "Covers 150 square kilometres of a mountainous area near Kaechon City in South Pyongan Province. It appears to have existed since the 1960s and moved to its present location in the early 1980s. All inmates are held for life (UN Commission of Inquiry, A/HRC/25/CRP.1, para. 735).",
+    "documentedBy": [
+      {
+        "title": "North Korea's Political Prison Camp, Kwan-li-so No. 14, Update 1",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-koreas-political-prison-camp-kwan-li-so-no-14-update-1/",
+        "date": "2021-12-22"
+      },
+      {
+        "title": "North Korea: Imagery Analysis of Camp 14",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-korea-imagery-analysis-of-camp-14/",
+        "date": "2015-11-30"
+      },
+      {
+        "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
+        "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
+        "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
+        "date": "2014-02-07"
+      }
+    ],
+    "review": { "status": "draft", "approvedOn": null },
+    "checkedOn": "2026-11-23",
+    "verification": "Name and description: A/HRC/25/CRP.1 (Word file on ohchr.org, dated 7 February 2014), para. 735, in section IV.E 'Arbitrary detention, torture, executions, enforced disappearance and political prison camps' (paras 693-845, as the table of contents says). Position: the HRNK report's own 'CenterPoint Coordinates 39.646810, 126.117058' (report dated December 22, 2021, same as its web page). Note: HRNK's 2015 report gives 'Coordinates 39.557817, 126.011499', about 13 km away; the 2021 report puts the camp's south-west entrance at 39.558234, 126.012311, so the 2015 figure seems to mark the entrance. The 2015 report's cover says November 30, 2015 and its inner page 'Date of Report: November 24, 2015'; the cover date is used."
+  },
+  {
+    "id": "prk-kwanliso-15",
+    "iso3": "PRK",
+    "name": "Political Prison Camp No. 15 (Yodok)",
+    "localName": "Kwan-li-so No. 15",
+    "position": { "lat": 39.671450, "lon": 126.852357 },
+    "positionSource": {
+      "title": "North Korea: Imagery Analysis of Camp 15 \"Yodok\": Closure of the \"Revolutionizing Zone\"",
+      "publisher": "HRNK (Committee for Human Rights in North Korea)",
+      "url": "https://hrnk.org/wp-content/uploads/2024/07/ASA_HRNK_Camp15_RevZone_HQ.pdf",
+      "date": "2015-09-18"
+    },
+    "description": "Spread over about 370 square kilometres covering several valleys in Yodok County. It was divided into a total control zone, whose inmates are held for life, and a revolutionizing zone, from which some prisoners were released (UN Commission of Inquiry, A/HRC/25/CRP.1, para. 735). HRNK's imagery analysis of September 2015 found that the revolutionizing zone's detainee facility was razed in 2013–2014 and is no longer used to house detainees.",
+    "documentedBy": [
+      {
+        "title": "North Korea: Imagery Analysis of Camp 15 \"Yodok\": Closure of the \"Revolutionizing Zone\"",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/imagery-analysis-of-camp-15-yodok-closure-of-the-revolutionizing-zone/",
+        "date": "2015-09-18"
+      },
+      {
+        "title": "North Korea: Imagery Analysis of Camp 15",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-korea-imagery-analysis-of-camp-15/",
+        "date": "2015-02-13"
+      },
+      {
+        "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
+        "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
+        "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
+        "date": "2014-02-07"
+      }
+    ],
+    "review": { "status": "draft", "approvedOn": null },
+    "checkedOn": "2026-11-23",
+    "verification": "Name and description: A/HRC/25/CRP.1, para. 735. Position: 'Coordinates: 39.671450, 126.852357' printed in both HRNK reports (18 September 2015 and 13 February 2015). Dates are the reports' own: the web page of the February 2015 report says 2024-02-17, a site-migration date. Inconsistency: the COI places Yodok County in South Pyongan Province; HRNK's reports give Hamgyong-namdo (South Hamgyong), which is where Yodok County is; the description names the county only. HRNK (September 2015): 'This imagery analysis confirms the detainee facility and a small number of support buildings were razed between 2013-2014 and that the former \"Revolutionizing Zone\" is no longer used to house detainees.' The camp's later status was not researched."
+  },
+  {
+    "id": "prk-kwanliso-16",
+    "iso3": "PRK",
+    "name": "Political Prison Camp No. 16 (Myonggan, also Hwasong)",
+    "localName": "Kwan-li-so No. 16",
+    "position": { "lat": 41.231091, "lon": 129.412216 },
+    "positionSource": {
+      "title": "North Korea: Imagery Analysis of Camp 16",
+      "publisher": "HRNK (Committee for Human Rights in North Korea)",
+      "url": "https://www.hrnk.org/wp-content/uploads/pdfs/publications/eng/ASA_HRNK_Camp16_v8_fullres_FINAL_12_15_15.pdf",
+      "date": "2015-12-15"
+    },
+    "description": "Covers about 560 square kilometres of rugged terrain in Myonggan, North Hamgyong Province, close to the P'unggye-ri nuclear test site. Witness testimony indicates it has existed since the 1970s, when it was much smaller; inmates live in two settlement areas (UN Commission of Inquiry, A/HRC/25/CRP.1, para. 735).",
+    "documentedBy": [
+      {
+        "title": "Switchback: Evidence of a Connection between Kwan-li-so No. 16 and the Punggye-ri Nuclear Test Facility?",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/switchback-evidence-of-a-connection-between-kwan-li-so-no-16-and-the-punggye-ri-nuclear-test-facility/",
+        "date": "2023-10-17"
+      },
+      {
+        "title": "North Korea: Imagery Analysis of Camp 16",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-korea-imagery-analysis-of-camp-16/",
+        "date": "2015-12-15"
+      },
+      {
+        "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
+        "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
+        "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
+        "date": "2014-02-07"
+      }
+    ],
+    "review": { "status": "draft", "approvedOn": null },
+    "checkedOn": "2026-11-23",
+    "verification": "Name and description: A/HRC/25/CRP.1, para. 735 (it says 'Myonggan'; HRNK's report gives the location as Hwasong-gun, Hamgyong-bukto). Position: 'Coordinates: 41.231091 N, 129.412216 E' in HRNK's 2015 report; its cover says December 15, 2015 (the web page's date too) and its inner page 'Date of Report: November 16, 2015'; the cover date is used. The 2023 'Switchback' report's coordinates (41.2831 N, 129.0981 E) are the Punggye-ri test site's, not the camp's, so they are not used."
+  },
+  {
+    "id": "prk-kwanliso-18",
+    "iso3": "PRK",
+    "name": "Political Prison Camp No. 18 (Pukchang)",
+    "localName": "Kwan-li-so No. 18",
+    "position": { "lat": 39.552435, "lon": 126.073063 },
+    "positionSource": {
+      "title": "North Korea's Political Prison Camp Kwan-li-so No. 18 (Pukch'ang)",
+      "publisher": "HRNK (Committee for Human Rights in North Korea)",
+      "url": "https://www.hrnk.org/wp-content/uploads/2024/07/camp18_240618.pdf",
+      "date": "2024-06-18"
+    },
+    "description": "In Bukchang (Pukchang) County, South Pyongan Province, on the south bank of the Taedong River near Camp No. 14. The UN Commission of Inquiry reported in 2014 that it was gradually downsized, that the site was closed in 2006 and that a short-term labour detention facility was placed on its premises (A/HRC/25/CRP.1, para. 739). HRNK's 2024 satellite-imagery report found that smaller sections appear to remain active as a detention facility.",
+    "documentedBy": [
+      {
+        "title": "North Korea's Political Prison Camp Kwan-li-so No. 18 (Pukch'ang)",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-koreas-political-prison-camp-kwan-li-so-no-18-pukchang/",
+        "date": "2024-06-18"
+      },
+      {
+        "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
+        "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
+        "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
+        "date": "2014-02-07"
+      }
+    ],
+    "review": { "status": "draft", "approvedOn": null },
+    "checkedOn": "2026-11-23",
+    "verification": "Name and description: A/HRC/25/CRP.1, para. 739 (camps of the Ministry of People's Security until 2006: 'Political Prison Camp No. 18 was gradually downsized until the site in Bukchang ... was closed down in 2006. Today, a short-term labour detention facility has been placed on the premises'). HRNK (report dated June 18, 2024; its web page says 2024-06-23): 'large sections of Kwan-li-so No. 18 were deactivated over a period of at least eight years and ... smaller sections remain active as a detention facility'; 'Whether the official designation of this facility remains Kwan-li-so No. 18 is unknown.' The brief allowed No. 18 if HRNK's 2024 report supports it; it does, but the two sources differ on its status, and the description gives both. Position: HRNK's 'CenterPoint Coordinates: 39.552435 N, 126.073063 E'."
+  },
+  {
+    "id": "prk-kwanliso-25",
+    "iso3": "PRK",
+    "name": "Political Prison Camp No. 25 (Chongjin)",
+    "localName": "Kwan-li-so No. 25",
+    "position": { "lat": 41.834384, "lon": 129.725280 },
+    "positionSource": {
+      "title": "North Korea's Political Prison Camp Kwan-li-so No. 25, Update 4",
+      "publisher": "HRNK (Committee for Human Rights in North Korea)",
+      "url": "https://hrnk.org/wp-content/uploads/2024/07/camp25_update4.pdf",
+      "date": "2024-02-17"
+    },
+    "description": "A detention facility near Chongjin City, North Hamgyong Province, with a few thousand prisoners; it looks more like a maximum-security prison, with a main block surrounded by high walls. Its prisoners are held for life without trial on political grounds (UN Commission of Inquiry, A/HRC/25/CRP.1, para. 735).",
+    "documentedBy": [
+      {
+        "title": "North Korea's Political Prison Camp Kwan-li-so No. 25, Update 4",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-koreas-political-prison-camp-kwan-li-so-no-25-update/",
+        "date": "2024-02-17"
+      },
+      {
+        "title": "North Korea's Political Prison Camp, Kwan-li-so No. 25, Update 3",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-koreas-political-prison-camp-kwan-li-so-no-25-update-3/",
+        "date": "2021-09-30"
+      },
+      {
+        "title": "North Korea: Camp No. 25 - Update 2",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-korea-camp-no-25-update-2/",
+        "date": "2016-11-29"
+      },
+      {
+        "title": "North Korea's Camp No. 25, Update",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-koreas-camp-no-25-update/",
+        "date": "2014-06-05"
+      },
+      {
+        "title": "Report of the detailed findings of the commission of inquiry on human rights in the Democratic People's Republic of Korea (A/HRC/25/CRP.1)",
+        "publisher": "UN Commission of Inquiry on Human Rights in the DPRK",
+        "url": "https://www.ohchr.org/sites/default/files/Documents/HRBodies/HRCouncil/CoIDPRK/Report/A.HRC.25.CRP.1_ENG.doc",
+        "date": "2014-02-07"
+      },
+      {
+        "title": "North Korea's Camp No. 25",
+        "publisher": "HRNK",
+        "url": "https://www.hrnk.org/documentations/north-koreas-camp-no-25/",
+        "date": "2013-02-25"
+      }
+    ],
+    "review": { "status": "draft", "approvedOn": null },
+    "checkedOn": "2026-11-23",
+    "verification": "Name and description: A/HRC/25/CRP.1, para. 735. Left out of the description: the COI's figure that the camp 'now covers an area of 980 square metres', which cannot be right for a camp HRNK measures at about 1,400 by 1,000 metres (2014 update). Position: 'CenterPoint Coordinates: 41.834384 N, 129.725280 E' in Update 4 (February 17, 2024); the same figure is in Update 3 (September 30, 2021) and Update 2 (November 29, 2016). All dates are the reports' own cover dates. The 2013 report was prepared by DigitalGlobe Analytics for HRNK."
+  }
+]

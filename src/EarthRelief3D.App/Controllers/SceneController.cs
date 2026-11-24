@@ -58,6 +58,8 @@ public sealed class SceneController
     private readonly DisplacementSceneLayer _displacement;
     private readonly ConflictSceneLayer _conflict;
     private readonly OutbreakSceneLayer _outbreaks;
+    private readonly AtrocityLayer _atrocities;
+    private DateOnly _atrocityDay;
     private readonly LabelsOverlayLayer _labels;
     private readonly IReadOnlyList<PointMarkerLayer> _points;
     private LayerHost? _host;
@@ -91,6 +93,9 @@ public sealed class SceneController
         _conflict = new ConflictSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowConflict };
         _outbreaks = new OutbreakSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowOutbreaks };
         _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay, () => _clock.UtcNow);
+        // Plan 3: the curated atrocity glyphs (C14), judged at the display time.
+        _atrocities = new AtrocityLayer(vm.Curated, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.IsShown(MarkerLayer.Atrocities) };
+        _atrocityDay = DateOnly.FromDateTime(_clock.UtcNow);
         // Plan 3: the marker layers drawn from lists; empty until their data is loaded (ruling R2).
         var markerData = vm.MarkerData;
         _points = [.. PointMarkerLayer.Layers.Select(m => new PointMarkerLayer(m, () => markerData.Items(m), _log) { IsVisible = vm.Layers.IsShown(m) })];
@@ -168,7 +173,7 @@ public sealed class SceneController
         var host = _host = new LayerHost(_viewport, _overlayCanvas, EarthBody.Instance, baseImage, _log);
         foreach (var b in HoverBlockers) host.HoverBlockers.Add(b);
         // Scene layers in draw order (WPF draws 3D children in order): rings under dots under crosses, then the point markers.
-        GlobeLayer[] all = [_borders, _food, .. _shadings, _displacement, _conflict, _outbreaks, .. _points, _labels];
+        GlobeLayer[] all = [_borders, _food, .. _shadings, _displacement, _conflict, _outbreaks, _atrocities, .. _points, _labels];
         foreach (var layer in all) host.Add(layer);
         host.FirstComposeDisplayed += OnFirstComposeDisplayed;
         host.WhenFirstComposeDisplayed.ContinueWith(t => _firstCompose.TrySetException(t.Exception!.InnerExceptions),
@@ -194,6 +199,7 @@ public sealed class SceneController
         _displacement.BoundariesChanged();
         _conflict.BoundariesChanged();
         _outbreaks.BoundariesChanged();
+        _atrocities.DataChanged();
         _labels.BoundariesChanged();
         _food?.BoundariesChanged();
         foreach (var l in _shadings) l.BoundariesChanged();
@@ -224,7 +230,15 @@ public sealed class SceneController
 
     private void OnTimeTick(object? sender, EventArgs e)
     {
-        if (_host is not null && !_closed) _host.DisplayTimeUtc = _clock.UtcNow;
+        if (_host is null || _closed) return;
+        _host.DisplayTimeUtc = _clock.UtcNow;
+        // A continuing statement counts for 12 months (C14): the glyphs are judged again when the day changes.
+        var day = DateOnly.FromDateTime(_clock.UtcNow);
+        if (day != _atrocityDay)
+        {
+            _atrocityDay = day;
+            _atrocities.DataChanged();
+        }
     }
 
     private void OnLayerToggled(object? sender, PropertyChangedEventArgs e)
@@ -234,6 +248,7 @@ public sealed class SceneController
         _conflict.IsVisible = l.ShowConflict;
         _outbreaks.IsVisible = l.ShowOutbreaks;
         _displacement.IsVisible = l.ShowDisplacement;
+        _atrocities.IsVisible = l.IsShown(MarkerLayer.Atrocities);
         foreach (var p in _points) p.IsVisible = l.IsShown(p.Which);
         if (_food is not null) _food.IsVisible = l.ShowFood;
         foreach (var s in _shadings) s.IsVisible = l.IsShown(s.Which);
@@ -259,8 +274,8 @@ public sealed class SceneController
     /// <summary>A click hit something: a country or a marker opens the country's panel (at the marker's section, C1).</summary>
     internal void Select(PickResult hit)
     {
-        if (hit.Item is CountryPick pick) _vm.Panel.Show(pick.Iso3, pick.Focus);
-        else if (hit.Item is PointPick { Point.CountryIso3: { } iso }) _vm.Panel.Show(iso);
+        if (hit.Item is CountryPick pick) _vm.Panel.Show(pick.Iso3, pick.Focus, pick.Marker);
+        else if (hit.Item is PointPick { Point.CountryIso3: { } iso } point) _vm.Panel.Show(iso, marker: point.Layer);
     }
 
     /// <summary>A click over the sea or space closes the panel.</summary>
@@ -395,7 +410,7 @@ public sealed class SceneController
         _vm.Indicators.Changed -= OnIndicatorsChanged;
         _vm.MarkerData.Changed -= OnMarkerDataChanged;
         _countries.Changed -= OnBoundariesChanged;
-        _displacement.Close(); _conflict.Close(); _outbreaks.Close(); _labels.Close(); _food?.Close();
+        _displacement.Close(); _conflict.Close(); _outbreaks.Close(); _atrocities.Close(); _labels.Close(); _food?.Close();
         _host?.Dispose();
         _sta.Dispose();
         _firstCompose.TrySetCanceled();

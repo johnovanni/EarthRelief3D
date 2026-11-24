@@ -1,8 +1,10 @@
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
+using EarthRelief3D.Core.Curated;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
@@ -12,8 +14,15 @@ namespace EarthRelief3D.App.ViewModels;
 /// <summary>One part of the country panel: a heading, label/value rows, the source line and a link to the source.</summary>
 /// <param name="SourceLine">"Source: &lt;publisher&gt;, &lt;dataset&gt; · as of &lt;date&gt;" (food: the IPC analysis period instead).</param>
 /// <param name="Bar">The IPC phase bar (R17): food sections with current-period figures, current or past; null otherwise.</param>
+/// <param name="Links">The section's documents, one link each (curated sections: every designation's and camp report's own document).</param>
 public sealed record PanelSection(string Heading, IReadOnlyList<(string Label, string Value)> Rows, string SourceLine, Uri? Link,
-    PhaseBar? Bar = null);
+    PhaseBar? Bar = null, IReadOnlyList<PanelLink>? Links = null)
+{
+    public bool HasLinks => Links is { Count: > 0 };
+}
+
+/// <summary>A link under a panel section: the document's short description and its address.</summary>
+public sealed record PanelLink(string Text, Uri Url);
 
 /// <summary>
 /// The country panel (C1: per country, a section per crisis), the "What is happening" part of spec §9.1. Sections come in
@@ -34,6 +43,13 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     /// <summary>The needs part of the panel (Plan 3): the WHO GHO values, then the UN humanitarian plan's rows.</summary>
     public const string BasicNeedsHeading = "Basic needs";
     public const string NoFigureText = "No figure from WHO GHO";
+    /// <summary>Designations on the map now (C14: a statement within 12 months says the situation continues).</summary>
+    public const string AtrocityHeading = "Genocide and mass atrocities";
+    /// <summary>The country's other designations the user sees: past, or "not established" (C14).</summary>
+    public const string AtrocityHistoryHeading = "Genocide and mass atrocities: history";
+    public const string CampsHeading = "Prison camps";
+    /// <summary>The note at the top of the history section.</summary>
+    public const string HistoryNote = "Not on the map: no statement from the last 12 months, by the designating body or in a UN report, says the situation continues.";
     public const string NoCrisisText = "No crisis recorded by these sources";
     /// <summary>The headline when the only IPC record is a projection and no other source records a crisis.</summary>
     public const string ProjectionOnlyText = "IPC: projection only, no current-period figures; no crisis recorded by the other sources";
@@ -65,13 +81,16 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     [ObservableProperty] private int _focusedSectionIndex = -1;
 
     private CrisisLayer? _focus;
+    private MarkerLayer? _markerFocus;
+    private readonly CuratedStore? _curated;
 
     /// <param name="countryName">The country's name for an ISO3 code (null: the code is shown).</param>
     /// <param name="dispatcher">The UI thread's; store changes from other threads are queued onto it. Null: handled at once.</param>
     /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
     /// <param name="indicators">The country-value series and needs rows (Plan 3); null: no "Basic needs" sections.</param>
+    /// <param name="curated">The curated designations and camp sites as the user sees them (Plan 3); null: no such sections.</param>
     public CountryPanelViewModel(CrisisStore store, Func<string, string?> countryName, Dispatcher? dispatcher = null,
-        Func<DateTime>? nowUtc = null, IndicatorStore? indicators = null)
+        Func<DateTime>? nowUtc = null, IndicatorStore? indicators = null, CuratedStore? curated = null)
     {
         _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _store = store ?? throw new ArgumentNullException(nameof(store));
@@ -80,13 +99,19 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         _store.Changed += OnStoreChanged;
         _indicators = indicators;
         if (_indicators is not null) _indicators.Changed += OnStoreChanged;
+        _curated = curated;
+        if (_curated is not null) _curated.Changed += OnStoreChanged;
     }
 
-    /// <summary>Opens the panel for <paramref name="iso3"/>, at the <paramref name="focus"/> layer's section if given.</summary>
-    public void Show(string iso3, CrisisLayer? focus = null)
+    /// <summary>
+    /// Opens the panel for <paramref name="iso3"/>, at the <paramref name="focus"/> layer's section if given, or at a Plan 3
+    /// marker layer's (<paramref name="marker"/>: atrocities, camps).
+    /// </summary>
+    public void Show(string iso3, CrisisLayer? focus = null, MarkerLayer? marker = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(iso3);
         _focus = focus;
+        _markerFocus = marker;
         Build(iso3.Trim().ToUpperInvariant());
         IsOpen = true;
     }
@@ -105,6 +130,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         HasHeadline = false;
         FocusedSectionIndex = -1;
         _focus = null;
+        _markerFocus = null;
     }
 
     private void Build(string iso3)
@@ -131,10 +157,35 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             .OrderByDescending(d => d.Year).FirstOrDefault();
         Add(displaced is null ? null : DisplacementSection(displaced, now), CrisisLayer.Displacement);
 
+        // Plan 3's curated crises (C11: a current designation or a documented camp is a crisis; history is not).
+        var currentAtrocity = false;
+        var anyCamp = false;
+        if (_curated is not null)
+        {
+            void AddMarker(PanelSection? section, MarkerLayer layer)
+            {
+                if (section is null) return;
+                if (_markerFocus == layer && focusIndex < 0) focusIndex = sections.Count;
+                sections.Add(section);
+            }
+            var governments = _curated.Tables.Governments;
+            var mine = _curated.Visible.Where(d => string.Equals(d.Iso3, iso3, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(d => d.Date).ToList();
+            var current = mine.Where(d => d.IsCurrentAt(now)).ToList();
+            var history = mine.Where(d => !d.IsCurrentAt(now)).ToList();
+            currentAtrocity = current.Count > 0;
+            AddMarker(current.Count == 0 ? null : AtrocitySection(AtrocityHeading, current, governments, now, isHistory: false), MarkerLayer.Atrocities);
+            AddMarker(history.Count == 0 ? null : AtrocitySection(AtrocityHistoryHeading, history, governments, now, isHistory: true), MarkerLayer.Atrocities);
+            var camps = _curated.VisibleCamps.Where(c => string.Equals(c.Iso3, iso3, StringComparison.OrdinalIgnoreCase)).ToList();
+            anyCamp = camps.Count > 0;
+            AddMarker(anyCamp ? CampsSection(camps) : null, MarkerLayer.Camps);
+        }
+
         // The needs sections follow the crisis ones. They are not crises: the headline rules below ignore them.
         if (_indicators is not null) sections.AddRange(NeedsSections(_indicators.Snapshot, _store.Snapshot.CheckedUtc, iso3, now));
 
-        var currentCrisis = conflicts.Count > 0 || outbreaks.Count > 0 || food is { IsStale: false, ProjectionOnly: false };
+        var currentCrisis = conflicts.Count > 0 || outbreaks.Count > 0 || food is { IsStale: false, ProjectionOnly: false }
+            || currentAtrocity || anyCamp;
         var projectionOnly = !currentCrisis && food is { ProjectionOnly: true };
         var noCrisis = !currentCrisis && !projectionOnly;
         Iso3 = iso3;
@@ -272,6 +323,54 @@ public sealed partial class CountryPanelViewModel : ObservableObject
             ("Counted", "by country of origin"),
         ],
         CrisisText.SourceLine(d.Citation, CrisisText.DataDate(d.Citation, now)), d.Citation.Url);
+
+    // ---------------------------------------------------------------- curated (Plan 3)
+
+    /// <summary>
+    /// The country's designations, newest first: each with its label (type and term; drafts marked), the authority and its
+    /// kind, the date, the situation and group, and (when current) the continuing statement; a link to every document.
+    /// </summary>
+    private PanelSection AtrocitySection(string heading, IReadOnlyList<Designation> list, IReadOnlyList<Government> governments,
+        DateTime now, bool isHistory)
+    {
+        var rows = new List<(string, string)>();
+        if (isHistory) rows.Add(("Note", HistoryNote));
+        var links = new List<PanelLink>();
+        foreach (var d in list)
+        {
+            var value = $"{d.Authority} ({DesignationText.AuthorityKind(d, governments)}), {DesignationText.Date(d.Date)}. {d.Situation}. Group: {d.Group}.";
+            if (d.Continuing is { } c)
+                value += d.IsCurrentAt(now)
+                    ? $" Continuing: \"{c.Statement}\" ({c.Title}, {DesignationText.Date(c.Date)})"
+                    : $" Last statement that it continues: {DesignationText.Date(c.Date)}, more than 12 months ago.";
+            rows.Add((DesignationText.DisplayLabel(d, governments), value));
+            links.Add(new PanelLink($"{d.ShortName}, {DesignationText.Date(d.Date)}: {d.DocumentTitle}", d.DocumentUrl));
+            if (d.Continuing is { } cont && d.IsCurrentAt(now)) links.Add(new PanelLink($"Continuing: {cont.Title}, {DesignationText.Date(cont.Date)}", cont.Url));
+        }
+        var checkedOn = list.Max(d => d.CheckedOn);
+        var drafts = list.Any(d => !d.Review.IsApproved) ? " · drafts shown: not yet reviewed" : "";
+        return new PanelSection(heading, rows,
+            $"Source: each entry's own document (courts, UN bodies, governments) · checked {DesignationText.Date(checkedOn)}{drafts}", null,
+            Links: links);
+    }
+
+    /// <summary>The country's documented camps: name, description and where the position was published; a link to every report.</summary>
+    private static PanelSection CampsSection(IReadOnlyList<CampSite> camps)
+    {
+        var rows = new List<(string, string)>();
+        var links = new List<PanelLink>();
+        foreach (var c in camps)
+        {
+            var ps = c.PositionSource;
+            rows.Add(((c.Review.IsApproved ? "" : DesignationText.DraftLabel + " · ") + c.Name + (c.LocalName is { } l ? $" ({l})" : ""),
+                $"{c.Description} Position as published by {ps.Publisher} in \"{ps.Title}\" ({DesignationText.Date(ps.Date)})."));
+            links.AddRange(c.DocumentedBy.Select(r => new PanelLink($"{r.Publisher}, {DesignationText.Date(r.Date)}: {r.Title}", r.Url)));
+        }
+        var newest = camps.SelectMany(c => c.DocumentedBy).Max(r => r.Date);
+        var drafts = camps.Any(c => !c.Review.IsApproved) ? " · drafts shown: not yet reviewed" : "";
+        return new PanelSection(CampsHeading, rows,
+            $"Source: {CampMarkers.Publisher} · newest report {DesignationText.Date(newest)}{drafts}", null, Links: links);
+    }
 
     // ---------------------------------------------------------------- needs (Plan 3)
 

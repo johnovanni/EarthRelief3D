@@ -14,14 +14,16 @@ namespace EarthRelief3D.App.Diagnostics;
 /// <c>--snapshot &lt;png&gt;</c> takes one picture, with <c>--look-at lat,lon</c>, <c>--layers</c> (comma list of
 /// <see cref="AllLayerNames"/>, at most one shading; default conflict, food, outbreaks, displacement) and
 /// <c>--open-panel ISO3</c> as the scene's camera, layers and country panel;
-/// <c>--delay-ms N</c> waits N ms after the data has been drawn before each picture (default 1500).
+/// <c>--delay-ms N</c> waits N ms after the data has been drawn before each picture (default 1500);
+/// <c>--show-drafts</c> also shows the curated rows the owner has not approved yet, each labelled "Draft: not yet reviewed" (P3-4).
 /// Unknown arguments are ignored; a missing or bad value is reported in <see cref="Error"/>, one line per problem.
 /// </summary>
 public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? DisplayTimeUtc = null,
                                    string? SnapshotScenesFile = null, string? SnapshotOutDir = null,
                                    string? SnapshotPath = null, GeoPosition? LookAt = null,
                                    IReadOnlyList<string>? Layers = null, string? OpenPanel = null,
-                                   int DelayMs = LaunchOptions.DefaultDelayMs, string? Error = null)
+                                   int DelayMs = LaunchOptions.DefaultDelayMs, string? Error = null,
+                                   bool ShowDrafts = false)
 {
     public const int DefaultDelayMs = 1500;
     /// <summary>The Plan 2 layers: the default of <c>--layers</c>, and the names a <c>panelFocus</c> may use.</summary>
@@ -54,6 +56,7 @@ public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? D
         GeoPosition? lookAt = null;
         List<string>? layers = null;
         int delay = DefaultDelayMs;
+        bool showDrafts = false;
         var errors = new List<string>();
         for (int i = 0; i < args.Count; i++)
         {
@@ -97,6 +100,9 @@ public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? D
                     if (IsIso3(iso)) panel = iso.ToUpperInvariant();
                     else errors.Add($"--open-panel: '{iso}' is not a three-letter country code, for example SDN.");
                     break;
+                case "--show-drafts":
+                    showDrafts = true;
+                    break;
                 case "--delay-ms" when i + 1 < args.Count
                                        && int.TryParse(args[i + 1], NumberStyles.None, CultureInfo.InvariantCulture, out int ms):
                     delay = ms;
@@ -109,7 +115,7 @@ public sealed record LaunchOptions(string? OfflineSamplesDir = null, DateTime? D
         if (scenesFile is not null && snapshot is not null && errors.Count == 0)
             errors.Add("--snapshot and --snapshot-scenes cannot be used together.");
         return new LaunchOptions(offline, displayTime, scenesFile, scenesOut, snapshot, lookAt, layers, panel, delay,
-                                 errors.Count == 0 ? null : string.Join(Environment.NewLine, errors));
+                                 errors.Count == 0 ? null : string.Join(Environment.NewLine, errors), showDrafts);
     }
 
     private static string? Value(IReadOnlyList<string> args, ref int i, List<string> errors, string what)

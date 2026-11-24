@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:EarthRelief3D.App.ViewModels"
+             xmlns:views="clr-namespace:EarthRelief3D.App.Views"
              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12">
     <!-- DataContext: LayerStripViewModel. The Crises, Needs and Resources groups with their toggles (one shading at a time,
          markers stack: P3-6), then the group still to come (header only). -->
@@ -128,6 +129,13 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
+            <!-- Settings (P3-5): a gear at the end of the strip; the flyout opens under it. -->
+            <StackPanel Visibility="{Binding HasSettings, Converter={StaticResource B2V}}" Margin="0,6,0,0">
+                <ToggleButton Style="{StaticResource CommandButton}" Tag="⚙" Content="Settings"
+                              IsChecked="{Binding Settings.IsOpen}" ToolTip="Settings: whose formal determinations are shown"/>
+                <views:SettingsFlyout DataContext="{Binding Settings}"/>
+            </StackPanel>
         </StackPanel>
         </ScrollViewer>
     </Border>
