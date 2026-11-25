@@ -20,6 +20,8 @@ public enum UpdateBannerState { Hidden, Offer, Downloading, Ready, Failed, Stale
 public sealed partial class UpdateBannerViewModel : ObservableObject
 {
     public const string StaleText = "EarthRelief3D has not been able to check for a new version for 30 days. Its included data may be out of date: Data shows each source's date.";
+    /// <summary>On the stale banner while its "Check now" runs.</summary>
+    public const string CheckingText = "Checking for a new version…";
     /// <summary>The reason a "failed" picture shows (scene field "update": "failed").</summary>
     public const string PictureFailureText = "The file's SHA-256 is not the release's.";
 
@@ -42,6 +44,11 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ShowInstallNow), nameof(ShowLater))]
     private bool _isInstalling;
 
+    /// <summary>The stale banner's "Check now" is running (M6): the banner says "Checking…" and hides "Check now" until the result.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowCheckNow))]
+    private bool _isChecking;
+
     /// <summary>The banner's sentence(s) for the state.</summary>
     [ObservableProperty] private string _text = "";
 
@@ -61,7 +68,7 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     public bool ShowCancel => State == UpdateBannerState.Downloading;
     public bool ShowInstallNow => State == UpdateBannerState.Ready && !IsInstalling;
     public bool ShowOpenDownloadPage => State == UpdateBannerState.Failed;
-    public bool ShowCheckNow => State == UpdateBannerState.Stale;
+    public bool ShowCheckNow => State == UpdateBannerState.Stale && !IsChecking;
 
     // Set by the update service (none in a picture run: the buttons then do nothing).
     internal Func<Task>? DownloadRequested { get; set; }
@@ -78,11 +85,22 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     public static string ReadyText(ReleaseInfo r) =>
         $"Ready to install {VersionText(r.Version)}. EarthRelief3D will close, the installer will run (Windows will ask for your permission), and EarthRelief3D will start again.";
 
+    /// <summary>
+    /// A newer release, while the app runs as administrator: the installer would inherit that, with no Windows prompt, and restart
+    /// the app as administrator, so the app does not install it itself (only "Open the download page" and "Later").
+    /// </summary>
+    public static string ElevatedText(ReleaseInfo r) =>
+        $"A new version of EarthRelief3D is available: {VersionText(r.Version)} (released {UpdateCheck.DateText(r.PublishedUtc)}). EarthRelief3D is running as administrator, so it will not install updates itself. Download the new version from its page instead.";
+
     public static string FailedText(string reason) => $"The update could not be used: {reason.Trim()} You can download it from its release page instead.";
 
-    /// <summary>The installer ended while the app was still open (ruling R11).</summary>
-    public static string NotInstalledText(int exitCode) =>
-        $"The update was not installed: the installer stopped (exit code {exitCode.ToString(System.Globalization.CultureInfo.InvariantCulture)}). If Windows asked for your permission and it was not given, that is why.";
+    /// <summary>
+    /// The installer ended while the app was still open (ruling R11). Exit code 0 is the installer's "success", yet it did not close
+    /// EarthRelief3D, so the update may or may not be in place (M7); any other code: it was not installed.
+    /// </summary>
+    public static string NotInstalledText(int exitCode) => exitCode == 0
+        ? "The update may not have been installed: the installer stopped (exit code 0) without closing EarthRelief3D."
+        : $"The update was not installed: the installer stopped (exit code {exitCode.ToString(System.Globalization.CultureInfo.InvariantCulture)}). If Windows asked for your permission and it was not given, that is why.";
 
     /// <summary>"1.1.0".</summary>
     public static string VersionText(Version v) => UpdateCheck.Normalise(v).ToString(3);
@@ -111,7 +129,19 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
         ShowReady(r);
         IsInstalling = true;
     }
-    internal void ShowStale() => Set(UpdateBannerState.Stale, null, StaleText);
+    /// <summary>The stale banner; with <paramref name="lastResult"/> (a failed "Check now") on its own line below (M6).</summary>
+    internal void ShowStale(string? lastResult = null) =>
+        Set(UpdateBannerState.Stale, null, string.IsNullOrEmpty(lastResult) ? StaleText : StaleText + "\n" + lastResult);
+
+    /// <summary>The stale banner while its "Check now" runs (M6): "Checking…", without "Check now".</summary>
+    internal void ShowStaleChecking()
+    {
+        Set(UpdateBannerState.Stale, null, CheckingText);
+        IsChecking = true;
+    }
+
+    /// <summary>A newer release while the app runs as administrator (F3): only "Open the download page" and "Later".</summary>
+    internal void ShowElevated(ReleaseInfo r) => Set(UpdateBannerState.Failed, r, ElevatedText(r));
     internal void Hide() => Set(UpdateBannerState.Hidden, Release, "");
 
     private void Set(UpdateBannerState state, ReleaseInfo? r, string text)
@@ -119,6 +149,7 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
         Release = r;
         Message = "";
         IsInstalling = false;
+        IsChecking = false;
         if (state != UpdateBannerState.Downloading) ProgressText = "";
         Text = text;
         State = state;

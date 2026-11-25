@@ -30,7 +30,9 @@ public interface IUpdateStatus
 /// without <c>runas</c>: the installer asks Windows for permission itself, ruling R11). The app does not close itself: the installer
 /// closes it (Restart Manager, <c>/CLOSEAPPLICATIONS</c>) and starts it again. If the installer ends while the app is still open, the
 /// update was not installed, and the banner says so with its exit code. A failed check is logged and shown in About; the next is a day later. When no check has succeeded for
-/// <see cref="StaleAfter"/> the banner says the included data may be out of date. Never created in a diagnostic or offline run.
+/// <see cref="StaleAfter"/> the banner says the included data may be out of date; its "Check now" says "Checking…" and then the
+/// result. Each check, body included, ends after <see cref="CheckTimeout"/>. When the app runs as administrator, a newer version
+/// gets only "Open the download page" (the installer would inherit the elevation). Never created in a diagnostic or offline run.
 /// Runs on the UI thread (the timer is the dispatcher's).
 /// </summary>
 public sealed class UpdateService : IUpdateStatus, IDisposable
@@ -53,6 +55,7 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
     private readonly Version _running;
     private readonly string _runningExePath;
     private readonly CancellationTokenSource _life = new();
+    private readonly Func<bool> _isElevated;
 
     private DateTime? _nextCheckUtc;
     private bool _checking;
@@ -65,8 +68,9 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
 
     public UpdateService(Func<CancellationToken, Task<string>> fetchLatestJson, UpdateDownloader downloader, IInstallerLauncher launcher,
         ISettingsStore<AppSettings> settings, IClock clock, IAppLog log, Version running, string runningExePath,
-        UpdateBannerViewModel? banner = null)
+        UpdateBannerViewModel? banner = null, Func<bool>? isElevated = null)
     {
+        _isElevated = isElevated ?? IsProcessElevated;
         _fetch = fetchLatestJson ?? throw new ArgumentNullException(nameof(fetchLatestJson));
         _downloader = downloader ?? throw new ArgumentNullException(nameof(downloader));
         _launcher = launcher ?? throw new ArgumentNullException(nameof(launcher));
@@ -85,6 +89,16 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
 
     public UpdateBannerViewModel Banner { get; }
 
+    /// <summary>The longest one check may take, from the request to the last byte of GitHub's answer (tests shorten it).</summary>
+    internal TimeSpan CheckTimeout { get; init; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>True when this process runs as administrator (an elevated token).</summary>
+    public static bool IsProcessElevated()
+    {
+        using var id = System.Security.Principal.WindowsIdentity.GetCurrent();
+        return new System.Security.Principal.WindowsPrincipal(id).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+    }
+
     public event EventHandler? StatusChanged;
 
     /// <summary>The About card's line about the update check.</summary>
@@ -92,8 +106,9 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
 
     /// <summary>
     /// The real request: one GET of <see cref="UpdateCheck.LatestUrl"/> with the app's User-Agent and GitHub's JSON media type, at most
-    /// 30 seconds and <see cref="MaxAnswerBytes"/>. Any answer but 200 throws <see cref="HttpRequestException"/> with its status code
-    /// (a 403 or 429 is GitHub's limit on requests, and counts as a failed check).
+    /// <see cref="MaxAnswerBytes"/>. The client's 30 seconds end once the headers are in; the whole fetch, body included, is limited by
+    /// the token, which the service cancels after <see cref="CheckTimeout"/> (F2). Any answer but 200 throws
+    /// <see cref="HttpRequestException"/> with its status code (a 403 or 429 is GitHub's limit on requests, and counts as a failed check).
     /// </summary>
     public static Func<CancellationToken, Task<string>> GitHubFetch(HttpMessageHandler handler)
     {
@@ -168,10 +183,15 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
         try
         {
             if (settings.FirstUpdateCheckUtc is null) _settings.Save(_settings.Load() with { FirstUpdateCheckUtc = now });
+            if (manual && Banner.State == UpdateBannerState.Stale) Banner.ShowStaleChecking();
             ReleaseInfo r;
             try
             {
-                r = UpdateCheck.Parse(await _fetch(_life.Token));
+                // F2: one limit for the whole fetch. HttpClient.Timeout ends once the headers are in (ResponseHeadersRead), so an
+                // answer that stalls after them would otherwise keep this check open for the rest of the session.
+                using var limit = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
+                limit.CancelAfter(CheckTimeout);
+                r = UpdateCheck.Parse(await _fetch(limit.Token));
                 if (!UpdateCheck.HasVersionTag(r)) throw new FormatException(UpdateCheck.RefuseReason(r));
             }
             catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or FormatException or IOException)
@@ -180,7 +200,9 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
                 var reason = ex is FormatException { Message: { } m } && m.StartsWith("The release's tag", StringComparison.Ordinal) ? m : ReasonFor(ex);
                 _log.Warn("Updates: the update check failed: " + reason, ex);
                 _result = $"Could not check for a new version on {DateText(now)}: {reason}";
-                ShowStaleIfDue();
+                // M6: the stale banner (its "Check now", or a check while it shows) says what happened; otherwise it may now be due.
+                if (Banner.State == UpdateBannerState.Stale) Banner.ShowStale(_result);
+                else ShowStaleIfDue();
                 return;
             }
             _settings.Save(_settings.Load() with { LastUpdateCheckOkUtc = now });
@@ -198,17 +220,28 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
             bool laterApplies = _laterFor is { } later && UpdateCheck.Normalise(r.Version) <= later;
             bool busy = Banner.State is UpdateBannerState.Downloading or UpdateBannerState.Ready;
             if (!busy && !laterApplies && (Banner.State != UpdateBannerState.Failed || _latest is null || UpdateCheck.Normalise(r.Version) > UpdateCheck.Normalise(_latest.Version)))
-                Banner.ShowOffer(r);
+                ShowOffer(r);
             if (!busy) _latest = r;
         }
         finally
         {
             _checking = false;
+            if (Banner.IsChecking) Banner.ShowStale(_result);   // never left saying "Checking…"
             StatusChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
     private string DateText(DateTime utc) => UpdateCheck.DateText(utc.ToLocalTime());
+
+    /// <summary>
+    /// The offer of <paramref name="r"/>; but when the app runs as administrator (F3), only "Open the download page" and "Later":
+    /// the installer would inherit the elevation without a Windows prompt and start the app again as administrator.
+    /// </summary>
+    private void ShowOffer(ReleaseInfo r)
+    {
+        if (_isElevated()) Banner.ShowElevated(r);
+        else Banner.ShowOffer(r);
+    }
 
     /// <summary>
     /// P5-22: no check has succeeded for <see cref="StaleAfter"/>, counted from the last success, or for a copy that never succeeded
@@ -233,7 +266,7 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
     /// <summary>"Download and install": downloads and checks the installer, then offers to install it. Only from the offer.</summary>
     internal async Task DownloadAndInstallAsync()
     {
-        if (Banner.State != UpdateBannerState.Offer || Banner.Release is not { } r) return;
+        if (Banner.State != UpdateBannerState.Offer || Banner.Release is not { } r || _isElevated()) return;
         _download?.Dispose();
         var cts = _download = CancellationTokenSource.CreateLinkedTokenSource(_life.Token);
         Banner.ShowDownloading(r, 0);
@@ -246,7 +279,7 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
         if (result.Cancelled)
         {
             _log.Info("Updates: the download was cancelled");
-            Banner.ShowOffer(r);
+            ShowOffer(r);
         }
         else if (result.SetupPath is { } path && result.Sha256 is { } sha)
         {
@@ -257,7 +290,7 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
         }
         else
         {
-            _log.Warn("Updates: the update could not be used: " + result.Failure);
+            _log.Warn("Updates: the update could not be used: " + (result.Detail ?? result.Failure));
             Banner.ShowFailed(r, result.Failure ?? "The download failed.");
         }
     }
@@ -270,16 +303,17 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
     /// </summary>
     internal void InstallNow()
     {
-        if (Banner.State != UpdateBannerState.Ready || Banner.IsInstalling || Banner.Release is not { } r || _setupPath is not { } path || _setupSha is not { } sha) return;
+        if (Banner.State != UpdateBannerState.Ready || Banner.IsInstalling || Banner.Release is not { } r || _setupPath is not { } path || _setupSha is not { } sha
+            || _isElevated()) return;
         _setupPath = _setupSha = null;
         bool started;
         Task<int>? exited;
         string? error;
-        using (var held = _downloader.VerifyAndHold(path, r, sha, _runningExePath, out var failure))
+        using (var held = _downloader.VerifyAndHold(path, r, sha, _runningExePath, out var failure, out var detail))
         {
             if (held is null)
             {
-                _log.Warn("Updates: the installer failed its check before it was run: " + failure);
+                _log.Warn("Updates: the installer failed its check before it was run: " + detail);
                 Banner.ShowFailed(r, failure ?? "The installer could not be checked.");
                 return;
             }
@@ -308,7 +342,8 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
             return;
         }
         if (_life.IsCancellationRequested) return;   // the app is closing: the installer closed it
-        _log.Warn($"Updates: the installer stopped (exit code {code}) while EarthRelief3D was still open: the update was not installed");
+        _log.Warn($"Updates: the installer stopped (exit code {code}) while EarthRelief3D was still open: the update "
+            + (code == 0 ? "may not have been installed" : "was not installed"));
         DeleteQuietly(path);
         Banner.ShowNotInstalled(r, code);
     }

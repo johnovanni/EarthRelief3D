@@ -67,7 +67,21 @@ public sealed class UpdateDownloaderTests : IDisposable
         var other = new string('a', 64);
         var result = await Make().DownloadAsync(Release(bytes, sha: other), AppExe, new InlineProgress(), CancellationToken.None);
         Assert.Null(result.SetupPath);
-        Assert.Equal($"The file's SHA-256 ({Sha(bytes)}) is not the release's ({other}).", result.Failure);
+        // F5: plain words on screen; both digests for the log.
+        Assert.Equal("The downloaded file is not the one the release lists.", result.Failure);
+        Assert.Equal(UpdateDownloader.DigestMismatchText, result.Failure);
+        Assert.Equal($"The file's SHA-256 ({Sha(bytes)}) is not the release's ({other}).", result.Detail);
+        Assert.Empty(FilesIn(Folder()));
+
+        // The same at the last check before it is run.
+        var good = await Make().DownloadAsync(Release(bytes), AppExe, new InlineProgress(), CancellationToken.None);
+        Assert.Equal(good.Failure, good.Detail);   // null: nothing to say
+        using (var held = Make().VerifyAndHold(good.SetupPath!, Release(bytes), other, AppExe, out var failure, out var detail))
+        {
+            Assert.Null(held);
+            Assert.Equal(UpdateDownloader.DigestMismatchText, failure);
+            Assert.Equal($"The file's SHA-256 ({Sha(bytes)}) is not the release's ({other}).", detail);
+        }
         Assert.Empty(FilesIn(Folder()));
     }
 
@@ -203,7 +217,8 @@ public sealed class UpdateDownloaderTests : IDisposable
 
         _http.Files[sumUrl] = Encoding.ASCII.GetBytes(new string('b', 64) + "  " + UpdateCheck.SetupName);
         var bad = await Make().DownloadAsync(Release(bytes, sha: null, withChecksumFile: true), AppExe, new InlineProgress(), CancellationToken.None);
-        Assert.Equal($"The file's SHA-256 ({Sha(bytes)}) is not the release's ({new string('b', 64)}).", bad.Failure);
+        Assert.Equal(UpdateDownloader.DigestMismatchText, bad.Failure);
+        Assert.Equal($"The file's SHA-256 ({Sha(bytes)}) is not the release's ({new string('b', 64)}).", bad.Detail);
         Assert.Empty(FilesIn(Folder()));
 
         _http.Files[sumUrl] = Encoding.ASCII.GetBytes("nothing here");

@@ -48,14 +48,20 @@ public sealed class UpdateServiceTests : IDisposable
     }
 
     private (UpdateService Service, MemorySettingsStore Settings, FakeLauncher Launcher) Make(MemorySettingsStore? settings = null,
-        Func<CancellationToken, Task<string>>? fetch = null)
+        Func<CancellationToken, Task<string>>? fetch = null, bool elevated = false, TimeSpan? checkTimeout = null)
     {
         settings ??= new MemorySettingsStore();
         var launcher = new FakeLauncher(_order);
         var banner = new UpdateBannerViewModel(_opener, Running);
-        var svc = new UpdateService(fetch ?? Fetch, new UpdateDownloader(_http, _signatures, _dir), launcher, settings, _clock, _log, Running, AppExe, banner);
+        var svc = new UpdateService(fetch ?? Fetch, new UpdateDownloader(_http, _signatures, _dir), launcher, settings, _clock, _log, Running, AppExe, banner,
+            isElevated: () => elevated)
+        {
+            CheckTimeout = checkTimeout ?? TimeSpan.FromSeconds(30),
+        };
         return (svc, settings, launcher);
     }
+
+    private string SetupPath => Path.Combine(_dir, "1.1.0", UpdateCheck.SetupName);
 
     private async Task Advance(UpdateService svc, TimeSpan by)
     {
@@ -84,8 +90,13 @@ public sealed class UpdateServiceTests : IDisposable
         Assert.True(svc.Banner.ShowLater);
         Assert.False(svc.Banner.ShowOpenDownloadPage);
         Assert.Equal("Checked for a new version on 25 Nov 2026: 1.1.0 is available", svc.StatusText);
-        // Nothing is downloaded before the user says so.
+        // Nothing is downloaded before the user says so: the installer is there to be had (through the downloader's handler, _http),
+        // yet no request reaches it and no update folder is made.
+        _http.Files[UpdateCheck.DownloadPrefix + "v1.1.0/" + UpdateCheck.SetupName] = Payload();
+        await Advance(svc, TimeSpan.FromMinutes(5));
         Assert.Empty(_http.Requests);
+        Assert.False(Directory.Exists(Path.Combine(_dir, "1.1.0")));
+        Assert.Equal(UpdateBannerState.Offer, svc.Banner.State);
         // "What's new" opens the release page.
         svc.Banner.WhatsNewCommand.Execute(null);
         Assert.Equal(["https://github.com/johnovanni/EarthRelief3D/releases/tag/v1.1.0"], _opener.Opened);
@@ -411,5 +422,226 @@ public sealed class UpdateServiceTests : IDisposable
         await download;
         Assert.Equal(UpdateBannerState.Offer, svc.Banner.State);
         Assert.Empty(launcher.Started);
+    }
+
+    /// <summary>
+    /// F2: GitHub answers "200 OK" and then sends nothing. The whole fetch (headers and body) is limited to 30 seconds (shortened
+    /// here), so the check fails, is logged and shown in About, and the next one still runs: the app is never stuck "checking".
+    /// </summary>
+    [Fact]
+    public async Task AnAnswerThatStallsAfterItsHeadersIsAFailedCheck()
+    {
+        var stall = new StallingHandler();
+        var (svc, settings, _) = Make(fetch: UpdateService.GitHubFetch(stall), checkTimeout: TimeSpan.FromMilliseconds(200));
+        svc.Start();
+        await Advance(svc, TimeSpan.FromSeconds(30)).WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(1, stall.Requests);
+        Assert.Equal("Could not check for a new version on 25 Nov 2026: GitHub did not answer within 30 seconds.", svc.StatusText);
+        Assert.Contains(_log.Lines, l => l.Contains("update check failed", StringComparison.Ordinal));
+        Assert.Null(settings.Current.LastUpdateCheckOkUtc);
+
+        // Not stuck: "Check now" asks at once, and the daily check runs a day later.
+        await svc.CheckNowAsync().WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(2, stall.Requests);
+        await Advance(svc, TimeSpan.FromDays(1)).WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(3, stall.Requests);
+
+        // The app's own limit is 30 seconds.
+        var real = new UpdateService(Fetch, new UpdateDownloader(_http, _signatures, _dir), new FakeLauncher(), new MemorySettingsStore(), _clock, _log,
+            Running, AppExe, new UpdateBannerViewModel(_opener, Running), () => false);
+        Assert.Equal(TimeSpan.FromSeconds(30), real.CheckTimeout);
+    }
+
+    /// <summary>
+    /// F3: run as administrator, the installer would inherit that (no Windows prompt) and start the app again as administrator.
+    /// So a newer version is shown with only "Open the download page" and "Later": nothing is downloaded or started.
+    /// </summary>
+    [Fact]
+    public async Task RunningAsAdministratorOffersOnlyTheDownloadPage()
+    {
+        var bytes = Payload();
+        _http.Files[Release(bytes).Setup!.DownloadUrl.AbsoluteUri] = bytes;
+        var (svc, _, launcher) = Make(elevated: true);
+        svc.Start();
+        await Advance(svc, TimeSpan.FromSeconds(30));
+        Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
+        Assert.Equal("A new version of EarthRelief3D is available: 1.1.0 (released 3 Feb 2027). EarthRelief3D is running as administrator, so it will not install updates itself. Download the new version from its page instead.",
+            svc.Banner.Text);
+        Assert.False(svc.Banner.ShowDownload);
+        Assert.False(svc.Banner.ShowInstallNow);
+        Assert.True(svc.Banner.ShowOpenDownloadPage);
+        Assert.True(svc.Banner.ShowLater);
+        Assert.Equal("Checked for a new version on 25 Nov 2026: 1.1.0 is available", svc.StatusText);
+
+        // Neither the banner's command nor a direct call downloads anything.
+        await svc.Banner.DownloadAndInstallCommand.ExecuteAsync(null);
+        await svc.DownloadAndInstallAsync();
+        svc.Banner.InstallNowCommand.Execute(null);
+        Assert.Empty(_http.Requests);
+        Assert.Empty(launcher.Started);
+        Assert.False(Directory.Exists(Path.Combine(_dir, "1.1.0")));
+
+        // The same version found again: the same banner, still without "Download and install".
+        await Advance(svc, TimeSpan.FromDays(1));
+        Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
+        Assert.False(svc.Banner.ShowDownload);
+
+        svc.Banner.OpenDownloadPageCommand.Execute(null);
+        Assert.Equal(["https://github.com/johnovanni/EarthRelief3D/releases/tag/v1.1.0"], _opener.Opened);
+        svc.Banner.LaterCommand.Execute(null);
+        Assert.Equal(UpdateBannerState.Hidden, svc.Banner.State);
+    }
+
+    /// <summary>
+    /// F4 (review focus 4): the download passed every check, then the file (or its signature) changed before "Install now". The
+    /// last check refuses it: the installer is never started, the banner says why, and the file is deleted.
+    /// </summary>
+    [Theory]
+    [InlineData("shorter")]
+    [InlineData("same size, other bytes")]
+    [InlineData("other signer")]
+    [InlineData("untrusted")]
+    public async Task AFileChangedAfterTheDownloadIsNeverStarted(string change)
+    {
+        var bytes = Payload();
+        var (svc, launcher) = await Offered(bytes);
+        await svc.DownloadAndInstallAsync();
+        Assert.Equal(UpdateBannerState.Ready, svc.Banner.State);
+        Assert.True(File.Exists(SetupPath));
+
+        string reason;
+        switch (change)
+        {
+            case "shorter":
+                File.WriteAllBytes(SetupPath, Payload(1000));
+                reason = "The file is 1,000 bytes, but the release says 300,000 bytes.";
+                break;
+            case "same size, other bytes":
+                var other = (byte[])bytes.Clone();
+                other[0] ^= 0xFF;
+                File.WriteAllBytes(SetupPath, other);
+                reason = UpdateDownloader.DigestMismatchText;
+                break;
+            case "other signer":
+                _signatures.InstallerSubject = "CN=Someone Else, O=Someone Else, C=US";
+                reason = $"The installer is signed by \"CN=Someone Else, O=Someone Else, C=US\", not by \"{AppSigner}\", who signs EarthRelief3D.";
+                break;
+            default:
+                _signatures.Trusted = false;
+                reason = "Windows does not trust the installer's signature.";
+                break;
+        }
+
+        svc.Banner.InstallNowCommand.Execute(null);
+        Assert.Empty(launcher.Started);
+        Assert.Empty(_order);
+        Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
+        Assert.Equal($"The update could not be used: {reason} You can download it from its release page instead.", svc.Banner.Text);
+        Assert.DoesNotMatch("[0-9a-f]{64}", svc.Banner.Text);
+        Assert.True(svc.Banner.ShowOpenDownloadPage);
+        Assert.False(svc.Banner.ShowInstallNow);
+        Assert.False(File.Exists(SetupPath));
+    }
+
+    /// <summary>F5: a digest that does not match is said in plain words on screen; both 64-character digests go to the log only.</summary>
+    [Fact]
+    public async Task ADigestMismatchIsPlainOnScreenAndLoggedInFull()
+    {
+        var bytes = Payload();
+        var (svc, launcher) = await Offered(bytes);
+        var served = (byte[])bytes.Clone();
+        served[^1] ^= 0xFF;   // the same size, other bytes
+        _http.Files[Release(bytes).Setup!.DownloadUrl.AbsoluteUri] = served;
+        await svc.DownloadAndInstallAsync();
+        Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
+        Assert.Equal("The update could not be used: The downloaded file is not the one the release lists. You can download it from its release page instead.",
+            svc.Banner.Text);
+        Assert.DoesNotMatch("[0-9a-f]{64}", svc.Banner.Text);
+        Assert.Contains(_log.Lines, l => l.Contains(Sha(served), StringComparison.Ordinal) && l.Contains(Sha(bytes), StringComparison.Ordinal));
+        Assert.Empty(launcher.Started);
+        Assert.False(File.Exists(SetupPath));
+
+        // The same at "Install now": the file changed after it was checked.
+        var (svc2, launcher2) = await Offered(bytes);
+        await svc2.DownloadAndInstallAsync();
+        File.WriteAllBytes(SetupPath, served);
+        _log.Lines.Clear();
+        svc2.Banner.InstallNowCommand.Execute(null);
+        Assert.Empty(launcher2.Started);
+        Assert.DoesNotMatch("[0-9a-f]{64}", svc2.Banner.Text);
+        Assert.Contains(_log.Lines, l => l.Contains(Sha(served), StringComparison.Ordinal) && l.Contains(Sha(bytes), StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// M6: "Check now" on the stale banner says "Checking…" while it runs, then the result: a failure's reason on the banner, or,
+    /// on success, the banner goes (and a newer version is offered).
+    /// </summary>
+    [Fact]
+    public async Task StaleCheckNowSaysCheckingThenTheResult()
+    {
+        TaskCompletionSource<string> answer = new();
+        var (svc, _, _) = Make(new MemorySettingsStore(new AppSettings
+        {
+            CheckForUpdates = false, UpdateChecksOffUtc = Start.AddDays(-31), LastUpdateCheckOkUtc = Start.AddDays(-40),
+        }), fetch: _ => answer.Task);
+        svc.Start();
+        Assert.Equal(UpdateBannerState.Stale, svc.Banner.State);
+        Assert.True(svc.Banner.ShowCheckNow);
+
+        // A failure: "Checking…", then the reason, and "Check now" again.
+        var check = svc.Banner.CheckNowCommand.ExecuteAsync(null);
+        Assert.Equal(UpdateBannerState.Stale, svc.Banner.State);
+        Assert.Equal("Checking for a new version…", svc.Banner.Text);
+        Assert.False(svc.Banner.ShowCheckNow);
+        answer.SetException(new HttpRequestException("No such host is known."));
+        await check;
+        Assert.Equal(UpdateBannerState.Stale, svc.Banner.State);
+        Assert.Equal(UpdateBannerViewModel.StaleText + "\nCould not check for a new version on 25 Nov 2026: GitHub could not be reached: No such host is known.",
+            svc.Banner.Text);
+        Assert.True(svc.Banner.ShowCheckNow);
+        Assert.True(svc.Banner.ShowLater);
+
+        // A success with a newer version: the stale banner goes and the offer shows.
+        answer = new();
+        check = svc.Banner.CheckNowCommand.ExecuteAsync(null);
+        Assert.Equal("Checking for a new version…", svc.Banner.Text);
+        answer.SetResult(Samples.Text("github_release_latest_newer.json"));
+        await check;
+        Assert.Equal(UpdateBannerState.Offer, svc.Banner.State);
+        Assert.True(svc.Banner.ShowDownload);
+
+        // A success with the same version: the stale banner simply goes.
+        var (svc2, _, _) = Make(new MemorySettingsStore(new AppSettings
+        {
+            CheckForUpdates = false, UpdateChecksOffUtc = Start.AddDays(-31), LastUpdateCheckOkUtc = Start.AddDays(-40),
+        }), fetch: _ => Task.FromResult(Samples.Text("github_release_latest_same.json")));
+        svc2.Start();
+        Assert.Equal(UpdateBannerState.Stale, svc2.Banner.State);
+        await svc2.Banner.CheckNowCommand.ExecuteAsync(null);
+        Assert.Equal(UpdateBannerState.Hidden, svc2.Banner.State);
+        Assert.Equal("Checked for a new version on 25 Nov 2026: you have the newest (1.0.0)", svc2.StatusText);
+    }
+
+    /// <summary>
+    /// M7: the installer ended with exit code 0 but the app is still open (it was not closed to be updated): the update may or may
+    /// not be in place, and the banner says exactly that. A non-zero code keeps ruling R11's sentence.
+    /// </summary>
+    [Fact]
+    public async Task InstallerThatExitsWithZeroWhileTheAppIsOpenSaysItMayNotHaveInstalled()
+    {
+        var bytes = Payload();
+        var (svc, launcher) = await Offered(bytes);
+        await svc.DownloadAndInstallAsync();
+        svc.Banner.InstallNowCommand.Execute(null);
+        launcher.Exit.SetResult(0);
+        for (int i = 0; i < 200 && svc.Banner.State != UpdateBannerState.Failed; i++) await Task.Delay(10);
+        Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
+        Assert.Equal("The update may not have been installed: the installer stopped (exit code 0) without closing EarthRelief3D.", svc.Banner.Text);
+        Assert.True(svc.Banner.ShowOpenDownloadPage);
+        Assert.Contains(_log.Lines, l => l.Contains("exit code 0", StringComparison.Ordinal) && l.Contains("may not have been installed", StringComparison.Ordinal));
+        Assert.Equal("The update may not have been installed: the installer stopped (exit code 0) without closing EarthRelief3D.",
+            UpdateBannerViewModel.NotInstalledText(0));
+        Assert.Equal("The update was not installed: the installer stopped (exit code 1). If Windows asked for your permission and it was not given, that is why.",
+            UpdateBannerViewModel.NotInstalledText(1));
     }
 }

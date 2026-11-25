@@ -115,6 +115,45 @@ internal sealed class FakeReleaseHandler : HttpMessageHandler
     }
 }
 
+/// <summary>
+/// GitHub's API answering "200 OK" at once, then sending nothing more: the body never ends until the read is cancelled (F2: the
+/// client's own timeout does not cover the body when the headers are read first).
+/// </summary>
+internal sealed class StallingHandler : HttpMessageHandler
+{
+    private int _requests;
+    public int Requests => Volatile.Read(ref _requests);
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+    {
+        Interlocked.Increment(ref _requests);
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StreamContent(new StallingStream()) });
+    }
+
+    private sealed class StallingStream : Stream
+    {
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public override void Flush() { }
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException("Only asynchronous reads stall.");
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken ct = default)
+        {
+            await Task.Delay(Timeout.Infinite, ct);
+            return 0;
+        }
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken ct) =>
+            ReadAsync(buffer.AsMemory(offset, count), ct).AsTask();
+    }
+}
+
 /// <summary>Records what it was asked to start; starts nothing.</summary>
 internal sealed class FakeLauncher(List<string>? log = null) : IInstallerLauncher
 {

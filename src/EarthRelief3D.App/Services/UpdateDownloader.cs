@@ -16,6 +16,9 @@ public sealed record DownloadResult(string? SetupPath, string? Failure)
 {
     public string? Sha256 { get; init; }
 
+    /// <summary>For the log: <see cref="Failure"/> with any detail kept off the screen (both digests when they differ).</summary>
+    public string? Detail { get; init; }
+
     /// <summary>The user cancelled (the part file is deleted; the banner goes back to the offer).</summary>
     public bool Cancelled { get; init; }
 }
@@ -36,6 +39,8 @@ public sealed class UpdateDownloader
 {
     public const int MaxRedirects = 10;
     public const string UnsignedAppText = "This copy of EarthRelief3D is not signed (a developer build), so it does not install updates itself.";
+    /// <summary>On screen when the SHA-256 differs (the two digests go to the log only).</summary>
+    public const string DigestMismatchText = "The downloaded file is not the one the release lists.";
     /// <summary>A download that receives nothing for this long stops (the user may also cancel at any time).</summary>
     public static readonly TimeSpan IdleTimeout = TimeSpan.FromSeconds(60);
 
@@ -139,7 +144,7 @@ public sealed class UpdateDownloader
                 receiving = false;
                 if (tooLong || total != setup.Size) return Delete(part, SizeText(total, setup.Size));
                 var actual = Convert.ToHexStringLower(hash.GetHashAndReset());
-                if (actual != expected) return Delete(part, ShaText(actual, expected));
+                if (actual != expected) return Delete(part, DigestMismatchText, ShaText(actual, expected));
             }
             File.Move(part, final, overwrite: true);
             if (CheckSignature(final, appSigner) is { } signatureFailure) return Delete(final, signatureFailure);
@@ -181,15 +186,21 @@ public sealed class UpdateDownloader
     /// rename or delete it until the caller disposes the stream, which it does once the installer has started. Null on failure (the
     /// file is then deleted and <paramref name="failure"/> says why).
     /// </summary>
-    public FileStream? VerifyAndHold(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure)
+    public FileStream? VerifyAndHold(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure) =>
+        VerifyAndHold(path, r, sha256, runningExePath, out failure, out _);
+
+    /// <summary><see cref="VerifyAndHold(string, ReleaseInfo, string, string, out string?)"/>, with <paramref name="detail"/> for the log (both digests when they differ).</summary>
+    public FileStream? VerifyAndHold(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure, out string? detail)
     {
-        var held = VerifyCore(path, r, sha256, runningExePath, out failure);
+        var held = VerifyCore(path, r, sha256, runningExePath, out failure, out detail);
         if (held is null) DeleteQuietly(path);
+        detail ??= failure;
         return held;
     }
 
-    private FileStream? VerifyCore(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure)
+    private FileStream? VerifyCore(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure, out string? detail)
     {
+        detail = null;
         failure = UpdateCheck.RefuseReason(r);
         if (failure is not null) return null;
         if (_signatures.SignerSubject(runningExePath) is not { } appSigner) { failure = UnsignedAppText; return null; }
@@ -206,7 +217,7 @@ public sealed class UpdateDownloader
             // Opened first and kept open through every check: what is checked is what runs.
             file = new FileStream(full, FileMode.Open, FileAccess.Read, FileShare.Read);
             if (file.Length != r.Setup!.Size) failure = SizeText(file.Length, r.Setup.Size);
-            else if (Convert.ToHexStringLower(SHA256.HashData(file)) is var actual && actual != sha256) failure = ShaText(actual, sha256);
+            else if (Convert.ToHexStringLower(SHA256.HashData(file)) is var actual && actual != sha256) (failure, detail) = (DigestMismatchText, ShaText(actual, sha256));
             else failure = CheckSignature(full, appSigner);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -276,16 +287,17 @@ public sealed class UpdateDownloader
         ? string.Create(CultureInfo.InvariantCulture, $"The file is larger than the release says ({expected:N0} bytes).")
         : string.Create(CultureInfo.InvariantCulture, $"The file is {actual:N0} bytes, but the release says {expected:N0} bytes.");
 
+    /// <summary>For the log only (F5): two 64-character digests do not belong on screen.</summary>
     private static string ShaText(string actual, string expected) => $"The file's SHA-256 ({actual}) is not the release's ({expected}).";
 
     private static string Sentence(string message) => message.Trim().TrimEnd('.') + ".";
 
-    private static DownloadResult Fail(string failure) => new(null, failure);
+    private static DownloadResult Fail(string failure, string? detail = null) => new(null, failure) { Detail = detail ?? failure };
 
-    private static DownloadResult Delete(string path, string failure)
+    private static DownloadResult Delete(string path, string failure, string? detail = null)
     {
         DeleteQuietly(path);
-        return Fail(failure);
+        return Fail(failure, detail);
     }
 
     private static void DeleteQuietly(string path)
