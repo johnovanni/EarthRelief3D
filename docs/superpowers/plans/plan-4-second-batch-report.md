@@ -296,3 +296,67 @@ Blocked to the tool's script (all opened fine in the built-in browser or by my o
    judgement calls.
 7. Danish Refugee Council USA and Friends of ACTED are in Publication 78 as PC but have no donate page or country pages of
    their own that I could find; if the owner knows their sites, they can be drafted by the same checks.
+
+## Fix pass (2026-11-25, after the controller's review)
+
+Every page below was opened in the built-in browser on 2026-11-25. No charitynavigator.org or give.org page was opened in
+this pass; no bot check was met. EINs did not change, so the vetting tool was not rerun.
+
+### OR-6: the US entity's own statement that it belongs to the international organisation
+
+- **USA for UNHCR**: kept all 16. Its FAQ (`https://www.unrefugees.org/about-us/frequently-asked-questions/`) says USA for
+  UNHCR is UNHCR's independent U.S. national partner, raising funds and awareness for UNHCR's work. The 9 unhcr.org countries
+  (BFA, CMR, COD, COL, MLI, NER, NGA, SOM, TCD) count on that statement. The About and FAQ pages do not link to unhcr.org (the
+  note says so).
+- **Plan International USA**: kept all 12. `https://planusa.org/who-we-are/` says Plan International USA is the U.S. member
+  of the global organization; the page does not link to plan-international.org (note says so).
+- **Oxfam America**: kept 10, removed 3. Its Keeping people safe page (`https://www.oxfamamerica.org/about-us/safeguarding/`)
+  says Oxfam America is part of the Oxfam confederation, made up of more than 20 affiliate organisations. The old note was
+  wrong: neither the home page nor "Countries we work in" links to oxfam.org (corrected in the note). Each oxfam.org country
+  page was read for current work. Rule used: the page describes Oxfam's work there in the present tense and nothing dates
+  it to before 2020.
+  - Kept: CAF, COD, MOZ, NER, SOM (rewritten pages: "Oxfam's Role"); MLI (looks ahead to 2026-2030); COL (present tense
+    but undated, and its newest linked item is a 2019 report; the weakest, said in the note).
+  - Removed (both rows, own page and 3W): **TCD** (2018 Human Development Index ranking, refugee figures of that era),
+    **BFA** (2018 HDI ranking), **NGA** (2018 HDI ranking and Oxfam's 2019 inequality index). None shows later work.
+  - ETH, SYR and YEM stay on oxfamamerica.org's own pages.
+
+### OR-7: Doctors of the World USA
+
+Its home page says it is "backed by the Médecins du Monde international network". The photos on its regional pages link
+to its own country pages (`doctorsoftheworld.org/projects/<country>/`), and each of those pages describes the network's work in
+that country. All 12 kept, each now citing its country page: AFG, BFA, CAF, COD, ETH, HTI, MLI, NER, NGA, SYR, YEM. For VEN the
+Americas page's Venezuela photo links to a blog post of 25 January 2024 about Doctors of the World Spain's malaria work in
+Sucre state since 2021 (there is no Venezuela project page). Cameroon still has no page and stays out. These pages are old:
+where they give dates, the work they describe is from 2021 to 2023 (Venezuela January 2024), and none describes work in 2025
+or 2026. OR-7 asks only that a page describes the work, so they are kept and this is said in the note.
+
+### American Red Cross, Mozambique
+
+The page was opened again. It is the International Services Activity Update of 20 March 2026, and it says the American Red
+Cross gave $300,000 to the IFRC Emergency Appeal for the Mozambique Red Cross. The evidence title now reads "Helping All Around
+the World: American Red Cross contribution to the IFRC Mozambique flood appeal (multi-country International Services Activity
+Update, 20 Mar 2026)".
+
+### Ratings, owner actions, approvals
+
+- All 16 charities now have one rating record: evaluator Charity Navigator, report `https://www.charitynavigator.org/ein/<EIN>`,
+  checked 2026-11-25 by "Claude in the built-in browser, owner supervising". The source is the controller's supervised
+  checks. No star level is written anywhere in the repo.
+- `ownerAction` dropped from all 16, because validation does not require it. The CN and give.org profile links are kept for the owner.
+- The first nine are approved (`approved`, approvedOn 2026-11-25): Action Against Hunger USA, International Medical
+  Corps, International Rescue Committee, Norwegian Refugee Council USA, Save the Children US, UNICEF USA, USA for IOM, USA for
+  UNFPA, World Food Program USA. Validation accepted all nine (no "approved but would be hidden"). The seven second-batch
+  charities stay drafts.
+- Left as they were (not in the brief): `reviewedOn` of the first nine stays 2026-11-24, so the app shows "Reviewed 24 Nov 2026"
+  and the review expires a day earlier than if it were the approval date. `reviewer` stays "Claude (draft)" on the approved rows.
+
+### Tests and documents
+
+- `docs/help-review.md` regenerated.
+- `HelpTablesTests.EveryRowIsCited` now pins the nine approved and seven drafts, one Charity Navigator rating each and no
+  ownerAction. `HelpPanelTests.HelpTablesLoadedFromTheShippedFilesShowTheFundAndTheApprovedCharities` (was
+  `...AndNoCharities`): Sudan now lists the nine approved charities alphabetically and no longer says "No vetted charities
+  listed yet". With drafts shown, the four second-batch drafts that work in Sudan appear, labelled as drafts. The
+  `AppStartupTests` Sudan check was updated to match. Draft behaviour is still covered by the fixture tests.
+- Full suite: 592 passed, 0 failed. Release rebuild: 0 warnings, 0 errors.

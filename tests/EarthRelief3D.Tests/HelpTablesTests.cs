@@ -72,22 +72,30 @@ public class HelpTablesTests
             Assert.Equal(Uri.UriSchemeHttps, f.GiveUrl.Scheme);
             Assert.False(string.IsNullOrWhiteSpace(f.Name), f.Id);
         }
-        // Task 8's first batch (P4-9): drafts with no rating (P4-8: the owner confirms ratings), the IRS check filled in, the
-        // evaluators' profile links for the owner, and two pieces of evidence for every country listed: the charity's own page and 3W.
-        // The second batch (OR-4, 2026-11-25) follows the same rule; the charities the owner named (OR-5) need only their own
-        // page in each country, with a 3W row where the 3W file has one.
+        // Task 8's first batch (P4-9): the IRS check filled in, the evaluators' profile links for the owner, and two pieces of
+        // evidence for every country listed: the charity's own page and 3W. The second batch (OR-4, 2026-11-25) follows the same
+        // rule; the charities the owner named (OR-5) need only their own page in each country, with a 3W row where the 3W file has one.
+        // Every Charity Navigator rating was confirmed on 2026-11-25 (P4-8: a person checks it; the report link is stored, never
+        // the rating itself). The owner approved the first nine that day; the second batch stays drafts until approved.
         string[] ownerNamed = ["american-red-cross", "doctors-without-borders-usa"];
+        string[] approved = ["action-against-hunger-usa", "international-medical-corps", "international-rescue-committee",
+            "norwegian-refugee-council-usa", "save-the-children-us", "unicef-usa", "usa-for-iom", "usa-for-unfpa", "world-food-program-usa"];
         Assert.Equal(16, t.Charities.Count);
         Assert.All(ownerNamed, id => Assert.Contains(t.Charities, c => c.Id == id));
+        Assert.Equal(approved, t.Charities.Where(c => c.Review.IsApproved).Select(c => c.Id).Order(StringComparer.Ordinal));
         foreach (var c in t.Charities)
         {
-            Assert.Equal(Review.Draft, c.Review.Status);
+            Assert.Equal(approved.Contains(c.Id) ? new Review(Review.Approved, new DateOnly(2026, 11, 25)) : new Review(Review.Draft, null), c.Review);
             Assert.Equal("Claude (draft)", c.Reviewer);
-            Assert.Empty(c.Ratings);
+            var rating = Assert.Single(c.Ratings);
+            Assert.Equal("Charity Navigator", rating.Evaluator);
+            Assert.Equal(new Uri($"https://www.charitynavigator.org/ein/{c.Ein.Replace("-", "", StringComparison.Ordinal)}"), rating.ReportUrl);
+            Assert.Equal(new DateOnly(2026, 11, 25), rating.CheckedOn);
+            Assert.Equal("Claude in the built-in browser, owner supervising", rating.CheckedBy);
             Assert.Equal("PC", c.Legal?.DeductibilityCode);
             Assert.Equal(new Uri($"https://www.charitynavigator.org/ein/{c.Ein.Replace("-", "", StringComparison.Ordinal)}"), c.ProfileLinks[0]);
             Assert.StartsWith("https://www.give.org/search?term=", c.ProfileLinks[1].AbsoluteUri, StringComparison.Ordinal);
-            Assert.Equal("Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards", c.OwnerAction);
+            Assert.Null(c.OwnerAction);   // the rating check it asked for is done
             Assert.NotEmpty(c.Countries);
             foreach (var country in c.Countries.GroupBy(w => w.Iso3))
             {
