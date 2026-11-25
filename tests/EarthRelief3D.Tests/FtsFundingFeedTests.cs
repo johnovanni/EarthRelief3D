@@ -107,6 +107,20 @@ public class FtsFundingFeedTests
     }
 
     [Fact]
+    public async Task RegionalSurvivesTheJanuaryFilter()
+    {
+        var rows = "ISL,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "FJI,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "TON,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "FJI,951,Fiji 2027,F27,1,Flash appeal,,,2027,10,1,10\n"
+            + "TON,950,Tonga 2027,T27,1,Flash appeal,,,2027,10,1,10\n";
+        var snap = await Run(rows, Utc(2027, 1, 10));
+        var isl = Assert.Single(snap.AppealsOf("ISL"));
+        Assert.Equal(2026, isl.Year);
+        Assert.True(isl.Regional);   // only ISL keeps it, but it is still the whole plan's figures
+    }
+
+    [Fact]
     public async Task NoPlanRowsForEitherYearIsFormatChanged()
     {
         var ind = new IndicatorStore();

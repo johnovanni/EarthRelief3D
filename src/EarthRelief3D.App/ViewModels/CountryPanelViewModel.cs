@@ -653,9 +653,10 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     public const string GettingHelpHeading = "Getting help in";
 
     /// <summary>"Humanitarian appeals 2026": the heading of a year's appeal-funding section.</summary>
+    public static string FundingHeading(int year) => "Humanitarian appeals " + year.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
     /// <summary>"No appeal in FTS for 2027 yet": heads a country section that still shows last year's appeals (P5-12).</summary>
     public static string NoAppealYet(int year) => $"No appeal in FTS for {year.ToString(System.Globalization.CultureInfo.InvariantCulture)} yet";
-    public static string FundingHeading(int year) => "Humanitarian appeals " + year.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>The heading before the appeals are loaded (the year is not known yet).</summary>
     public const string FundingNotLoadedHeading = "Humanitarian appeals";

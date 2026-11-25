@@ -127,7 +127,8 @@ public sealed class FtsFundingFeed(FeedHttp http, IndicatorStore indicators, Cri
             loadedUtc, now, CitationDate.AsOf);
         var citations = chosen.Select(p => p.Year).Distinct().ToDictionary(y => y, CitationFor);
 
-        var countriesPerPlan = chosen.GroupBy(p => (p.Year, p.PlanId)).ToDictionary(g => g.Key, g => g.Select(p => p.Iso3).Distinct().Count());
+        // Counted over all of a year's rows, before the January filter: a plan is regional within its own year even when only one of its countries keeps it.
+        var countriesPerPlan = plans.GroupBy(p => (p.Year, p.PlanId)).ToDictionary(g => g.Key, g => g.Select(p => p.Iso3).Distinct().Count());
         var appeals = new List<AppealFunding>();
         var unplaced = new List<UnplacedReport>();
         var seen = new HashSet<(string, int, int)>();
