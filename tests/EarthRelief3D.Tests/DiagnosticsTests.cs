@@ -185,6 +185,41 @@ public class SnapshotScenesTests
     }
 
     [Fact]
+    public void LegendAndStripFieldsAreRead()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z"},
+                  {"name":"b","displayTimeUtc":"2026-11-22T12:00:00Z","legend":"closed","strip":"closed"},
+                  {"name":"c","displayTimeUtc":"2026-11-22T12:00:00Z","legend":"Open","strip":"OPEN"}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.True(scenes[0].LegendOpen);   // the default: the earlier pictures still compare
+            Assert.True(scenes[0].StripOpen);
+            Assert.False(scenes[1].LegendOpen);
+            Assert.False(scenes[1].StripOpen);
+            Assert.True(scenes[2].LegendOpen);
+            Assert.True(scenes[2].StripOpen);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Theory]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","legend":"folded"}]}""", "legend is \"open\" or \"closed\"")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","strip":"shut"}]}""", "strip is \"open\" or \"closed\"")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","legend":true}]}""", "legend is \"open\" or \"closed\"")]
+    public void LegendAndStripAnyOtherValueIsRefusedPlainly(string json, string expected)
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(path, json);
+        try { Assert.Contains(expected, Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message); }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
     public void ExplainerFieldOpensTheCard()
     {
         var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");

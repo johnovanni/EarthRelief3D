@@ -20,6 +20,7 @@ public partial class MainWindow : Window
         // The legend never grows over the layer strip above it: it scrolls when the window is short.
         SizeChanged += (_, _) => FitLegend();
         Strip.SizeChanged += (_, _) => FitLegend();
+        LegendCard.SizeChanged += (_, _) => FitLegend();   // opening or closing the legend changes what room the strip has
         // The explainer card never covers the layer strip: its left edge stays right of the strip, and it shrinks to fit.
         Root.SizeChanged += (_, _) => FitExplainer();
         Strip.SizeChanged += (_, _) => FitExplainer();
@@ -35,11 +36,22 @@ public partial class MainWindow : Window
     /// <summary>The share of the window's height the layer strip may take before it scrolls (Plan 3's groups are long).</summary>
     public const double StripShare = 0.62;
 
+    /// <summary>The share of the window's height an open legend may take before it scrolls (P5-24).</summary>
+    public const double LegendShare = 0.5;
+
     private void FitLegend()
     {
-        Strip.MaxHeight = Math.Max(200, Root.ActualHeight * StripShare - Strip.Margin.Top - Strip.Margin.Bottom);
-        double above = Strip.ActualHeight + Strip.Margin.Top + Strip.Margin.Bottom + LegendCard.Margin.Top + LegendCard.Margin.Bottom;
-        LegendCard.MaxHeight = Math.Max(120, Root.ActualHeight - above);
+        bool legendOpen = (DataContext as MainViewModel)?.Legend.IsOpen ?? false;
+        double legendMargins = LegendCard.Margin.Top + LegendCard.Margin.Bottom, stripMargins = Strip.Margin.Top + Strip.Margin.Bottom;
+        // A closed legend is only its header and the UN note: the strip may take all the rest of the height, so it scrolls less.
+        double stripMax = legendOpen
+            ? Root.ActualHeight * StripShare - stripMargins
+            : Root.ActualHeight - stripMargins - legendMargins - LegendCard.ActualHeight;
+        Strip.MaxHeight = Math.Max(200, stripMax);
+        double above = Strip.ActualHeight + stripMargins + legendMargins;
+        double room = Root.ActualHeight - above;
+        // Open: at most half the window's height, and never over the strip. Closed: no cap (it is two or three lines).
+        LegendCard.MaxHeight = legendOpen ? Math.Max(120, Math.Min(Root.ActualHeight * LegendShare - legendMargins, room)) : double.PositiveInfinity;
     }
 
     public SceneController Scene { get; }

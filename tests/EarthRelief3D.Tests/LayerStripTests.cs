@@ -95,6 +95,53 @@ public class LayerStripTests
     }
 
     [Fact]
+    public void HeaderClosesTheWholeStrip()
+    {
+        var vm = new LayerStripViewModel(new MemorySettingsStore());
+        Assert.True(vm.IsOpen);
+        Assert.Equal(4, vm.VisibleGroups.Count);
+        Assert.All(vm.VisibleGroups, g => Assert.NotEmpty(g.Toggles));
+        vm.IsOpen = false;
+        Assert.Empty(vm.VisibleGroups);   // no group, so no toggle, is shown
+        Assert.Equal("Show or hide the list of layers", LayerStripViewModel.HeaderTooltip);
+        vm.IsOpen = true;
+        Assert.Equal(4, vm.VisibleGroups.Count);
+    }
+
+    [Fact]
+    public void OpenOrClosedIsSaved()
+    {
+        var store = new MemorySettingsStore();
+        var vm = new LayerStripViewModel(store);
+        vm.IsOpen = false;
+        Assert.False(store.Current.LayerStripExpanded);
+        Assert.False(new LayerStripViewModel(store).IsOpen);
+        vm.IsOpen = true;
+        Assert.True(store.Current.LayerStripExpanded);
+        Assert.True(new LayerStripViewModel(store).IsOpen);
+    }
+
+    [Fact]
+    public void OldFileWithLabelsHiddenReadsAsClosed()
+    {
+        var store = new MemorySettingsStore(new AppSettings { LayerStripExpanded = false });
+        Assert.False(new LayerStripViewModel(store).IsOpen);
+    }
+
+    [Fact]
+    public void LabelsAlwaysShowWhenOpen()
+    {
+        // There is no labels-hidden state any more, and every toggle has a label and a symbol.
+        Assert.Null(typeof(LayerStripViewModel).GetProperty("IsExpanded"));
+        var vm = new LayerStripViewModel(new MemorySettingsStore());
+        Assert.All(vm.Groups.SelectMany(g => g.Toggles), t =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(t.Label));
+            Assert.False(string.IsNullOrWhiteSpace(t.Symbol));
+        });
+    }
+
+    [Fact]
     public void APlan2SettingsFileIsReadWithShowFoodAsTheShading()
     {
         var root = TempRoot();
@@ -111,7 +158,7 @@ public class LayerStripTests
             var vm = new LayerStripViewModel(new SettingsStore(root, new ListLog()));
             Assert.Equal(ShadingLayer.Food, vm.Shading);
             Assert.False(vm.ShowConflict);
-            Assert.False(vm.IsExpanded);
+            Assert.False(vm.IsOpen);   // the old name's false reads as closed (P5-23)
             Assert.Null(s.OpenGroups);   // no group choice in a Plan 2 file: the start rule decides
             Assert.False(vm.Groups.Single(g => g.Name == "Needs").IsOpen);
 

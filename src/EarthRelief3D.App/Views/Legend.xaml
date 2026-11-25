@@ -69,10 +69,56 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Border Background="#F2101624" CornerRadius="8" Padding="10,8">
+        <!-- A header row (P5-24: a button, so a click, Enter or Space opens and closes it), the body only when open, and the UN
+             note always: under the header when folded, at the foot of the body when open (as "Borders: ... UN note"). -->
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToggleButton x:Name="HeaderButton" Grid.Row="0" Style="{x:Null}" IsChecked="{Binding IsOpen}" HorizontalAlignment="Left"
+                      Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2,1"
+                      ToolTip="{x:Static vm:LegendViewModel.HeaderTooltip}" AutomationProperties.Name="Legend">
+            <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="Arrow" Text="▾" Width="20" FontSize="13" TextAlignment="Center" Foreground="#C8CDD8" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HeaderText}" FontWeight="SemiBold" FontSize="13" Foreground="#C8CDD8" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="Closed" Text="closed" Foreground="#9AA3B5" FontSize="11" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="Arrow" Property="Text" Value="▸"/>
+                            <Setter TargetName="Closed" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="#7FB6FF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </ToggleButton.Template>
+        </ToggleButton>
+        <!-- Folded: just the UN note, small and grey, under the header. -->
+        <TextBlock Grid.Row="2" Text="{Binding UnNote}" Foreground="#8A92A3" FontSize="11" TextWrapping="Wrap" Margin="22,2,0,0">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
         <!-- Scrolls instead of growing over the layer strip when the window is short (MainWindow sets the card's MaxHeight). -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0" Visibility="{Binding IsOpen, Converter={StaticResource B2V}}">
         <StackPanel>
-            <TextBlock Text="Legend" FontWeight="SemiBold" FontSize="13" Foreground="#C8CDD8" Margin="0,0,0,4"/>
             <ItemsControl ItemsSource="{Binding Lines}" ItemTemplate="{StaticResource LineTemplate}"/>
             <!-- Plan 3: the shading that is on (unless food) and the marker layers the crisis lines do not cover. -->
             <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource LineTemplate}"/>
@@ -115,5 +161,6 @@
             <TextBlock Text="{Binding BoundaryText}" Foreground="#8A92A3" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
         </StackPanel>
         </ScrollViewer>
+        </Grid>
     </Border>
 </UserControl>

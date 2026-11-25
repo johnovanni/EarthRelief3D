@@ -22,8 +22,14 @@ public sealed record AppSettings
     public bool ShowFood { get; init; } = true;
     public bool ShowOutbreaks { get; init; } = true;
     public bool ShowDisplacement { get; init; } = true;
-    /// <summary>The layer strip shows text labels beside its icons.</summary>
+    /// <summary>
+    /// The layer strip's list of groups is open (P5-23). The name is from Plan 2, when it meant "labels shown"; kept so an older
+    /// file still reads (false there now reads as closed).
+    /// </summary>
     public bool LayerStripExpanded { get; init; } = true;
+
+    /// <summary>The legend shows its full text (P5-24); folded to its header and the UN note by default.</summary>
+    public bool LegendOpen { get; init; }
 
     /// <summary>The one shading shown (P3-6); null in a Plan 2 file (then <see cref="ShowFood"/> says).</summary>
     public ShadingLayer? Shading { get; init; }

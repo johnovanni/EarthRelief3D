@@ -23,9 +23,12 @@ namespace EarthRelief3D.App.Diagnostics;
 /// or a square opens them). <paramref name="ShowDrafts"/> shows the curated rows the owner has not approved yet, labelled
 /// "Draft: not yet reviewed", for this picture only, as <c>--show-drafts</c> does for a whole run (P3-4). <paramref name="Explainer"/>
 /// (an explainer id, needs a panel; ruling R19) opens the explainer card for that picture, as the section's "What is this" link does.
+/// <paramref name="LegendOpen"/> and <paramref name="StripOpen"/> (scene fields "legend" and "strip": "open" or "closed") show the
+/// legend and the layer strip's list open (the default, so the earlier pictures still compare) or folded; nothing is saved (P5-23, P5-24).
 /// </summary>
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
-                                   string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null)
+                                   string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null,
+                                   bool LegendOpen = true, bool StripOpen = true)
 {
     /// <summary>The <see cref="Explainer"/> ids: one per crisis kind, "access" and the step section's "why-these" (Plan 4 Task 9; ruling R19).</summary>
     public static IReadOnlyList<string> ExplainerNames { get; } =
@@ -129,7 +132,19 @@ public static class SnapshotScenes
                         throw new FormatException($"Scene {name}: showDrafts is true or false.");
                     drafts = sd.GetBoolean();
                 }
-                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant()));
+                bool OpenOrClosed(string field)
+                {
+                    if (!e.TryGetProperty(field, out var v)) return true;   // not named: open, as in the earlier pictures
+                    return (v.ValueKind == JsonValueKind.String ? v.GetString()?.ToLowerInvariant() : null) switch
+                    {
+                        "open" => true,
+                        "closed" => false,
+                        _ => throw new FormatException($"Scene {name}: {field} is \"open\" or \"closed\"."),
+                    };
+                }
+                bool legendOpen = OpenOrClosed("legend"), stripOpen = OpenOrClosed("strip");
+                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant(),
+                    legendOpen, stripOpen));
             }
             if (list.Count == 0) throw new FormatException("The file has no scenes.");
             return list;
@@ -184,6 +199,8 @@ public static class SnapshotScenes
                     var plainTitle = window.Title.Replace(LaunchOptions.DraftsTitleNote, "", StringComparison.Ordinal);
                     window.Title = drafts ? plainTitle + LaunchOptions.DraftsTitleNote : plainTitle;
                     vm.Layers.SetLayers(s.Shading, s.Markers);
+                    vm.Layers.SetOpenQuietly(s.StripOpen);    // for this picture only: nothing is saved
+                    vm.Legend.SetOpenQuietly(s.LegendOpen);
                     if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker, s.FocusSection);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
                     if (s.Explainer is { } xid && !vm.Panel.Explainer.Open(xid))

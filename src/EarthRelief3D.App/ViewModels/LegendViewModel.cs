@@ -2,6 +2,9 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EarthRelief3D.App.Settings;
+using GlobeCore.Storage;
 using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
@@ -105,6 +108,7 @@ public sealed partial class LegendViewModel : ObservableObject
     private readonly LayerStripViewModel _layers;
     private readonly Dispatcher? _dispatcher;
     private readonly Func<DateTime> _nowUtc;
+    private readonly ISettingsStore<AppSettings>? _settings;
     private int _refreshPending;
 
     [ObservableProperty] private IReadOnlyList<LegendLine> _lines = [];
@@ -114,6 +118,38 @@ public sealed partial class LegendViewModel : ObservableObject
     [ObservableProperty] private string _unplacedHeader = UnplacedTitle + " (0)";
     [ObservableProperty] private bool _hasUnplaced;
     [ObservableProperty] private string _boundaryText = BoundaryNote;
+    /// <summary>The legend shows its full text (P5-24); folded by default. Saved as <c>LegendOpen</c>.</summary>
+    [ObservableProperty] private bool _isOpen;
+
+    /// <summary>The standard UN sentence, shown under the header even when the legend is folded (spec Q3, §11).</summary>
+    public string UnNote => BoundaryNote;
+
+    /// <summary>The header row: how many layers the legend explains, or that none is shown.</summary>
+    public string HeaderText
+    {
+        get
+        {
+            int n = Lines.Count + Entries.Count;
+            return n == 0 ? "Legend: no layers shown"
+                : $"Legend ({n} {(n == 1 ? "layer" : "layers")}): colours, sources and dates";
+        }
+    }
+
+    /// <summary>The header's tooltip.</summary>
+    public static string HeaderTooltip => "Show or hide the legend";
+
+    [RelayCommand]
+    private void Toggle() => IsOpen = !IsOpen;
+
+    /// <summary>Opens or closes the legend without saving (a snapshot scene).</summary>
+#pragma warning disable MVVMTK0034 // a scene's picture is not a change to save: the generated setter would save it
+    internal void SetOpenQuietly(bool open) => SetProperty(ref _isOpen, open, nameof(IsOpen));
+#pragma warning restore MVVMTK0034
+
+    partial void OnIsOpenChanged(bool value) => _settings?.Save(_settings.Load() with { LegendOpen = value });
+
+    partial void OnLinesChanged(IReadOnlyList<LegendLine> value) => OnPropertyChanged(nameof(HeaderText));
+    partial void OnEntriesChanged(IReadOnlyList<LegendEntry> value) => OnPropertyChanged(nameof(HeaderText));
 
     /// <param name="dispatcher">The UI thread's; store changes from other threads are queued onto it. Null: handled at once (tests).</param>
     /// <param name="nowUtc">The clock (a future as-of date is not shown as "as of"); the system clock by default.</param>
@@ -123,8 +159,12 @@ public sealed partial class LegendViewModel : ObservableObject
     /// <param name="hubs">The hubs the lines to the nearest hubs measure to (their line names the datasets and days); null: that line says "Data not loaded yet".</param>
     public LegendViewModel(CrisisStore store, LayerStripViewModel layers, Dispatcher? dispatcher = null, Func<DateTime>? nowUtc = null,
         CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null, CuratedStore? curated = null,
-        HubStore? hubs = null)
+        HubStore? hubs = null, ISettingsStore<AppSettings>? settings = null)
     {
+        _settings = settings;
+#pragma warning disable MVVMTK0034 // the start value is not a change: no save
+        _isOpen = settings?.Load().LegendOpen ?? false;
+#pragma warning restore MVVMTK0034
         _hubs = hubs;
         if (_hubs is not null) _hubs.Changed += OnStoreChanged;
         _store = store ?? throw new ArgumentNullException(nameof(store));

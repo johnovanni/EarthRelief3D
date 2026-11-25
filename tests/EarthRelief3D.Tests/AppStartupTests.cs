@@ -503,6 +503,24 @@ public class AppStartupTests
             root.UpdateLayout();
             await Task.Delay(50);   // the panel scrolls to its focused section at Loaded priority
 
+            // P5-24: the legend starts folded: its header (with "closed") and the UN note show, its lines do not.
+            var folded = Descendants<TextBlock>(root).Select(t => t.Text).ToList();
+            Assert.Contains(vm.Legend.HeaderText, folded);
+            Assert.Contains(LegendViewModel.BoundaryNote, folded);
+            static bool Shown(DependencyObject d)
+            {
+                for (; d is not null; d = System.Windows.Media.VisualTreeHelper.GetParent(d))
+                    if (d is UIElement { Visibility: not Visibility.Visible }) return false;
+                return true;
+            }
+            Assert.DoesNotContain(Descendants<TextBlock>(root), t => t.Text == LegendViewModel.FamineNote && Shown(t));
+            Assert.Contains(Descendants<TextBlock>(root), t => t.Text == LegendViewModel.BoundaryNote && Shown(t));
+            Assert.False(vm.Legend.IsOpen);
+            // The strip's own header says "closed" only when the strip is closed (it starts open).
+            Assert.Contains("Layers", folded);
+            vm.Legend.IsOpen = true;
+            root.UpdateLayout();
+
             var texts = Descendants<TextBlock>(root).Select(t => t.Text).ToList();
             Assert.Contains("Sudan", texts);
             Assert.Contains(CountryPanelViewModel.ConflictHeading, texts);

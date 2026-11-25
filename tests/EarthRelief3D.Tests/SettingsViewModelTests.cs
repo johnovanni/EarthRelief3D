@@ -12,6 +12,16 @@ namespace EarthRelief3D.Tests;
 public class SettingsViewModelTests
 {
     [Fact]
+    public void SettingsSavesKeepTheCardsOpenOrClosed()
+    {
+        var settings = new MemorySettingsStore(new AppSettings { LegendOpen = true, LayerStripExpanded = false });
+        var vm = new SettingsViewModel(settings, CuratedStore.Empty());
+        vm.Units = EarthRelief3D.App.Presentation.DistanceUnit.Miles;
+        Assert.True(settings.Current.LegendOpen);
+        Assert.False(settings.Current.LayerStripExpanded);
+    }
+
+    [Fact]
     public void DeterminationChoiceIsSaved()
     {
         var fra = new Government("FRA", "French government", false, new DateOnly(2026, 11, 23));

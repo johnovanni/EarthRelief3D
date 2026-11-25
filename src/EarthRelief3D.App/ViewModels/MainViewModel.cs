@@ -42,7 +42,7 @@ public sealed class MainViewModel
         Settings = new SettingsViewModel(settings, Curated, help);
         Layers.Settings = Settings;
         Hubs = new HubStore(Curated);
-        Legend = new LegendViewModel(store, Layers, dispatcher, nowUtc, boundaries, Indicators, MarkerData, Curated, Hubs);
+        Legend = new LegendViewModel(store, Layers, dispatcher, nowUtc, boundaries, Indicators, MarkerData, Curated, Hubs, settings);
         Panel = new CountryPanelViewModel(store, countryName, dispatcher, nowUtc, Indicators, Curated, logistics,
             Hubs, crisisPlace, () => Settings.Units, help, () => Settings.UserState);
         // A change of unit writes the open panel again at once (the scene redraws its arc labels, too).

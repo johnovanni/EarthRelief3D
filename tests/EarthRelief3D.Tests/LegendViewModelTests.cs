@@ -40,6 +40,59 @@ public class LegendViewModelTests
         return (new LegendViewModel(store, layers, nowUtc: () => T), layers, store);
     }
 
+    private static LegendViewModel MakeWith(MemorySettingsStore settings)
+    {
+        var store = new CrisisStore();
+        store.Load(Snapshot());
+        return new LegendViewModel(store, new LayerStripViewModel(settings), nowUtc: () => T, settings: settings);
+    }
+
+    [Fact]
+    public void ClosedByDefault()
+    {
+        Assert.False(new AppSettings().LegendOpen);
+        Assert.False(MakeWith(new MemorySettingsStore()).IsOpen);
+    }
+
+    [Fact]
+    public void HeaderCountsTheLayersShown()
+    {
+        var (legend, layers, _) = Make(Snapshot());
+        layers.Show(MarkerLayer.HubLines, false);   // the Plan 2 defaults: food and the three Plan 2 markers
+        Assert.Equal("Legend (4 layers): colours, sources and dates", legend.HeaderText);
+        layers.ShowConflict = false;
+        Assert.Equal("Legend (3 layers): colours, sources and dates", legend.HeaderText);
+        layers.ShowOutbreaks = false;
+        layers.ShowDisplacement = false;
+        Assert.Equal("Legend (1 layer): colours, sources and dates", legend.HeaderText);
+        layers.ShowFood = false;
+        Assert.Equal("Legend: no layers shown", legend.HeaderText);
+    }
+
+    [Fact]
+    public void UnNoteShowsWhenClosed()
+    {
+        var legend = MakeWith(new MemorySettingsStore());
+        Assert.False(legend.IsOpen);
+        Assert.Equal(LegendViewModel.BoundaryNote, legend.UnNote);
+        legend.ToggleCommand.Execute(null);
+        Assert.True(legend.IsOpen);
+        Assert.Equal(LegendViewModel.BoundaryNote, legend.UnNote);
+    }
+
+    [Fact]
+    public void OpenOrClosedIsSaved()
+    {
+        var settings = new MemorySettingsStore();
+        var legend = MakeWith(settings);
+        legend.ToggleCommand.Execute(null);
+        Assert.True(settings.Current.LegendOpen);
+        Assert.True(MakeWith(settings).IsOpen);
+        legend.ToggleCommand.Execute(null);
+        Assert.False(settings.Current.LegendOpen);
+        Assert.False(MakeWith(settings).IsOpen);
+    }
+
     [Fact]
     public void LegendShowsNewestAsOfPerLayer()
     {

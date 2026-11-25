@@ -117,8 +117,8 @@ public sealed partial class LayerStripViewModel : ObservableObject
 
     /// <summary>The one shading shown (P3-6); <see cref="ShadingLayer.None"/> for none.</summary>
     [ObservableProperty] private ShadingLayer _shading;
-    /// <summary>The strip shows text labels beside its icons.</summary>
-    [ObservableProperty] private bool _isExpanded;
+    /// <summary>The whole list of groups is shown (P5-23). Saved as <c>LayerStripExpanded</c>, the old name kept so an older file still reads.</summary>
+    [ObservableProperty] private bool _isOpen;
 
     public LayerStripViewModel(ISettingsStore<AppSettings> store)
     {
@@ -126,7 +126,10 @@ public sealed partial class LayerStripViewModel : ObservableObject
         var s = store.Load();
         _shading = s.EffectiveShading;
         _markers = [.. s.EffectiveMarkers];
-        _isExpanded = s.LayerStripExpanded;
+#pragma warning disable MVVMTK0034 // the start value is not a change: no save
+        _isOpen = s.LayerStripExpanded;
+#pragma warning restore MVVMTK0034
+        _userOpen = s.LayerStripExpanded;
 
         LayerToggle Marker(MarkerLayer m) => Add(new LayerToggle(LayerCatalog.Id(m), LayerCatalog.Label(m), LayerStyle.Symbol(m),
             LayerStyle.SymbolColor(m), LayerCatalog.Tooltip(m), false, () => IsShown(m), on => Show(m, on)));
@@ -269,7 +272,31 @@ public sealed partial class LayerStripViewModel : ObservableObject
         Save();
     }
 
-    partial void OnIsExpandedChanged(bool value) => Save();
+    private bool _userOpen;
+
+    partial void OnIsOpenChanged(bool value)
+    {
+        _userOpen = value;
+        OnPropertyChanged(nameof(VisibleGroups));
+        Save();
+    }
+
+    /// <summary>The header's tooltip.</summary>
+    public static string HeaderTooltip => "Show or hide the list of layers";
+
+    /// <summary>The groups the strip shows: all of them when it is open, none when it is closed (the header stays).</summary>
+    public IReadOnlyList<LayerGroup> VisibleGroups => IsOpen ? Groups : [];
+
+    /// <summary>Opens or closes the strip without saving (a snapshot scene).</summary>
+    internal void SetOpenQuietly(bool open)
+    {
+#pragma warning disable MVVMTK0034 // a scene's picture is not a change to save
+        if (_isOpen == open) return;
+        _isOpen = open;
+#pragma warning restore MVVMTK0034
+        OnPropertyChanged(nameof(IsOpen));
+        OnPropertyChanged(nameof(VisibleGroups));
+    }
 
     private void RefreshToggles()
     {
@@ -289,7 +316,7 @@ public sealed partial class LayerStripViewModel : ObservableObject
             ShowFood = ShowFood,
             ShowOutbreaks = ShowOutbreaks,
             ShowDisplacement = ShowDisplacement,
-            LayerStripExpanded = IsExpanded,
+            LayerStripExpanded = _userOpen,   // the user's choice, not a scene's picture
             OpenGroups = _openChoices is null ? saved.OpenGroups : new Dictionary<string, bool>(_openChoices, StringComparer.Ordinal),
         });
     }
