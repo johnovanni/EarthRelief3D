@@ -46,6 +46,16 @@ public static class TextScaleLayout
     /// <summary>The Data card's size at most at 100%.</summary>
     public const double DataCardBaseWidth = 900, DataCardBaseHeight = 640;
 
+    /// <summary>The Welcome card's width at most at 100%.</summary>
+    public const double WelcomeCardBaseWidth = 620;
+
+    /// <summary>
+    /// The most the Welcome card takes on screen: 620 wide at 100%, times the text size, never more than the window less
+    /// <see cref="Gap"/> on each side; as tall as the window less the same (its text scrolls inside when it is longer).
+    /// </summary>
+    public static Size WelcomeCardMax(double windowWidth, double windowHeight, double scale) =>
+        new(Math.Max(1, Math.Min(WelcomeCardBaseWidth * scale, windowWidth - 2 * Gap)), Math.Max(1, windowHeight - 2 * Gap));
+
     /// <summary>
     /// The most the Data card takes on screen: 900 by 640 at 100%, times the text size, never more than the window less
     /// <see cref="Gap"/> on each side (24). It is centred over the globe and covers the other cards while it is open.

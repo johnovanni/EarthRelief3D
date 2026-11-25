@@ -69,6 +69,9 @@ public sealed class MainViewModel
             nowUtc ?? (() => DateTime.UtcNow), opener);
         Cards.Register(AppCard.Data, Data.Refresh);
         Data.CloseRequested += (_, _) => { if (Cards.Open == AppCard.Data) Cards.CloseTop(); };
+        // The Welcome card (Task 6): first start, or "Show the welcome again" in About.
+        Welcome = new WelcomeViewModel(settings, Settings, Cards);
+        Cards.Register(AppCard.Welcome);
         // The About card (Task 5): the strip's "ⓘ About" opens it, or closes it when it is open.
         About = new AboutViewModel(Registry, opener, dataFolder ?? "", Cards);
         Cards.Register(AppCard.About);
@@ -125,6 +128,9 @@ public sealed class MainViewModel
 
     /// <summary>The Data card (Plan 5 Task 4): every source with its date, licence and link.</summary>
     public DataViewModel Data { get; }
+
+    /// <summary>The Welcome card (Plan 5 Task 6): shown on the first start, and again from About.</summary>
+    public WelcomeViewModel Welcome { get; }
 
     /// <summary>The About card (Plan 5 Task 5): version, licences, credits, severity bands and the data folder.</summary>
     public AboutViewModel About { get; }

@@ -28,6 +28,9 @@ public sealed record AppSettings
     /// </summary>
     public bool LayerStripExpanded { get; init; } = true;
 
+    /// <summary>The first-run Welcome card has been shown and closed (Plan 5 Task 6). A file from Plan 4 or earlier has no flag: it reads as not shown, so the card shows once.</summary>
+    public bool WelcomeShown { get; init; }
+
     /// <summary>The legend shows its full text (P5-24); folded to its header and the UN note by default.</summary>
     public bool LegendOpen { get; init; }
 

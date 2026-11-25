@@ -3,6 +3,7 @@ using System.Windows;
 using EarthRelief3D.App.Diagnostics;
 using EarthRelief3D.App.Services;
 using EarthRelief3D.App.Settings;
+using EarthRelief3D.App.ViewModels;
 using GlobeCore.Feeds;
 using GlobeCore.Logging;
 using GlobeCore.Storage;
@@ -127,6 +128,16 @@ public partial class App : Application
                 draftsForAll: options.ShowDrafts);
         else if (options.OpenPanel is { } iso)
             window.Loaded += (_, _) => services.Main.Panel.Show(iso);
+        // First start: the Welcome card, once the window has been drawn. Never in a picture or offline run (it would cover the pictures).
+        if (WelcomeViewModel.ShouldShow(_settings.Load(), options))
+        {
+            void ShowWelcome(object? s, EventArgs a)
+            {
+                window.ContentRendered -= ShowWelcome;
+                services.Main.Cards.Show(AppCard.Welcome);
+            }
+            window.ContentRendered += ShowWelcome;
+        }
         window.Show();
     }
 
