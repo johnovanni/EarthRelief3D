@@ -74,7 +74,11 @@ public class HelpTablesTests
         }
         // Task 8's first batch (P4-9): drafts with no rating (P4-8: the owner confirms ratings), the IRS check filled in, the
         // evaluators' profile links for the owner, and two pieces of evidence for every country listed: the charity's own page and 3W.
-        Assert.NotEmpty(t.Charities);
+        // The second batch (OR-4, 2026-11-25) follows the same rule; the charities the owner named (OR-5) need only their own
+        // page in each country, with a 3W row where the 3W file has one.
+        string[] ownerNamed = ["american-red-cross", "doctors-without-borders-usa"];
+        Assert.Equal(16, t.Charities.Count);
+        Assert.All(ownerNamed, id => Assert.Contains(t.Charities, c => c.Id == id));
         foreach (var c in t.Charities)
         {
             Assert.Equal(Review.Draft, c.Review.Status);
@@ -86,7 +90,11 @@ public class HelpTablesTests
             Assert.Equal("Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards", c.OwnerAction);
             Assert.NotEmpty(c.Countries);
             foreach (var country in c.Countries.GroupBy(w => w.Iso3))
-                Assert.Equal(["OCHA 3W", "charity's own page"], country.Select(w => w.EvidenceKind).Order(StringComparer.Ordinal));
+            {
+                var kinds = country.Select(w => w.EvidenceKind).Order(StringComparer.Ordinal).ToArray();
+                if (ownerNamed.Contains(c.Id) && kinds.Length == 1) Assert.Equal(["charity's own page"], kinds);
+                else Assert.Equal(["OCHA 3W", "charity's own page"], kinds);
+            }
         }
     }
 

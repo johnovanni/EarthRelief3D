@@ -17,7 +17,7 @@ How the panel uses them ("Your one small step"):
 - Official contacts need your approval too. The panel links to the House's own finder (the app never asks for an address or ZIP
   code), and to the UN Blue Book for each country's mission (one link: the Blue Book's terms forbid compiling its list).
 
-Totals: 21 pooled funds (including CERF), 4 official contacts, 9 charities, 100 senators (a list copied from the Senate's own file, as of 18 Nov 2026; not reviewed row by row).
+Totals: 21 pooled funds (including CERF), 4 official contacts, 16 charities, 100 senators (a list copied from the Senate's own file, as of 18 Nov 2026; not reviewed row by row).
 
 ## UN pooled funds and CERF
 
@@ -278,6 +278,159 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Status: **draft**
 - Owner: approve / correct: 
 
+### `american-red-cross`: American Red Cross
+
+- EIN: 53-0196605; website: [https://www.redcross.org/](https://www.redcross.org/); donate page: [https://www.redcross.org/donate/donation.html](https://www.redcross.org/donate/donation.html)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 90.9% (Form 990, tax year 2024, object 202640829349300109, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/530196605](https://www.charitynavigator.org/ein/530196605)
+- Evaluator page to open: [https://www.give.org/search?term=American+Red+Cross](https://www.give.org/search?term=American+Red+Cross)
+- Works in COL: [Colombia: Red Cross response to earthquake ongoing](https://www.redcross.org/about-us/news-and-events/news/2026/colombia--red-cross-response-to-earthquake-ongoing.html) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [Helping All Around the World](https://www.redcross.org/about-us/news-and-events/news/2026/helping-all-around-the-world.html) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [How Dr. Felix Amate Brings Lifesaving Vaccines to Chad’s Most Remote Regions](https://www.redcross.org/about-us/news-and-events/news/2026/bringing-lifesaving-vaccines-to-chad-s-most-remote-regions.html) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in VEN: [Venezuela: Red Cross Movement Responds in the Aftermath of Back-to-Back Earthquakes](https://www.redcross.org/about-us/news-and-events/news/2026/red-cross-movement-responds-to-venezuela-earthquakes.html) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: Drafted under OR-5 (named by the owner). OCHA 3W is not used: the 3W file never names the American Red Cross (OR-4's Red Cross and Red Crescent Movement count of 17 countries comes from the ICRC, the IFRC and other national societies). redcross.org has no current country pages for its international work: its Haiti page describes past work and its Ukraine crisis page dates from 2024, so neither is used. Each row is a 2026 page on redcross.org about the American Red Cross's own work in that country: news articles for Colombia, Chad and Venezuela, and the International Services Activity Update of 20 March 2026 for Mozambique (a page covering several countries). EIN matched by name in Publication 78 (American National Red Cross); the redcross.org pages opened did not show the EIN.
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
+### `care-usa`: CARE USA
+
+- EIN: 13-1685039; website: [https://www.care.org/](https://www.care.org/); donate page: [https://www.care.org/donate/](https://www.care.org/donate/)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 89.8% (Form 990, tax year 2024, object 202523579349300712, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/131685039](https://www.charitynavigator.org/ein/131685039)
+- Evaluator page to open: [https://www.give.org/search?term=CARE+USA](https://www.give.org/search?term=CARE+USA)
+- Works in AFG: [CARE's Humanitarian Work in Afghanistan - CARE](https://www.care.org/our-work/where-we-work/afghanistan/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in AFG: [OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [CARE's Humanitarian Work in Cameroon - CARE](https://www.care.org/our-work/where-we-work/cameroon/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [CARE's Humanitarian Work in Democratic Republic of the Congo - CARE](https://www.care.org/our-work/where-we-work/democratic-republic-of-the-congo/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [CARE's Humanitarian Work in Colombia - CARE](https://www.care.org/our-work/where-we-work/colombia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [CARE's Humanitarian Work in Ethiopia - CARE](https://www.care.org/our-work/where-we-work/ethiopia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [CARE's Humanitarian Work in Haiti - Haiti Relief - CARE](https://www.care.org/our-work/where-we-work/haiti/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [CARE's humanitarian work in Mali - CARE](https://www.care.org/our-work/where-we-work/mali/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [CARE's humanitarian work in Mozambique - CARE](https://www.care.org/our-work/where-we-work/mozambique/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [CARE's humanitarian work in Niger - CARE](https://www.care.org/our-work/where-we-work/niger/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [CARE's humanitarian work in Sudan - CARE](https://www.care.org/our-work/where-we-work/sudan/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [CARE's humanitarian work in Somalia - CARE](https://www.care.org/our-work/where-we-work/somalia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [CARE's Humanitarian Work in Syria - Donate to Syria - CARE](https://www.care.org/our-work/where-we-work/syria/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [CARE's Humanitarian Work in Chad - CARE](https://www.care.org/our-work/where-we-work/chad/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [CARE's Humanitarian Work in Yemen - CARE](https://www.care.org/our-work/where-we-work/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: EIN from care.org (its FAQ page and page footer give 13-1685039); Publication 78 lists that EIN as "C A R E, Inc.". CARE International's "How we're run" page (care-international.org, which care.org's CARE International Offices page gives as CARE International's address) lists CARE USA among the confederation's members. OCHA 3W rows name CARE International, its country offices or CARE Switzerland, not CARE USA by name (OR-4 counts the CARE confederation as one organisation).
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
+### `doctors-of-the-world-usa`: Doctors of the World USA
+
+- EIN: 35-2426718; website: [https://doctorsoftheworld.org/](https://doctorsoftheworld.org/); donate page: [https://doctorsoftheworld.org/donate/](https://doctorsoftheworld.org/donate/)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 96.7% (Form 990, tax year 2024, object 202533159349305398, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/352426718](https://www.charitynavigator.org/ein/352426718)
+- Evaluator page to open: [https://www.give.org/search?term=Doctors+of+the+World+USA](https://www.give.org/search?term=Doctors+of+the+World+USA)
+- Works in AFG: [Asia | Doctors of the World](https://doctorsoftheworld.org/where-we-work/asia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in AFG: [OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [Americas & The Caribbean | Doctors of the World](https://doctorsoftheworld.org/where-we-work/americas-the-caribbean/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [Africa | Doctors of the World](https://doctorsoftheworld.org/where-we-work/africa/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [Middle East | Doctors of the World](https://doctorsoftheworld.org/where-we-work/middle-east/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in VEN: [Americas & The Caribbean | Doctors of the World](https://doctorsoftheworld.org/where-we-work/americas-the-caribbean/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in VEN: [OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [Middle East | Doctors of the World](https://doctorsoftheworld.org/where-we-work/middle-east/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: doctorsoftheworld.org has no country pages: each country rests on one of its regional pages (Africa, Asia, Americas & The Caribbean, Middle East), which says it works in the region and names the country under "Explore some of our work", with no description per country. Its home page says it is backed by the Médecins du Monde international network and gives EIN 35-242-6718. OCHA 3W rows name Médecins du Monde sections (France, Belgium, Spain, Switzerland, Germany, Argentina) or Doctors of the World, not Doctors of the World USA by name (OR-4 counts the network as one organisation). Cameroon is in 3W but not named on its site, so it is left out.
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
+### `doctors-without-borders-usa`: Doctors Without Borders USA
+
+- EIN: 13-3433452; website: [https://www.doctorswithoutborders.org/](https://www.doctorswithoutborders.org/); donate page: [https://donate.doctorswithoutborders.org/secure/donate](https://donate.doctorswithoutborders.org/secure/donate)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 83.5% (Form 990, tax year 2024, object 202503179349303040, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/133433452](https://www.charitynavigator.org/ein/133433452)
+- Evaluator page to open: [https://www.give.org/search?term=Doctors+Without+Borders+USA](https://www.give.org/search?term=Doctors+Without+Borders+USA)
+- Works in AFG: [Afghanistan | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/afghanistan) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in AFG: [OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [Burkina Faso | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/burkina-faso) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [Central African Republic | How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/central-african-republic) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [Cameroon | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/cameroon) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [Democratic Republic of Congo | How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/democratic-republic-congo) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [Colombia | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/colombia) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [Ethiopia | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/ethiopia) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [Haiti | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/haiti) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in LBN: [Lebanon | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/lebanon) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [Mali | How to Help & FAQs | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/mali) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MMR: [Myanmar | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/myanmar) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [Mozambique | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/mozambique) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [Niger | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/niger) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [Nigeria | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/nigeria) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in PSE: [Palestine | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/palestine) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [Sudan | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/sudan) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [Somalia | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/somalia-and-somaliland) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SSD: [South Sudan | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/south-sudan) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [Syria | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/syria) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [Chad | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/chad) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in UKR: [Ukraine | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/ukraine) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in VEN: [Venezuela | Our Work & How to Help | Doctors Without Borders](https://www.doctorswithoutborders.org/what-we-do/where-we-work/venezuela) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [Yemen | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/yemen) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: Drafted under OR-5 (named by the owner) and OR-4 (MSF's sections together are in 14 of the 3W countries). Country evidence is on doctorswithoutborders.org, MSF USA's own site (its footer gives federal tax ID 13-3433452); the pages were opened in the built-in browser because the site answers scripts with a "Checking connection" page. OCHA 3W rows name MSF's operational sections (France, Spain, Switzerland, Belgium, Holland, West and Central Africa), not MSF USA by name; COL, ETH, SOM, SSD and VEN rest on MSF USA's own pages only (OR-5). LBN, MMR, PSE and UKR are added because each has a 2026 humanitarian response plan or flash appeal in FTS and the page shows current work there; Honduras, Madagascar and Nepal were left out (not sure the pages show current crisis work). Earlier this week a give.org page was seen to list MSF USA as not meeting BBB's standards; this was not re-checked (no script or agent opens give.org), so BBB may not qualify it: please check Charity Navigator.
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
 ### `international-medical-corps`: International Medical Corps
 
 - EIN: 95-3949646; website: [https://internationalmedicalcorps.org/](https://internationalmedicalcorps.org/); donate page: [https://internationalmedicalcorps.org/donate/](https://internationalmedicalcorps.org/donate/)
@@ -404,6 +557,86 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: EIN matched by name in Publication 78 only. Country evidence is on nrc.no, the international organisation's site; NRC USA's own page is itself part of nrc.no (www.nrc.no/usa).
 - Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
+### `oxfam-america`: Oxfam America
+
+- EIN: 23-7069110; website: [https://www.oxfamamerica.org/](https://www.oxfamamerica.org/); donate page: [https://www.oxfamamerica.org/donate/](https://www.oxfamamerica.org/donate/)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 71.2% (Form 990, tax year 2025, object 202602269349303035, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/237069110](https://www.charitynavigator.org/ein/237069110)
+- Evaluator page to open: [https://www.give.org/search?term=Oxfam+America](https://www.give.org/search?term=Oxfam+America)
+- Works in BFA: [Burkina Faso | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/burkina-faso) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [Central African Republic | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/central-african-republic) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [Democratic Republic of Congo | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/democratic-republic-congo) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [Colombia | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/colombia) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [Ethiopia crisis: Donate to save lives | Oxfam America | Oxfam](https://www.oxfamamerica.org/explore/countries/ethiopia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [Mali | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/mali) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [Mozambique | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/mozambique) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [Niger | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/niger) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [Nigeria | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/nigeria) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [Somalia | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/somalia) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [Donate to Syria | Oxfam America | Oxfam](https://www.oxfamamerica.org/explore/countries/syria/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [Chad | Oxfam International](https://www.oxfam.org/en/what-we-do/countries/chad) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [Yemen humanitarian crisis: Donate now | Oxfam America | Oxfam](https://www.oxfamamerica.org/explore/countries/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: EIN from oxfamamerica.org (its home page gives EIN/tax ID 23-7069110). Country evidence for BFA, CAF, COD, COL, MLI, MOZ, NER, NGA, SOM and TCD is on oxfam.org, Oxfam International's site, which oxfamamerica.org links to from its home page and its Countries we work in page; oxfam.org's How We Are Organized page lists Oxfam America (USA) among the current affiliates. ETH, SYR and YEM are on oxfamamerica.org. OCHA 3W rows name Oxfam or its affiliates (Oxfam GB, Oxfam Novib, Oxfam Intermón), not Oxfam America by name (OR-4 counts the confederation as one organisation).
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
+### `plan-international-usa`: Plan International USA
+
+- EIN: 13-5661832; website: [https://planusa.org/](https://planusa.org/); donate page: [https://planusa.org/donate/](https://planusa.org/donate/)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 68.9% (Form 990, tax year 2024, object 202503369349300805, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/135661832](https://www.charitynavigator.org/ein/135661832)
+- Evaluator page to open: [https://www.give.org/search?term=Plan+International+USA](https://www.give.org/search?term=Plan+International+USA)
+- Works in CAF: [Plan International Central African Republic](https://plan-international.org/central-african-republic/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [Plan International Cameroon](https://plan-international.org/cameroon/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [Plan International Colombia](https://plan-international.org/colombia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [Plan International Ethiopia](https://plan-international.org/ethiopia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [Plan International Haiti](https://plan-international.org/haiti/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in HTI: [OCHA 3W operational presence (HDX HAPI), Haiti, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [Plan International Mali](https://plan-international.org/mali/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [Plan International Mozambique](https://plan-international.org/mozambique/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MOZ: [OCHA 3W operational presence (HDX HAPI), Mozambique, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [Plan International Niger](https://plan-international.org/niger/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [Plan International Nigeria](https://plan-international.org/nigeria/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [Plan International Sudan](https://plan-international.org/sudan/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [Plan International Somalia](https://plan-international.org/somalia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [Plan International Chad](https://plan-international.org/chad/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: EIN matched by name in Publication 78 (Plan International USA Inc.); planusa.org links to a GuideStar profile with the same EIN. planusa.org's Who we are page says Plan International USA is the U.S. member of the global organization. planusa.org has regional pages only, so country evidence is on plan-international.org (Plan International's country-office pages); the planusa.org pages opened (home, Where we work, Who we are) do not link to plan-international.org. Syria is in 3W but plan-international.org has no Syria page, so it is left out. OCHA 3W rows name Plan International, not Plan International USA by name. planusa.org/donate/ forwards to donate.planusa.org, which showed a bot check in the built-in browser, so the form itself was not seen.
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
 - **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
 - Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
 - Status: **draft**
@@ -590,6 +823,53 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: Country evidence is on unfpa.org, the international organisation's site. The usaforunfpa.org home page does not link to unfpa.org; its FAQ page does (opened 24 Nov 2026).
 - Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
+- Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
+- Status: **draft**
+- Owner: approve / correct: 
+
+### `usa-for-unhcr`: USA for UNHCR
+
+- EIN: 52-1662800; website: [https://www.unrefugees.org/](https://www.unrefugees.org/); donate page: [https://www.unrefugees.org/donate/](https://www.unrefugees.org/donate/)
+- IRS Publication 78: deductibility code `PC`, from `data-download-pub78.zip (IRS file of 2026-11-11)`, checked 25 Nov 2026
+- Programme spending: 66.3% (Form 990, tax year 2025, object 202622319349300112, worked out 25 Nov 2026)
+- Ratings: none confirmed yet (you confirm them by opening the evaluators' pages; no script or agent reads them)
+- Evaluator page to open: [https://www.charitynavigator.org/ein/521662800](https://www.charitynavigator.org/ein/521662800)
+- Evaluator page to open: [https://www.give.org/search?term=USA+for+UNHCR](https://www.give.org/search?term=USA+for+UNHCR)
+- Works in AFG: [Afghanistan Emergency: What is Happening and How to Help| USA for UNHCR](https://www.unrefugees.org/emergencies/afghanistan/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in AFG: [OCHA 3W operational presence (HDX HAPI), Afghanistan, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [Burkina Faso | UNHCR](https://www.unhcr.org/where-we-work/countries/burkina-faso) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in BFA: [OCHA 3W operational presence (HDX HAPI), Burkina Faso, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [Central African Republic Refugee Crisis | USA for UNHCR](https://www.unrefugees.org/emergencies/central-african-republic/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CAF: [OCHA 3W operational presence (HDX HAPI), Central African Republic, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [Cameroon | UNHCR](https://www.unhcr.org/where-we-work/countries/cameroon) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in CMR: [OCHA 3W operational presence (HDX HAPI), Cameroon, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [Democratic Republic of the Congo | UNHCR](https://www.unhcr.org/where-we-work/countries/democratic-republic-congo) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COD: [OCHA 3W operational presence (HDX HAPI), Democratic Republic of the Congo, 2026-07-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [Colombia | UNHCR](https://www.unhcr.org/where-we-work/countries/colombia) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in COL: [OCHA 3W operational presence (HDX HAPI), Colombia, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [Ethiopia Refugee Crisis: Aid, Statistics and News | USA for UNHCR](https://www.unrefugees.org/emergencies/ethiopia/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in ETH: [OCHA 3W operational presence (HDX HAPI), Ethiopia, 2026-01-01 to 2026-03-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [Mali | UNHCR](https://www.unhcr.org/where-we-work/countries/mali) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in MLI: [OCHA 3W operational presence (HDX HAPI), Mali, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [Niger | UNHCR](https://www.unhcr.org/where-we-work/countries/niger) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NER: [OCHA 3W operational presence (HDX HAPI), Niger, 2026-06-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [Nigeria | UNHCR](https://www.unhcr.org/where-we-work/countries/nigeria) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in NGA: [OCHA 3W operational presence (HDX HAPI), Nigeria, 2026-04-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [Sudan Emergency: What is Happening and How to Help | USA for UNHCR](https://www.unrefugees.org/emergencies/sudan/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SDN: [OCHA 3W operational presence (HDX HAPI), Sudan, 2026-01-01 to 2026-07-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [Somalia | UNHCR](https://www.unhcr.org/where-we-work/countries/somalia) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SOM: [OCHA 3W operational presence (HDX HAPI), Somalia, 2026-01-01 to 2026-06-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [Syrian Refugee Crisis: What is Happening and How to Help | USA for UNHCR](https://www.unrefugees.org/emergencies/syria/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in SYR: [OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [Chad | UNHCR](https://www.unhcr.org/where-we-work/countries/chad) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in VEN: [Venezuela Crisis: What is Happening and How to Help | USA for UNHCR](https://www.unrefugees.org/emergencies/venezuela/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in VEN: [OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [Yemen Emergency: What is Happening and How to Help | USA for UNHCR](https://www.unrefugees.org/emergencies/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
+- Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
+- Note: EIN from unrefugees.org's page footer (52-1662800). Its FAQ describes USA for UNHCR as a nonprofit that raises funds and awareness to support UNHCR, the UN Refugee Agency. Evidence for AFG, CAF, ETH, SDN, SYR, VEN and YEM is USA for UNHCR's own emergency pages; for BFA, CMR, COD, COL, MLI, NER, NGA, SOM and TCD it is on unhcr.org, UNHCR's own site, and the unrefugees.org pages opened (home, About, FAQ, emergency pages) do not link to unhcr.org. Both sites answer scripts with a bot check; the pages were opened in the built-in browser. The donate link opens a form titled for monthly giving.
+- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
 - **For the owner:** Open both profile links; say whether it is rated 3★ or more by Charity Navigator or meets all 20 BBB standards
 - Hidden until fixed: no confirmed rating from a listed evaluator (Charity Navigator, BBB Wise Giving Alliance)
 - Status: **draft**
