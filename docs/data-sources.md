@@ -1,4 +1,4 @@
-# Data sources (Plans 2, 3 and 4)
+# Data sources (Plans 2 to 5)
 
 Sections 1 to 4 (Plan 2) were checked live on 2026-11-22 and sections 5 to 10 (Plan 3) on 2026-11-23, with `tools/fetch-samples.ps1` (User-Agent `EarthRelief3D/0.1.0 (+https://github.com/johnovanni/EarthRelief3D)`).
 No source needs a key or an account. Samples are in `tests/Samples` (see its README). Sections 12 to 20 (Plan 4) were checked on 2026-11-24.
@@ -466,6 +466,10 @@ Written 2026-11-25 so that every row of `data/sources.json` has its credit in th
 - **Charity evaluators (Charity Navigator, https://www.charitynavigator.org/, and BBB Wise Giving Alliance, https://give.org/):** the app links to their pages and says which rating a charity must have to be listed (`docs/help-review.md`); no rating is copied. **Credit:** "Charity Navigator (charitynavigator.org) and BBB Wise Giving Alliance (give.org): links only, ratings are not copied" (wording chosen by the app; the sources prescribe none). Checked 2026-11-24.
 - **Curated tables (`data/curated`: designations, camp sites, explainers; `data/help`):** written for this app from cited documents; every row carries its own citation. **Credit:** "Each curated entry cites its own source documents" (wording chosen by the app). Licence: the app's own, MIT. Checked 2026-11-24.
 - **Globe picture, NASA Blue Marble** (GlobeCore, `external/GlobeCore/THIRD-PARTY-NOTICES.txt`): **Credit:** "NASA Earth Observatory, Blue Marble Next Generation with Topography and Bathymetry (July 2004, R. Stockli)", from GlobeCore's notices, which add "NASA imagery is generally not copyrighted (NASA Media Usage Guidelines)". Read 2026-11-25.
+
+## Where the credits live (Plan 5)
+
+The credit for every source named above is held once, in `data/sources.json` (the source registry): its credit wording, licence, links and the "as of" rule for its date. About and the Data card are built from that file, and `THIRD-PARTY-NOTICES.txt` repeats the same wording. A test checks that every credit fragment in the registry appears verbatim in this document and in the notices file, so a credit cannot drift from what is written here. A new source needs its section here and one row there.
 
 ## Offline samples (`--offline-samples`)
 

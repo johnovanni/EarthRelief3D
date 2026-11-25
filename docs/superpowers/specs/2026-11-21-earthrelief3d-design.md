@@ -259,6 +259,53 @@ Everything curated in Plan 4 (depots, pooled funds, contacts, charities, explain
 | R21 | Each UN depot's position is the airport its own address names or sits beside, from the bundled OurAirports data (The Unlicense), not OpenStreetMap: Accra at Kotoka International, Dubai at Al Maktoum International (DWC), Panama at Panamá Pacífico International (Howard), Kuala Lumpur at Sultan Abdul Aziz Shah (Subang), Brindisi at Brindisi Airport; each row says the marker is at that airport, quotes the address, and is approximate | C6 forbids committing share-alike data (OpenStreetMap is ODbL) | A marker a few km from the depot; distances are rounded anyway |
 | R22 | When no `cerf` row is shown (none approved, outside a `--show-drafts` run), the panel shows a built-in CERF line with P4-11's text and link | Every country keeps a UN fund to give to while the curated rows wait for the owner; it was accepted while building but not shown to the owner | None |
 
+### Rulings made while building Plan 5 (for the owner to check)
+
+P5-1 to P5-24 were made while writing the Plan 5 plan (`docs/superpowers/plans/2026-11-25-plan-5-shipping.md`, "Rulings made while writing this plan"; each is one line here, the plan has the reason and the cost; P5-23 and P5-24 were added at the owner's request on 2026-11-25, and R11 amends P5-21).
+R1 to R14 were made while building it (its SDD ledger; R14 in Task 11); **these R numbers are Plan 5's own**, not Plans 2 to 4's above. Plan 5 does not change the data sources or the crisis layers: it adds the shipping, the cards, the text size and the update check. Tasks 1 to 11 are on the branch `plan-5`, local only until the owner says otherwise.
+
+- P5-1: the installer is a signed Inno Setup `EarthRelief3D-Setup.exe` (not an MSIX; this supersedes §1 and §15's "MSIX"), installing to `C:\Program Files\Qapow\EarthRelief3D`, publisher "John Apolloni", as EarthWatch3D's; settings, cache and logs stay in `%LOCALAPPDATA%\EarthRelief3D`.
+- P5-2: the app checks for and installs updates itself (owner, 2026-11-25), because Inno does not update an install; About shows the version and links "Releases on GitHub".
+- P5-3: a public clone builds without a token (GlobeCore and AstroCore are public); the workflow still accepts a `SUBMODULES_TOKEN` secret if GlobeCore goes private again.
+- P5-4: signing uses EarthWatch3D's Azure Trusted Signing account and profile, the `release` environment and a federated credential with this repository's ids; seven of the app's own files, then the installer, are signed.
+- P5-5: the release workflow also runs the tests before publishing; pull requests build unsigned and never reach Azure.
+- P5-6: version 1.0.0 in `Directory.Build.props`; tagging, pushing and releasing are the owner's.
+- P5-7: Welcome, About and Data are cards in the main window (one at a time, Esc closes the card first), never separate windows or message boxes; a scene opens one with `"card"`.
+- P5-8: text size 100%, 125% or 150% (`AppSettings.TextScale`), applied as a layout transform on every card and a factor on the globe's labels; the panel is `min(420 x scale, 0.45 x window width)` wide; GlobeCore's hover tooltip is not scaled.
+- P5-9: one source registry, `data/sources.json`; every credit fragment must appear verbatim in `docs/data-sources.md` and `THIRD-PARTY-NOTICES.txt`; every status dot and bundled dataset has a row; every link is https.
+- P5-10: About documents the severity bands (C7), one line per crisis kind built from `SeverityBands`, with a link to `docs/severity-bands.md`.
+- P5-11: the Welcome shows once per user (`AppSettings.WelcomeShown`), never in a diagnostic or offline run; its key rows come from `LayerStyle` and `LayerCatalog`, so card and map cannot disagree; it offers the text size; About has "Show the welcome again".
+- P5-12: FTS in January keeps a country's previous-year plans when it has none for the new year (1 to 31 January), says "No appeal in FTS for <year> yet", and counts a regional plan within its own year.
+- P5-13: the WPI licence note is an input of the DataTool (`--portal-note`), not a hard-coded date.
+- P5-14: each hub kind has its own arc lift factor so the short port arc stands above the depot arc (R14 changes the three factors after the pictures).
+- P5-15: the `sudan-charities` picture opens Sudan's panel at the first charity entry (`panelFocus` `"charities"`); the scene clock (22 Nov) is before the charities' review date (25 Nov), which `VettingRules` does not reject.
+- P5-16: the app icon is an orthographic Blue Marble globe centred on 10 N, 30 E, drawn by `tools/make-icon.py`.
+- P5-17: the installer is not built on the owner's PC (nothing is installed here); Task 11 takes the pictures with the published exe; the update path cannot be tried end to end before two releases exist.
+- P5-18: the update check runs 30 seconds after the window shows, then every 24 hours, with one request to GitHub's releases API; never in a diagnostic or offline run; a failure is logged and shown in About; Settings can turn it off.
+- P5-19: the offer is a banner (no sound, nothing modal) with "Download and install", "What's new" and "Later".
+- P5-20: only the asset `EarthRelief3D-Setup.exe` of the release `v<version>` is downloaded, with size, SHA-256 and Authenticode signer checks (same signer as the running exe); any failed check deletes the file and offers only "Open the download page".
+- P5-21: "Install now" starts the installer silently with `/CLOSEAPPLICATIONS`, and the `.iss` restarts the app as the user (R11 amends how it is started).
+- P5-22: after 30 days without a successful check the banner says the included data may be out of date; picture runs read a synthetic release only for a scene with `"update"`.
+- P5-23: the "Layers" header closes the whole strip (owner, 2026-11-25); the icons-only mode is removed.
+- P5-24: the legend folds away and starts closed (owner, 2026-11-25), keeping its header row and the UN boundary note; the choice is saved (`AppSettings.LegendOpen`).
+
+| # | Ruling | Reason | Cost |
+|---|---|---|---|
+| R1 | The scene field `card` accepts welcome, about, data and settings from Task 4; a card whose view model is not registered fails the scene with a plain message | Keeps the field final | None |
+| R2 | `TextScaleLayout.CardBounds` takes the legend's open or closed state, and the overlap test covers both | The legend's height changes with Task 2 | One parameter |
+| R3 | About's version test asserts `"Version " + AppInfo.Version`, not 1.0.0 | Task 9 sets the version later | None |
+| R4 | About's data paragraph names the daily GitHub check before Task 10 builds it | Both ship in the same release | None |
+| R5 | A registry licence carries the qualifier `docs/data-sources.md` gives: UNHCR "CC BY 4.0 (from UNHCR's published terms; not yet confirmed for the API's data)", WHO GHO "CC BY 4.0 (WHO's data terms; not yet confirmed for GHO API rows, which may be CC BY-NC-SA 3.0 IGO)" | Every fact must say what is known and no more | Wording; the owner confirms both licences |
+| R6 | The registry has 27 rows: IPC is split into `ipc` (country figures) and `ipc-areas` (area analyses), both on the "IPC" dot | The documents record two credits | One row |
+| R7 | The legend header counts every legend line shown, hub lines included, so a fresh app reads "Legend (5 layers)" | The count must match what the legend lists | Wording |
+| R8 | The panel is 420 px wide at 100% (it was 380) | More width suits larger text; every panel picture changes | One constant |
+| R9 | With no room beside the panel (150%, or a window 1,000 wide) the explainer card sits under the panel in its column and both scroll | No overlap is the binding rule | Layout code |
+| R10 | A country shown in January with only last year's plans counts as having an FTS appeal for P4-12 | That appeal is still the live one until the new year's is posted | The step section shows a few weeks longer for a few countries |
+| R11 | (amends P5-21) The app starts the installer without the `runas` verb and Inno elevates itself, so the `.iss` restarts the app as the original, non-elevated user; the installer's Restart Manager closes the app; if the installer exits while the app is still running the banner says the update was not installed and why it may be (Windows' permission), with "Open the download page" and "Later" | Restarting the app as administrator would be a security fault | The refusal message is less certain about the cause |
+| R12 | After the last checks the app holds the installer open with `FileShare.Read` until the installer process has started | Closes the check-to-run gap | A few lines |
+| R13 | While the update banner shows, the panel and the explainer start below it (their top margin grows by its height); the banner spans from the strip's right edge to the window's right edge | It never covers a card | Layout code |
+| R14 | Task 11's tuning: the arc lift factors are port 2.0, airport 1.25, depot 0.5 (P5-14 had 1.5, 1.25, 1.0), because in the first picture run the port arc was still hidden under the depot arc after its first third; `PanelFocus.Charities` scrolls to the entry once the panel has been laid out | The pictures decide | Arcs a little different |
+
 ### Out of scope (for now)
 
 - Countries other than the US in the help panel (the data shape allows them, §9.4).
