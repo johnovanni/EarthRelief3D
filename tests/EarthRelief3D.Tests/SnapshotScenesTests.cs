@@ -91,7 +91,9 @@ public partial class SnapshotScenesTests
         banner.ShowForPicture(release, UpdateBannerState.Ready);
         Assert.StartsWith("Ready to install 1.1.0.", banner.Text);
         banner.ShowForPicture(release, UpdateBannerState.Failed);
-        Assert.StartsWith("The update could not be used: ", banner.Text);
+        // F5: the picture shows the app's own plain sentence for a digest mismatch.
+        Assert.Equal("The update could not be used: The downloaded file is not the one the release lists. You can download it from its release page instead.",
+            banner.Text);
         Assert.True(banner.ShowOpenDownloadPage);
         banner.ShowForPicture(release, UpdateBannerState.Stale);
         Assert.StartsWith("EarthRelief3D has not been able to check", banner.Text);

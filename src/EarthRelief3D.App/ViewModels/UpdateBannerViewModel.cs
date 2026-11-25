@@ -23,7 +23,7 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     /// <summary>On the stale banner while its "Check now" runs.</summary>
     public const string CheckingText = "Checking for a new version…";
     /// <summary>The reason a "failed" picture shows (scene field "update": "failed").</summary>
-    public const string PictureFailureText = "The file's SHA-256 is not the release's.";
+    public const string PictureFailureText = Services.UpdateDownloader.DigestMismatchText;
 
     private readonly ILinkOpener _opener;
     private readonly Version _running;
