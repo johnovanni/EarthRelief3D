@@ -1,9 +1,11 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 using EarthRelief3D.App.Diagnostics;
 using EarthRelief3D.App.Services;
 using EarthRelief3D.App.Settings;
 using EarthRelief3D.App.ViewModels;
+using EarthRelief3D.Core.Updates;
 using GlobeCore.Feeds;
 using GlobeCore.Logging;
 using GlobeCore.Storage;
@@ -22,6 +24,8 @@ public partial class App : Application
     private FileLog? _log;
     private SettingsSaver<AppSettings>? _settings;
     private AppServices? _services;
+    private UpdateService? _updates;
+    private DispatcherTimer? _updateTimer;
     private CrashHandler? _crash;
     private bool _shutDown;
     private string? _offlineRoot;
@@ -78,6 +82,17 @@ public partial class App : Application
             sceneOut = Path.GetDirectoryName(path) ?? ".";
             scenes = [SnapshotScenes.FromOptions(options with { SnapshotPath = path }, options.DisplayTimeUtc ?? DateTime.UtcNow)];
         }
+        // A scene that shows the update banner reads the synthetic release from the samples folder (P5-22): nothing is fetched.
+        ReleaseInfo? updateSample = null;
+        if (scenes?.Any(s => s.ShowsUpdate) == true && samplesDir is not null)
+        {
+            var samplePath = Path.Combine(samplesDir, SnapshotScenes.UpdateSampleName);
+            try { updateSample = UpdateCheck.Parse(File.ReadAllText(samplePath)); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException)
+            {
+                problems.Add($"--snapshot-scenes: a scene shows the update banner, but {samplePath} cannot be read: {ex.Message}");
+            }
+        }
         if (problems.Count > 0)
         {
             var message = string.Join(Environment.NewLine, problems);
@@ -125,7 +140,7 @@ public partial class App : Application
         services.Start();
         if (scenes is not null && displayClock is not null && sceneOut is not null)
             _ = SnapshotScenes.RunAsync(window, window.Scene, services.Main, scenes, displayClock, sceneOut, options.DelayMs, dataReady, log,
-                draftsForAll: options.ShowDrafts);
+                draftsForAll: options.ShowDrafts, updateSample: updateSample);
         else if (options.OpenPanel is { } iso)
             window.Loaded += (_, _) => services.Main.Panel.Show(iso);
         // First start: the Welcome card, once the window has been drawn. Never in a picture or offline run (it would cover the pictures).
@@ -138,7 +153,34 @@ public partial class App : Application
             }
             window.ContentRendered += ShowWelcome;
         }
+        // EarthRelief3D's own update check (P5-18 to P5-22): never in a diagnostic or offline run. It starts once the window has
+        // been drawn; the timer only looks at the clock (the first check is 30 seconds later, then one a day).
+        if (!options.IsDiagnosticRun)
+        {
+            var updatesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppInfo.Name, "updates");
+            var downloader = new UpdateDownloader(UpdateDownloader.CreateHandler(), new WinTrustSignatureCheck(), updatesDir);
+            var updates = _updates = new UpdateService(UpdateService.GitHubFetch(new System.Net.Http.SocketsHttpHandler()), downloader,
+                new ShellInstallerLauncher(), _settings, new SystemClock(), log, AppInfo.VersionNumber, Environment.ProcessPath ?? "",
+                () => Dispatcher.BeginInvoke(() => Shutdown()), services.Main.Updates);
+            services.Main.About.AttachUpdates(updates);
+            services.Main.Settings.CheckForUpdatesChanged += (_, _) => updates.SettingsChanged();
+            void StartUpdates(object? s, EventArgs a)
+            {
+                window.ContentRendered -= StartUpdates;
+                updates.Start();
+                _updateTimer = new DispatcherTimer(TimeSpan.FromSeconds(5), DispatcherPriority.Background, (_, _) => _ = TickUpdatesAsync(), Dispatcher);
+                _updateTimer.Start();
+            }
+            window.ContentRendered += StartUpdates;
+        }
         window.Show();
+    }
+
+    // A failed check is handled inside the service; this only keeps an unexpected fault from going unobserved.
+    private async Task TickUpdatesAsync()
+    {
+        try { if (_updates is { } u) await u.TickAsync(); }
+        catch (Exception ex) { _log?.Error("Updates: the update check stopped unexpectedly", ex); }
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -152,6 +194,7 @@ public partial class App : Application
     {
         if (_shutDown) return;
         _shutDown = true;
+        Step("stop the update check", () => { _updateTimer?.Stop(); _updates?.Dispose(); });
         Step("stop the services", () => _services?.Dispose());
         Step("save settings", () => _settings?.Flush());
         Step("stop the settings saver", () => _settings?.Dispose());

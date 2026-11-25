@@ -1,0 +1,48 @@
+{
+  "url": "https://api.github.com/repos/johnovanni/EarthRelief3D/releases/900000110",
+  "assets_url": "https://api.github.com/repos/johnovanni/EarthRelief3D/releases/900000110/assets",
+  "upload_url": "https://uploads.github.com/repos/johnovanni/EarthRelief3D/releases/900000110/assets{?name,label}",
+  "html_url": "https://github.com/johnovanni/EarthRelief3D/releases/tag/v1.1.0",
+  "id": 900000110,
+  "tag_name": "v1.1.0",
+  "target_commitish": "main",
+  "name": "v1.1.0",
+  "draft": false,
+  "prerelease": false,
+  "created_at": "2027-02-03T09:12:41Z",
+  "updated_at": "2027-02-03T09:31:05Z",
+  "published_at": "2027-02-03T09:30:58Z",
+  "assets": [
+    {
+      "url": "https://api.github.com/repos/johnovanni/EarthRelief3D/releases/assets/900000111",
+      "id": 900000111,
+      "name": "EarthRelief3D-Setup.exe",
+      "label": "",
+      "content_type": "application/x-msdownload",
+      "state": "uploaded",
+      "size": 55574528,
+      "digest": "sha256:fe47cc5ecd60be7bb4c160857d48f1c865f493839680388927d9e7d286692599",
+      "download_count": 0,
+      "created_at": "2027-02-03T09:30:12Z",
+      "updated_at": "2027-02-03T09:30:40Z",
+      "browser_download_url": "https://github.com/johnovanni/EarthRelief3D/releases/download/v1.1.0/EarthRelief3D-Setup.exe"
+    },
+    {
+      "url": "https://api.github.com/repos/johnovanni/EarthRelief3D/releases/assets/900000112",
+      "id": 900000112,
+      "name": "EarthRelief3D-Setup.exe.sha256",
+      "label": "",
+      "content_type": "application/octet-stream",
+      "state": "uploaded",
+      "size": 89,
+      "digest": "sha256:d94daab478bc4ebeffcf968519b904a69e222d5d61ba3fa19252e161472b933b",
+      "download_count": 0,
+      "created_at": "2027-02-03T09:30:41Z",
+      "updated_at": "2027-02-03T09:30:42Z",
+      "browser_download_url": "https://github.com/johnovanni/EarthRelief3D/releases/download/v1.1.0/EarthRelief3D-Setup.exe.sha256"
+    }
+  ],
+  "tarball_url": "https://api.github.com/repos/johnovanni/EarthRelief3D/tarball/v1.1.0",
+  "zipball_url": "https://api.github.com/repos/johnovanni/EarthRelief3D/zipball/v1.1.0",
+  "body": "Synthetic sample: invented values in GitHub's release JSON layout. Not a real release."
+}

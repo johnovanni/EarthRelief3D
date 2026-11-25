@@ -261,4 +261,31 @@ public class SettingsViewModelTests
         Assert.Equal("US", s.UserCountry);
         Assert.Null(s.UserState);
     }
+
+    /// <summary>P5-18, P5-22: "Updates", on by default; turning it off is saved with the time, and turning it on clears that time.</summary>
+    [Fact]
+    public void UpdatesOnByDefaultAndSaved()
+    {
+        Assert.True(new AppSettings().CheckForUpdates);
+        Assert.Equal("Updates", SettingsViewModel.UpdatesGroup);
+        Assert.Equal("Check for a new version once a day", SettingsViewModel.UpdatesCheckText);
+        var now = new DateTime(2026, 11, 25, 12, 0, 0, DateTimeKind.Utc);
+        var settings = new MemorySettingsStore(new AppSettings { TextScale = 1.25 });
+        var vm = new SettingsViewModel(settings, CuratedStore.Empty(), nowUtc: () => now);
+        Assert.True(vm.CheckForUpdates);
+        int changes = 0;
+        vm.CheckForUpdatesChanged += (_, _) => changes++;
+        vm.CheckForUpdates = false;
+        Assert.False(settings.Current.CheckForUpdates);
+        Assert.Equal(now, settings.Current.UpdateChecksOffUtc);
+        Assert.Equal(1.25, settings.Current.TextScale);   // other settings kept
+        Assert.Equal(1, changes);
+        vm.CheckForUpdates = false;
+        Assert.Equal(1, changes);
+        Assert.False(new SettingsViewModel(settings, CuratedStore.Empty()).CheckForUpdates);   // read back
+        vm.CheckForUpdates = true;
+        Assert.True(settings.Current.CheckForUpdates);
+        Assert.Null(settings.Current.UpdateChecksOffUtc);
+        Assert.Equal(2, changes);
+    }
 }

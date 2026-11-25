@@ -19,10 +19,10 @@ public partial class MainWindow : Window
         DataContext = vm;
         Scene = new SceneController(Viewport, Overlay, vm, this, store, countries, clock, log);
         // No hover tooltips from the globe while the mouse is over a card.
-        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard, DataCardView, AboutCardView, WelcomeCardView }) Scene.HoverBlockers.Add(card);
+        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard, DataCardView, AboutCardView, WelcomeCardView, UpdateBannerView }) Scene.HoverBlockers.Add(card);
         // Text size (C8, P5-8): every card is scaled from Settings, and sized from TextScaleLayout so none covers another.
         // A new card (Welcome, About, Data) goes in this list and in FitCards.
-        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard, DataCardView, AboutCardView, WelcomeCardView];
+        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard, DataCardView, AboutCardView, WelcomeCardView, UpdateBannerView];
         ApplyTextScale();
         vm.Settings.TextScaleChanged += (_, _) => { ApplyTextScale(); FitCards(); };
         SizeChanged += (_, _) => FitCards();
@@ -41,6 +41,7 @@ public partial class MainWindow : Window
         DataCardView.SizeChanged += (_, _) => FitCards();
         AboutCardView.SizeChanged += (_, _) => FitCards();
         WelcomeCardView.SizeChanged += (_, _) => FitCards();
+        vm.Updates.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(UpdateBannerViewModel.IsVisible)) FitCards(); };
     }
 
     /// <summary>The "Data" button: opens the Data card, or closes it when it is open.</summary>
@@ -106,6 +107,16 @@ public partial class MainWindow : Window
         var welcome = TextScaleLayout.WelcomeCardMax(w, h, scale);
         SetMax(WelcomeCardView, FrameworkElement.MaxWidthProperty, welcome.Width);
         SetMax(WelcomeCardView, FrameworkElement.MaxHeightProperty, welcome.Height);
+
+        // The update banner: top centre, between the strip and the panel, or under the panel's header when that room is too narrow.
+        double headerBottom = Panel.HeaderRow.IsVisible
+            ? Panel.HeaderRow.TranslatePoint(new Point(0, Panel.HeaderRow.ActualHeight), Root).Y
+            : TextScaleLayout.Gap;
+        var banner = TextScaleLayout.BannerBounds(new Size(w, h), scale, stripW, vm.Panel.IsOpen, headerBottom);
+        SetMax(UpdateBannerView, FrameworkElement.WidthProperty, banner.Width);
+        var bm = UpdateBannerView.Margin;
+        if (Math.Abs(bm.Left - banner.Left) > 0.5 || Math.Abs(bm.Top - banner.Top) > 0.5)
+            UpdateBannerView.Margin = new Thickness(banner.Left, banner.Top, 0, 0);
 
         // The explainer: beside the panel, or under it.
         var b = TextScaleLayout.ExplainerBounds(new Size(w, h), scale, stripW, vm.Panel.IsOpen, Panel.ActualHeight, LegendCard.ActualHeight, sourcesH);

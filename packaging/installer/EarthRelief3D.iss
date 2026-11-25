@@ -56,3 +56,5 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; The in-app updater runs this installer with /SILENT (P5-21): start the app again afterwards, as the user, not as administrator.
+Filename: "{app}\{#AppExe}"; Flags: nowait runasoriginaluser skipifnotsilent

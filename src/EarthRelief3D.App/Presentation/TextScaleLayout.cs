@@ -123,6 +123,31 @@ public static class TextScaleLayout
     /// that order, at their largest (each card takes no more), from the numbers <c>MainWindow</c> gives the cards. A card that
     /// is not shown is <see cref="Rect.Empty"/>.
     /// </summary>
+    /// <summary>The update banner's width at most at 100% (P5-19), and the least it needs beside the strip before it moves under the panel's header.</summary>
+    public const double BannerBaseWidth = 560, BannerMinBaseWidth = 280;
+
+    /// <summary>
+    /// Where the update banner goes (P5-19): its left, top and width (its height is its text's; the rectangle's is 0). At the top
+    /// centre of the window, kept between the layer strip (<paramref name="stripWidth"/> wide, at <see cref="Gap"/>) and the
+    /// panel when it is open, at most <see cref="BannerBaseWidth"/> times the text size. When that room is narrower than
+    /// <see cref="BannerMinBaseWidth"/> times the text size (a narrow window at a large text size, with the panel open), it goes in
+    /// the panel's column just under the panel's header (<paramref name="panelHeaderBottom"/>, from the window's top). Either way it
+    /// covers neither the strip nor the panel's header.
+    /// </summary>
+    public static Rect BannerBounds(Size window, double scale, double stripWidth, bool panelOpen, double panelHeaderBottom)
+    {
+        double panelW = PanelWidth(window.Width, scale);
+        double left = Math.Max(0, stripWidth) + 2 * Gap;
+        double right = panelOpen ? window.Width - 2 * Gap - panelW : window.Width - Gap;
+        if (right - left >= BannerMinBaseWidth * scale || !panelOpen)
+        {
+            double width = Math.Max(1, Math.Min(BannerBaseWidth * scale, right - left));
+            double x = Math.Max(left, Math.Min(window.Width / 2 - width / 2, right - width));
+            return new Rect(x, Gap, width, 0);
+        }
+        return new Rect(window.Width - Gap - panelW, panelHeaderBottom + Gap / 2, panelW, 0);
+    }
+
     public static Rect[] CardBounds(Size window, double scale, bool panelOpen, bool explainerOpen, bool legendOpen)
     {
         double sourcesW = SourcesBaseWidth * scale, sourcesH = SourcesBaseHeight * scale;

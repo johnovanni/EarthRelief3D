@@ -142,4 +142,38 @@ public class TextScaleLayoutTests
             }
         }
     });
+
+    /// <summary>
+    /// The update banner (P5-19) sits at the top centre, between the layer strip and the panel; where that room is too narrow it
+    /// goes under the panel's header, in the panel's column. It never covers the strip or the panel's header.
+    /// </summary>
+    [Theory]
+    [InlineData(1.0)]
+    [InlineData(1.25)]
+    [InlineData(1.5)]
+    public void TheUpdateBannerNeverCoversTheStripOrThePanelsHeader(double scale)
+    {
+        foreach (var width in new[] { 1000.0, 1200.0, 1600.0 })
+            foreach (var panelOpen in new[] { false, true })
+                foreach (var stripW in new[] { 0.0, 200 * scale, TextScaleLayout.StripBaseWidth * scale })
+                {
+                    var window = new Size(width, 760);
+                    double gap = TextScaleLayout.Gap, headerBottom = gap + 44 * scale;
+                    var b = TextScaleLayout.BannerBounds(window, scale, stripW, panelOpen, headerBottom);
+                    string at = $"{width} wide, {scale}, strip {stripW}, panel {(panelOpen ? "open" : "closed")}: banner {b}";
+                    var strip = new Rect(gap, gap, Math.Max(1, stripW), 760 * TextScaleLayout.StripShare);
+                    double panelW = TextScaleLayout.PanelWidth(width, scale);
+                    var header = panelOpen ? new Rect(width - gap - panelW, gap, panelW, headerBottom - gap) : Rect.Empty;
+                    var banner = new Rect(b.Left, b.Top, b.Width, 1);   // its height is its text's: only its top edge is fixed
+                    Assert.True(b.Width >= TextScaleLayout.BannerMinBaseWidth * scale || (panelOpen && b.Width == panelW), at);
+                    Assert.True(b.Width <= TextScaleLayout.BannerBaseWidth * scale + 0.001, at);
+                    Assert.True(b.Left >= 0 && b.Right <= width, at);
+                    Assert.False(banner.IntersectsWith(strip) && b.Top < strip.Bottom, "covers the strip: " + at);
+                    if (panelOpen) Assert.False(new Rect(b.Left, b.Top, b.Width, 1).IntersectsWith(header) || (b.Top < header.Bottom && b.Right > header.Left), "covers the panel's header: " + at);
+                }
+        // Room enough: the window's centre.
+        var wide = TextScaleLayout.BannerBounds(new Size(1600, 760), 1.0, 320, panelOpen: false, 56);
+        Assert.Equal(800, wide.Left + wide.Width / 2, 6);
+        Assert.Equal(TextScaleLayout.Gap, wide.Top);
+    }
 }

@@ -100,6 +100,33 @@ public sealed partial class AboutViewModel : ObservableObject
         ];
     }
 
+    private Services.IUpdateStatus? _updates;
+
+    /// <summary>The update check's status line (P5-18), such as "Checked for a new version on 25 Nov 2026: you have the newest (1.0.0)"; empty when the app has no update check (a picture or offline run).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUpdateStatus))]
+    private string _updateStatus = "";
+
+    /// <summary>True when the card shows the status line and "Check now".</summary>
+    public bool HasUpdateStatus => _updates is not null;
+
+    /// <summary>Shows <paramref name="updates"/>' status line, following it, with "Check now".</summary>
+    public void AttachUpdates(Services.IUpdateStatus updates)
+    {
+        ArgumentNullException.ThrowIfNull(updates);
+        if (_updates is not null) _updates.StatusChanged -= OnUpdateStatusChanged;
+        _updates = updates;
+        updates.StatusChanged += OnUpdateStatusChanged;
+        UpdateStatus = updates.StatusText;
+        OnPropertyChanged(nameof(HasUpdateStatus));
+    }
+
+    private void OnUpdateStatusChanged(object? sender, EventArgs e) => UpdateStatus = _updates?.StatusText ?? "";
+
+    /// <summary>"Check now": asks GitHub at once (even when the daily check is off: the user asked).</summary>
+    [RelayCommand]
+    private Task CheckForUpdates() => _updates?.CheckNowAsync() ?? Task.CompletedTask;
+
     /// <summary>Why the last link, folder or file could not be opened; empty otherwise.</summary>
     [ObservableProperty] private string _message = "";
 

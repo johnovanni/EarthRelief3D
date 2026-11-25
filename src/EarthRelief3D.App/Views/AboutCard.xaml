@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <BooleanToVisibilityConverter x:Key="B2V"/>
             <Style x:Key="BodyText" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="White"/>
                 <Setter Property="FontSize" Value="13"/>
@@ -88,6 +89,12 @@
                     <ItemsControl ItemsSource="{Binding Libraries}" ItemTemplate="{StaticResource CreditTemplate}" Focusable="False"/>
 
                     <TextBlock Text="{Binding DataText}" Style="{StaticResource BodyText}" Margin="0,12,0,0"/>
+                    <!-- The update check's status line and "Check now" (Plan 5 Task 10, P5-18); not shown in a picture or offline run. -->
+                    <StackPanel Visibility="{Binding HasUpdateStatus, Converter={StaticResource B2V}}" Margin="0,8,0,0">
+                        <TextBlock Text="{Binding UpdateStatus}" Style="{StaticResource BodyText}" Foreground="#C8CDD8"/>
+                        <Button Style="{StaticResource CardButton}" Content="Check now" HorizontalAlignment="Left" Padding="10,3" Margin="0,6,0,0"
+                                Command="{Binding CheckForUpdatesCommand}" AutomationProperties.Name="Check now for a new version"/>
+                    </StackPanel>
                     <Button Style="{StaticResource CardButton}" Content="Open the data folder" HorizontalAlignment="Left" Padding="10,3" Margin="0,6,0,0"
                             Command="{Binding OpenDataFolderCommand}"/>
                     <Button Style="{StaticResource CardButton}" Content="Show the welcome again" HorizontalAlignment="Left" Padding="10,3" Margin="0,12,0,4"

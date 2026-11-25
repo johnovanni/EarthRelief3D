@@ -77,8 +77,16 @@ public sealed partial class SettingsViewModel : ObservableObject
     public const string StateNote = "Used only to list your two senators. The app never asks for an address or ZIP code.";
     public const string NotChosenText = "Not chosen";
 
+    /// <summary>The header of the update choice (P5-18), last in the flyout.</summary>
+    public const string UpdatesGroup = "Updates";
+    /// <summary>The check box: on by default.</summary>
+    public const string UpdatesCheckText = "Check for a new version once a day";
+    /// <summary>Under the group's header.</summary>
+    public const string UpdatesNote = "Asks GitHub whether a newer EarthRelief3D is out. New versions bring updated data and fixes. Nothing is downloaded unless you choose to.";
+
     private readonly ISettingsStore<AppSettings> _settings;
     private readonly CuratedStore _curated;
+    private readonly Func<DateTime> _nowUtc;
     private DistanceUnit _units;
     private double _textScale;
     private string? _userState;
@@ -86,8 +94,10 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _isOpen;
 
     /// <param name="help">The help catalog: its profiles give "Your country", its senators give "Your state"; null: both lists are empty.</param>
-    public SettingsViewModel(ISettingsStore<AppSettings> settings, CuratedStore curated, HelpTables? help = null)
+    /// <param name="nowUtc">The clock for the day the update check is turned off (P5-22); the system clock when not given.</param>
+    public SettingsViewModel(ISettingsStore<AppSettings> settings, CuratedStore curated, HelpTables? help = null, Func<DateTime>? nowUtc = null)
     {
+        _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _curated = curated ?? throw new ArgumentNullException(nameof(curated));
         Countries = help?.AvailableCountries ?? [];
@@ -242,6 +252,25 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     /// <summary>The unit was changed (and saved): the panel's rows and the arc labels are written again.</summary>
     public event EventHandler? UnitsChanged;
+
+    /// <summary>
+    /// "Check for a new version once a day" (P5-18), on by default. Saved; turning it off saves the time (P5-22 counts 30 days from
+    /// it), turning it on clears that time. Announced by <see cref="CheckForUpdatesChanged"/>.
+    /// </summary>
+    public bool CheckForUpdates
+    {
+        get => _settings.Load().CheckForUpdates;
+        set
+        {
+            if (CheckForUpdates == value) return;
+            _settings.Save(_settings.Load() with { CheckForUpdates = value, UpdateChecksOffUtc = value ? null : _nowUtc() });
+            OnPropertyChanged();
+            CheckForUpdatesChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>The update choice was changed (and saved): About's status line follows.</summary>
+    public event EventHandler? CheckForUpdatesChanged;
 
     /// <summary>The governments offered (C15), in the file's order.</summary>
     public IReadOnlyList<GovernmentChoice> Governments { get; }

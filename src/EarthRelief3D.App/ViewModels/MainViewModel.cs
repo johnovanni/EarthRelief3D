@@ -76,6 +76,9 @@ public sealed class MainViewModel
         About = new AboutViewModel(Registry, opener, dataFolder ?? "", Cards);
         Cards.Register(AppCard.About);
         About.CloseRequested += (_, _) => { if (Cards.Open == AppCard.About) Cards.CloseTop(); };
+        // The update banner (Plan 5 Task 10): at the top centre, not a card. The update service drives it in a normal run; a picture
+        // run shows it from a scene's "update" field.
+        Updates = new UpdateBannerViewModel(opener, AppInfo.VersionNumber);
         Layers.AboutCommand = new RelayCommand(() =>
         {
             if (Cards.Open == AppCard.About) Cards.CloseTop(); else Cards.Show(AppCard.About);
@@ -134,6 +137,9 @@ public sealed class MainViewModel
 
     /// <summary>The About card (Plan 5 Task 5): version, licences, credits, severity bands and the data folder.</summary>
     public AboutViewModel About { get; }
+
+    /// <summary>The update banner (Plan 5 Task 10, P5-19): a newer version's offer, its download and install, or the 30-day note.</summary>
+    public UpdateBannerViewModel Updates { get; }
 
     public LayerStripViewModel Layers { get; }
     public SettingsViewModel Settings { get; }

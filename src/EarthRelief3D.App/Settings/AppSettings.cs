@@ -68,6 +68,18 @@ public sealed record AppSettings
     /// </summary>
     public double TextScale { get; init; } = 1.0;
 
+    /// <summary>Settings, "Updates": ask GitHub once a day whether a newer EarthRelief3D is out (P5-18). On by default; a file without it reads as on.</summary>
+    public bool CheckForUpdates { get; init; } = true;
+
+    /// <summary>When an update check last got an answer it could read (P5-22); null: never.</summary>
+    public DateTime? LastUpdateCheckOkUtc { get; init; }
+
+    /// <summary>When this copy first tried to check for a new version (P5-22: a copy that has never succeeded counts from here); null: never tried.</summary>
+    public DateTime? FirstUpdateCheckUtc { get; init; }
+
+    /// <summary>When the user turned <see cref="CheckForUpdates"/> off (P5-22 counts 30 days from here); null while it is on.</summary>
+    public DateTime? UpdateChecksOffUtc { get; init; }
+
     /// <summary><see cref="TextScale"/> when it is one of <see cref="TextScaleLayout.Choices"/>, else 1.0.</summary>
     [JsonIgnore]
     public double EffectiveTextScale => TextScaleLayout.Normalise(TextScale);

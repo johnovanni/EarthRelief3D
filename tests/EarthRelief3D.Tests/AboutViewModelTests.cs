@@ -216,4 +216,33 @@ public sealed class AboutViewModelTests
         vm.About.CloseCommand.Execute(null);
         Assert.Equal(AppCard.None, vm.Cards.Open);
     }
+
+    private sealed class FakeUpdates : EarthRelief3D.App.Services.IUpdateStatus
+    {
+        public string StatusText { get; set; } = "Checking for new versions is off (Settings)";
+        public int Checks { get; private set; }
+        public event EventHandler? StatusChanged;
+        public void Change(string text) { StatusText = text; StatusChanged?.Invoke(this, EventArgs.Empty); }
+        public Task CheckNowAsync() { Checks++; return Task.CompletedTask; }
+    }
+
+    /// <summary>P5-18: About shows the update check's status line, follows it, and "Check now" asks again.</summary>
+    [Fact]
+    public void ShowsTheUpdateStatus()
+    {
+        var (vm, _) = Make();
+        Assert.False(vm.HasUpdateStatus);   // a picture or offline run has no update check
+        Assert.Equal("", vm.UpdateStatus);
+        var updates = new FakeUpdates();
+        var changed = new List<string?>();
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+        vm.AttachUpdates(updates);
+        Assert.True(vm.HasUpdateStatus);
+        Assert.Equal("Checking for new versions is off (Settings)", vm.UpdateStatus);
+        updates.Change("Checked for a new version on 25 Nov 2026: you have the newest (1.0.0)");
+        Assert.Equal("Checked for a new version on 25 Nov 2026: you have the newest (1.0.0)", vm.UpdateStatus);
+        Assert.Contains(nameof(AboutViewModel.UpdateStatus), changed);
+        vm.CheckForUpdatesCommand.Execute(null);
+        Assert.Equal(1, updates.Checks);
+    }
 }

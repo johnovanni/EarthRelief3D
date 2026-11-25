@@ -119,4 +119,36 @@ public sealed class ReleasePackagingTests
         Assert.Matches(@"<Version>1\.0\.0</Version>", props);
         Assert.Contains("installer", props);
     }
+
+    /// <summary>P5-21: a silent update (the in-app updater) starts the app again as the user; an interactive install keeps its "Launch" box.</summary>
+    [Fact]
+    public void SilentUpdateRestartsTheAppAsTheUser()
+    {
+        var text = Iss().Replace("\r\n", "\n", StringComparison.Ordinal);
+        var exe = Regex.Match(text, @"#define AppExe ""([^""]+)""").Groups[1].Value;
+        Assert.Equal("EarthRelief3D.App.exe", exe);
+        var start = text.IndexOf("[Run]", StringComparison.Ordinal);
+        Assert.True(start >= 0, "No [Run] section");
+        var next = text.IndexOf("\n[", start + 1, StringComparison.Ordinal);
+        var lines = (next < 0 ? text[start..] : text[start..next]).Split('\n').Select(l => l.Trim())
+            .Where(l => l.StartsWith("Filename:", StringComparison.Ordinal)).Select(l => l.Replace("{#AppExe}", exe, StringComparison.Ordinal)).ToList();
+        Assert.Equal(2, lines.Count);
+        static string[] Flags(string line) => Regex.Match(line, @"Flags: ([^;]+)").Groups[1].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        Assert.StartsWith(@"Filename: ""{app}\EarthRelief3D.App.exe""", lines[0]);
+        Assert.Contains("skipifsilent", Flags(lines[0]));
+        Assert.Contains("postinstall", Flags(lines[0]));
+        Assert.StartsWith(@"Filename: ""{app}\EarthRelief3D.App.exe""", lines[1]);
+        Assert.Equal(["nowait", "runasoriginaluser", "skipifnotsilent"], Flags(lines[1]).Order().ToArray());
+    }
+
+    /// <summary>The updater's rules are in the release notes for the owner: never delete or rename the two assets of a published release.</summary>
+    [Fact]
+    public void ReleaseDocNamesTheUpdatersAssets()
+    {
+        var doc = Read("docs", "release.md");
+        Assert.Contains("## How the app finds a new version", doc);
+        Assert.Contains("Never delete or rename the two assets of a published release", doc);
+        Assert.Contains("EarthRelief3D-Setup.exe.sha256", doc);
+        Assert.Contains(EarthRelief3D.Core.Updates.UpdateCheck.LatestUrl, doc);
+    }
 }

@@ -24,6 +24,28 @@ GitHub Release. Only the owner tags, pushes and releases.
 
 Pull requests that touch `.github/workflows/release.yml`, `packaging/**` or `src/**` build **unsigned** and never reach Azure.
 
+## How the app finds a new version
+
+EarthRelief3D checks for a new version by itself (Settings, "Updates: check for a new version once a day", on by default),
+30 seconds after it starts and then once a day, with one request to
+`https://api.github.com/repos/johnovanni/EarthRelief3D/releases/latest` (no key). It never checks in a picture or offline run.
+
+- **Which release.** GitHub's "latest" release only: never a draft or a pre-release. Its tag must be `v<version>`
+  (for example `v1.1.0`); a higher version than the running one is offered, by number, not by date.
+- **Which file.** Only the asset named exactly `EarthRelief3D-Setup.exe`, from
+  `https://github.com/johnovanni/EarthRelief3D/releases/download/v<version>/EarthRelief3D-Setup.exe`, at most 300 MB.
+  Its size must equal the size GitHub lists, and its SHA-256 the `digest` GitHub lists for it (or, for a release without one,
+  the hash in the `EarthRelief3D-Setup.exe.sha256` asset). Windows must trust its signature, and its signer must be the
+  same as the running app's. A copy that is not signed (a developer build) never downloads: it offers the release page.
+- **When.** Nothing is downloaded until the user chooses "Download and install". The file goes to
+  `%LOCALAPPDATA%\EarthRelief3D\updates\<version>\`; it is checked again just before "Install now" runs it with
+  `/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS` (Windows asks for permission). The installer's second `[Run]`
+  entry starts the app again after a silent install.
+
+**Never delete or rename the two assets of a published release** (`EarthRelief3D-Setup.exe` and
+`EarthRelief3D-Setup.exe.sha256`), and never replace one with a different file: copies already installed look for exactly
+those names, sizes and digests, and refuse anything else. To fix a bad release, publish a new version with a higher number.
+
 ## One-time set-up (the owner's)
 
 1. **GitHub.** Create the `release` environment in the repository (Settings, Environments). Add repository **variables**
@@ -66,3 +88,6 @@ build or any signing on the development PC.
 - [ ] About shows "Version 1.0.0" (the released version) and opens the notices.
 - [ ] A second install over the first keeps the settings.
 - [ ] Uninstall removes `C:\Program Files\Qapow\EarthRelief3D` and leaves `%LOCALAPPDATA%\EarthRelief3D`.
+- [ ] Once a newer release is published: the installed older copy shows the banner within a minute of starting;
+      "Download and install", then "Install now", updates it, and the app starts again **not** as administrator
+      (Task Manager, Details, the "Elevated" column says No). Refusing Windows' permission leaves the app open and says so.
