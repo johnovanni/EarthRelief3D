@@ -68,5 +68,8 @@
              comes from MainWindow.FitCards. -->
         <views:DataCard x:Name="DataCardView" DataContext="{Binding Data}"
                         Visibility="{Binding DataContext.Cards.DataOpen, ElementName=Root, Converter={StaticResource B2V}}"/>
+        <!-- The About card (Plan 5 Task 5): the same place and size as the Data card; only one card is open at a time. -->
+        <views:AboutCard x:Name="AboutCardView" DataContext="{Binding About}"
+                         Visibility="{Binding DataContext.Cards.AboutOpen, ElementName=Root, Converter={StaticResource B2V}}"/>
     </Grid>
 </Window>

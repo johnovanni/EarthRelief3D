@@ -19,10 +19,10 @@ public partial class MainWindow : Window
         DataContext = vm;
         Scene = new SceneController(Viewport, Overlay, vm, this, store, countries, clock, log);
         // No hover tooltips from the globe while the mouse is over a card.
-        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard, DataCardView }) Scene.HoverBlockers.Add(card);
+        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard, DataCardView, AboutCardView }) Scene.HoverBlockers.Add(card);
         // Text size (C8, P5-8): every card is scaled from Settings, and sized from TextScaleLayout so none covers another.
         // A new card (Welcome, About, Data) goes in this list and in FitCards.
-        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard, DataCardView];
+        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard, DataCardView, AboutCardView];
         ApplyTextScale();
         vm.Settings.TextScaleChanged += (_, _) => { ApplyTextScale(); FitCards(); };
         SizeChanged += (_, _) => FitCards();
@@ -39,6 +39,7 @@ public partial class MainWindow : Window
         vm.Explainer.PropertyChanged += OnOpenChanged;
         vm.Cards.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(CardHost.Open)) FitCards(); };
         DataCardView.SizeChanged += (_, _) => FitCards();
+        AboutCardView.SizeChanged += (_, _) => FitCards();
     }
 
     /// <summary>The "Data" button: opens the Data card, or closes it when it is open.</summary>
@@ -96,6 +97,9 @@ public partial class MainWindow : Window
         var data = TextScaleLayout.DataCardMax(w, h, scale);
         SetMax(DataCardView, FrameworkElement.MaxWidthProperty, data.Width);
         SetMax(DataCardView, FrameworkElement.MaxHeightProperty, data.Height);
+        // The About card has the same room as the Data card (they are never open together).
+        SetMax(AboutCardView, FrameworkElement.MaxWidthProperty, data.Width);
+        SetMax(AboutCardView, FrameworkElement.MaxHeightProperty, data.Height);
 
         // The explainer: beside the panel, or under it.
         var b = TextScaleLayout.ExplainerBounds(new Size(w, h), scale, stripW, vm.Panel.IsOpen, Panel.ActualHeight, LegendCard.ActualHeight, sourcesH);

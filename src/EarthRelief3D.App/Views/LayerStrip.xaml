@@ -222,6 +222,10 @@
                               IsChecked="{Binding Settings.IsOpen}" ToolTip="Settings: whose formal determinations are shown"/>
                 <views:SettingsFlyout DataContext="{Binding Settings}"/>
             </StackPanel>
+            <!-- About (Plan 5 Task 5): opens the About card over the globe. -->
+            <ToggleButton Style="{StaticResource CommandButton}" Tag="ⓘ" Content="About" Command="{Binding AboutCommand}"
+                          Visibility="{Binding HasAbout, Converter={StaticResource B2V}}" AutomationProperties.Name="About EarthRelief3D"
+                          ToolTip="About EarthRelief3D: version, licences, credits and how markers are sized"/>
         </StackPanel>
         </ScrollViewer>
     </Border>

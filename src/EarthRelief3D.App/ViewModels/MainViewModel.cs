@@ -1,4 +1,5 @@
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.Input;
 using AstroCore.Earth;
 using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
@@ -34,11 +35,12 @@ public sealed class MainViewModel
     /// <param name="help">The help catalog behind "Your one small step" and the Settings country and state lists (Plan 4); none when not given.</param>
     /// <param name="registry">The list of data sources the Data card shows (Plan 5); empty when not given (the card says it could not be read).</param>
     /// <param name="datasets">The newest citation of each bundled extract that loaded, by its folder under <c>data\datasets</c> (the Data card's dates).</param>
-    /// <param name="links">Opens the Data card's links in the user's browser; the real shell when not given.</param>
+    /// <param name="links">Opens the Data and About cards' links in the user's browser; the real shell when not given.</param>
+    /// <param name="dataFolder">The folder that holds the app's settings, cache and logs (the About card names it and opens it).</param>
     public MainViewModel(CrisisStore store, ISettingsStore<AppSettings> settings, Func<string, string?> countryName, Dispatcher? dispatcher,
         Func<DateTime>? nowUtc = null, CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null,
         CuratedStore? curated = null, LogisticsClusterLinks? logistics = null, Func<string, GeoPosition?>? crisisPlace = null, HelpTables? help = null,
-        SourceRegistry? registry = null, IReadOnlyDictionary<string, SourceCitation>? datasets = null, ILinkOpener? links = null)
+        SourceRegistry? registry = null, IReadOnlyDictionary<string, SourceCitation>? datasets = null, ILinkOpener? links = null, string? dataFolder = null)
     {
         ArgumentNullException.ThrowIfNull(store);
         Indicators = indicators ?? new IndicatorStore();
@@ -62,10 +64,19 @@ public sealed class MainViewModel
         var datasetCitations = datasets ?? new Dictionary<string, SourceCitation>();
         var helpTables = help ?? HelpTables.Empty;
         Cards = new CardHost();
+        var opener = links ?? new ShellLinkOpener();
         Data = new DataViewModel(Registry, () => new SourceAsOfInputs(store.Snapshot, Indicators.Snapshot, datasetCitations, Curated, helpTables, boundaries?.Set),
-            nowUtc ?? (() => DateTime.UtcNow), links ?? new ShellLinkOpener());
+            nowUtc ?? (() => DateTime.UtcNow), opener);
         Cards.Register(AppCard.Data, Data.Refresh);
         Data.CloseRequested += (_, _) => { if (Cards.Open == AppCard.Data) Cards.CloseTop(); };
+        // The About card (Task 5): the strip's "ⓘ About" opens it, or closes it when it is open.
+        About = new AboutViewModel(Registry, opener, dataFolder ?? "", Cards);
+        Cards.Register(AppCard.About);
+        About.CloseRequested += (_, _) => { if (Cards.Open == AppCard.About) Cards.CloseTop(); };
+        Layers.AboutCommand = new RelayCommand(() =>
+        {
+            if (Cards.Open == AppCard.About) Cards.CloseTop(); else Cards.Show(AppCard.About);
+        });
         void RefreshDataCard()
         {
             if (Cards.Open == AppCard.Data) Data.Refresh();
@@ -114,6 +125,9 @@ public sealed class MainViewModel
 
     /// <summary>The Data card (Plan 5 Task 4): every source with its date, licence and link.</summary>
     public DataViewModel Data { get; }
+
+    /// <summary>The About card (Plan 5 Task 5): version, licences, credits, severity bands and the data folder.</summary>
+    public AboutViewModel About { get; }
 
     public LayerStripViewModel Layers { get; }
     public SettingsViewModel Settings { get; }

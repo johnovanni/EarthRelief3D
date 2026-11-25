@@ -188,6 +188,20 @@ public sealed partial class LayerStripViewModel : ObservableObject
 
     public bool HasSettings => _settings is not null;
 
+    /// <summary>What the strip's "ⓘ About" button does (opens or closes the About card); null: no button.</summary>
+    public System.Windows.Input.ICommand? AboutCommand
+    {
+        get => _aboutCommand;
+        set
+        {
+            if (SetProperty(ref _aboutCommand, value)) OnPropertyChanged(nameof(HasAbout));
+        }
+    }
+
+    private System.Windows.Input.ICommand? _aboutCommand;
+
+    public bool HasAbout => _aboutCommand is not null;
+
 
     /// <summary>The marker layers shown, in enum order.</summary>
     public IReadOnlyList<MarkerLayer> ShownMarkers => [.. _markers];

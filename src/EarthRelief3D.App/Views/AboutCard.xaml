@@ -1,0 +1,99 @@
+<UserControl x:Class="EarthRelief3D.App.Views.AboutCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12" MaxWidth="900" MaxHeight="640" Foreground="White">
+    <!-- DataContext: AboutViewModel. The About card (Plan 5 Task 5), centred over the globe like the Data card (MainWindow.FitCards
+         sets its maximum size from the text size and the window), opaque, text only, scrolling inside. Esc closes it first
+         (SceneController). -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="BodyText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="SectionHead" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Margin" Value="0,16,0,4"/>
+            </Style>
+            <Style x:Key="SmallText" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="Foreground" Value="#9AA3B5"/>
+            </Style>
+            <Style x:Key="MessageText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#FFD27F"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Margin" Value="0,6,0,0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Message}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <DataTemplate x:Key="CreditTemplate">
+                <StackPanel Margin="0,0,0,6">
+                    <TextBlock Style="{StaticResource BodyText}">
+                        <Hyperlink Foreground="#7FB6FF" Command="{Binding DataContext.OpenLinkCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding Url}"><Run Text="{Binding Name, Mode=OneWay}"/> ↗</Hyperlink>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Text}" Style="{StaticResource SmallText}"/>
+                </StackPanel>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Border x:Name="Card" Background="#FF101624" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="8" Padding="16,12">
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                <Button x:Name="CloseButton" DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="8,1" Content="×" FontSize="16"
+                        ToolTip="Close (Esc)" AutomationProperties.Name="Close About" Command="{Binding CloseCommand}" VerticalAlignment="Top"/>
+                <TextBlock Text="{Binding Heading}" FontWeight="SemiBold" FontSize="18" Foreground="White" TextWrapping="Wrap" Margin="0,0,8,0"/>
+            </DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding Message}" Style="{StaticResource MessageText}"/>
+            <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,8,0,0" Focusable="False">
+                <StackPanel Margin="0,0,8,0">
+                    <TextBlock Text="{Binding Version}" Style="{StaticResource BodyText}" Foreground="#C8CDD8"/>
+                    <TextBlock Text="{Binding AppLicence}" Style="{StaticResource BodyText}" Margin="0,6,0,0"/>
+                    <TextBlock Style="{StaticResource BodyText}" Margin="0,4,0,0">
+                        <Hyperlink Foreground="#7FB6FF" Command="{Binding OpenNoticesCommand}">Licence texts</Hyperlink>
+                        <Run Text="  "/>
+                        <Hyperlink Foreground="#7FB6FF" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding ReleasesUrl}">Releases on GitHub ↗</Hyperlink>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Principles}" Style="{StaticResource BodyText}" Margin="0,12,0,0"/>
+
+                    <TextBlock Text="Data sources" Style="{StaticResource SectionHead}"/>
+                    <ItemsControl ItemsSource="{Binding Credits}" ItemTemplate="{StaticResource CreditTemplate}" Focusable="False"/>
+                    <Button Style="{StaticResource CardButton}" Content="See dates and licences" HorizontalAlignment="Left" Padding="10,3"
+                            Command="{Binding ShowDataCommand}" AutomationProperties.Name="See dates and licences of the data sources"/>
+
+                    <TextBlock Text="How markers are sized" Style="{StaticResource SectionHead}"/>
+                    <ItemsControl ItemsSource="{Binding BandLines}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource BodyText}" Margin="0,0,0,3"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Style="{StaticResource BodyText}" Margin="0,2,0,0">
+                        <Hyperlink Foreground="#7FB6FF" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding BandsUrl}">How markers are sized ↗</Hyperlink>
+                    </TextBlock>
+                    <TextBlock Text="{Binding BoundaryNote}" Style="{StaticResource SmallText}" Margin="0,12,0,0"/>
+
+                    <TextBlock Text="Software" Style="{StaticResource SectionHead}"/>
+                    <ItemsControl ItemsSource="{Binding Libraries}" ItemTemplate="{StaticResource CreditTemplate}" Focusable="False"/>
+
+                    <TextBlock Text="{Binding DataText}" Style="{StaticResource BodyText}" Margin="0,12,0,0"/>
+                    <Button Style="{StaticResource CardButton}" Content="Open the data folder" HorizontalAlignment="Left" Padding="10,3" Margin="0,6,0,0"
+                            Command="{Binding OpenDataFolderCommand}"/>
+                    <Button Style="{StaticResource CardButton}" Content="Show the welcome again" HorizontalAlignment="Left" Padding="10,3" Margin="0,12,0,4"
+                            Command="{Binding ShowWelcomeCommand}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

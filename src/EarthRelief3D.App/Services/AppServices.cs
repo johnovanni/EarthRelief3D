@@ -270,7 +270,7 @@ public sealed class AppServices : IDisposable
         // P4-6: the crisis place for the nearest hubs is the country's label point (a point inside the country).
         var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries, indicators,
             curated: curated, logistics: logistics, crisisPlace: iso => resolver.ByIso3(iso)?.LabelPoint, help: help,
-            registry: registry, datasets: datasetCitations);
+            registry: registry, datasets: datasetCitations, dataFolder: root.Root);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.SeriesDate(c, clock.UtcNow)));
