@@ -381,22 +381,25 @@ public class HelpPanelTests
     [Fact]
     public void HelpTablesLoadedFromTheShippedFilesShowTheFundAndTheApprovedCharities()
     {
-        // The shipped state: every contact and fund was approved on 2026-11-25, and so were the first nine charities (their
-        // ratings confirmed that day); the second batch is still drafts. A normal run shows Sudan's fund, the nine approved
-        // charities that work there (alphabetically, never ranked) and the contacts; the drafts stay hidden (P4-8, P4-13).
+        // The shipped state: every contact and fund was approved on 2026-11-25, and so were all sixteen charities (their
+        // ratings confirmed that day). A normal run shows Sudan's fund, the thirteen charities that work there (alphabetically,
+        // never ranked) and the contacts (P4-8, P4-13).
         var real = HelpTables.Load(BoundaryData.DataDir, "US");
         var entries = Step(real, "SDN", "Sudan");
         Assert.Contains(entries, e => e.Title.StartsWith("UN pooled fund for Sudan", StringComparison.Ordinal));
         Assert.DoesNotContain(entries, e => e.Lines.Contains("No vetted charities listed yet"));
-        Assert.Equal(["Action Against Hunger USA", "International Medical Corps", "International Rescue Committee", "Norwegian Refugee Council USA",
-                "Save the Children US", "UNICEF USA", "USA for IOM", "USA for UNFPA", "World Food Program USA"],
+        Assert.Equal(["Action Against Hunger USA", "CARE USA", "Doctors Without Borders USA", "International Medical Corps",
+                "International Rescue Committee", "Norwegian Refugee Council USA", "Plan International USA", "Save the Children US",
+                "UNICEF USA", "USA for IOM", "USA for UNFPA", "USA for UNHCR", "World Food Program USA"],
             entries.Where(e => e.Group == "Give" && !e.Title.StartsWith("UN pooled fund", StringComparison.Ordinal)).Select(e => e.Title));
         Assert.All(entries.Where(e => e.Group == "Give"), e => Assert.DoesNotContain(DesignationText.DraftLabel, e.Lines));
         Assert.Contains(entries, e => e.Group == "Contact");
 
-        // With drafts shown (--show-drafts), the second batch's Sudan charities appear too, each labelled a draft.
-        var drafts = Step(real, "SDN", "Sudan", drafts: true).Where(e => e.Group == "Give").ToList();
-        foreach (var name in new[] { "CARE USA", "Doctors Without Borders USA", "Plan International USA", "USA for UNHCR" })
-            Assert.Contains(DesignationText.DraftLabel, Assert.Single(drafts, e => e.Title == name).Lines);
+        // A draft stays hidden in a normal run and is labelled with drafts shown (--show-drafts): one charity turned back into a draft.
+        var oneDraft = real with { Charities = [.. real.Charities.Select(c => c.Id == "care-usa" ? c with { Review = new Review(Review.Draft, null) } : c)] };
+        Assert.DoesNotContain(Step(oneDraft, "SDN", "Sudan"), e => e.Title == "CARE USA");
+        var shown = Step(oneDraft, "SDN", "Sudan", drafts: true).Where(e => e.Group == "Give").ToList();
+        Assert.Contains(DesignationText.DraftLabel, Assert.Single(shown, e => e.Title == "CARE USA").Lines);
+        Assert.DoesNotContain(DesignationText.DraftLabel, Assert.Single(shown, e => e.Title == "USA for UNHCR").Lines);
     }
 }

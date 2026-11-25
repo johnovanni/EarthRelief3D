@@ -78,8 +78,11 @@ public class HelpTablesTests
         // Every Charity Navigator rating was confirmed on 2026-11-25 (P4-8: a person checks it; the report link is stored, never
         // the rating itself). The owner approved the first nine that day; the second batch stays drafts until approved.
         string[] ownerNamed = ["american-red-cross", "doctors-without-borders-usa"];
-        string[] approved = ["action-against-hunger-usa", "international-medical-corps", "international-rescue-committee",
-            "norwegian-refugee-council-usa", "save-the-children-us", "unicef-usa", "usa-for-iom", "usa-for-unfpa", "world-food-program-usa"];
+        // The owner approved the second batch the same day, so all sixteen are approved; a new row starts as a draft again.
+        string[] approved = ["action-against-hunger-usa", "american-red-cross", "care-usa", "doctors-of-the-world-usa",
+            "doctors-without-borders-usa", "international-medical-corps", "international-rescue-committee",
+            "norwegian-refugee-council-usa", "oxfam-america", "plan-international-usa", "save-the-children-us", "unicef-usa",
+            "usa-for-iom", "usa-for-unfpa", "usa-for-unhcr", "world-food-program-usa"];
         Assert.Equal(16, t.Charities.Count);
         Assert.All(ownerNamed, id => Assert.Contains(t.Charities, c => c.Id == id));
         Assert.Equal(approved, t.Charities.Where(c => c.Review.IsApproved).Select(c => c.Id).Order(StringComparer.Ordinal));

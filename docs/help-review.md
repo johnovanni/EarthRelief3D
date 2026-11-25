@@ -289,10 +289,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in TCD: [How Dr. Felix Amate Brings Lifesaving Vaccines to Chad’s Most Remote Regions](https://www.redcross.org/about-us/news-and-events/news/2026/bringing-lifesaving-vaccines-to-chad-s-most-remote-regions.html) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in VEN: [Venezuela: Red Cross Movement Responds in the Aftermath of Back-to-Back Earthquakes](https://www.redcross.org/about-us/news-and-events/news/2026/red-cross-movement-responds-to-venezuela-earthquakes.html) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: Drafted under OR-5 (named by the owner). OCHA 3W is not used: the 3W file never names the American Red Cross (OR-4's Red Cross and Red Crescent Movement count of 17 countries comes from the ICRC, the IFRC and other national societies). redcross.org has no current country pages for its international work: its Haiti page describes past work and its Ukraine crisis page dates from 2024, so neither is used. Each row is a 2026 page on redcross.org about the American Red Cross's own work in that country: news articles for Colombia, Chad and Venezuela, and the International Services Activity Update of 20 March 2026 for Mozambique (a page covering several countries). EIN matched by name in Publication 78 (American National Red Cross); the redcross.org pages opened did not show the EIN.
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `care-usa`: CARE USA
 
@@ -331,10 +330,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [CARE's Humanitarian Work in Yemen - CARE](https://www.care.org/our-work/where-we-work/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: EIN from care.org (its FAQ page and page footer give 13-1685039); Publication 78 lists that EIN as "C A R E, Inc.". CARE International's "How we're run" page (care-international.org, which care.org's CARE International Offices page gives as CARE International's address) lists CARE USA among the confederation's members. OCHA 3W rows name CARE International, its country offices or CARE Switzerland, not CARE USA by name (OR-4 counts the CARE confederation as one organisation).
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `doctors-of-the-world-usa`: Doctors of the World USA
 
@@ -369,10 +367,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [Yemen | Doctors of the World](https://doctorsoftheworld.org/projects/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: Affiliate statement: doctorsoftheworld.org's home page (https://doctorsoftheworld.org/, opened 25 Nov 2026) says Doctors of the World USA is backed by the Médecins du Monde international network, and gives EIN 35-242-6718. OR-7: each country rests on a page on its own site that describes the network's work in that country, reached from the photo links on its regional pages (Africa, Asia, Americas & The Caribbean, Middle East): a project page (doctorsoftheworld.org/projects/<country>/) for AFG, BFA, CAF, COD, ETH, HTI, MLI, NER, NGA, SYR and YEM, and for VEN a post of 25 January 2024 on Doctors of the World Spain's malaria work in Sucre state since 2021 (the Venezuela photo links there; there is no Venezuela project page). These pages are not recent: where they give dates, the work they describe is from 2021 to 2023 (Venezuela January 2024), and none describes work in 2025 or 2026. OCHA 3W rows (2026) name Médecins du Monde sections (France, Belgium, Spain, Switzerland, Germany, Argentina) or Doctors of the World, not Doctors of the World USA by name (OR-4 counts the network as one organisation). Cameroon is in 3W but has no page on its site, so it is left out.
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `doctors-without-borders-usa`: Doctors Without Borders USA
 
@@ -420,10 +417,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [Yemen | Our Work & How to Help | Doctors Without Borders - USA](https://www.doctorswithoutborders.org/what-we-do/where-we-work/yemen) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: Drafted under OR-5 (named by the owner) and OR-4 (MSF's sections together are in 14 of the 3W countries). Country evidence is on doctorswithoutborders.org, MSF USA's own site (its footer gives federal tax ID 13-3433452); the pages were opened in the built-in browser because the site answers scripts with a "Checking connection" page. OCHA 3W rows name MSF's operational sections (France, Spain, Switzerland, Belgium, Holland, West and Central Africa), not MSF USA by name; COL, ETH, SOM, SSD and VEN rest on MSF USA's own pages only (OR-5). LBN, MMR, PSE and UKR are added because each has a 2026 humanitarian response plan or flash appeal in FTS and the page shows current work there; Honduras, Madagascar and Nepal were left out (not sure the pages show current crisis work). Earlier this week a give.org page was seen to list MSF USA as not meeting BBB's standards; this was not re-checked (no script or agent opens give.org), so BBB may not qualify it: please check Charity Navigator.
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `international-medical-corps`: International Medical Corps
 
@@ -579,10 +575,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [Yemen humanitarian crisis: Donate now | Oxfam America | Oxfam](https://www.oxfamamerica.org/explore/countries/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: EIN from oxfamamerica.org (its page footer gives EIN/tax ID 23-7069110). Affiliate statement (OR-6): its Keeping people safe page (https://www.oxfamamerica.org/about-us/safeguarding/, opened 25 Nov 2026) says Oxfam America is part of the Oxfam confederation, made up of more than 20 affiliate organisations; oxfam.org's How We Are Organized page lists Oxfam America (USA) among the current affiliates. oxfamamerica.org's home page and its Countries we work in page do not link to oxfam.org (an earlier note said they did; corrected 25 Nov 2026). Country evidence for CAF, COD, COL, MLI, MOZ, NER and SOM is Oxfam International's country pages on oxfam.org, each describing Oxfam's work there in the present tense; the Colombia page carries no date and the newest item it links to is from 2019, so it is the weakest. Burkina Faso, Chad and Nigeria were removed: their oxfam.org pages date themselves to 2018-2019 (2018 Human Development Index rankings; Nigeria also a 2019 inequality index) and show no later work. ETH, SYR and YEM are on oxfamamerica.org. OCHA 3W rows name Oxfam or its affiliates (Oxfam GB, Oxfam Novib, Oxfam Intermón), not Oxfam America by name (OR-4 counts the confederation as one organisation).
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `plan-international-usa`: Plan International USA
 
@@ -617,10 +612,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in TCD: [Plan International Chad](https://plan-international.org/chad/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: EIN matched by name in Publication 78 (Plan International USA Inc.); planusa.org links to a GuideStar profile with the same EIN. Affiliate statement (OR-6): planusa.org's Who we are page (https://planusa.org/who-we-are/, opened 25 Nov 2026) says Plan International USA is the U.S. member of the global organization (Plan International). planusa.org has regional pages only, so country evidence is Plan International's country-office pages on plan-international.org, which count because of that statement (the planusa.org pages opened, home, Where we work and Who we are, do not link to plan-international.org). Syria is in 3W but plan-international.org has no Syria page, so it is left out. OCHA 3W rows name Plan International, not Plan International USA by name. planusa.org/donate/ forwards to donate.planusa.org, which showed a bot check in the built-in browser, so the form itself was not seen.
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `save-the-children-us`: Save the Children US
 
@@ -841,10 +835,9 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [Yemen Emergency: What is Happening and How to Help | USA for UNHCR](https://www.unrefugees.org/emergencies/yemen/) (charity's own page, checked 25 Nov 2026; expires 25 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 25 Nov 2026; expires 25 Nov 2027)
 - Note: EIN from unrefugees.org's page footer (52-1662800). Affiliate statement (OR-6): its FAQ page (https://www.unrefugees.org/about-us/frequently-asked-questions/, opened 25 Nov 2026) says USA for UNHCR is UNHCR's independent U.S. national partner, raising funds and awareness to support UNHCR's work. Evidence for AFG, CAF, ETH, SDN, SYR, VEN and YEM is USA for UNHCR's own emergency pages; for BFA, CMR, COD, COL, MLI, NER, NGA, SOM and TCD it is on unhcr.org, UNHCR's own site, which counts because of that statement (the unrefugees.org pages opened, including About and FAQ, do not link to unhcr.org). Both sites answer scripts with a bot check; the pages were opened in the built-in browser. The donate link opens a form titled for monthly giving.
-- Reviewed 25 Nov 2026 by Claude (draft); the review expires 25 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `world-food-program-usa`: World Food Program USA
 

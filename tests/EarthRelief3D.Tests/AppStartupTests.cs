@@ -66,13 +66,13 @@ public class AppStartupTests
                 && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)
                 && !s.Heading.StartsWith(CountryPanelViewModel.AtrocityHeading, StringComparison.Ordinal)));
             Assert.Contains(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
-            // Plan 4 Task 6: Sudan has a current crisis, so "Your one small step" follows. The shipped funds, contacts and first
-            // nine charities are approved (2026-11-25), the second-batch charities still drafts: a fund, the approved charities, the contacts.
+            // Plan 4 Task 6: Sudan has a current crisis, so "Your one small step" follows. The shipped funds, contacts and all
+            // sixteen charities are approved (2026-11-25): a fund, the charities that work in Sudan, the contacts.
             var step = Assert.Single(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.StepHeading);
             Assert.Contains(step.Entries!, e => e.Title.StartsWith("UN pooled fund for Sudan", StringComparison.Ordinal));
             Assert.DoesNotContain(step.Entries!, e => e.Lines.Contains("No vetted charities listed yet"));
             Assert.Contains(step.Entries!, e => e.Group == "Give" && e.Title == "International Rescue Committee");
-            Assert.DoesNotContain(step.Entries!, e => e.Title == "USA for UNHCR");   // a draft: hidden in a normal run
+            Assert.Contains(step.Entries!, e => e.Group == "Give" && e.Title == "Doctors Without Borders USA");   // second batch, approved
             Assert.Contains(step.Entries!, e => e.Group == "Contact");
 
             // One dot per source: the feeds grey until each reports, then the bundled extracts (Task 6), green from the start.

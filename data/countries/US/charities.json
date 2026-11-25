@@ -288,12 +288,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/530196605",
       "https://www.give.org/search?term=American+Red+Cross"
@@ -523,12 +520,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/131685039",
       "https://www.give.org/search?term=CARE+USA"
@@ -730,12 +724,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/352426718",
       "https://www.give.org/search?term=Doctors+of+the+World+USA"
@@ -1028,12 +1019,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/133433452",
       "https://www.give.org/search?term=Doctors+Without+Borders+USA"
@@ -1938,12 +1926,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/237069110",
       "https://www.give.org/search?term=Oxfam+America"
@@ -2145,12 +2130,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/135661832",
       "https://www.give.org/search?term=Plan+International+USA"
@@ -3446,12 +3428,9 @@
         "checkedOn": "2026-11-25"
       }
     ],
-    "review": {
-      "status": "draft",
-      "approvedOn": null
-    },
+    "review": { "status": "approved", "approvedOn": "2026-11-25" },
     "reviewedOn": "2026-11-25",
-    "reviewer": "Claude (draft)",
+    "reviewer": "Owner (approved 2026-11-25); drafted by Claude",
     "profileLinks": [
       "https://www.charitynavigator.org/ein/521662800",
       "https://www.give.org/search?term=USA+for+UNHCR"
