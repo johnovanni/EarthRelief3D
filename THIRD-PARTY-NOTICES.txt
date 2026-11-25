@@ -293,7 +293,7 @@ Data: UNHCR Refugee Data Finder
 --------------------------------------------------------------------------------
 
 Credit: UNHCR Refugee Population Statistics Database
-Licence: CC BY 4.0
+Licence: CC BY 4.0 (from UNHCR's published terms; not yet confirmed for the API's data)
 Licence link: https://creativecommons.org/licenses/by/4.0/
 Source: https://api.unhcr.org/population/v1/population/
 What the app changed: Fetched when the app runs. The counts for each country of origin are shown as published.
@@ -315,7 +315,7 @@ Data: World Health Organization, Global Health Observatory
 --------------------------------------------------------------------------------
 
 Credit: World Health Organization, Global Health Observatory
-Licence: CC BY 4.0
+Licence: CC BY 4.0 (WHO's data terms; not yet confirmed for GHO API rows, which may be CC BY-NC-SA 3.0 IGO)
 Licence link: https://data.who.int/about/data/terms-and-conditions
 Source: https://www.who.int/data/gho/info/gho-odata-api
 What the app changed: Fetched when the app runs. Each country's newest value is shown with its year. WHO does not endorse EarthRelief3D.
@@ -337,7 +337,7 @@ Data: FAOSTAT, Suite of Food Security Indicators
 --------------------------------------------------------------------------------
 
 Credit: FAO. 2026. FAOSTAT: Suite of Food Security Indicators. Accessed on 23 November 2026. Licence: CC-BY-4.0.
-Licence: CC BY 4.0
+Licence: CC BY 4.0 (FAO's database terms, unless a dataset's metadata says otherwise)
 Licence link: https://creativecommons.org/licenses/by/4.0/
 Source: https://www.fao.org/faostat/en/#data/FS
 What the app changed: Bundled extract (data\datasets\fao-food-security): each country's newest 3-year average that has a value, for undernourishment and dietary energy supply adequacy. FAO's regional and world totals and its China total are left out so nothing is counted twice. FAO does not endorse EarthRelief3D.
@@ -425,7 +425,7 @@ Data: OCHA country-based pooled funds and CERF
 --------------------------------------------------------------------------------
 
 Credit: OCHA country-based pooled funds and CERF, https://cbpf.data.unocha.org/
-Licence: CC BY 4.0
+Licence: CC BY 4.0 (portal footer, except where otherwise noted; the OData API states no licence of its own)
 Licence link: https://cbpf.data.unocha.org/
 Source: https://cbpf.data.unocha.org/
 What the app changed: Written by hand from OCHA's fund pages; each fund row cites its own page.
@@ -436,7 +436,7 @@ Data: NGA World Port Index (Pub 150)
 --------------------------------------------------------------------------------
 
 Credit: US National Geospatial-Intelligence Agency (NGA), World Port Index (Pub 150), public domain.
-Licence: Public domain (US government work, 17 U.S.C. 105)
+Licence: Public domain (US government work, 17 U.S.C. 105; not confirmed on NGA's own page)
 Source: https://msi.nga.mil/Publications/WPI
 What the app changed: Bundled extract (data\datasets\wpi-ports): only ports with a large or medium harbour are kept, each placed in a country. NGA's portal was under maintenance when checked on 2026-11-24, so the licence basis is not confirmed on NGA's own page.
 Checked: 2026-11-24
