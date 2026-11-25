@@ -4,7 +4,7 @@ Built 2026-11-25 on branch `plan-5` (local commits only; not pushed, not tagged,
 Inno Setup installer and release workflow (version 1.0.0), an app icon, the source registry (`data/sources.json`) with
 the About and Data cards, the Welcome card, text size 100/125/150%, the folding layer strip and legend, the FTS January
 rule, the port-arc lift, and the app's own update check and installer launch. The rulings are in the spec, "Rulings
-made while building Plan 5" (P5-1 to P5-24 and R1 to R14).
+made while building Plan 5" (P5-1 to P5-24 and R1 to R15).
 
 ## Tests
 
@@ -108,9 +108,9 @@ date; where the legend, the dots and Data are), "What the marks mean" (a key per
 note, a "Click a country" line, a Text size choice (100/125/150%), the optional state note, and "Settings" and "Start"
 buttons. The keys: Armed conflict (pink dot), **"Food: Phase 3 Crisis" (orange), "Food: Phase 4 Emergency" (red), "Food:
 Phase 5 Catastrophe/Famine" (dark red)**, Disease outbreaks (blue cross), People forced from home (white ring) and
-"Lines to nearest hubs". The shapes and colours match the map's markers in the scene (pink dots, orange and red food
-shading, blue crosses, white rings). "Lines to nearest hubs" is a default-on layer in a fresh app but the scene's four
-layers do not include it, so the scene's strip has no hub lines to match it; they match in a real first start. The
+"Lines to nearest hubs". The dimmed globe behind the card is mostly covered, so only a few marks can be compared: the pink dots, orange and red
+food shading and white rings at its edges look like the key's shapes and colours; the key was not compared mark by mark. "Lines to nearest hubs" is a default-on layer in a fresh app but the scene's four
+layers do not include it, so the scene's strip has no hub lines to match it; in a real first start they should match (not verified: no normal-mode launch). The
 legend behind the card is closed: one header row ("Legend (4 layers) ... closed") plus the UN boundary note, and the card
 (centred) covers part of that header. A fresh app would say "5 layers" (ruling R7); the scene sets four.
 
@@ -141,18 +141,18 @@ is later. The long evidence titles wrap ("Evidence: Sudan | Our Work & How to He
 This is the first picture of a charity entry (Plan 4 never saw one).
 
 **`sudan-help`: the port arc against the depot arc (P5-14).** Run 1 (port 1.5, depot 1.0): Sudan's label point to Port
-Sudan and to the Dubai depot leave in the same direction, and the teal port arc showed only for its first ~35 pixels,
-then lay under the blue depot ribbon (the depot arc is longer and climbs higher after the first third). The factors
-alone could not separate the two where they meet the surface, so the port was raised and the depot lowered (R14: port
-2.0, depot 0.5, airport 1.25 unchanged). Run 2: the teal ribbon now runs from Sudan along almost the whole way to the Port
-Sudan marker (it is still hidden for roughly its last eighth, where it must land on the surface and the depot arc passes over
-it). The white Dongola airport arc (north) is clear. **Still reads badly:** the "Port Sudan · 918 km straight-line" label
-sits two lines below the arc (Plan 4's label collision rule moves it), so the label is not beside its arc; and the "UNHRD
+Sudan and to the Dubai depot leave in the same direction, and the teal port arc was visible for only about 35 screen pixels
+from Sudan, then lay under the blue depot ribbon. After the tuning (R14: port 2.0, depot 0.5, airport 1.25 unchanged) run 2
+shows the teal arc for about 60 pixels from Sudan, then it again lies under the blue Dubai ribbon heading north-east;
+**nothing teal reaches the Port Sudan diamond to the south-east, so the port arc is still mostly hidden.** The unit test
+`PortArcAboveDepotArcFromSudan` measures each arc's height above the surface in 3D; it does not measure what the camera
+sees, so it does not show the arc is visible. The white Dongola airport arc (north) is clear. **Also reads badly:** the "Port
+Sudan · 918 km straight-line" label sits two lines below the arc (Plan 4's label collision rule moves it), and the "UNHRD
 Dubai · 2,85..." label still runs under the panel.
 
 **`closed-cards`.** The legend is closed to one header row plus the UN boundary note (one short card at the bottom left).
 The strip is closed to its header, "Layers" with the word "closed" and a ▸ arrow, **plus the Settings and About rows**
-(the Settings and About buttons stay when the list is closed; P5-23 said only the header shows). The globe is fully
+(ruling R15: they are commands, not layers, and would be unreachable while the strip is closed; P5-23 said only the header shows). The globe is fully
 visible with the Sources card at the bottom right.
 
 **Update banners.** `update-offer`: "A new version of EarthRelief3D is available: 1.1.0 (released 3 Feb 2027). You have
@@ -172,11 +172,15 @@ it is pinned by `TextScaleLayoutTests` at 150% in 1,000 x 760.
   first layout pass, found none and fell back to the section. It now calls `UpdateLayout()` first. Run 2 shows the first
   charity at the top.
 - **Lift factors** (`HubArcLayer.LiftFactor`): port 2.0 (was 1.5), airport 1.25 (unchanged), depot 0.5 (was 1.0), ruling R14.
-  `HubArcGeometryTests` pin the new values and check that the port arc is above the depot arc for the first three
-  quarters of its length (it was the first half).
+  `HubArcGeometryTests` pin the new values and check, in 3D, that the port arc is higher above the surface than the depot
+  arc for the first three quarters of its length (it was the first half). That is not what the camera sees: the picture
+  improved only from about 35 to about 60 visible pixels, and the port arc is still mostly hidden (see below).
 
 ## Seen, not tuned
 
+- **The port arc in `sudan-help` is still mostly hidden under the depot arc** (seen in `snapshot-plan5-2`; the tuning did not
+  fix it). The two arcs leave Sudan in nearly the same direction, so from this camera they overlap on screen whatever
+  their heights. A later fix could draw the arcs as a 2D overlay, or separate them by bearing; not promised.
 - **The Settings flyout at 150%** is below the strip's fold: the strip is capped in height (so the legend fits under it),
   scrolls, and the Settings and About rows, with the flyout under Settings, are reached by scrolling the strip. Review
   Focus 1 asked that the Text size control stay reachable; it is reachable by scrolling but a user at 150% may not
@@ -217,6 +221,7 @@ it is pinned by `TextScaleLayoutTests` at 150% in 1,000 x 760.
 - **The first-start wiring in `App.xaml.cs`** (the Welcome never opening in picture runs, once per user, the Settings
   button leaving the card open) is tested only through its pieces (`WelcomeViewModelTests`); no run started the app in
   its normal mode, because the 4-launch limit left no launch for it.
+- **A real first start:** the Welcome appearing once, not again on the next start, and never in picture runs.
 - **The Welcome's food key wording** "Food: Phase N <IPC name>" is Claude's wording, not reviewed by the owner.
 
 ## Owner items
@@ -254,7 +259,8 @@ Added by Task 11:
     itself), so the app is restarted as you and not as an administrator, and a refusal shows "The update was not installed:
     the installer stopped (exit code N). If Windows asked for your permission and it was not given, that is why." Say if you
     would rather the app asked for permission itself (it would restart elevated, which was judged a security fault).
-13. **Closed strip:** it keeps Settings and About under the closed header (P5-23 said only the header). Say which you want.
+13. **Closed strip:** it keeps Settings and About under the closed header (ruling R15; P5-23 said only the header). Say which you want.
+15. **Port arc:** it is still mostly hidden under the depot arc in `sudan-help`. Say if a later fix (2D overlay, or separating arcs by bearing) is wanted.
 14. **Settings at 150%:** the Text size control is below the strip's fold (scroll to reach it). Say if it should move.
 
 ## Deferred minor findings
