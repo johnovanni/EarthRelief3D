@@ -306,6 +306,7 @@ R1 to R15 were made while building it (its SDD ledger; R14 in Task 11); **these 
 | R13 | While the update banner shows, the panel and the explainer start below it (their top margin grows by its height); the banner spans from the strip's right edge to the window's right edge | It never covers a card | Layout code |
 | R14 | Task 11's tuning: the arc lift factors are port 2.0, airport 1.25, depot 0.5 (P5-14 had 1.5, 1.25, 1.0), because in the first picture run the port arc was visible for only about 35 pixels (an estimate by eye); after the change about 60 and **is still mostly hidden under the depot arc** (the 3D test measures height, not what the camera sees); `PanelFocus.Charities` scrolls to the entry once the panel has been laid out | The pictures decide | The port arc is still hard to see; a 2D overlay or separation by bearing would be a later fix |
 | R15 | When the strip is closed, Settings and About stay visible under the "Layers" header (P5-23 said only the header) | They are commands, not layers, and would otherwise be unreachable while the strip is closed | Two buttons |
+| R17 | Welcome, About and Data are not modal and do not dim the globe (P5-7 said over a dimmed globe) | A dim, click-blocking layer would be new untested visuals with no launch left to check it; the cards close with their button or Esc | A click on the globe behind an open card still acts on the globe |
 
 ### Out of scope (for now)
 

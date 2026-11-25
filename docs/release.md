@@ -43,11 +43,22 @@ EarthRelief3D checks for a new version by itself (Settings, "Updates: check for 
   start, not "run as administrator": the installer asks Windows for permission itself. The installer then closes
   EarthRelief3D (which saves its settings and cache as it closes), installs, and its second `[Run]` entry starts the app
   again as the user. If the installer stops while EarthRelief3D is still open (for example, permission was not given), the
-  banner says the update was not installed, with the installer's exit code, and offers the release page.
+  banner says the update was not installed, with the installer's exit code, and offers the release page. With exit code 0
+  (the installer's "success", yet it did not close the app) it says the update may not have been installed.
+- **Run as administrator.** When EarthRelief3D itself runs as administrator, the installer would inherit that without a
+  Windows prompt and start the app again as administrator, so the app does not install updates itself: the banner names
+  the new version and offers only "Open the download page" and "Later".
+- **A failed check** (no answer within 30 seconds, body included, or any error) is logged and shown in About; the next
+  check is a day later. After 30 days without a successful check a banner says the included data may be out of date; its
+  "Check now" shows "Checking…" and then the result.
 
 **Never delete or rename the two assets of a published release** (`EarthRelief3D-Setup.exe` and
-`EarthRelief3D-Setup.exe.sha256`), and never replace one with a different file: copies already installed look for exactly
-those names, sizes and digests, and refuse anything else. To fix a bad release, publish a new version with a higher number.
+`EarthRelief3D-Setup.exe.sha256`) by hand, and never upload a different file under either name: copies already installed
+look for exactly those names. Re-running the workflow for the same tag (`gh release upload --clobber`) replaces both with a
+rebuilt, re-signed pair; that is allowed, because the updater uses whatever size and digest the release lists when it
+checks. A user who checked before the re-run and downloads after it gets a file that does not match what was listed, so
+that download is refused (and the next check offers the new pair). To fix a bad release, publish a new version with a
+higher number.
 
 ## One-time set-up (the owner's)
 
@@ -56,8 +67,8 @@ those names, sizes and digests, and refuse anything else. To fix a bad release, 
 2. **Azure.** EarthRelief3D signs with EarthWatch3D's Artifact Signing account `JohnApolloni` and profile
    `JohnApolloniPublic` (endpoint `https://cus.codesigning.azure.net/`). In the Entra app that EarthWatch3D uses, add a
    federated credential for GitHub Actions with the subject
-   `repo:johnovanni@11181099/EarthRelief3D@1468090118:environment:release`. The app already holds the
-   "Artifact Signing Certificate Profile Signer" role on the account.
+   `repo:johnovanni@11181099/EarthRelief3D@1468090118:environment:release`. The Entra app must hold the
+   "Artifact Signing Certificate Profile Signer" role on the account (EarthWatch3D's does; not checked for this repository).
 3. **First release.** Push the first tag only when 1 and 2 are done, then check the manual install list below on the
    downloaded installer.
 
@@ -96,3 +107,6 @@ build or any signing on the development PC.
       (Task Manager, Details, the "Elevated" column says No). Its settings (for example Text size) are kept.
 - [ ] Choosing "No" at Windows' permission prompt leaves the app open, and the banner says the update was not installed,
       with the exit code.
+- [ ] Started with "Run as administrator", the older copy's banner offers only "Open the download page" and "Later".
+- [ ] After an update, `C:\Program Files\Qapow\EarthRelief3D\data` holds only the new version's files (the installer
+      deletes the old data folder first), and the settings are kept.

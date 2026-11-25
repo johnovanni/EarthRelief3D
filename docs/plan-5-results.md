@@ -4,7 +4,7 @@ Built 2026-11-25 on branch `plan-5` (local commits only; not pushed, not tagged,
 Inno Setup installer and release workflow (version 1.0.0), an app icon, the source registry (`data/sources.json`) with
 the About and Data cards, the Welcome card, text size 100/125/150%, the folding layer strip and legend, the FTS January
 rule, the port-arc lift, and the app's own update check and installer launch. The rulings are in the spec, "Rulings
-made while building Plan 5" (P5-1 to P5-24 and R1 to R15).
+made while building Plan 5" (P5-1 to P5-24, R1 to R15 and R17).
 
 ## Tests
 
@@ -13,7 +13,7 @@ made while building Plan 5" (P5-1 to P5-24 and R1 to R15).
 and `SnapshotScenesTests.CharitiesFocusIsAccepted`; the committed-scenes tests now expect 24 scenes and pin the new
 ones' fields). `AppStartupTests.CachedIpcAreasLoadOffTheUiThreadAndReachTheMap` failed once in the first full run
 (an assertion on a count, which was 14) and passed on the re-run, as in Plans 3 and 4; it is a start-up timing test, not
-related to Plan 5. GlobeCore is unchanged.
+related to Plan 5. GlobeCore is unchanged. After the final fix wave: **830 passed** (see "Final fix wave").
 
 Test-first note: the two new tests were written after the first version of the code; the RED run was taken afterwards
 by setting the source changes aside (the tests did not compile: no `PanelFocus.Charities`, no `FocusedEntryIndex`),
@@ -108,7 +108,7 @@ date; where the legend, the dots and Data are), "What the marks mean" (a key per
 note, a "Click a country" line, a Text size choice (100/125/150%), the optional state note, and "Settings" and "Start"
 buttons. The keys: Armed conflict (pink dot), **"Food: Phase 3 Crisis" (orange), "Food: Phase 4 Emergency" (red), "Food:
 Phase 5 Catastrophe/Famine" (dark red)**, Disease outbreaks (blue cross), People forced from home (white ring) and
-"Lines to nearest hubs". The dimmed globe behind the card is mostly covered, so only a few marks can be compared: the pink dots, orange and red
+"Lines to nearest hubs". The globe behind the card (live and not dimmed: the cards are not modal, ruling R17) is mostly covered, so only a few marks can be compared: the pink dots, orange and red
 food shading and white rings at its edges look like the key's shapes and colours; the key was not compared mark by mark. "Lines to nearest hubs" is a default-on layer in a fresh app but the scene's four
 layers do not include it, so the scene's strip has no hub lines to match it; in a real first start they should match (not verified: no normal-mode launch). The
 legend behind the card is closed: one header row ("Legend (4 layers) ... closed") plus the UN boundary note, and the card
@@ -190,13 +190,14 @@ it is pinned by `TextScaleLayoutTests` at 150% in 1,000 x 760.
   food section at 100%). Nothing is cut off in any picture; a small right margin would give air. As in Plan 4.
 - **The `Port Sudan` label** is two lines under its arc and the Dubai depot label runs under the panel (see above).
 - The closed strip still shows Settings and About (see `closed-cards`).
-- `first-start` and the modal cards (Welcome, About, Data) cover part of the strip and legend; they are modal over a
-  dimmed globe, so this is by design.
+- `first-start` and the cards (Welcome, About, Data) cover part of the strip and legend. The cards sit over the live
+  globe: they are not modal, nothing is dimmed, and each closes with its button or Esc (ruling R17). A click on the globe
+  beside an open card still acts on the globe.
 - The panel's text at the right of the `text-150` picture is tight against the scroll bar at some lines.
 
 ## What was NOT verified, and why
 
-- **The installer build** (`packaging/EarthRelief3D.iss`) and **the release workflow**: never run. Inno Setup is not
+- **The installer build** (`packaging/installer/EarthRelief3D.iss`) and **the release workflow**: never run. Inno Setup is not
   installed here and nothing is installed on the owner's PC (P5-17); `ReleasePackagingTests` read the files as text. The
   first real build is the GitHub pull-request run (owner item 4).
 - **Signing:** no Azure command was run; the workflow's signing and its Trusted Signing set-up are untested until a
@@ -209,6 +210,10 @@ it is pinned by `TextScaleLayoutTests` at 150% in 1,000 x 760.
   shell start with the Windows permission prompt while the app holds the file with `FileShare.Read`; and the real format of
   GitHub's `digest` field (the plan's example came from EarthWatch3D's release).
 - **Windows' permission prompt** (UAC): not shown by any picture or test.
+- **The final fix wave's changes in a real run** (see "Final fix wave"): the app was not launched for them. Not checked:
+  the administrator test (`WindowsPrincipal.IsInRole(Administrator)`) in a real elevated run; the 30-second limit against
+  a real stalled GitHub answer (only a fake that stalls); `RestartApplications=no` and `[InstallDelete]` in a real
+  install (Inno Setup is not run here); the new banner and About texts on screen (tests only, no pictures).
 - **The hover tooltip's size at 150%:** GlobeCore's tooltip is not scaled (P5-8, GlobeCore unchanged) and no picture
   shows a tooltip.
 - **The About card's lower half** (severity bands and the UN boundary note), **the Data card's later rows** and **the
@@ -232,8 +237,8 @@ From the plan:
    Welcome text and the banner texts, all now pictured above.
 2. **Before the first signed release (GitHub settings; Claude cannot do them):** create the `release` environment;
    add the repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`; add the federated
-   credential subject of P5-4 to the Entra app. Also `docs/release.md`'s statement that the Entra app "already holds" the
-   signer role was not checked (ledger m48).
+   credential subject of P5-4 to the Entra app. Check that the Entra app holds the signer role on the account:
+   `docs/release.md` now says it must (EarthWatch3D's does; not checked for this repository; ledger m48).
 3. **Say whether to push the `plan-5` branch and open a pull request:** its run builds the **unsigned** installer on
    GitHub, the first real check of the `.iss` and the workflow.
 4. **After merging, tag `v1.0.0`** to build, sign and publish (or tell Claude to), then run the install checklist in
@@ -259,14 +264,63 @@ Added by Task 11:
     itself), so the app is restarted as you and not as an administrator, and a refusal shows "The update was not installed:
     the installer stopped (exit code N). If Windows asked for your permission and it was not given, that is why." Say if you
     would rather the app asked for permission itself (it would restart elevated, which was judged a security fault).
+    (Final fix wave: with exit code 0 it says "The update may not have been installed: the installer stopped (exit code 0)
+    without closing EarthRelief3D.")
 13. **Closed strip:** it keeps Settings and About under the closed header (ruling R15; P5-23 said only the header). Say which you want.
 14. **Settings at 150%:** the Text size control is below the strip's fold (scroll to reach it). Say if it should move.
 15. **Port arc:** it is still mostly hidden under the depot arc in `sudan-help`. Say if a later fix (2D overlay, or separating arcs by bearing) is wanted.
 
+Added by the final fix wave:
+
+16. **Cards are not modal (ruling R17; P5-7 said over a dimmed globe):** Welcome, About and Data sit over the live globe
+    and close with their button or Esc; a click on the globe beside an open card still acts on the globe. Say if you want
+    a dim, click-blocking layer (new visuals, which would need their own pictures).
+17. **Run as administrator:** the app then does not install updates itself; the banner names the new version and offers
+    only "Open the download page" and "Later". Say if you want something else.
+
 ## Deferred minor findings
 
-Listed in the ledger (`.superpowers/sdd/2026-11-25-plan-5-shipping/progress.md`, m1 to m64), none blocking. The ledger
-marked these for the final wave and they were **not** fixed in Task 11: m53 (a check that stalls after the headers
-hangs the day's checking: add a timeout), m58 (an app the user started elevated restarts elevated: offer only the
-download page then), m63 (the failed banner shows raw 64-hex digests: keep them in the log) and m64 (test gaps in the
-updater).
+Listed in the ledger (`.superpowers/sdd/2026-11-25-plan-5-shipping/progress.md`, m1 to m67), none blocking. Fixed in
+the final fix wave (below): m7 (ipc-areas checked date), m48 (release.md "already holds"), m53 (a check that stalls after
+the headers), m58 (an app run as administrator), m63 (64-hex digests on the banner), part of m64 (the service-level test
+that a changed file or signer at "Install now" never reaches the launcher, and the assert that could not fail) and the
+README part of m67 (its long status line). The others stay deferred, including the rest of m64 (an oversize body without
+`Content-Length`, the 1 MB answer cap, centred cards against the banner, the `Task.Delay(100)` negative assert, and no
+RED runs for R11 to R13) and the `data-sources.md` header part of m67.
+
+## Final fix wave
+
+The final whole-branch review's findings, fixed on 2026-11-25 (test first for every code change; `dotnet test
+EarthRelief3D.sln -c Release`: **830 passed, 0 failed, 0 warnings** after re-running the known start-up timing test
+`AppStartupTests.CachedIpcAreasLoadOffTheUiThreadAndReachTheMap` once):
+
+- **F1:** this document no longer says the cards are modal or over a dimmed globe. They sit over the live globe, are not
+  modal, and close with their button or Esc (ruling R17, added to the spec's Plan 5 table). No dim layer was added.
+- **F2 (m53):** one 30-second limit now covers the whole update check, the answer's body included; a stall after the
+  headers is a failed check (logged, shown in About, tried again a day later), and "Check now" still works.
+- **F3 (m58):** when EarthRelief3D runs as administrator, a newer version is shown with only "Open the download page"
+  and "Later": "EarthRelief3D is running as administrator, so it will not install updates itself. Download the new
+  version from its page instead."
+- **F4 (m64, part):** a service-level test changes the downloaded file (shorter, or the same size with other bytes) or
+  its signature (another signer, or untrusted) before "Install now": the installer is never started, the banner says
+  why, and the file is deleted. The "nothing is downloaded" assert now has an installer it could reach.
+- **F5 (m63):** a digest that does not match says "The downloaded file is not the one the release lists." on screen;
+  both digests are in the log line only. The picture run's "failed" banner uses the same sentence.
+- **M1:** About's band note: "Bands only set a marker's size or shade; the source's own figure is always shown with it."
+- **M2 (m7):** `ipc-areas` checked 2026-11-23 in `data/sources.json` and `THIRD-PARTY-NOTICES.txt`; a test now ties
+  every notices block's "Checked:" date to the registry.
+- **M3 (m48):** `docs/release.md` says the Entra app must hold the signer role (not checked for this repository).
+- **M4 (m67, part):** the README's status line is short and makes no branch claim.
+- **M5:** the installer has `RestartApplications=no`, so the only restart is the silent-update `[Run]` entry, as the user.
+- **M6:** the stale banner's "Check now" shows "Checking for a new version…" while it runs, then the reason if it
+  failed, or goes (with the offer of a newer version) if it succeeded.
+- **M7:** an installer that ends with exit code 0 while the app is still open: "The update may not have been
+  installed: the installer stopped (exit code 0) without closing EarthRelief3D."
+- **M8:** the installer deletes `{app}\data` before it copies files, so each update has a fresh data tree (the user's
+  data is in `%LOCALAPPDATA%`).
+- **M9:** `docs/release.md` now matches the workflow: never delete or rename the two assets by hand; re-running the
+  workflow for the same tag replaces both with a rebuilt, re-signed pair.
+- **M10, M11:** the `.iss` path above, and the m-range and this list.
+
+**No new pictures were taken** for these fixes and the app was not launched: the banner and About text changes are
+covered by tests only (see "What was NOT verified").

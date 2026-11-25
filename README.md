@@ -5,7 +5,8 @@ outbreaks, displacement, genocide and mass atrocities, prison camps, basic needs
 with its source and an "as of" date. It is built on the shared libraries GlobeCore and AstroCore (git submodules in
 `external/`).
 
-Status: version 1.0.0 is prepared on the branch `plan-5` (Plan 5, 2026-11-25: signed installer and release workflow, About, Data and Welcome cards, text size, a combined source list and an update check); it is not released, tagged or merged yet. Public repository: https://github.com/johnovanni/EarthRelief3D (since
+Status: Version 1.0.0 (Plan 5: shipping). Not yet released: see `docs/release.md` and `docs/plan-5-results.md`.
+Public repository: https://github.com/johnovanni/EarthRelief3D (since
 2026-11-22). Plan 2 built the four crisis layers from open, key-free sources: armed conflict (UCDP), food crises (IPC),
 disease outbreaks (WHO) and people forced from home (UNHCR). Plan 3 (2026-11-23) added IPC food-crisis areas, the
 curated atrocity designations and prison camps (drafts until the owner reviews them), the Needs shadings (water,
@@ -15,7 +16,8 @@ sanitation, health care, hunger, shelter need) and the Resources shadings (oil p
 and gas fields, and steel plants of 1 million tonnes a year or more. Plan 4 (2026-11-24) added the Getting help in group, "Your one
 small step", a plain-language explainer for each crisis kind, and the vetting tool the maintainer runs before a
 release. Everything curated in Plan 4 (UN depots, pooled funds, contacts, charities, explainers) is a draft until the
-owner approves it.
+owner approves it. Plan 5 (2026-11-25) added the signed installer and release workflow, the About, Data and Welcome
+cards, text size, a combined source list and an update check.
 
 ## Features
 
