@@ -4,7 +4,7 @@
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:views="clr-namespace:EarthRelief3D.App.Views"
         xmlns:status="clr-namespace:GlobeCore.Wpf.Status;assembly=GlobeCore.Wpf"
-        Title="EarthRelief3D" Height="760" Width="1200" MinWidth="1000" Background="#04060E">
+        Title="EarthRelief3D" Icon="app.ico" Height="760" Width="1200" MinWidth="1000" Background="#04060E">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

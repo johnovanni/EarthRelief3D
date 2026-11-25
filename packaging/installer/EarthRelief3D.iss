@@ -1,0 +1,58 @@
+; Inno Setup script for the EarthRelief3D installer (EarthRelief3D-Setup.exe).
+; Built by .github/workflows/release.yml:  iscc /DAppVersion=1.0.1 /DPublishDir=<publish folder> /DOutputDir=<out> EarthRelief3D.iss
+; Installs to C:\Program Files\Qapow\EarthRelief3D by default (every QAPOW program goes under C:\Program Files\Qapow),
+; and the user can pick another folder. Settings, caches and logs stay in %LOCALAPPDATA%\EarthRelief3D.
+
+#ifndef AppVersion
+  #define AppVersion "0.0.0"
+#endif
+#ifndef PublishDir
+  #define PublishDir "..\..\artifacts\publish"
+#endif
+#ifndef OutputDir
+  #define OutputDir "..\..\artifacts\release"
+#endif
+
+#define AppName "EarthRelief3D"
+#define AppExe "EarthRelief3D.App.exe"
+
+[Setup]
+; AppId identifies this program to Windows across versions. Never change it.
+AppId={{D81FC340-0932-4471-8046-481ADD412859}
+AppName={#AppName}
+AppVersion={#AppVersion}
+AppVerName={#AppName} {#AppVersion}
+AppPublisher=John Apolloni
+AppPublisherURL=https://github.com/johnovanni/EarthRelief3D
+AppSupportURL=https://github.com/johnovanni/EarthRelief3D
+VersionInfoVersion={#AppVersion}
+DefaultDirName={autopf}\Qapow\{#AppName}
+DisableDirPage=no
+DefaultGroupName=Qapow
+DisableProgramGroupPage=yes
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+MinVersion=10.0.17763
+PrivilegesRequired=admin
+UninstallDisplayIcon={app}\{#AppExe}
+UninstallDisplayName={#AppName}
+SetupIconFile=..\..\src\EarthRelief3D.App\app.ico
+WizardStyle=modern
+Compression=lzma2/max
+SolidCompression=yes
+CloseApplications=yes
+OutputDir={#OutputDir}
+OutputBaseFilename=EarthRelief3D-Setup
+
+[Tasks]
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+
+[Files]
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Icons]
+Name: "{autoprograms}\Qapow\{#AppName}"; Filename: "{app}\{#AppExe}"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
+
+[Run]
+Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent

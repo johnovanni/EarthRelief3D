@@ -64,6 +64,13 @@ owner approves it.
 - Status dots for every source (the live feeds, Borders and the bundled extracts); the last good data is cached in your data folder and shown at once, offline too.
 - No sound, no graphic images, no pop-up alarms and no personal data collected.
 
+## Install
+
+Download `EarthRelief3D-Setup.exe` from the [latest release](https://github.com/johnovanni/EarthRelief3D/releases/latest/download/EarthRelief3D-Setup.exe)
+and run it. It is signed by John Apolloni. It installs the app, with the .NET runtime it needs, in
+`C:\Program Files\Qapow\EarthRelief3D` (you can pick another folder) and adds "Qapow > EarthRelief3D" to the Start menu.
+Your settings, cached data and logs are kept apart, in `%LOCALAPPDATA%\EarthRelief3D`; uninstalling leaves them there.
+
 ## Build
 
 ```

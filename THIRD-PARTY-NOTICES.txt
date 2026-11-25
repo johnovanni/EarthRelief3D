@@ -118,7 +118,7 @@ SOFTWARE.
 --------------------------------------------------------------------------------
 Windows Presentation Foundation (WPF)   (https://github.com/dotnet/wpf)
 MIT licence, text from the LICENSE file of the Microsoft.WindowsDesktop.App.Runtime.win-x64 10.0.15 package
-EarthRelief3D runs on this runtime and may include it in its installer.
+EarthRelief3D runs on this runtime, and the installer puts a copy of it (the .NET runtime and WPF) in the install folder.
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
