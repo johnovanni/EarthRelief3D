@@ -59,6 +59,16 @@ public sealed record AppSettings
     /// <summary>The user's state (Settings, "Your state (optional)"; P4-15), by two-letter code, for listing their two senators; null: not chosen. Not personal data: a state, not an address.</summary>
     public string? UserState { get; init; }
 
+    /// <summary>
+    /// The size of the text on the cards (Settings, "Text size"; C8, P5-8): 1.0 (100%, the default), 1.25 or 1.5. A file without
+    /// it reads as 100%; any other saved number reads as 100% too (<see cref="EffectiveTextScale"/>).
+    /// </summary>
+    public double TextScale { get; init; } = 1.0;
+
+    /// <summary><see cref="TextScale"/> when it is one of <see cref="TextScaleLayout.Choices"/>, else 1.0.</summary>
+    [JsonIgnore]
+    public double EffectiveTextScale => TextScaleLayout.Normalise(TextScale);
+
     /// <summary>The shading to show: <see cref="Shading"/>, or for a Plan 2 file food when <see cref="ShowFood"/>, else none.</summary>
     [JsonIgnore]
     public ShadingLayer EffectiveShading => Shading ?? (ShowFood ? ShadingLayer.Food : ShadingLayer.None);

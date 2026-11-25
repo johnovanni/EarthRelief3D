@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -25,11 +26,24 @@ namespace EarthRelief3D.App.Diagnostics;
 /// (an explainer id, needs a panel; ruling R19) opens the explainer card for that picture, as the section's "What is this" link does.
 /// <paramref name="LegendOpen"/> and <paramref name="StripOpen"/> (scene fields "legend" and "strip": "open" or "closed") show the
 /// legend and the layer strip's list open (the default, so the earlier pictures still compare) or folded; nothing is saved (P5-23, P5-24).
+/// <paramref name="TextScale"/> (scene field "textScale": 1, 1.25 or 1.5; default 1) sets the text size for this picture only, and saves
+/// nothing (C8). <paramref name="WindowSize"/> (scene field "windowSize": [width, height], at least 1000 by 600) sets the window's size
+/// for this picture, and the size it had is back afterwards.
 /// </summary>
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
                                    string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null,
-                                   bool LegendOpen = true, bool StripOpen = true)
+                                   bool LegendOpen = true, bool StripOpen = true, double TextScale = 1.0, Size? WindowSize = null)
 {
+    /// <summary>"1, 1.25 or 1.5": the text sizes a scene may name.</summary>
+    internal static string AllowedTextScales()
+    {
+        var names = TextScaleLayout.Choices.Select(c => c.ToString(CultureInfo.InvariantCulture)).ToArray();
+        return string.Join(", ", names[..^1]) + " or " + names[^1];
+    }
+
+    /// <summary>The smallest window a scene may ask for (the app's minimum width, and a height the cards still fit).</summary>
+    public static Size MinWindowSize { get; } = new(1000, 600);
+
     /// <summary>The <see cref="Explainer"/> ids: one per crisis kind, "access" and the step section's "why-these" (Plan 4 Task 9; ruling R19).</summary>
     public static IReadOnlyList<string> ExplainerNames { get; } =
     [
@@ -143,8 +157,25 @@ public static class SnapshotScenes
                     };
                 }
                 bool legendOpen = OpenOrClosed("legend"), stripOpen = OpenOrClosed("strip");
+                double textScale = 1.0;
+                if (e.TryGetProperty("textScale", out var ts))
+                {
+                    if (ts.ValueKind != JsonValueKind.Number || !TextScaleLayout.Choices.Contains(ts.GetDouble()))
+                        throw new FormatException($"Scene {name}: textScale is {SnapshotScene.AllowedTextScales()}.");
+                    textScale = ts.GetDouble();
+                }
+                Size? windowSize = null;
+                if (e.TryGetProperty("windowSize", out var ws))
+                {
+                    var min = SnapshotScene.MinWindowSize;
+                    if (ws.ValueKind != JsonValueKind.Array || ws.GetArrayLength() != 2
+                        || ws[0].ValueKind != JsonValueKind.Number || ws[1].ValueKind != JsonValueKind.Number
+                        || !(ws[0].GetDouble() >= min.Width) || !(ws[1].GetDouble() >= min.Height))
+                        throw new FormatException($"Scene {name}: windowSize is [width, height], at least {min.Width:0} by {min.Height:0}.");
+                    windowSize = new Size(ws[0].GetDouble(), ws[1].GetDouble());
+                }
                 list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant(),
-                    legendOpen, stripOpen));
+                    legendOpen, stripOpen, textScale, windowSize));
             }
             if (list.Count == 0) throw new FormatException("The file has no scenes.");
             return list;
@@ -186,6 +217,7 @@ public static class SnapshotScenes
         {
             Directory.CreateDirectory(outDir);
             await scene.FirstComposeDisplayed;
+            var (normalWidth, normalHeight) = (window.Width, window.Height);
             foreach (var s in scenes)
             {
                 try
@@ -201,6 +233,14 @@ public static class SnapshotScenes
                     vm.Layers.SetLayers(s.Shading, s.Markers);
                     vm.Layers.SetOpenQuietly(s.StripOpen);    // for this picture only: nothing is saved
                     vm.Legend.SetOpenQuietly(s.LegendOpen);
+                    vm.Settings.SetTextScaleQuietly(s.TextScale);   // for this picture only: nothing is saved
+                    var (wantedWidth, wantedHeight) = s.WindowSize is { } size ? (size.Width, size.Height) : (normalWidth, normalHeight);
+                    if (window.Width != wantedWidth || window.Height != wantedHeight)
+                    {
+                        window.Width = wantedWidth;
+                        window.Height = wantedHeight;
+                        await window.Dispatcher.InvokeAsync(() => window.UpdateLayout(), DispatcherPriority.Render);
+                    }
                     if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker, s.FocusSection);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
                     if (s.Explainer is { } xid && !vm.Panel.Explainer.Open(xid))
@@ -213,6 +253,7 @@ public static class SnapshotScenes
                     await Task.Delay(delayMs);
                     await SettleAsync(scene, window.Dispatcher, log);
                     Save(window, Path.Combine(outDir, s.Name + ".png"));
+                    if (s.WindowSize is not null) { window.Width = normalWidth; window.Height = normalHeight; }   // the size it had
                     log.Info($"Diagnostics: saved scene {s.Name}");
                 }
                 catch (OperationCanceledException) { return; }   // the window closed first

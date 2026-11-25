@@ -1,3 +1,4 @@
+using GlobeCore.Storage;
 using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Settings;
 using EarthRelief3D.App.ViewModels;
@@ -115,6 +116,75 @@ public class SettingsViewModelTests
         vm.IsKilometres = false;
         vm.IsMiles = true;
         Assert.Equal(1, changes);
+    }
+
+    [Fact]
+    public void TextScaleSavedAndOtherSettingsKept()
+    {
+        var settings = new MemorySettingsStore(new AppSettings { LegendOpen = true, ShowFood = false });
+        var vm = new SettingsViewModel(settings, CuratedStore.Empty());
+        Assert.Equal("Text size", SettingsViewModel.TextSizeGroup);
+        Assert.Equal(1.0, vm.TextScale);   // 100% by default
+        Assert.True(vm.IsScale100);
+
+        var changes = 0;
+        vm.TextScaleChanged += (_, _) => changes++;
+        vm.IsScale150 = true;
+        Assert.Equal(1.5, vm.TextScale);
+        Assert.False(vm.IsScale100);
+        Assert.False(vm.IsScale125);
+        Assert.Equal(1, changes);
+        Assert.Equal(1.5, settings.Current.TextScale);
+        Assert.True(settings.Current.LegendOpen);   // the other settings are kept
+        Assert.False(settings.Current.ShowFood);
+
+        // A radio button leaving its state is not a choice; the choice already made changes nothing.
+        vm.IsScale100 = false;
+        vm.IsScale150 = true;
+        Assert.Equal(1, changes);
+
+        // A new run reads it back; another radio changes it again.
+        var again = new SettingsViewModel(settings, CuratedStore.Empty());
+        Assert.Equal(1.5, again.TextScale);
+        Assert.True(again.IsScale150);
+        again.IsScale125 = true;
+        Assert.Equal(1.25, settings.Current.TextScale);
+        // Only the three sizes can be chosen.
+        again.TextScale = 2.0;
+        Assert.Equal(1.25, again.TextScale);
+    }
+
+    private static AppDataRoot TempRoot() => new(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "er3d-textscale-" + Guid.NewGuid().ToString("N")));
+
+    private static SettingsViewModel FromFile(string json)
+    {
+        var root = TempRoot();
+        try
+        {
+            System.IO.Directory.CreateDirectory(root.Root);
+            System.IO.File.WriteAllText(root.SettingsFile, json);
+            return new SettingsViewModel(new SettingsStore(root, new ListLog()), CuratedStore.Empty());
+        }
+        finally { System.IO.Directory.Delete(root.Root, recursive: true); }
+    }
+
+    [Fact]
+    public void UnknownTextScaleReadsAsDefault()
+    {
+        Assert.Equal(1.0, FromFile("""{ "TextScale": 2.0 }""").TextScale);
+        Assert.Equal(1.0, FromFile("""{ "TextScale": 1.3 }""").TextScale);
+        Assert.Equal(1.25, FromFile("""{ "TextScale": 1.25 }""").TextScale);
+        Assert.Equal(1.0, new AppSettings { TextScale = 0 }.EffectiveTextScale);
+        Assert.Equal(1.5, new AppSettings { TextScale = 1.5 }.EffectiveTextScale);
+    }
+
+    [Fact]
+    public void Plan4FileReadsAs100Percent()
+    {
+        var vm = FromFile("""{ "ShowFood": true, "Units": "Miles", "UserCountry": "US", "UserState": "MD", "LayerStripExpanded": true }""");
+        Assert.Equal(1.0, vm.TextScale);
+        Assert.True(vm.IsScale100);
+        Assert.True(vm.IsMiles);   // the rest of the file still reads
     }
 
     private static HelpTables RealHelp() => HelpTables.Load(System.IO.Path.Combine(AppContext.BaseDirectory, "data"), "US");

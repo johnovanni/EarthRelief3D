@@ -42,7 +42,7 @@
         <views:Legend x:Name="LegendCard" DataContext="{Binding Legend}"/>
         <!-- The explainer card (Plan 4 Task 9), to the left of the panel (380 wide, 12 margin each side); Esc closes it first.
              It comes after the legend so that it draws over it, and is opaque, so the legend's text does not show through. Its
-             left margin follows the layer strip (MainWindow.FitExplainer), so in a narrow window it shrinks rather than cover it. -->
+             left margin follows the layer strip (MainWindow.FitCards), so in a narrow window it shrinks rather than cover it. -->
         <views:ExplainerCard x:Name="ExplainerCard" DataContext="{Binding Explainer}"/>
         <!-- Status dots per source (bottom right); the tooltip gives the last update or the error. -->
         <Border x:Name="StatusCard" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12" Padding="8,2"

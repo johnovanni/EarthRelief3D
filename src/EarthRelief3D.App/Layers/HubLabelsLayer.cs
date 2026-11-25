@@ -25,19 +25,22 @@ public sealed class HubLabelsLayer : OverlayLayer
     private readonly LabelOverlay _labels;
     private readonly Func<IReadOnlyList<HubArcSpec>> _specs;
     private readonly Func<DistanceUnit> _units;
+    private readonly Func<double> _textScale;
 
-    public HubLabelsLayer(Func<IReadOnlyList<HubArcSpec>> specs, Func<DistanceUnit> units, Canvas overlay)
+    /// <param name="textScale">The text size chosen in Settings (1.0, 1.25 or 1.5), read at each render; null: 100%. <see cref="Changed"/> says it changed.</param>
+    public HubLabelsLayer(Func<IReadOnlyList<HubArcSpec>> specs, Func<DistanceUnit> units, Canvas overlay, Func<double>? textScale = null)
         : base(LayerCatalog.Id(MarkerLayer.HubLines) + "-labels", LayerCatalog.Label(MarkerLayer.HubLines) + ": distances", Order)
     {
         _specs = specs ?? throw new ArgumentNullException(nameof(specs));
         _units = units ?? throw new ArgumentNullException(nameof(units));
+        _textScale = textScale ?? (() => 1.0);
         _labels = new LabelOverlay(overlay ?? throw new ArgumentNullException(nameof(overlay)));
     }
 
     /// <summary>The labels placed by the last render (tests, diagnostics).</summary>
     public int PlacedCount { get; private set; }
 
-    /// <summary>The panel, the toggle, the hubs or the unit changed (any thread): the labels are placed again at the next render.</summary>
+    /// <summary>The panel, the toggle, the hubs, the unit or the text size changed (any thread): the labels are placed again at the next render.</summary>
     public void Changed() => Invalidate();
 
     /// <summary>"Port Sudan New International Airport · 812 km straight-line"; a draft depot (a <c>--show-drafts</c> run) "UNHRD Dubai (draft) · ...".</summary>
@@ -53,6 +56,7 @@ public sealed class HubLabelsLayer : OverlayLayer
         int placed = 0;
         var eye = (Vector3D)projector.Eye;
         var unit = _units();
+        double k = _textScale();
         var wanted = new List<(string, Point, Color)>();
         foreach (var spec in _specs() ?? [])
         {
@@ -62,9 +66,9 @@ public sealed class HubLabelsLayer : OverlayLayer
             var toEye = eye - (Vector3D)p;
             if (toEye.Length <= 0 || Vector3D.DotProduct((Vector3D)p, toEye) / toEye.Length < LimbCosine) continue;
             if (!projector.TryProject(p, out var at)) continue;
-            wanted.Add((LabelText(spec.Link, unit), new Point(at.X + 4, at.Y - 9), LayerStyle.HubColor(spec.Link.Hub.Kind)));
+            wanted.Add((LabelText(spec.Link, unit), new Point(at.X + 4, at.Y - 9 * k), LayerStyle.HubColor(spec.Link.Hub.Kind)));
         }
-        placed = Place(_labels, wanted);
+        placed = Place(_labels, wanted, FontSize * k);
         _labels.End();
         PlacedCount = placed;
     }

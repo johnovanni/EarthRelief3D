@@ -220,6 +220,66 @@ public class SnapshotScenesTests
     }
 
     [Fact]
+    public void TextScaleAndWindowSizeAreRead()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z"},
+                  {"name":"b","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1.5,"windowSize":[1000,760]},
+                  {"name":"c","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1.25,"windowSize":[1000,600]},
+                  {"name":"d","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.Equal(1.0, scenes[0].TextScale);   // the default: the earlier pictures still compare
+            Assert.Null(scenes[0].WindowSize);
+            Assert.Equal(1.5, scenes[1].TextScale);
+            Assert.Equal(new System.Windows.Size(1000, 760), scenes[1].WindowSize);
+            Assert.Equal(1.25, scenes[2].TextScale);
+            Assert.Equal(new System.Windows.Size(1000, 600), scenes[2].WindowSize);
+            Assert.Equal(1.0, scenes[3].TextScale);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Theory]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1.3}]}""")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":"big"}]}""")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":2}]}""")]
+    public void BadTextScaleIsRefused(string json)
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(path, json);
+        try
+        {
+            var message = Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message;
+            Assert.Contains("Scene a: textScale is 1, 1.25 or 1.5", message);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Theory]
+    [InlineData("[999,760]")]
+    [InlineData("[1200,599]")]
+    [InlineData("[1200]")]
+    [InlineData("[1200,700,5]")]
+    [InlineData("\"1200x700\"")]
+    [InlineData("[\"a\",\"b\"]")]
+    public void TooSmallWindowIsRefused(string size)
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(path, "{\"scenes\":[{\"name\":\"a\",\"displayTimeUtc\":\"2026-11-22T12:00:00Z\",\"windowSize\":" + size + "}]}");
+        try
+        {
+            var message = Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message;
+            Assert.Contains("Scene a: windowSize is [width, height], at least 1000 by 600", message);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
     public void ExplainerFieldOpensTheCard()
     {
         var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");

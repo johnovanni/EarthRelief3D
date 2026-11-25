@@ -543,8 +543,8 @@ public class AppStartupTests
             Assert.Equal(0, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
             // The four sources, the two needs feeds, the two getting-help feeds (Plan 4), Borders, the three bundled extracts (Task 6), GEM's (Task 7) and the hubs' (Plan 4 Task 4),
-            // and the two radio buttons of Settings' "Distances" (Task 5).
-            Assert.Equal(16, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
+            // the two radio buttons of Settings' "Distances" (Task 5) and the three of "Text size" (Plan 5 Task 3).
+            Assert.Equal(19, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));
