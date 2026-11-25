@@ -157,12 +157,16 @@ public class HubMarkersTests
         Assert.Equal("UNHRD Test · UN Humanitarian Response Depot (WFP) · marked at Testville Airport (DXXX), beside the depot, so approximate · position: OurAirports (The Unlicense), 24 Nov 2026 · UNHRD contacts page, checked 24 Nov 2026",
             OneLine(HubMarkers.DepotTooltip(d)));
         Assert.StartsWith("Draft: not yet reviewed · UNHRD Test", HubMarkers.DepotTooltip(d with { Review = new Review(Review.Draft, null) }), StringComparison.Ordinal);
-        // The real rows: all five, with their cited positions.
-        var real = new CuratedStore(CuratedTables.Load(Path.Combine(AppContext.BaseDirectory, "data", "curated")), showDrafts: true);
+        // The real rows: all five, with their cited positions; approved on 2026-11-25, so no draft label in a normal run.
+        var shipped = CuratedTables.Load(Path.Combine(AppContext.BaseDirectory, "data", "curated"));
+        var real = new CuratedStore(shipped, showDrafts: false);
         var set = HubMarkers.ForDepots(real)!;
         Assert.Equal(5, set.Items.Count);
         Assert.Equal(["GHA", "ITA", "ARE", "MYS", "PAN"], set.Items.Select(i => i.CountryIso3));
-        Assert.All(set.Items, i => Assert.Contains("Draft: not yet reviewed", i.Tooltip, StringComparison.Ordinal));
+        Assert.All(set.Items, i => Assert.DoesNotContain("Draft", i.Tooltip, StringComparison.Ordinal));
+        // A shipped row turned back into a draft carries the label.
+        var drafted = new CuratedStore(shipped with { Depots = [.. shipped.Depots.Select(d => d with { Review = new Review(Review.Draft, null) })] }, showDrafts: true);
+        Assert.All(HubMarkers.ForDepots(drafted)!.Items, i => Assert.Contains("Draft: not yet reviewed", i.Tooltip, StringComparison.Ordinal));
         Assert.Equal("UNHRD (WFP)", set.Citation.Publisher);
         Assert.Equal(CitationDate.Checked, set.Citation.DateMeaning);
         Assert.Equal(new DateTime(2026, 11, 24, 0, 0, 0, DateTimeKind.Utc), set.Citation.AsOfUtc);

@@ -379,14 +379,14 @@ public class HelpPanelTests
     }
 
     [Fact]
-    public void HelpTablesLoadedFromTheShippedFilesShowCerfAndNoCharities()
+    public void HelpTablesLoadedFromTheShippedFilesShowTheFundAndNoCharities()
     {
-        // The shipped state: every contact and fund is a draft and no charity is listed, so a normal run says so (P4-8, P4-13).
+        // The shipped state: every contact and fund was approved on 2026-11-25 and the charities are still drafts, so a normal run
+        // shows the approved fund and contacts and says no charity is listed yet (P4-8, P4-13).
         var real = HelpTables.Load(BoundaryData.DataDir, "US");
         var entries = Step(real, "SDN", "Sudan");
-        Assert.Contains(entries, e => e.Title.Contains("CERF"));
+        Assert.Contains(entries, e => e.Title.StartsWith("UN pooled fund for Sudan", StringComparison.Ordinal));
         Assert.Contains(entries, e => e.Lines.Contains("No vetted charities listed yet"));
-        Assert.DoesNotContain(entries, e => e.Group == "Contact");
-        Assert.DoesNotContain(entries, e => e.Title.StartsWith("UN pooled fund", StringComparison.Ordinal));
+        Assert.Contains(entries, e => e.Group == "Contact");
     }
 }

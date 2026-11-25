@@ -564,8 +564,7 @@ or correct its position.
 - Source: [Contacts | UNHRD - Humanitarian Response Depot](https://unhrd.org/contacts) (UNHRD (WFP), 24 Nov 2026)
 - Checked on: 24 Nov 2026
 - What was checked and where: Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Al Maktoum International Airport (OMDW, IATA DWC; OurAirports also calls it Dubai World Central), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot's own address gives the airport as its landmark: 'Dubai Industrial City - Phase 2, Nearest Landmark - DWC'. Dubai Industrial City is a large area, so the depot may be several kilometres from the airport. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `unhrd-accra`: UNHRD Accra
 
@@ -575,8 +574,7 @@ or correct its position.
 - Source: [Contacts | UNHRD - Humanitarian Response Depot](https://unhrd.org/contacts) (UNHRD (WFP), 24 Nov 2026)
 - Checked on: 24 Nov 2026
 - What was checked and where: Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Kotoka International Airport (DGAA), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot is at the airport per its own address, which names it: 'Courier Enclave, P.O. Box 1423, Kotoka International Airport, Accra'. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `unhrd-brindisi`: UNHRD Brindisi
 
@@ -586,8 +584,7 @@ or correct its position.
 - Source: [Contacts | UNHRD - Humanitarian Response Depot](https://unhrd.org/contacts) (UNHRD (WFP), 24 Nov 2026)
 - Checked on: 24 Nov 2026
 - What was checked and where: Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Brindisi Airport (LIBR), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot sits beside the airport per its own address on the former SS16 road: 'Ex SS 16 Km 906.9 OR, P.za Del Vento 1, 72100 Brindisi'. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `unhrd-kuala-lumpur`: UNHRD Kuala Lumpur
 
@@ -597,8 +594,7 @@ or correct its position.
 - Source: [Contacts | UNHRD - Humanitarian Response Depot](https://unhrd.org/contacts) (UNHRD (WFP), 24 Nov 2026)
 - Checked on: 24 Nov 2026
 - What was checked and where: Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Sultan Abdul Aziz Shah International Airport (WMSA, Subang), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot sits beside the airport per its own address, on the air force road: 'Lot 14104 (PT12136), Jalan TUDM, Section U7, 40150 Shah Alam' (TUDM is the Royal Malaysian Air Force, which has its base at Subang). The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `unhrd-panama`: UNHRD Panama
 
@@ -608,8 +604,7 @@ or correct its position.
 - Source: [Contacts | UNHRD - Humanitarian Response Depot](https://unhrd.org/contacts) (UNHRD (WFP), 24 Nov 2026)
 - Checked on: 24 Nov 2026
 - What was checked and where: Address as written on UNHRD's contacts page (2026-11-24). UNHRD's contacts page shows no date, so the citation date is the day it was read (2026-11-24, in the built-in browser; scripts get HTTP 403). The page's staff names, emails and phone numbers are not copied. Position: the marker is at Panamá Pacífico International Airport (MPPA; OurAirports lists it under the ident MPHO and gives Howard Air Force Base and Panama Pacifico as its other names), taken from the bundled OurAirports extract (data/datasets/ourairports, OurAirports' airports.csv as downloaded on 2026-11-24, The Unlicense; ruling R21). The depot sits beside the airport per its own address: 'Paseo de la Americas Panama Pacifico, Howard, Arraijan'. The position is approximate: the marker is at the airport's reference point in OurAirports, not at the depot's own building, and distances measured to it are rounded straight-line figures anyway.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ## Explainers
 
@@ -638,8 +633,7 @@ Text (213 words):
   - [ICRC 2024 Opinion Paper: How is the term 'Armed Conflict' defined in international humanitarian law?](https://www.icrc.org/en/document/icrc-opinion-paper-how-term-armed-conflict-defined-international-humanitarian-law) (International Committee of the Red Cross (ICRC), 16 Apr 2024)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24: UCDP Definitions (uu.se, last modified 12 May 2026: state-based armed conflict is a contested incompatibility over government and/or territory with armed force and at least 25 battle-related deaths in a calendar year; non-state conflict and one-sided violence against civilians also use 25 deaths a year). ICRC FAQ on international armed conflict (23 Dec 2025: a non-international armed conflict needs a certain level of intensity and sufficiently organised groups; people not or no longer taking part must be treated humanely). ICRC 2024 opinion paper page (16 Apr 2024: the ICRC classifies on facts and the legal criteria only) and its PDF (armed_conflict_defined_in_ihl.pdf, April 2024, read as text: armed conflict is a de facto state of hostilities, depending on neither a declaration nor recognition of war; no specific intensity is needed between states, even minor skirmishes may spark one, but the force must be a hostile act). ICRC's 2008 page (icrc.org/en/article/armed-conflict-international-humanitarian-law) was also read; the 2024 paper replaces it. The 25-deaths rule for the map is the app's C11, from UCDP.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `atrocities`: Genocide and mass atrocities: what are they, and why do they happen?
 
@@ -667,8 +661,7 @@ Text (292 words):
   - [Application of the Convention on the Prevention and Punishment of the Crime of Genocide (Bosnia and Herzegovina v. Serbia and Montenegro): judgment of 26 February 2007](https://www.icj-cij.org/case/91) (International Court of Justice, 26 Feb 2007)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24. UN Office on Genocide Prevention, Definitions page (un.org; scripts get HTTP 403, read in the built-in browser): Article II of the Convention (five acts; intent to destroy, in whole or in part, a national, ethnical, racial or religious group); intent is the hardest element; cultural destruction or an intent only to disperse a group does not suffice; political groups excluded; Rome Statute Article 7 (crimes against humanity: widespread or systematic attack on civilians, in peace or war); war crimes; ethnic cleansing not an independent crime, its acts can be crimes against humanity, war crimes or genocide. UN News, 11 Dec 2014: atrocity crimes rarely happen suddenly and evolve over time; the Framework of Analysis uses risk factors and indicators. The Framework PDF itself could not be read (it downloads instead of opening; not retried). OHCHR list of Human Rights Council investigative bodies (commissions of inquiry, fact-finding missions). ICJ How the Court works: judgments final and binding; provisional measures are interim measures when a party's rights are in immediate danger. UDHR Article 11: presumption of innocence. UN Rwanda outreach page: the 1994 genocide against the Tutsi followed years of misinformation, disinformation and hate speech. ICJ case 91 page: the Court found the Srebrenica killings of July 1995 were genocide (26 Feb 2007). The ICC's own pages refused the browser (security block); not used.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `camps`: Prison camps: what are they, and why do they exist?
 
@@ -692,8 +685,7 @@ Text (257 words):
   - [About arbitrary detention (Working Group on Arbitrary Detention)](https://www.ohchr.org/en/about-arbitrary-detention) (Office of the UN High Commissioner for Human Rights (OHCHR), 24 Nov 2026)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24 in the built-in browser (ohchr.org gives scripts HTTP 403). OHCHR press release of 17 Feb 2014 on the Commission of Inquiry on the DPRK (set up by the Human Rights Council in March 2013): crimes against humanity committed and ongoing; surveillance, coercion, fear and punishment used to preclude dissent; enforced disappearance to political prison camps; atrocities against inmates of the kwanliso; no access granted, so testimony from about 80 witnesses at public hearings and more than 240 confidential interviews ('hundreds of witnesses'). OHCHR press release of 12 Sep 2025: political prison camps continue to operate; it asks for an end to the system of political prison camps and guilt by association. The meaning of guilt by association in the text (punishing people for a relative's alleged acts) is the common meaning; the 2025 release names the practice without defining it. OHCHR About arbitrary detention: the Working Group's five categories (no legal basis; exercise of rights and freedoms; grave breach of fair-trial norms; prolonged custody of asylum-seekers, not mentioned in the text; discrimination). The satellite-image studies behind each marker are the camps table's own position sources (HRNK). The OHCHR Commission of Inquiry page could not be found (404).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `food`: Food crisis: what is it, and why does it happen?
 
@@ -715,8 +707,7 @@ Text (218 words):
   - [Understanding famine: what it is, how you can act](https://www.wfp.org/stories/understanding-famine-what-it-how-you-can-act) (World Food Programme (WFP), 10 Jun 2025)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24. The IPC's own site (ipcinfo.org) showed a bot check (a Cloudflare challenge) to scripts and to the built-in browser, so it was left there, as the plan requires; the IPC Technical Manual on fsinplatform.org refused scripts (403). FEWS NET's What is the IPC? page (no date shown; FEWS NET helped design and implement the IPC and uses version 3.1): a global partnership of governmental and non-governmental agencies devised the IPC; five phases Minimal, Stressed, Crisis, Emergency, Famine; an area takes a phase when at least 20 percent of its population meets that phase or a higher one; Famine when at least 20 percent of the population has an extreme lack of food, global acute malnutrition (weight-for-height) reaches 30 percent, and the crude death rate reaches 2 per 10,000 per day. Re-opened on 2026-11-24 in the final fix wave: the page does not say the partners make each analysis together (only that IPC protocols ask for analysis on a consensual basis), so that clause was removed. WFP's Understanding famine page (10 Jun 2025; WFP is an IPC partner agency): famine only when at least 2 people per 10,000 die daily, at least 20 percent of households face extreme food shortages, and at least 30 percent of children suffer from acute malnutrition; the famine paragraph follows this wording (households, children, 'at least'). Note for the owner: FEWS NET words the food threshold as 20 percent of the population and WFP as 20 percent of households; the IPC manual itself (households) could not be opened. FAO newsroom, 24 Apr 2026 (Global Report on Food Crises 2026): conflict the primary driver; climate shocks and economic shocks also named. The Phase 3 and 12-month rules are the app's (C11, P2-4).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `outbreaks`: Disease outbreaks: what are they, and why do they happen?
 
@@ -740,8 +731,7 @@ Text (232 words):
   - [Cholera (fact sheet)](https://www.who.int/news-room/fact-sheets/detail/cholera) (World Health Organization (WHO), 29 Sep 2026)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24. WHO Disease Outbreak News page: DONs give information on confirmed and potential acute public health events; the three kinds of event (unknown cause with potential international concern affecting travel or trade; known cause shown able to cause serious impact and spread internationally; high public concern that may disrupt interventions, travel or trade); not an exhaustive list of events WHO responds to; published under IHR Article 11.4. WHO International Health Regulations page (no page date; the amended text in force since 19 Sep 2025): legally binding on 197 countries including all 194 WHO member states; countries notify WHO of events that may have international implications. WHO cholera fact sheet, 29 Sep 2026: spread by contaminated food or water; linked to limited safe water and sanitation; conflict and displacement disrupt water and sanitation; cyclones, floods and drought damage them. The 90-day rule is the app's (C11). The WHO regional outbreak page (emro.who.int) gave 502 and was not used.
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `displacement`: People forced from home: who are they, and why do they flee?
 
@@ -765,8 +755,7 @@ Text (214 words):
   - [Internally Displaced People](https://www.unhcr.org/about-unhcr/who-we-protect/internally-displaced-people) (UN Refugee Agency (UNHCR), 24 Nov 2026)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24 in the built-in browser (unhcr.org gives scripts HTTP 403); the pages show no date, so each is dated the day it was read. Refugees: fled their country to escape conflict, violence or persecution; unable to return for fear of persecution or because of armed conflict, violence or serious public disorder; the 1951 Refugee Convention definition; rights and protections under international law; often unsafe to return for years if not decades. Asylum-seekers: seeking international protection, claim not yet decided; not all are found to be refugees, but all refugees were once asylum-seekers (paraphrased). Internally displaced people: forced to flee by conflict, violence, persecution or disasters but still inside their country; the national government has the primary responsibility and may be unable or unwilling; places of refuge may lack shelter, food, clean water or health care; protracted displacement for years or decades. The pages' global totals are not used (they go stale). Counting by country of origin is the panel's own (UNHCR population data).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `access`: Getting help in: what is humanitarian access?
 
@@ -789,8 +778,7 @@ Text (263 words):
   - [Humanitarian Access Overview, December 2025: Spotlight on fragmented contexts: Lebanon, Palestine, Syria and Yemen](https://www.acaps.org/fileadmin/Data_Product/Main_media/20260210_ACAPS_Humanitarian_Access_Overview_December_2025.pdf) (ACAPS, 10 Feb 2026)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24. ACAPS Humanitarian access overview page (the July 2026 edition, covering December 2025 to May 2026, published 10 Aug 2026 per docs/data-sources.md): access means the barriers people face in reaching assistance and the barriers organisations face in reaching them; nine indicators in three pillars (people's access to aid; responders' access to people; physical, environmental and security constraints), each indicator scored 0 to 3 or X when information is missing, combined into a 0 to 5 score; causes named: bureaucratic and administrative impediments (border restrictions, documentation, multiple sequential approvals), insecurity, violence against aid workers, landmines and explosive remnants of war, physical and environmental obstacles, and policy measures such as deregistration of organisations and prosecution of aid staff. December 2025 overview PDF (the edition the app shows; the file name gives 10 Feb 2026): the same three pillars and nine indicators, the 0-3 and 0-5 scales, the six levels (the PDF's wording runs from no significant to extreme access constraints; the explainer uses ACAPS's level names No constraints to Extreme, as the panel and legend do, ruling R5), and the fixed six-month data window (June to November 2025). The nearest-hub lines are the app's own (C3).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `why-these`: Why these? How the app chooses what to list
 
@@ -818,8 +806,7 @@ Text (292 words):
   - [Charities Urged to Crush Overhead Myth and Take Actions Toward an Overhead Solution](https://give.org/news/charities-urged-to-crush-overhead-myth-and-take-actions-toward-an-overhead-solution) (BBB Wise Giving Alliance, 17 Jul 2020)
 - Text checked against its sources on: 24 Nov 2026
 - What was opened, and when: Opened on 2026-11-24. IRS Tax Exempt Organization Search page (built-in browser; scripts get 403; last reviewed or updated 18 Nov 2026): check eligibility to receive tax-deductible contributions (Pub. 78 data) and the Automatic Revocation of Exemption List. FTC Before Giving to a Charity (consumer.ftc.gov, dated September 2025; the day is not given, so the 1st is used): confirm tax-deductibility with the IRS Tax Exempt Organization Search; evaluators BBB Wise Giving Alliance and Charity Watch keep lists of well-rated charities; ask how much goes to programmes. Evaluators' method pages only, each opened once in the built-in browser as a normal page view (never a charity profile; the plan's rule P4-8 bars scripts from their sites): Charity Navigator How We Rate Charities (zero to four stars from a 0-100 score; only US 501(c)(3) public charities with three years of Form 990 filings), BBB Standards for Charity Accountability (20 standards, each met, not met or unable to verify; governance and oversight, measuring effectiveness, finances, solicitations and informational materials), and give.org's Overhead Myth news item (posted 17 Jul 2020, the joint letter of 21 Oct 2014 by GuideStar, Charity Navigator and BBB Wise Giving Alliance denouncing the overhead ratio as a primary measure of performance). The thresholds (3 stars or more; all 20 standards) are the app's rule (spec Q1, profile.json). The hard-to-reach sentence is the spec's own caution (section 9.3), not a quotation from these sources. The 12-month expiry, the evidence rule and the order are the app's (spec 9.2, P4-9, P4-11).
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ## Awaiting confirmation / not entered
 

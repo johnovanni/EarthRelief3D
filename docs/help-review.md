@@ -30,8 +30,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Afghanistan Humanitarian Fund](https://www.unocha.org/afghanistan-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `central-african-republic-humanitarian-fund`: Central African Republic Humanitarian Fund
 
@@ -39,8 +38,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Central African Republic Humanitarian Fund](https://www.unocha.org/central-african-repulic/about-central-african-repulic-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `democratic-republic-congo-humanitarian-fund`: Democratic Republic of the Congo Humanitarian Fund
 
@@ -48,8 +46,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Democratic Republic of the Congo Humanitarian Fund](https://www.unocha.org/democratic-republic-congo-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `ethiopia-humanitarian-fund`: Ethiopia Humanitarian Fund
 
@@ -57,8 +54,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Ethiopia Humanitarian Fund](https://www.unocha.org/ethiopia-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `lebanon-humanitarian-fund`: Lebanon Humanitarian Fund
 
@@ -66,8 +62,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Lebanon Humanitarian Fund](https://www.unocha.org/lebanon-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `myanmar-humanitarian-fund`: Myanmar Humanitarian Fund
 
@@ -75,8 +70,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Myanmar Humanitarian Fund](https://www.unocha.org/myanmar-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `nigeria-humanitarian-fund`: Nigeria Humanitarian Fund
 
@@ -84,8 +78,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Nigeria Humanitarian Fund](https://www.unocha.org/nigeria-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `occupied-palestinian-territory-humanitarian-fund`: Occupied Palestinian Territory Humanitarian Fund
 
@@ -93,8 +86,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Occupied Palestinian Territory Humanitarian Fund](https://www.unocha.org/occupied-palestinian-territory-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `regional-humanitarian-fund-latin-america-and-caribbean`: Regional Humanitarian Fund for Latin America and the Caribbean
 
@@ -102,8 +94,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Regional Humanitarian Fund for Latin America and the Caribbean](https://www.unocha.org/regional-humanitarian-fund-latin-america-and-caribbean)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `regional-humanitarian-pooled-fund-asia-pacific`: Regional Humanitarian Pooled Fund for Asia-Pacific
 
@@ -111,8 +102,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Regional Humanitarian Pooled Fund for Asia-Pacific](https://www.unocha.org/regional-humanitarian-pooled-fund-asia-pacific)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `regional-humanitarian-pooled-fund-eastern-and-southern-africa`: Regional Humanitarian Pooled Fund for Eastern and Southern Africa
 
@@ -120,8 +110,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Regional Humanitarian Pooled Fund for Eastern and Southern Africa](https://www.unocha.org/regional-humanitarian-pooled-fund-eastern-and-southern-africa)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `regional-humanitarian-pooled-fund-west-and-central-africa`: Regional Humanitarian Pooled Fund for West and Central Africa
 
@@ -129,8 +118,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Regional Humanitarian Pooled Fund for West and Central Africa](https://www.unocha.org/regional-humanitarian-pooled-fund-west-and-central-africa)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `somalia-humanitarian-fund`: Somalia Humanitarian Fund
 
@@ -138,8 +126,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Somalia Humanitarian Fund](https://www.unocha.org/somalia-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `south-sudan-humanitarian-fund`: South Sudan Humanitarian Fund
 
@@ -147,8 +134,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [South Sudan Humanitarian Fund](https://www.unocha.org/south-sudan-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `sudan-humanitarian-fund`: Sudan Humanitarian Fund
 
@@ -156,8 +142,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Sudan Humanitarian Fund](https://www.unocha.org/sudan-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `syria-cross-border-humanitarian-fund`: Syria Cross-border Humanitarian Fund
 
@@ -165,8 +150,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Syria Cross-border Humanitarian Fund](https://www.unocha.org/syria-cross-border-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `syria-humanitarian-fund`: Syria Humanitarian Fund
 
@@ -174,8 +158,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Syria Humanitarian Fund](https://www.unocha.org/syria-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `ukraine-humanitarian-fund`: Ukraine Humanitarian Fund
 
@@ -183,8 +166,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Ukraine Humanitarian Fund](https://www.unocha.org/ukraine-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `venezuela-humanitarian-fund`: Venezuela Humanitarian Fund
 
@@ -192,8 +174,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Venezuela Humanitarian Fund](https://www.unocha.org/venezuela-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `yemen-humanitarian-fund`: Yemen Humanitarian Fund
 
@@ -201,8 +182,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Yemen Humanitarian Fund](https://www.unocha.org/yemen-humanitarian-fund)
 - How to give: [https://www.unocha.org/our-funding](https://www.unocha.org/our-funding): "OCHA's page explains how to give to its humanitarian funds"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `cerf`: Central Emergency Response Fund (CERF)
 
@@ -210,8 +190,7 @@ fund covers the countries OCHA's CBPF data lists as its sub-funds.
 - Page: [Central Emergency Response Fund (CERF)](https://cerf.un.org/)
 - How to give: [https://cerf.un.org/donate](https://cerf.un.org/donate): "US tax-deductible gifts go through the UN Foundation; CERF's page explains how"
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ## Official contacts
 
@@ -226,8 +205,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Note: Each senator's own contact form
 - Source: [Contact information for US senators (senators_cfm.xml)](https://www.senate.gov/general/contact_information/senators_cfm.xml) (United States Senate, 18 Nov 2026)
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `representative`: Your representative in the House
 
@@ -236,8 +214,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Note: The House's own page finds your representative; this app never asks for an address or ZIP code
 - Source: [Find Your Representative | house.gov](https://www.house.gov/representatives/find-your-representative) (US House of Representatives, 24 Nov 2026)
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `state-department`: The State Department
 
@@ -246,8 +223,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Note: Its general contact form is at the end of the page
 - Source: [U.S. Department of State - Contact Us](https://register.state.gov/contactus/contactusform) (US Department of State, 24 Nov 2026)
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ### `un-mission`: A country's mission to the UN
 
@@ -256,8 +232,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Note: The UN Blue Book lists the missions to the United Nations
 - Source: [The Blue Book | Department for General Assembly and Conference Management](https://www.un.org/dgacm/en/content/protocol/blue-book) (United Nations, 24 Nov 2026)
 - Checked on: 24 Nov 2026
-- Status: **draft**
-- Owner: approve / correct: 
+- Status: **approved** on 25 Nov 2026
 
 ## Charities
 

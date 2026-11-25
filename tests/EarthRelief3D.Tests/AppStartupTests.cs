@@ -66,11 +66,11 @@ public class AppStartupTests
                 && !s.Heading.StartsWith("People in need", StringComparison.Ordinal)
                 && !s.Heading.StartsWith(CountryPanelViewModel.AtrocityHeading, StringComparison.Ordinal)));
             Assert.Contains(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.AtrocityHeading);
-            // Plan 4 Task 6: Sudan has a current crisis, so "Your one small step" follows. The shipped rows are drafts: CERF, no charities, no contacts.
+            // Plan 4 Task 6: Sudan has a current crisis, so "Your one small step" follows. The shipped funds and contacts are approved (2026-11-25), the charities still drafts: a fund, no charities, the contacts.
             var step = Assert.Single(vm.Panel.Sections, s => s.Heading == CountryPanelViewModel.StepHeading);
-            Assert.Contains(step.Entries!, e => e.Title.Contains("CERF", StringComparison.Ordinal));
+            Assert.Contains(step.Entries!, e => e.Title.StartsWith("UN pooled fund for Sudan", StringComparison.Ordinal));
             Assert.Contains(step.Entries!, e => e.Lines.Contains("No vetted charities listed yet"));
-            Assert.DoesNotContain(step.Entries!, e => e.Group == "Contact");
+            Assert.Contains(step.Entries!, e => e.Group == "Contact");
 
             // One dot per source: the feeds grey until each reports, then the bundled extracts (Task 6), green from the start.
             Assert.Equal(AppServices.StatusDotNames, vm.Status.Dots.Select(d => d.Name));

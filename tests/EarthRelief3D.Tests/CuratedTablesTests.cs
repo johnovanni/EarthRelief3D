@@ -138,8 +138,8 @@ public class CuratedTablesTests
         Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-dubai").Position.LongitudeDeg, 54.9, 55.3);
         Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-kuala-lumpur").Position.LongitudeDeg, 101.4, 101.7);
         Assert.InRange(t.Depots.Single(d => d.Id == "unhrd-panama").Position.LongitudeDeg, -79.7, -79.4);
-        // Drafts until the owner approves each row (P4-13).
-        Assert.All(t.Depots, d => Assert.Equal(new Review(Review.Draft, null), d.Review));
+        // Approved by the owner on 2026-11-25; a new row starts as a draft again (P4-13).
+        Assert.All(t.Depots, d => Assert.Equal(new Review(Review.Approved, new DateOnly(2026, 11, 25)), d.Review));
         // A depot with a missing citation fails validation.
         var bad = DepotRow() with { Source = new DocumentCitation("", "UNHRD (WFP)", new Uri("http://unhrd.org/contacts"), default) };
         var problems = CuratedTables.Validate(Tables() with { Depots = [bad] });
@@ -156,10 +156,14 @@ public class CuratedTablesTests
         var t = Tables() with { Depots = [DepotRow("unhrd-draft"), DepotRow("unhrd-ok", "approved")] };
         Assert.Equal(["unhrd-ok"], t.VisibleDepots(new CuratedFilter(false, new HashSet<string>())).Select(d => d.Id));
         Assert.Equal(["unhrd-draft", "unhrd-ok"], t.VisibleDepots(new CuratedFilter(true, new HashSet<string>())).Select(d => d.Id));
-        // The real five are drafts, so none shows in a normal run.
+        // The real five are approved (2026-11-25), so all show in a normal run; turn one back into a draft and it is hidden again.
         var real = CuratedTables.Load(CuratedDir);
-        Assert.Empty(real.VisibleDepots(new CuratedFilter(false, new HashSet<string>())));
+        Assert.Equal(5, real.VisibleDepots(new CuratedFilter(false, new HashSet<string>())).Count);
         Assert.Equal(5, real.VisibleDepots(new CuratedFilter(true, new HashSet<string>())).Count);
+        var oneDraft = real with { Depots = [.. real.Depots.Select((d, i) => i == 0 ? d with { Review = new Review(Review.Draft, null) } : d)] };
+        Assert.Equal(4, oneDraft.VisibleDepots(new CuratedFilter(false, new HashSet<string>())).Count);
+        Assert.DoesNotContain(real.Depots[0].Id, oneDraft.VisibleDepots(new CuratedFilter(false, new HashSet<string>())).Select(d => d.Id));
+        Assert.Equal(5, oneDraft.VisibleDepots(new CuratedFilter(true, new HashSet<string>())).Count);
     }
 
     [Fact]

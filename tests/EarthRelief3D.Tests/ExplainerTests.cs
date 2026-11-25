@@ -46,6 +46,12 @@ public class ExplainerTests
             new Review(status, status == Review.Approved ? Written : null), Written)
         { Verification = "Opened both pages on 2026-11-24." };
 
+    /// <summary>The shipped tables with every explainer turned back into a draft (the shipped ones are approved).</summary>
+    private static CuratedTables RealDrafted(params string[] ids) => Real() with
+    {
+        Explainers = [.. Real().Explainers.Select(e => ids.Length == 0 || ids.Contains(e.Id) ? e with { Review = new Review(Review.Draft, null) } : e)],
+    };
+
     private static CuratedTables With(params Explainer[] explainers) => CuratedTablesTests.Tables() with { Explainers = explainers };
 
     [Fact]
@@ -54,8 +60,8 @@ public class ExplainerTests
         var t = Real();
         Assert.Equal(["conflict", "atrocities", "camps", "food", "outbreaks", "displacement", "access", "why-these"], Explainer.Ids);
         Assert.Equal(Explainer.Ids.OrderBy(i => i, StringComparer.Ordinal), t.Explainers.Select(e => e.Id).OrderBy(i => i, StringComparer.Ordinal));
-        // Drafted by Claude on 2026-11-24 (P4-13): every one is a draft until the owner approves it.
-        Assert.All(t.Explainers, e => Assert.Equal(new Review(Review.Draft, null), e.Review));
+        // Drafted by Claude on 2026-11-24; approved by the owner on 2026-11-25 (P4-13). A new row starts as a draft again.
+        Assert.All(t.Explainers, e => Assert.Equal(new Review(Review.Approved, new DateOnly(2026, 11, 25)), e.Review));
         Assert.All(t.Explainers, e => Assert.Equal(Written, e.ReviewedOn));
         // An unknown id and a repeated one are refused.
         Assert.Contains(CuratedTables.Validate(With(Row("weather"))), p => p.Contains("weather"));
@@ -184,12 +190,18 @@ public class ExplainerTests
     [Fact]
     public void DraftHasNoLink()
     {
-        // The shipped explainers are drafts: a normal run shows no link anywhere, and the card does not open.
-        var panel = Panel(Sudan(), new CuratedStore(Real(), showDrafts: false));
+        // Drafted explainers (the shipped ones turned back into drafts): a normal run shows no link anywhere, and the card does not open.
+        var panel = Panel(Sudan(), new CuratedStore(RealDrafted(), showDrafts: false));
         panel.Show("SDN");
         Assert.All(panel.Sections, s => Assert.Null(s.ExplainerId));
         Assert.False(panel.Explainer.Open("food"));
         Assert.False(panel.Explainer.IsOpen);
+
+        // The shipped explainers are approved (2026-11-25): a normal run links the food explainer.
+        var shipped = Panel(Sudan(), new CuratedStore(Real(), showDrafts: false));
+        shipped.Show("SDN");
+        Assert.Equal("food", Assert.Single(shipped.Sections, s => s.Heading == CountryPanelViewModel.FoodHeading).ExplainerId);
+        Assert.True(shipped.Explainer.Open("food"));
 
         // An approved explainer shows its link without --show-drafts; a draft beside it still shows none.
         var approved = new CuratedStore(With(Row("food"), Row("conflict", status: Review.Draft)), showDrafts: false);
@@ -240,7 +252,9 @@ public class ExplainerTests
     [Fact]
     public void OpensAndCloses()
     {
-        var curated = new CuratedStore(Real(), showDrafts: true);
+        // Food is turned back into a draft here so the draft label and the close-on-hide behaviour are covered; the rest are as shipped.
+        var tables = RealDrafted("food");
+        var curated = new CuratedStore(tables, showDrafts: true);
         var panel = Panel(Sudan(), curated);
         panel.Show("SDN");
         var card = panel.Explainer;
@@ -249,7 +263,7 @@ public class ExplainerTests
         // The panel's link opens the card with the explainer's title, paragraphs, sources and review line.
         panel.OpenExplainerCommand.Execute("food");
         Assert.True(card.IsOpen);
-        var food = Real().Explainers.Single(e => e.Id == "food");
+        var food = tables.Explainers.Single(e => e.Id == "food");
         Assert.Equal(food.Title, card.Title);
         Assert.Equal(food.Paragraphs, card.Paragraphs);
         Assert.Equal(food.Sources.Count, card.Sources.Count);

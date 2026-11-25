@@ -98,8 +98,10 @@ public class HubPanelTests
     [Fact]
     public void NoApprovedDepotSaysSo()
     {
-        // All the real depots are drafts, so none is visible in a normal run (P4-13).
-        var main = BuildMain(new CuratedStore(CuratedTables.Load(Path.Combine(AppContext.BaseDirectory, "data", "curated")), showDrafts: false));
+        // The shipped depots are approved (2026-11-25), so turn them all back into drafts: none is visible in a normal run (P4-13).
+        var shipped = CuratedTables.Load(Path.Combine(AppContext.BaseDirectory, "data", "curated"));
+        var drafted = shipped with { Depots = [.. shipped.Depots.Select(d => d with { Review = new Review(Review.Draft, null) })] };
+        var main = BuildMain(new CuratedStore(drafted, showDrafts: false));
         main.Panel.Show("SDN");
         var rows = HelpRows(main);
         Assert.Contains(("Nearest UN depot", "No UN depot confirmed yet"), rows);

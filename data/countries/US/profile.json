@@ -29,7 +29,7 @@
         "url": "https://www.senate.gov/general/contact_information/senators_cfm.xml",
         "date": "2026-11-18"
       },
-      "review": { "status": "draft", "approvedOn": null },
+      "review": { "status": "approved", "approvedOn": "2026-11-25" },
       "checkedOn": "2026-11-24"
     },
     {
@@ -44,7 +44,7 @@
         "url": "https://www.house.gov/representatives/find-your-representative",
         "date": "2026-11-24"
       },
-      "review": { "status": "draft", "approvedOn": null },
+      "review": { "status": "approved", "approvedOn": "2026-11-25" },
       "checkedOn": "2026-11-24"
     },
     {
@@ -59,7 +59,7 @@
         "url": "https://register.state.gov/contactus/contactusform",
         "date": "2026-11-24"
       },
-      "review": { "status": "draft", "approvedOn": null },
+      "review": { "status": "approved", "approvedOn": "2026-11-25" },
       "checkedOn": "2026-11-24"
     },
     {
@@ -74,7 +74,7 @@
         "url": "https://www.un.org/dgacm/en/content/protocol/blue-book",
         "date": "2026-11-24"
       },
-      "review": { "status": "draft", "approvedOn": null },
+      "review": { "status": "approved", "approvedOn": "2026-11-25" },
       "checkedOn": "2026-11-24"
     }
   ],

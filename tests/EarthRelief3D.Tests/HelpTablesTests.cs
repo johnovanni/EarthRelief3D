@@ -58,14 +58,15 @@ public class HelpTablesTests
         Assert.Null(profile.Contacts.Single(c => c.Id == "senators").Url);
         foreach (var c in profile.Contacts)
         {
-            Assert.Equal(Review.Draft, c.Review.Status);   // the owner approves them (P4-13)
+            // Approved by the owner on 2026-11-25; a new row starts as a draft again (P4-13).
+            Assert.Equal(new Review(Review.Approved, new DateOnly(2026, 11, 25)), c.Review);
             Assert.Equal(Uri.UriSchemeHttps, c.Source.Url.Scheme);
             Assert.False(string.IsNullOrWhiteSpace(c.Source.Title), c.Id);
             Assert.True(c.CheckedOn > new DateOnly(2026, 1, 1), c.Id);
         }
         foreach (var f in t.Funds)
         {
-            Assert.Equal(Review.Draft, f.Review.Status);
+            Assert.Equal(new Review(Review.Approved, new DateOnly(2026, 11, 25)), f.Review);   // a new row starts as a draft again
             Assert.Equal(new DateOnly(2026, 11, 24), f.CheckedOn);
             Assert.Equal(Uri.UriSchemeHttps, f.Page.Scheme);
             Assert.Equal(Uri.UriSchemeHttps, f.GiveUrl.Scheme);
