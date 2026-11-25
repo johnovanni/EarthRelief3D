@@ -1,0 +1,546 @@
+EarthRelief3D: third-party notices
+==================================
+
+EarthRelief3D includes, or depends on, the software and data below. The MIT licence requires its notice to travel with copies of the
+software, and the data licences ask for credit, which is why this file is installed with the app (About opens it). The data credits
+below are the ones the app shows on screen; the same list is in data\sources.json, and docs/data-sources.md is the record of where
+each came from.
+
+--------------------------------------------------------------------------------
+HelixToolkit.Wpf 3.1.2   (http://www.helix-toolkit.org/)
+MIT licence, text from the package's LICENSE file
+--------------------------------------------------------------------------------
+
+The MIT License (MIT)
+
+Copyright (c) 2023 Helix Toolkit contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+--------------------------------------------------------------------------------
+CommunityToolkit.Mvvm 8.4.0   (https://github.com/CommunityToolkit/dotnet)
+MIT licence, text from the project's License.md
+--------------------------------------------------------------------------------
+
+Copyright © .NET Foundation and Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+ExcelDataReader 3.7.0   (https://github.com/ExcelDataReader/ExcelDataReader)
+MIT licence, text from the project's LICENSE file at the commit the package was built from (840007736467bb66be083764021a3a6b9afad5c2);
+the NuGet package itself holds no licence text
+--------------------------------------------------------------------------------
+
+The MIT License (MIT)
+
+Copyright (c) 2014 ExcelDataReader
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+.NET runtime   (https://github.com/dotnet/runtime)
+MIT licence, text from the project's LICENSE.TXT
+--------------------------------------------------------------------------------
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+Windows Presentation Foundation (WPF)   (https://github.com/dotnet/wpf)
+MIT licence, text from the LICENSE file of the Microsoft.WindowsDesktop.App.Runtime.win-x64 10.0.15 package
+EarthRelief3D runs on this runtime and may include it in its installer.
+--------------------------------------------------------------------------------
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+Third-party components of the .NET runtime
+--------------------------------------------------------------------------------
+
+The .NET runtime that EarthRelief3D runs on contains third-party components under other licences. Their notices are in
+THIRD-PARTY-NOTICES-DOTNET-RUNTIME.txt, installed in the same folder as this file (the file is the .NET runtime's own
+THIRD-PARTY-NOTICES.TXT, from https://github.com/dotnet/runtime, release 10.0, unchanged).
+
+--------------------------------------------------------------------------------
+AstroCore (shared astronomy library, in external/AstroCore)
+MIT licence, text from the project's LICENSE file
+--------------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2026 John M. Apolloni
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+GlobeCore (shared globe library, in external/GlobeCore)
+MIT licence, text from the project's LICENSE file
+--------------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2026 John M. Apolloni
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The globe imagery, coastlines and borders, plate boundaries and cloud imagery below are embedded in the app from GlobeCore
+(external/GlobeCore). GlobeCore's own notices for them are in external/GlobeCore/THIRD-PARTY-NOTICES.txt; they are repeated in
+full below, so this file alone carries every notice the app needs.
+
+--------------------------------------------------------------------------------
+Plate boundaries: PB2002
+--------------------------------------------------------------------------------
+
+Peter Bird (2003), An updated digital model of plate boundaries, Geochemistry,
+Geophysics, Geosystems 4(3):1027 (PB2002). GIS conversion by Hugo Ahlenius, Nordpil
+(https://github.com/fraxen/tectonicplates).
+
+Licensed under the Open Data Commons Attribution License (ODC-By) 1.0:
+https://opendatacommons.org/licenses/by/1-0/
+You are free to copy, distribute and use the data, to produce works from it and to
+modify, transform and build upon it, as long as you attribute it as above. The steps were
+merged into polylines by kind and simplified to 0.01 degrees (by EarthWatch3D's
+tools/prepare-assets.ps1, which writes the result into GlobeCore's Earth pack).
+
+--------------------------------------------------------------------------------
+Globe imagery: NASA Blue Marble
+--------------------------------------------------------------------------------
+
+NASA Earth Observatory, Blue Marble Next Generation with Topography and Bathymetry
+(July 2004, R. Stockli), resized to 8192x4096. NASA imagery is generally not
+copyrighted (NASA Media Usage Guidelines).
+
+--------------------------------------------------------------------------------
+Coastlines and borders: Natural Earth
+--------------------------------------------------------------------------------
+
+Natural Earth (https://www.naturalearthdata.com/), 1:50m coastline and land boundary
+lines. Public domain.
+
+Natural Earth 5.1.2 admin-0 countries (1:50m), used by GlobeCore.Earth.CountryIndex. Public domain.
+Source: https://github.com/nvkelso/natural-earth-vector (tag v5.1.2).
+
+Natural Earth 5.1.2 admin-1 states and provinces (1:50m): the Crimea (UA-43) and Sevastopol
+(UA-40) polygons, extracted unchanged into ne_50m_admin_1_crimea_sevastopol.geojson and used to
+show them as part of Ukraine, as on UN maps (UN General Assembly resolution 68/262). Public domain.
+Source: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_50m_admin_1_states_provinces.geojson
+(SHA-256 69a0e06e640b2d505858ae1cb63034e4677f3000b35a98e16312932b98c426b9; the extract's SHA-256 is
+78984719dd109caa4191b0308edac92dd8aed63a5d13309e982e1da4e216a76b). The method is in
+src/GlobeCore.Earth/Assets/README.md.
+
+--------------------------------------------------------------------------------
+Cloud imagery: NASA GIBS
+--------------------------------------------------------------------------------
+
+Clouds: NASA GIBS (VIIRS NOAA-21 true colour). The daily image is downloaded at run time
+(GlobeCore.Earth.Clouds.GibsCloudsFeed); it is not included. The test sample
+tests/Samples/gibs_viirs_noaa21_truecolor_4096.jpg is one such image (2026-11-10).
+
+--------------------------------------------------------------------------------
+Data
+--------------------------------------------------------------------------------
+
+Each source below is credited as the app credits it. "<date>" stands for the source's own date, which the app fills in on screen.
+
+--------------------------------------------------------------------------------
+Data: Uppsala Conflict Data Program (UCDP), Georeferenced Event Dataset, Candidate
+--------------------------------------------------------------------------------
+
+Credit: Uppsala Conflict Data Program (UCDP) Candidate Events Dataset, Hegre et al. 2020
+Licence: CC BY 4.0
+Licence link: https://creativecommons.org/licenses/by/4.0/
+Source: https://ucdp.uu.se/downloads/
+What the app changed: Fetched when the app runs. Only some columns are read, and each event is filed under a country of the app's map. No UCDP figure is changed.
+Checked: 2026-11-22
+
+--------------------------------------------------------------------------------
+Data: Integrated Food Security Phase Classification (IPC), via HDX
+--------------------------------------------------------------------------------
+
+Credit: Integrated Food Security Phase Classification (IPC), via HDX; National IPC Technical Working Groups
+Licence: CC0 / public domain
+Licence link: https://creativecommons.org/publicdomain/zero/1.0/
+Source: https://data.humdata.org/dataset/global-acute-food-insecurity-country-data
+What the app changed: Fetched when the app runs and shown as published. A country is drawn by area only when the area data agrees with its national record.
+Checked: 2026-11-22
+
+--------------------------------------------------------------------------------
+Data: UNHCR Refugee Data Finder
+--------------------------------------------------------------------------------
+
+Credit: UNHCR Refugee Population Statistics Database
+Licence: CC BY 4.0
+Licence link: https://creativecommons.org/licenses/by/4.0/
+Source: https://api.unhcr.org/population/v1/population/
+What the app changed: Fetched when the app runs. The counts for each country of origin are shown as published.
+Checked: 2026-11-22
+
+--------------------------------------------------------------------------------
+Data: World Health Organization, Disease Outbreak News
+--------------------------------------------------------------------------------
+
+Credit: World Health Organization, Disease Outbreak News
+Licence: CC BY-NC-SA 3.0 IGO
+Licence link: https://creativecommons.org/licenses/by-nc-sa/3.0/igo/
+Source: https://www.who.int/emergencies/disease-outbreak-news
+What the app changed: Fetched when the app runs and kept in the user's data folder only (the licence is non-commercial and share-alike). Reports are shown by title and date, with the disease and places read from the title. No WHO text is stored in the app or its repository.
+Checked: 2026-11-22
+
+--------------------------------------------------------------------------------
+Data: World Health Organization, Global Health Observatory
+--------------------------------------------------------------------------------
+
+Credit: World Health Organization, Global Health Observatory
+Licence: CC BY 4.0
+Licence link: https://data.who.int/about/data/terms-and-conditions
+Source: https://www.who.int/data/gho/info/gho-odata-api
+What the app changed: Fetched when the app runs. Each country's newest value is shown with its year. WHO does not endorse EarthRelief3D.
+Checked: 2026-11-23
+
+--------------------------------------------------------------------------------
+Data: OCHA Humanitarian Needs Overview, via HDX
+--------------------------------------------------------------------------------
+
+Credit: OCHA Humanitarian Programme Cycle Tools (HPC Tools), via HDX: Global HPC HNO 2026; CC BY-IGO
+Licence: CC BY-IGO
+Licence link: https://creativecommons.org/licenses/by/3.0/igo/legalcode
+Source: https://data.humdata.org/dataset/global-hpc-hno
+What the app changed: Fetched when the app runs. National figures are shown as published.
+Checked: 2026-11-23
+
+--------------------------------------------------------------------------------
+Data: FAOSTAT, Suite of Food Security Indicators
+--------------------------------------------------------------------------------
+
+Credit: FAO. 2026. FAOSTAT: Suite of Food Security Indicators. Accessed on 23 November 2026. Licence: CC-BY-4.0.
+Licence: CC BY 4.0
+Licence link: https://creativecommons.org/licenses/by/4.0/
+Source: https://www.fao.org/faostat/en/#data/FS
+What the app changed: Bundled extract (data\datasets\fao-food-security): each country's newest 3-year average that has a value, for undernourishment and dietary energy supply adequacy. FAO's regional and world totals and its China total are left out so nothing is counted twice. FAO does not endorse EarthRelief3D.
+Checked: 2026-11-23
+
+--------------------------------------------------------------------------------
+Data: U.S. Energy Information Administration, International Energy Statistics
+--------------------------------------------------------------------------------
+
+Credit: Source: U.S. Energy Information Administration (<date>)
+Licence: Public domain (U.S. government work)
+Licence link: https://www.eia.gov/about/copyrights_reuse.php
+Source: https://www.eia.gov/international/
+What the app changed: Bundled extract (data\datasets\eia-crude-oil): crude oil including lease condensate, each country's latest full year. EIA's regional and group totals are left out so nothing is counted twice.
+Checked: 2026-11-23
+
+--------------------------------------------------------------------------------
+Data: World Resources Institute, Aqueduct 4.0 country rankings
+--------------------------------------------------------------------------------
+
+Credit: Kuzma, S., M.F.P. Bierkens, S. Lakshman, T. Luo, L. Saccoccia, E. H. Sutanudjaja, and R. Van Beek. 2023. Aqueduct 4.0: Updated decision-relevant global water risk indicators. Technical Note. Washington, DC: World Resources Institute. Available online at: doi.org/10.46830/writn.23.00061.
+Licence: CC BY 4.0
+Licence link: https://www.wri.org/about/open-data-commitment
+Source: https://www.wri.org/data/aqueduct-40-country-rankings
+What the app changed: Bundled extract (data\datasets\aqueduct-water-stress): the baseline water stress category for each country, from the country_baseline sheet. WRI's workbook also credits GADM 3.6 for the boundaries.
+Checked: 2026-11-23
+
+--------------------------------------------------------------------------------
+Data: Global Energy Monitor, Global Integrated Power Tracker
+--------------------------------------------------------------------------------
+
+Credit: Global Energy Monitor, Global Integrated Power Tracker, September 2026 release.
+Licence: CC BY 4.0
+Licence link: https://creativecommons.org/licenses/by/4.0/
+Source: https://globalenergymonitor.org/projects/global-integrated-power-tracker/
+What the app changed: Bundled extracts (data\datasets\gem-power and gem-renewables). Power: filtered to operating plants of 500 MW or more (units summed per plant); operating units summed per plant; plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out. Renewables: filtered to operating renewable plants of 200 MW or more (renewable units summed per plant); renewable units (wind, utility-scale solar, hydropower, geothermal, bioenergy) only; operating units summed per plant; plants with a unit sourced from TransitionZero (CC BY-NC 4.0) left out.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: Global Energy Monitor, Global Oil and Gas Extraction Tracker
+--------------------------------------------------------------------------------
+
+Credit: Global Energy Monitor, Global Oil and Gas Extraction Tracker, March 2026 release.
+Licence: CC BY 4.0
+Licence link: https://creativecommons.org/licenses/by/4.0/
+Source: https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/
+What the app changed: Bundled extract (data\datasets\gem-oilgas): filtered to operating fields with coordinates, leaving out those GEM reports producing under 0.2 million barrels of oil equivalent a year (each fuel's newest reported year, summed; gas converted at 6,000 cubic feet per barrel of oil equivalent).
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: Global Energy Monitor, Global Iron and Steel Tracker
+--------------------------------------------------------------------------------
+
+Credit: Global Energy Monitor, Global Iron and Steel Tracker, September 2026 (V1) release.
+Licence: CC BY 4.0
+Licence link: https://creativecommons.org/licenses/by/4.0/
+Source: https://globalenergymonitor.org/projects/global-iron-and-steel-tracker/
+What the app changed: Bundled extract (data\datasets\gem-steel): filtered to operating plants of 1 million tonnes of crude steel a year or more; a plant's operating crude steel capacities summed and converted from thousand to million tonnes a year.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: ACAPS, Humanitarian Access Dataset, via HDX
+--------------------------------------------------------------------------------
+
+Credit: ACAPS, Humanitarian Access Dataset, <date>, via HDX (CC BY on HDX; ACAPS: CC BY-NC-ND 4.0)
+Licence: CC BY on HDX; CC BY-NC-ND 4.0 on ACAPS's own site
+Licence link: https://www.acaps.org/copyright-policy
+Source: https://www.acaps.org/en/thematics/all-topics/humanitarian-access-overview
+What the app changed: Fetched when the app runs from HDX and kept in the user's data folder only; nothing from ACAPS is bundled or committed. Scores are shown as published, with the edition named.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: OCHA Financial Tracking Service (FTS), via HDX
+--------------------------------------------------------------------------------
+
+Credit: Financial Tracking Service (FTS), <date>, https://fts.unocha.org
+Licence: CC BY 4.0
+Licence link: https://fts.unocha.org/content/terms-use
+Source: https://fts.unocha.org/
+What the app changed: Fetched when the app runs. Requirements and funding are shown as published. The FTS logo is not used.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: OCHA country-based pooled funds and CERF
+--------------------------------------------------------------------------------
+
+Credit: OCHA country-based pooled funds and CERF, https://cbpf.data.unocha.org/
+Licence: CC BY 4.0
+Licence link: https://cbpf.data.unocha.org/
+Source: https://cbpf.data.unocha.org/
+What the app changed: Written by hand from OCHA's fund pages; each fund row cites its own page.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: NGA World Port Index (Pub 150)
+--------------------------------------------------------------------------------
+
+Credit: US National Geospatial-Intelligence Agency (NGA), World Port Index (Pub 150), public domain.
+Licence: Public domain (US government work, 17 U.S.C. 105)
+Source: https://msi.nga.mil/Publications/WPI
+What the app changed: Bundled extract (data\datasets\wpi-ports): only ports with a large or medium harbour are kept, each placed in a country. NGA's portal was under maintenance when checked on 2026-11-24, so the licence basis is not confirmed on NGA's own page.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: OurAirports
+--------------------------------------------------------------------------------
+
+Credit: OurAirports (ourairports.com), public domain (The Unlicense)
+Licence: The Unlicense (public domain)
+Licence link: https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/LICENSE
+Source: https://ourairports.com/data/
+What the app changed: Bundled extract (data\datasets\ourairports): only large and medium airports with scheduled service are kept, each placed in a country.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: UN Humanitarian Response Depot (UNHRD)
+--------------------------------------------------------------------------------
+
+Credit: UNHRD (WFP), Contacts | UNHRD - Humanitarian Response Depot, https://unhrd.org/contacts
+Licence: No licence statement read
+Source: https://unhrd.org/contacts
+What the app changed: The page gives no coordinates, so each depot is marked at the airport its own address names or sits beside (airport positions from OurAirports); positions are approximate. Staff contact details are not copied.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: United States Senate, member contact list
+--------------------------------------------------------------------------------
+
+Credit: United States Senate, senate.gov, <date>
+Licence: Public information; may be distributed or copied unless otherwise specified (senate.gov privacy policy)
+Licence link: https://www.senate.gov/general/privacy.htm
+Source: https://www.senate.gov/general/contact_information/senators_cfm.xml
+What the app changed: Bundled extract (data\countries\US\senators.json): only the state, name, party letter, contact form and website of each senator are kept. The street address, phone number, class and ID are not.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: US House of Representatives, US Department of State, UN Blue Book
+--------------------------------------------------------------------------------
+
+Credit: US House of Representatives, Find Your Representative (house.gov); US Department of State, Contact Us; United Nations, The Blue Book
+Licence: Links only; the House says there is no restriction on linking to its page
+Source: https://www.house.gov/representatives/find-your-representative
+What the app changed: Nothing is copied. The app links to these pages.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: Logistics Cluster
+--------------------------------------------------------------------------------
+
+Credit: Logistics Cluster, https://logcluster.org/en/where-we-work
+Licence: Terms of use: no commercial use, and the Logistics Cluster must be credited
+Licence link: https://logcluster.org/en/terms-of-use
+Source: https://logcluster.org/en/where-we-work
+What the app changed: Nothing is copied. The app links to the country pages.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: US Internal Revenue Service (IRS), Tax Exempt Organization Search
+--------------------------------------------------------------------------------
+
+Credit: US Internal Revenue Service (IRS), Tax Exempt Organization Search (Publication 78, revocation list) and Form 990 e-file data, https://apps.irs.gov/app/eos/
+Licence: US government work (public domain); not confirmed on the IRS's own page
+Source: https://apps.irs.gov/app/eos/
+What the app changed: Nothing from the IRS is bundled. The app links to the IRS search page.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: Charity Navigator and BBB Wise Giving Alliance
+--------------------------------------------------------------------------------
+
+Credit: Charity Navigator (charitynavigator.org) and BBB Wise Giving Alliance (give.org): links only, ratings are not copied
+Licence: Links only; no ratings are copied
+Source: https://www.charitynavigator.org/
+What the app changed: Nothing is copied. The app links to each evaluator's page.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: Curated tables: designations, camp sites and explainers
+--------------------------------------------------------------------------------
+
+Credit: Each curated entry cites its own source documents
+Licence: MIT (this app's own licence)
+Licence link: https://github.com/johnovanni/EarthRelief3D/blob/main/LICENSE
+Source: https://github.com/johnovanni/EarthRelief3D
+What the app changed: Written for this app from the documents each entry cites.
+Checked: 2026-11-24
+
+--------------------------------------------------------------------------------
+Data: Natural Earth
+--------------------------------------------------------------------------------
+
+Credit: Natural Earth (https://www.naturalearthdata.com/), public domain
+Licence: Public domain
+Source: https://www.naturalearthdata.com/
+What the app changed: Used by GlobeCore for coastlines and borders. The app applies its own boundary rules (Crimea and Sevastopol shown as part of Ukraine, UN General Assembly resolution 68/262; Somaliland shown as part of Somalia) and says so on screen.
+Checked: 2026-11-22
+
+--------------------------------------------------------------------------------
+Data: NASA Blue Marble
+--------------------------------------------------------------------------------
+
+Credit: NASA Earth Observatory, Blue Marble Next Generation with Topography and Bathymetry (July 2004, R. Stockli)
+Licence: NASA imagery is generally not copyrighted (NASA Media Usage Guidelines)
+Source: https://earthobservatory.nasa.gov/
+What the app changed: Resized to 8192x4096 for the globe.
+Checked: 2026-11-25
