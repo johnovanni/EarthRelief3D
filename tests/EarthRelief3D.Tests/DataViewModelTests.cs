@@ -198,6 +198,38 @@ public sealed class DataViewModelTests
     }
 
     [Fact]
+    public void IrsRowGivesTheCharityChecks()
+    {
+        var real = Inputs();
+        var newest = real.Help.Charities.Where(c => c.Legal is not null).Max(c => c.Legal!.CheckedOn);
+        var row = RowOf(Make(real), "irs");
+        Assert.Equal("curated", Real().Sources.Single(x => x.Id == "irs").Use.ToString().ToLowerInvariant());
+        Assert.Equal("each charity gives its own Publication 78 check date; latest checked " + CrisisText.Date(newest), row.AsOf);
+        Assert.Equal("written for the app, each entry cited", row.Use);
+        // No charity loaded: it says what applies.
+        Assert.StartsWith("no charity is listed yet", RowOf(Make(Inputs(realTables: false)), "irs").AsOf);
+        // The evaluators stay links only: their ratings are never copied.
+        Assert.Equal("links only", RowOf(Make(real), "charity-evaluators").Use);
+    }
+
+    [Fact]
+    public void EiaCreditFollowsThePublishedDayNotTheDownload()
+    {
+        // Published in October, downloaded in December: the credit says October.
+        var published = new SourceCitation("EIA", "INTL", null, new Uri("https://example.org/"), "Public domain", "EIA",
+            new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc), new DateTime(2026, 12, 3, 0, 0, 0, DateTimeKind.Utc), CitationDate.Year)
+        { PublishedUtc = new DateTime(2026, 10, 19, 0, 0, 0, DateTimeKind.Utc) };
+        var row = RowOf(Make(Inputs(datasets: new Dictionary<string, SourceCitation> { ["eia-crude-oil"] = published })), "eia");
+        Assert.Equal("Source: U.S. Energy Information Administration (Oct 2026)", row.Credit);
+        // No published day known: the date is dropped, never replaced by the download day.
+        var unknown = published with { PublishedUtc = null };
+        var bare = RowOf(Make(Inputs(datasets: new Dictionary<string, SourceCitation> { ["eia-crude-oil"] = unknown })), "eia");
+        Assert.Equal("Source: U.S. Energy Information Administration", bare.Credit);
+        // The real extract carries its manifest's published day.
+        Assert.Equal("Source: U.S. Energy Information Administration (Nov 2026)", RowOf(Make(Inputs(datasets: RealDatasets())), "eia").Credit);
+    }
+
+    [Fact]
     public void LicenceLinksAreCarriedOver()
     {
         var vm = Make(Inputs());

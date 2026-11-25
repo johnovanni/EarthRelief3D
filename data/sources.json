@@ -288,8 +288,8 @@
   {
     "id": "irs",
     "name": "US Internal Revenue Service (IRS), Tax Exempt Organization Search",
-    "what": "Charities are checked against the IRS's lists (Publication 78, the revocation list and Form 990 e-file data) by a vetting tool that is not part of the app. The app links to the IRS search page. Nothing from the IRS is bundled.",
-    "use": "linksOnly",
+    "what": "Each listed charity is checked against the IRS's lists (Publication 78, the revocation list and Form 990 e-file data) by a vetting tool that is not part of the app. The app shows the result with the day of the check, and links to the IRS search page. No IRS file is bundled.",
+    "use": "curated",
     "licence": "US government work (public domain); not confirmed on the IRS's own page",
     "licenceUrl": null,
     "credit": "US Internal Revenue Service (IRS), Tax Exempt Organization Search (Publication 78, revocation list) and Form 990 e-file data, https://apps.irs.gov/app/eos/",

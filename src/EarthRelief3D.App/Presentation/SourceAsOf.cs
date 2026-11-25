@@ -70,8 +70,8 @@ public static class SourceAsOf
             case "fts":
                 return NewestCitation(i.Indicators.Appeals.Select(x => x.Citation)) is { } f ? Plain(CrisisText.DataDate(f, nowUtc)) : null;
             case "eia":
-                // The credit names the month the figures were published; the extract's download is that month (its manifest).
-                return DatasetCitation(s, i) is { } e ? e.RetrievedUtc.ToString("MMM yyyy", System.Globalization.CultureInfo.InvariantCulture) : null;
+                // EIA asks for the publication date of the figures (the INTL file's, from the extract's manifest); never the download day.
+                return DatasetCitation(s, i)?.PublishedUtc is { } published ? published.ToString("MMM yyyy", System.Globalization.CultureInfo.InvariantCulture) : null;
             case "us-senate":
                 return i.Help.Senators.Count > 0 && i.Help.SenatorsAsOf != default ? CrisisText.Date(i.Help.SenatorsAsOf) : null;
             default:
@@ -165,8 +165,18 @@ public static class SourceAsOf
 
     private const string EachEntry = "each entry gives its own date; ";
 
+    private static string IrsText(SourceAsOfInputs i)
+    {
+        // The charities the user sees (approved ones; drafts too in a --show-drafts run), each with its own Publication 78 check.
+        var checks = i.Help.Charities.Where(c => c.Review.IsApproved || i.Curated.ShowDrafts).Select(c => c.Legal?.CheckedOn).OfType<DateOnly>().ToList();
+        return checks.Count == 0
+            ? "no charity is listed yet; each one will give its own Publication 78 check date"
+            : "each charity gives its own Publication 78 check date; latest checked " + CrisisText.Date(checks.Max());
+    }
+
     private static string CuratedText(SourceInfo s, SourceAsOfInputs i)
     {
+        if (s.Id == "irs") return IrsText(i);
         var (rows, newest) = s.Id switch
         {
             "ocha-pooled-funds" => Reviews(i.Help.Funds.Select(f => f.Review)),

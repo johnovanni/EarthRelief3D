@@ -512,7 +512,7 @@ Data: US Internal Revenue Service (IRS), Tax Exempt Organization Search
 Credit: US Internal Revenue Service (IRS), Tax Exempt Organization Search (Publication 78, revocation list) and Form 990 e-file data, https://apps.irs.gov/app/eos/
 Licence: US government work (public domain); not confirmed on the IRS's own page
 Source: https://apps.irs.gov/app/eos/
-What the app changed: Nothing from the IRS is bundled. The app links to the IRS search page.
+What the app changed: No IRS file is bundled. Each listed charity's check against the IRS lists is shown with the day it was made, and the app links to the IRS search page.
 Checked: 2026-11-24
 
 --------------------------------------------------------------------------------

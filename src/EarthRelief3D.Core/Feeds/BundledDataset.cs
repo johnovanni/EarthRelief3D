@@ -55,13 +55,15 @@ public static class BundledDataset
                 throw new InvalidDataException("a Baseline manifest needs its dateText (\"baseline 1979–2019 (published 2023)\")");
             var dateText = meaning == CitationDate.Baseline ? manifest.DateText!.Trim() : null;
             var downloaded = Day(manifest.Downloaded, "downloaded");
+            DateTime? published = DateTime.TryParseExact(manifest.Published, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var pd) ? DateTime.SpecifyKind(pd, DateTimeKind.Utc) : null;
             var page = Uri.TryCreate(manifest.PageUrl, UriKind.Absolute, out var u) ? u : throw new InvalidDataException("pageUrl is not a URL");
             var citations = new Dictionary<int, SourceCitation>();
             SourceCitation Cite(int year)
             {
                 if (!citations.TryGetValue(year, out var c))
                     citations[year] = c = new SourceCitation(manifest.Publisher, manifest.Dataset, manifest.Version, page, manifest.Licence,
-                        manifest.Attribution, new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc), downloaded, meaning) { DateText = dateText };
+                        manifest.Attribution, new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc), downloaded, meaning) { DateText = dateText, PublishedUtc = published };
                 return c;
             }
 
