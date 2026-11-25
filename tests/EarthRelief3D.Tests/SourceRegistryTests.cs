@@ -9,7 +9,7 @@ public sealed class SourceRegistryTests
 {
     private static readonly string[] ExpectedIds =
     [
-        "ucdp", "ipc", "unhcr", "who-don", "who-gho", "ocha-hno", "faostat", "eia", "aqueduct", "gem-gipt", "gem-oilgas", "gem-steel",
+        "ucdp", "ipc", "ipc-areas", "unhcr", "who-don", "who-gho", "ocha-hno", "faostat", "eia", "aqueduct", "gem-gipt", "gem-oilgas", "gem-steel",
         "acaps", "fts", "ocha-pooled-funds", "nga-wpi", "ourairports", "unhrd", "us-senate", "us-contacts", "logistics-cluster", "irs",
         "charity-evaluators", "curated", "natural-earth", "blue-marble",
     ];
@@ -26,7 +26,7 @@ public sealed class SourceRegistryTests
     {
         var r = Real();
         Assert.Empty(SourceRegistry.Validate(r));
-        Assert.Equal(26, r.Sources.Count);
+        Assert.Equal(27, r.Sources.Count);
         Assert.Equal(ExpectedIds, r.Sources.Select(s => s.Id));
         Assert.Equal(r.Sources.Count, r.Sources.Select(s => s.Id).Distinct().Count());
     }
@@ -74,8 +74,20 @@ public sealed class SourceRegistryTests
         var eia = Real().Sources.Single(s => s.Id == "eia");
         Assert.Equal("Source: U.S. Energy Information Administration (Nov 2026)", eia.CreditFor("Nov 2026"));
         Assert.Equal("Source: U.S. Energy Information Administration", eia.CreditFor(null));
+        var areas = Real().Sources.Single(s => s.Id == "ipc-areas");
+        Assert.EndsWith("National IPC Technical Working Group, analysis 12 Mar 2026", areas.CreditFor("12 Mar 2026"));
+        Assert.EndsWith("National IPC Technical Working Group", areas.CreditFor(null));
         var ucdp = Real().Sources.Single(s => s.Id == "ucdp");
         Assert.Equal(ucdp.Credit, ucdp.CreditFor("anything"));   // no {date}: nothing to fill
+    }
+
+    [Fact]
+    public void FtsLicenceKeepsBothStatementsAndLinksToALicence()
+    {
+        var fts = Real().Sources.Single(s => s.Id == "fts");
+        Assert.Contains("except where otherwise noted", fts.Licence);
+        Assert.Contains("CC BY-IGO", fts.Licence);
+        Assert.Contains("creativecommons.org", fts.LicenceUrl!.Host);
     }
 
     [Fact]

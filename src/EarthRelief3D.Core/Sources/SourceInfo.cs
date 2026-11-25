@@ -24,13 +24,14 @@ public sealed record SourceInfo(string Id, string Name, string What, SourceUse U
 
     /// <summary>
     /// The credit with <c>{date}</c> replaced by <paramref name="dateText"/>. With no date the placeholder goes, together with
-    /// the comma or the brackets that set it off ("FTS, {date}, url" becomes "FTS, url"; "(…)" with nothing in it is dropped).
+    /// the comma or the brackets that set it off ("FTS, {date}, url" becomes "FTS, url"; ", analysis {date}" and a bracketed " ({date})" are dropped whole).
     /// </summary>
     public string CreditFor(string? dateText)
     {
         if (!Credit.Contains(DatePlaceholder, StringComparison.Ordinal)) return Credit;
         if (!string.IsNullOrWhiteSpace(dateText)) return Credit.Replace(DatePlaceholder, dateText.Trim(), StringComparison.Ordinal);
         return Credit.Replace(" (" + DatePlaceholder + ")", "", StringComparison.Ordinal)
+            .Replace(", analysis " + DatePlaceholder, "", StringComparison.Ordinal)
             .Replace(", " + DatePlaceholder, "", StringComparison.Ordinal)
             .Replace(DatePlaceholder, "", StringComparison.Ordinal)
             .Trim();
