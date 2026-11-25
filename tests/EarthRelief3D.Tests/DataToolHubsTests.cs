@@ -120,6 +120,29 @@ public class DataToolHubsTests
     }
 
     [Fact]
+    public void PortalNoteIsWrittenAsGiven()
+    {
+        using var dir = new TempDir();
+        const string note = "msi.nga.mil answered 503 on 2027-05-02";
+        var x = HubExtractor.Ports(PortsZip(dir), SourceZips.Codes, portalNote: note);
+        var licence = Assert.Single(x.Manifest.Notes, n => n.StartsWith("Licence:", StringComparison.Ordinal));
+        Assert.Contains(note, licence, StringComparison.Ordinal);
+        Assert.DoesNotContain("2026-11-24", licence, StringComparison.Ordinal);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(licence, @"\d{4}-\d{2}-\d{2}"));
+    }
+
+    [Fact]
+    public void NoPortalNoteSaysNotRechecked()
+    {
+        using var dir = new TempDir();
+        var x = HubExtractor.Ports(PortsZip(dir), SourceZips.Codes);
+        var licence = Assert.Single(x.Manifest.Notes, n => n.StartsWith("Licence:", StringComparison.Ordinal));
+        Assert.Contains("not re-checked for this extract", licence, StringComparison.Ordinal);
+        Assert.DoesNotMatch(@"\d{4}-\d{2}-\d{2}", licence);
+        Assert.DoesNotContain("maintenance", licence, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PortsReadTheBareCsvToo()
     {
         var csv = new SourceFile(Samples.Path("wpi_excerpt.csv"), CsvDate, Downloaded);   // the file has the BOM

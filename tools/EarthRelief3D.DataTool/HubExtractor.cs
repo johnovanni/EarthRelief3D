@@ -134,8 +134,9 @@ public static class HubExtractor
     /// </summary>
     /// <param name="src">The <c>WPI.zip</c> (its <c>UpdatedPub150.csv</c> is read) or the CSV itself.</param>
     /// <param name="published">The CSV's own date; null: the zip entry's date (a CSV needs <see cref="SourceFile.Published"/>).</param>
+    /// <param name="portalNote">What was seen on NGA's portal, in the licence note as given (P5-13); null: the note says the portal was not re-checked for this extract, with no date.</param>
     /// <exception cref="InvalidDataException">The file lacks a column the extract needs (a format change).</exception>
-    public static PointExtract Ports(SourceFile src, CountryCodes codes, DateOnly? published = null)
+    public static PointExtract Ports(SourceFile src, CountryCodes codes, DateOnly? published = null, string? portalNote = null)
     {
         ArgumentNullException.ThrowIfNull(src);
         ArgumentNullException.ThrowIfNull(codes);
@@ -158,12 +159,12 @@ public static class HubExtractor
                 asOf = published ?? src.Published;
                 reader = new StreamReader(src.Path, new System.Text.UTF8Encoding(false), detectEncodingFromByteOrderMarks: true);
             }
-            using (reader) return ReadPorts(src, codes, reader, asOf);
+            using (reader) return ReadPorts(src, codes, reader, asOf, portalNote);
         }
         finally { zip?.Dispose(); }
     }
 
-    private static PointExtract ReadPorts(SourceFile src, CountryCodes codes, TextReader reader, DateOnly asOf)
+    private static PointExtract ReadPorts(SourceFile src, CountryCodes codes, TextReader reader, DateOnly asOf, string? portalNote)
     {
         using var rows = CsvReader.Read(reader).GetEnumerator();
         if (!rows.MoveNext()) throw new InvalidDataException("WPI: the file is empty");
@@ -221,7 +222,10 @@ public static class HubExtractor
                 + $"{notPlaced.Values.Sum(v => v.Count):N0} large or medium ports have no country in the boundary set."),
             string.Create(CultureInfo.InvariantCulture,
                 $"Country: {byLocode:N0} ports by the first two letters of the UN/LOCODE (ISO 3166 alpha-2), {byName:N0} with no usable UN/LOCODE by the country name in the Country Code column."),
-            "Licence: no statement could be read on NGA's portal (it was under maintenance on 2026-11-24); a US federal government work (17 U.S.C. section 105), not confirmed from NGA's own page.",
+            (string.IsNullOrWhiteSpace(portalNote)
+                ? "Licence: NGA's portal was not re-checked for this extract, so no statement was read there"
+                : $"Licence: no statement could be read on NGA's portal ({portalNote.Trim()})")
+                + "; a US federal government work (17 U.S.C. section 105), not confirmed from NGA's own page.",
             "The file is UTF-8 with a byte order mark. Its date is the zip entry's (the CSV inside WPI.zip); the portal states no edition number.",
         };
         var manifest = new DatasetManifest
@@ -239,7 +243,7 @@ public static class HubExtractor
             Downloaded = src.Downloaded.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             FileName = src.FileName,
             FileSha256 = src.Sha256(),
-            Command = $"DataTool ports <downloads>/{src.FileName} --downloaded {src.Downloaded:yyyy-MM-dd}",
+            Command = $"DataTool ports <downloads>/{src.FileName} --downloaded {src.Downloaded:yyyy-MM-dd}" + (string.IsNullOrWhiteSpace(portalNote) ? "" : $" --portal-note \"{portalNote.Trim()}\""),
             Series = [new ManifestSeries(PortsFolder, "Ports with a large or medium harbour", "ports", PortsCsvName, countries)],
             NotPlaced = unplaced,
             Dropped = [],

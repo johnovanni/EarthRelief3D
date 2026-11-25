@@ -69,7 +69,7 @@ public sealed class HubArcLayer : SceneLayer
         int arcs = 0;
         foreach (var spec in _specs() ?? [])
         {
-            var path = ArcPoints(spec.From, spec.Link.Hub.Position);
+            var path = ArcPoints(spec.From, spec.Link.Hub.Position, LiftFactor(spec.Link.Hub.Kind));
             if (path.Count < 2) continue;
             var lifted = path.Select(p => new Point3D(p.X * SurfaceClearance, p.Y * SurfaceClearance, p.Z * SurfaceClearance)).ToList();
             var material = MarkerMeshes.Material(LayerStyle.HubColor(spec.Link.Hub.Kind));
@@ -105,12 +105,23 @@ public sealed class HubArcLayer : SceneLayer
     // ---------------------------------------------------------------- geometry
 
     /// <summary>
+    /// How much higher each kind of hub's arc is lifted (P5-14): arcs from one place to a port and to a depot can leave in nearly the
+    /// same direction (Sudan's label point to Port Sudan and to the Dubai depot), and the short port arc lay under the depot's ribbon.
+    /// </summary>
+    public static double LiftFactor(HubKind kind) => kind switch
+    {
+        HubKind.Port => 1.5,
+        HubKind.Airport => 1.25,
+        _ => 1.0,
+    };
+
+    /// <summary>
     /// The arc's points in Earth radii: the great circle from <paramref name="from"/> to <paramref name="to"/> in steps of 1
     /// degree or less (<see cref="SphereLines.Densify"/>, which takes the short way across the date line and over a pole), each
     /// lifted by <c>1 + h·sin(πt)</c> where t runs from 0 to 1 along the path and
-    /// <c>h = min(0.08, 0.25 × the central angle in radians)</c>: on the surface at both ends, highest in the middle.
+    /// <c>h = min(0.08 × k, 0.25 × the central angle in radians × k)</c> with k the <paramref name="liftFactor"/> (<see cref="LiftFactor"/>, 1 by default): on the surface at both ends, highest in the middle.
     /// </summary>
-    public static IReadOnlyList<Point3D> ArcPoints(SurfacePoint from, SurfacePoint to)
+    public static IReadOnlyList<Point3D> ArcPoints(SurfacePoint from, SurfacePoint to, double liftFactor = 1.0)
     {
         var flat = SphereLines.Densify(new GeoLine([(GeoPosition)from, (GeoPosition)to]), 1.0, 1.0);
         if (flat.Count < 2) return flat;
@@ -119,7 +130,7 @@ public sealed class HubArcLayer : SceneLayer
         a.Normalize();
         b.Normalize();
         double angle = Math.Acos(Math.Clamp(Vector3D.DotProduct(a, b), -1, 1));
-        double h = Math.Min(MaxLift, LiftPerRadian * angle);
+        double h = Math.Min(MaxLift * liftFactor, LiftPerRadian * angle * liftFactor);
         var result = new List<Point3D>(flat.Count);
         for (int i = 0; i < flat.Count; i++)
         {
