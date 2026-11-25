@@ -24,7 +24,7 @@ public sealed partial class AboutViewModel : ObservableObject
     public const string HeadingText = "About EarthRelief3D";
     public const string AppLicenceText = "EarthRelief3D is free software under the MIT licence. Copyright (c) 2026 John M. Apolloni.";
     public const string PrinciplesText = "Every fact on screen shows where it comes from and how recent it is. EarthRelief3D never handles money, never ranks charities by its own opinion, shows no graphic images, makes no sound and collects no personal data.";
-    public const string BandsNote = "Bands only set a marker's size; the source's own figure is always shown with it.";
+    public const string BandsNote = "Bands only set a marker's size or shade; the source's own figure is always shown with it.";
 
     public static readonly Uri Releases = new("https://github.com/johnovanni/EarthRelief3D/releases");
     public static readonly Uri BandsPage = new("https://github.com/johnovanni/EarthRelief3D/blob/main/docs/severity-bands.md");

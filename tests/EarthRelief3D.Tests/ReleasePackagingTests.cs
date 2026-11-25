@@ -141,6 +141,30 @@ public sealed class ReleasePackagingTests
         Assert.Equal(["nowait", "runasoriginaluser", "skipifnotsilent"], Flags(lines[1]).Order().ToArray());
     }
 
+    /// <summary>
+    /// M5: Restart Manager closes the app but does not restart it (RestartApplications=no), so the only restart is the [Run] entry,
+    /// as the user. M8: each install starts from a fresh {app}\data tree (the user's data is in %LOCALAPPDATA%, never in {app}).
+    /// </summary>
+    [Fact]
+    public void UpdatesRestartOnlyThroughRunAndReplaceTheDataTree()
+    {
+        var text = Iss().Replace("\r\n", "\n", StringComparison.Ordinal);
+        static string Section(string iss, string name)
+        {
+            var start = iss.IndexOf("\n[" + name + "]\n", StringComparison.Ordinal);
+            Assert.True(start >= 0, $"No [{name}] section");
+            var next = iss.IndexOf("\n[", start + 1, StringComparison.Ordinal);
+            return next < 0 ? iss[start..] : iss[start..next];
+        }
+        var setup = Section(text, "Setup");
+        Assert.Matches(@"(?m)^CloseApplications=yes$", setup);
+        Assert.Matches(@"(?m)^RestartApplications=no$", setup);
+        var delete = Section(text, "InstallDelete").Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("Type:", StringComparison.Ordinal)).ToList();
+        Assert.Equal([@"Type: filesandordirs; Name: ""{app}\data"""], delete);
+        // Nothing the user keeps is under {app}: settings, caches and logs are in %LOCALAPPDATA%.
+        Assert.Contains(@"%LOCALAPPDATA%\EarthRelief3D", text);
+    }
+
     /// <summary>The updater's rules are in the release notes for the owner: never delete or rename the two assets of a published release.</summary>
     [Fact]
     public void ReleaseDocNamesTheUpdatersAssets()

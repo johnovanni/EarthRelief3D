@@ -100,7 +100,8 @@ public sealed class AboutViewModelTests
         Assert.Equal("Armed conflict (UCDP deaths in one country in the data window): band 1 under 1,000 (for a conflict that qualifies), 2 from 1,000, 3 from 10,000, 4 from 50,000", conflict);
         Assert.Equal("Food (IPC): the band is the IPC phase, 3 to 5", vm.BandLines[1]);
         Assert.Equal("Disease outbreaks (WHO): every report is band " + SeverityBands.ForOutbreak(), vm.BandLines[2]);
-        Assert.Equal("Bands only set a marker's size; the source's own figure is always shown with it.", vm.BandLines[3]);
+        // M1: for food the band is the phase, which sets the shade (docs/severity-bands.md: "how big and how dark").
+        Assert.Equal("Bands only set a marker's size or shade; the source's own figure is always shown with it.", vm.BandLines[3]);
         Assert.Equal("https://github.com/johnovanni/EarthRelief3D/blob/main/docs/severity-bands.md", vm.BandsUrl.AbsoluteUri);
         // The food band is the phase itself.
         Assert.All(new[] { 3, 4, 5 }, p => Assert.Equal(p, SeverityBands.ForFood(p)));

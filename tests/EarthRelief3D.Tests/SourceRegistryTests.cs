@@ -55,6 +55,23 @@ public sealed class SourceRegistryTests
         }
     }
 
+    /// <summary>M2: each source's block in the notices file says the day its section was checked, as data/sources.json does.</summary>
+    [Fact]
+    public void NoticesCheckedDatesMatchTheRegistry()
+    {
+        var notices = RepoFile("THIRD-PARTY-NOTICES.txt").ReplaceLineEndings("\n");
+        foreach (var s in Real().Sources)
+        {
+            var start = notices.IndexOf("\nData: " + s.Name + "\n", StringComparison.Ordinal);
+            Assert.True(start >= 0, $"{s.Id}: no \"Data: {s.Name}\" block in THIRD-PARTY-NOTICES.txt");
+            var end = notices.IndexOf("\n-----", notices.IndexOf("\n\n", start, StringComparison.Ordinal), StringComparison.Ordinal);
+            var block = end < 0 ? notices[start..] : notices[start..end];
+            Assert.Contains("\nChecked: " + s.CheckedOn.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "\n", block);
+        }
+        // docs/data-sources.md section 7 (IPC area analyses) was checked live on 2026-11-23.
+        Assert.Equal(new DateOnly(2026, 11, 23), Real().Sources.Single(s => s.Id == "ipc-areas").CheckedOn);
+    }
+
     [Fact]
     public void EveryLinkIsHttps()
     {

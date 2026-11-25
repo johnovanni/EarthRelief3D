@@ -297,7 +297,7 @@ Licence: CC0 / public domain
 Licence link: https://creativecommons.org/publicdomain/zero/1.0/
 Source: https://data.humdata.org/dataset/global-acute-food-insecurity-country-data
 What the app changed: Fetched when the app runs and shown as published, as the areas of the latest analysis. A country is drawn by area only when the area data agrees with its national record.
-Checked: 2026-11-22
+Checked: 2026-11-23
 
 --------------------------------------------------------------------------------
 Data: UNHCR Refugee Data Finder

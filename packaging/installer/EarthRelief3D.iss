@@ -41,11 +41,18 @@ WizardStyle=modern
 Compression=lzma2/max
 SolidCompression=yes
 CloseApplications=yes
+; Restart Manager closes the app but does not start it again: the only restart is the silent-update entry of the Run section below, as the user (M5).
+RestartApplications=no
 OutputDir={#OutputDir}
 OutputBaseFilename=EarthRelief3D-Setup
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+
+[InstallDelete]
+; Each install or update starts from a fresh data tree, so no file a newer version dropped is left behind (M8).
+; Nothing the user keeps is here: settings, caches and logs are in %LOCALAPPDATA%\EarthRelief3D.
+Type: filesandordirs; Name: "{app}\data"
 
 [Files]
 Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
