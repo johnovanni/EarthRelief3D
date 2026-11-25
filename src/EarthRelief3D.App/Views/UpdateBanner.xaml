@@ -4,8 +4,8 @@
              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0" Focusable="False" Foreground="White"
              AutomationProperties.Name="New version of EarthRelief3D">
     <!-- DataContext: UpdateBannerViewModel. The update banner (Plan 5 Task 10, P5-19): top centre, a banner, not a pop-up and not a
-         card; no sound, nothing modal. MainWindow.FitCards places it between the layer strip and the panel (or under the panel's
-         header), so it never covers the strip or the panel's header. It never takes the keyboard focus itself; its buttons are in
+         card; no sound, nothing modal. MainWindow.FitCards places it at the top, right of the layer strip, and moves the cards below
+         it (R13), so it covers no card. It never takes the keyboard focus itself; its buttons are in
          the normal Tab order. Colour plus shape (C8): the ↑ mark and the outline, not the colour alone, say it is about a new version. -->
     <UserControl.Resources>
         <ResourceDictionary>

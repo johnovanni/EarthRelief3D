@@ -74,8 +74,8 @@
         <!-- The About card (Plan 5 Task 5): the same place and size as the Data card; only one card is open at a time. -->
         <views:AboutCard x:Name="AboutCardView" DataContext="{Binding About}"
                          Visibility="{Binding DataContext.Cards.AboutOpen, ElementName=Root, Converter={StaticResource B2V}}"/>
-        <!-- The update banner (Plan 5 Task 10, P5-19): not a card. Last, so it draws over the cards; at the top centre, placed by
-             MainWindow.FitCards so it never covers the layer strip or the panel's header. -->
+        <!-- The update banner (Plan 5 Task 10, P5-19): not a card. At the top, from the layer strip's right edge to the window's right
+             edge (MainWindow.FitCards, ruling R13); while it shows, the panel, the explainer and the centred cards start below it. -->
         <views:UpdateBanner x:Name="UpdateBannerView" DataContext="{Binding Updates}" Panel.ZIndex="10"/>
     </Grid>
 </Window>

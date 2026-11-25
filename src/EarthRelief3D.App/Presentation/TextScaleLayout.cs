@@ -94,61 +94,57 @@ public static class TextScaleLayout
     /// <summary>The bottom of the panel's column: above the Sources card.</summary>
     public static double ColumnBottom(double windowHeight, double sourcesHeight) => windowHeight - 2 * Gap - sourcesHeight;
 
-    /// <summary>How tall the panel may be: the column's height, or half of it (less a gap) when the explainer is under it.</summary>
-    public static double PanelMaxHeight(double windowHeight, double sourcesHeight, bool explainerUnder)
+    /// <summary>
+    /// How tall the panel may be: the column's height, or half of it (less a gap) when the explainer is under it. While the update
+    /// banner shows, the column starts <paramref name="bannerOffset"/> lower (R13).
+    /// </summary>
+    public static double PanelMaxHeight(double windowHeight, double sourcesHeight, bool explainerUnder, double bannerOffset = 0)
     {
-        double column = ColumnBottom(windowHeight, sourcesHeight) - Gap;
+        double column = ColumnBottom(windowHeight, sourcesHeight) - Gap - bannerOffset;
         return Math.Max(100, explainerUnder ? (column - Gap) / 2 : column);
     }
 
     /// <summary>
     /// Where the explainer card is, at most: beside the panel (right of the strip, left of the panel, above the legend), or
-    /// under the panel in its column. <paramref name="panelHeight"/> is the panel's height now (when it is open).
+    /// under the panel in its column. <paramref name="panelHeight"/> is the panel's height now (when it is open). While the update
+    /// banner shows, it starts <paramref name="bannerOffset"/> lower (R13).
     /// </summary>
-    public static Rect ExplainerBounds(Size window, double scale, double stripWidth, bool panelOpen, double panelHeight, double legendHeight, double sourcesHeight)
+    public static Rect ExplainerBounds(Size window, double scale, double stripWidth, bool panelOpen, double panelHeight, double legendHeight, double sourcesHeight,
+                                       double bannerOffset = 0)
     {
         double panelWidth = PanelWidth(window.Width, scale);
+        double columnTop = Gap + bannerOffset;
         if (IsStacked(window.Width, scale, stripWidth))
         {
-            double top = panelOpen ? Gap + panelHeight + Gap : Gap;
+            double top = panelOpen ? columnTop + panelHeight + Gap : columnTop;
             return new Rect(window.Width - Gap - panelWidth, top, panelWidth, Math.Max(0, ColumnBottom(window.Height, sourcesHeight) - top));
         }
         double right = window.Width - 2 * Gap - panelWidth, left = ExplainerSideLeft(stripWidth);
         double width = Math.Max(0, Math.Min(ExplainerBaseWidth * scale, right - left));
-        return new Rect(right - width, Gap, width, Math.Max(0, window.Height - 3 * Gap - legendHeight));
+        return new Rect(right - width, columnTop, width, Math.Max(0, window.Height - 3 * Gap - legendHeight - bannerOffset));
     }
 
     /// <summary>
-    /// The on-screen rectangles of the layer strip, the legend, the country panel, the explainer card and the Sources card, in
-    /// that order, at their largest (each card takes no more), from the numbers <c>MainWindow</c> gives the cards. A card that
-    /// is not shown is <see cref="Rect.Empty"/>.
+    /// Where the update banner goes (P5-19, ruling R13): at the top, from the layer strip's right edge (the strip is
+    /// <paramref name="stripWidth"/> wide, at <see cref="Gap"/>) to the window's right edge, <paramref name="bannerHeight"/> tall (its
+    /// text's height on screen). It never covers the strip; the panel and the explainer start <see cref="BannerOffset"/> lower while it
+    /// shows, and the centred cards (Welcome, About, Data) below it, so it covers no card.
     /// </summary>
-    /// <summary>The update banner's width at most at 100% (P5-19), and the least it needs beside the strip before it moves under the panel's header.</summary>
-    public const double BannerBaseWidth = 560, BannerMinBaseWidth = 280;
-
-    /// <summary>
-    /// Where the update banner goes (P5-19): its left, top and width (its height is its text's; the rectangle's is 0). At the top
-    /// centre of the window, kept between the layer strip (<paramref name="stripWidth"/> wide, at <see cref="Gap"/>) and the
-    /// panel when it is open, at most <see cref="BannerBaseWidth"/> times the text size. When that room is narrower than
-    /// <see cref="BannerMinBaseWidth"/> times the text size (a narrow window at a large text size, with the panel open), it goes in
-    /// the panel's column just under the panel's header (<paramref name="panelHeaderBottom"/>, from the window's top). Either way it
-    /// covers neither the strip nor the panel's header.
-    /// </summary>
-    public static Rect BannerBounds(Size window, double scale, double stripWidth, bool panelOpen, double panelHeaderBottom)
+    public static Rect BannerBounds(Size window, double stripWidth, double bannerHeight)
     {
-        double panelW = PanelWidth(window.Width, scale);
         double left = Math.Max(0, stripWidth) + 2 * Gap;
-        double right = panelOpen ? window.Width - 2 * Gap - panelW : window.Width - Gap;
-        if (right - left >= BannerMinBaseWidth * scale || !panelOpen)
-        {
-            double width = Math.Max(1, Math.Min(BannerBaseWidth * scale, right - left));
-            double x = Math.Max(left, Math.Min(window.Width / 2 - width / 2, right - width));
-            return new Rect(x, Gap, width, 0);
-        }
-        return new Rect(window.Width - Gap - panelW, panelHeaderBottom + Gap / 2, panelW, 0);
+        return new Rect(left, Gap, Math.Max(1, window.Width - Gap - left), Math.Max(0, bannerHeight));
     }
 
-    public static Rect[] CardBounds(Size window, double scale, bool panelOpen, bool explainerOpen, bool legendOpen)
+    /// <summary>How much lower the panel, the explainer and the centred cards start while the banner shows: its height and a gap (0 when it is hidden).</summary>
+    public static double BannerOffset(double bannerHeight) => bannerHeight > 0 ? bannerHeight + Gap : 0;
+
+    /// <summary>
+    /// The on-screen rectangles of the layer strip, the legend, the country panel, the explainer card, the Sources card and the update
+    /// banner, in that order, at their largest (each card takes no more), from the numbers <c>MainWindow</c> gives the cards. A card that
+    /// is not shown is <see cref="Rect.Empty"/>; the banner shows when <paramref name="bannerHeight"/> is above 0.
+    /// </summary>
+    public static Rect[] CardBounds(Size window, double scale, bool panelOpen, bool explainerOpen, bool legendOpen, double bannerHeight = 0)
     {
         double sourcesW = SourcesBaseWidth * scale, sourcesH = SourcesBaseHeight * scale;
         double stripW = StripBaseWidth * scale;
@@ -157,16 +153,18 @@ public static class TextScaleLayout
         double legendH = legendOpen ? LegendMaxHeight(window.Height, stripH) : legendClosedH;
         bool stacked = IsStacked(window.Width, scale, stripW);
         bool columnOpen = panelOpen || (explainerOpen && stacked);
-        double panelH = PanelMaxHeight(window.Height, sourcesH, explainerOpen && stacked);
+        double offset = BannerOffset(bannerHeight);
+        double panelH = PanelMaxHeight(window.Height, sourcesH, explainerOpen && stacked, offset);
         double panelW = PanelWidth(window.Width, scale);
         double legendW = LegendMaxWidth(window.Width, scale, columnOpen, sourcesW);
         return
         [
             new Rect(Gap, Gap, stripW, stripH),
             new Rect(Gap, window.Height - Gap - legendH, legendW, legendH),
-            panelOpen ? new Rect(window.Width - Gap - panelW, Gap, panelW, panelH) : Rect.Empty,
-            explainerOpen ? ExplainerBounds(window, scale, stripW, panelOpen, panelH, legendH, sourcesH) : Rect.Empty,
+            panelOpen ? new Rect(window.Width - Gap - panelW, Gap + offset, panelW, panelH) : Rect.Empty,
+            explainerOpen ? ExplainerBounds(window, scale, stripW, panelOpen, panelH, legendH, sourcesH, offset) : Rect.Empty,
             new Rect(window.Width - Gap - sourcesW, window.Height - Gap - sourcesH, sourcesW, sourcesH),
+            bannerHeight > 0 ? BannerBounds(window, stripW, bannerHeight) : Rect.Empty,
         ];
     }
 }

@@ -26,8 +26,10 @@ public interface IUpdateStatus
 /// <see cref="TickAsync"/> often, and it asks GitHub for the newest release <see cref="FirstCheckDelay"/> after the start and every
 /// <see cref="Interval"/> after that, with one request, while "Check for a new version once a day" is on. A newer release shows the
 /// banner's offer; nothing is downloaded until the user chooses "Download and install" (<see cref="UpdateDownloader"/> checks the
-/// file); "Install now" checks it once more, starts it (<see cref="InstallerArguments"/>) and, only once Windows has started it,
-/// closes the app normally. A failed check is logged and shown in About; the next is a day later. When no check has succeeded for
+/// file); "Install now" checks it once more and keeps it locked (ruling R12) until it has started it (<see cref="InstallerArguments"/>,
+/// without <c>runas</c>: the installer asks Windows for permission itself, ruling R11). The app does not close itself: the installer
+/// closes it (Restart Manager, <c>/CLOSEAPPLICATIONS</c>) and starts it again. If the installer ends while the app is still open, the
+/// update was not installed, and the banner says so with its exit code. A failed check is logged and shown in About; the next is a day later. When no check has succeeded for
 /// <see cref="StaleAfter"/> the banner says the included data may be out of date. Never created in a diagnostic or offline run.
 /// Runs on the UI thread (the timer is the dispatcher's).
 /// </summary>
@@ -50,7 +52,6 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
     private readonly IAppLog _log;
     private readonly Version _running;
     private readonly string _runningExePath;
-    private readonly Action _shutdown;
     private readonly CancellationTokenSource _life = new();
 
     private DateTime? _nextCheckUtc;
@@ -63,7 +64,7 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
     private string? _setupPath, _setupSha;  // the checked installer, while the banner says "Ready"
 
     public UpdateService(Func<CancellationToken, Task<string>> fetchLatestJson, UpdateDownloader downloader, IInstallerLauncher launcher,
-        ISettingsStore<AppSettings> settings, IClock clock, IAppLog log, Version running, string runningExePath, Action shutdown,
+        ISettingsStore<AppSettings> settings, IClock clock, IAppLog log, Version running, string runningExePath,
         UpdateBannerViewModel? banner = null)
     {
         _fetch = fetchLatestJson ?? throw new ArgumentNullException(nameof(fetchLatestJson));
@@ -74,7 +75,6 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
         _log = log ?? throw new ArgumentNullException(nameof(log));
         _running = UpdateCheck.Normalise(running ?? throw new ArgumentNullException(nameof(running)));
         _runningExePath = runningExePath ?? "";
-        _shutdown = shutdown ?? throw new ArgumentNullException(nameof(shutdown));
         Banner = banner ?? new UpdateBannerViewModel(new GlobeCore.Wpf.Services.ShellLinkOpener(), _running);
         Banner.DownloadRequested = DownloadAndInstallAsync;
         Banner.LaterRequested = Later;
@@ -264,26 +264,53 @@ public sealed class UpdateService : IUpdateStatus, IDisposable
 
     private void CancelDownload() => _download?.Cancel();
 
-    /// <summary>"Install now": checks the file once more, starts it, and closes the app only once Windows has started it.</summary>
+    /// <summary>
+    /// "Install now": checks the file once more and keeps it locked while the installer is started (R12), then releases it and watches
+    /// the installer (R11). The app stays open: the installer closes it.
+    /// </summary>
     internal void InstallNow()
     {
-        if (Banner.State != UpdateBannerState.Ready || Banner.Release is not { } r || _setupPath is not { } path || _setupSha is not { } sha) return;
+        if (Banner.State != UpdateBannerState.Ready || Banner.IsInstalling || Banner.Release is not { } r || _setupPath is not { } path || _setupSha is not { } sha) return;
         _setupPath = _setupSha = null;
-        if (_downloader.Verify(path, r, sha, _runningExePath) is { } failure)
+        bool started;
+        Task<int>? exited;
+        string? error;
+        using (var held = _downloader.VerifyAndHold(path, r, sha, _runningExePath, out var failure))
         {
-            _log.Warn("Updates: the installer failed its check before it was run: " + failure);
-            Banner.ShowFailed(r, failure);
-            return;
-        }
-        if (!_launcher.TryStart(path, InstallerArguments, out var error))
+            if (held is null)
+            {
+                _log.Warn("Updates: the installer failed its check before it was run: " + failure);
+                Banner.ShowFailed(r, failure ?? "The installer could not be checked.");
+                return;
+            }
+            started = _launcher.TryStart(path, InstallerArguments, out exited, out error);
+        }   // released only now: the installer has started (or did not start)
+        if (!started)
         {
             _log.Warn("Updates: the installer was not started: " + error);
             DeleteQuietly(path);
-            Banner.ShowFailed(r, error ?? ShellInstallerLauncher.PermissionRefusedText);
+            Banner.ShowFailed(r, error ?? "Windows could not start the installer.");
             return;
         }
-        _log.Info($"Updates: the installer for {r.Tag} has started; EarthRelief3D closes");
-        _shutdown();
+        _log.Info($"Updates: the installer for {r.Tag} has started; it closes EarthRelief3D and starts it again");
+        Banner.ShowInstalling(r);
+        if (exited is not null) _ = WatchInstallerAsync(r, path, exited);
+    }
+
+    /// <summary>The installer ended. While the app is still open (not being closed by the installer), the update did not install.</summary>
+    private async Task WatchInstallerAsync(ReleaseInfo r, string path, Task<int> exited)
+    {
+        int code;
+        try { code = await exited; }
+        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            _log.Warn("Updates: the installer could not be watched", ex);
+            return;
+        }
+        if (_life.IsCancellationRequested) return;   // the app is closing: the installer closed it
+        _log.Warn($"Updates: the installer stopped (exit code {code}) while EarthRelief3D was still open: the update was not installed");
+        DeleteQuietly(path);
+        Banner.ShowNotInstalled(r, code);
     }
 
     /// <summary>"Later": hides the banner until the next start, or until a still newer version is found.</summary>

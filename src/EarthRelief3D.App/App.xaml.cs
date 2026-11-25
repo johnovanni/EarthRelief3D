@@ -161,7 +161,7 @@ public partial class App : Application
             var downloader = new UpdateDownloader(UpdateDownloader.CreateHandler(), new WinTrustSignatureCheck(), updatesDir);
             var updates = _updates = new UpdateService(UpdateService.GitHubFetch(new System.Net.Http.SocketsHttpHandler()), downloader,
                 new ShellInstallerLauncher(), _settings, new SystemClock(), log, AppInfo.VersionNumber, Environment.ProcessPath ?? "",
-                () => Dispatcher.BeginInvoke(() => Shutdown()), services.Main.Updates);
+                services.Main.Updates);
             services.Main.About.AttachUpdates(updates);
             services.Main.Settings.CheckForUpdatesChanged += (_, _) => updates.SettingsChanged();
             void StartUpdates(object? s, EventArgs a)
@@ -181,6 +181,17 @@ public partial class App : Application
     {
         try { if (_updates is { } u) await u.TickAsync(); }
         catch (Exception ex) { _log?.Error("Updates: the update check stopped unexpectedly", ex); }
+    }
+
+    /// <summary>
+    /// Windows is ending the session, or the installer's Restart Manager is closing the app to update it (ruling R11: it sends the
+    /// same "end session" message). The normal shutdown runs now, while there is still time: settings flushed, cache saved, logs
+    /// closed. It runs once; the exit that follows finds it done.
+    /// </summary>
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    {
+        base.OnSessionEnding(e);
+        if (!e.Cancel) ShutDownServices();
     }
 
     protected override void OnExit(ExitEventArgs e)

@@ -38,9 +38,12 @@ EarthRelief3D checks for a new version by itself (Settings, "Updates: check for 
   the hash in the `EarthRelief3D-Setup.exe.sha256` asset). Windows must trust its signature, and its signer must be the
   same as the running app's. A copy that is not signed (a developer build) never downloads: it offers the release page.
 - **When.** Nothing is downloaded until the user chooses "Download and install". The file goes to
-  `%LOCALAPPDATA%\EarthRelief3D\updates\<version>\`; it is checked again just before "Install now" runs it with
-  `/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS` (Windows asks for permission). The installer's second `[Run]`
-  entry starts the app again after a silent install.
+  `%LOCALAPPDATA%\EarthRelief3D\updates\<version>\`. "Install now" checks it again and keeps it locked (nothing can write,
+  rename or delete it) until it has started it with `/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS`, as an ordinary
+  start, not "run as administrator": the installer asks Windows for permission itself. The installer then closes
+  EarthRelief3D (which saves its settings and cache as it closes), installs, and its second `[Run]` entry starts the app
+  again as the user. If the installer stops while EarthRelief3D is still open (for example, permission was not given), the
+  banner says the update was not installed, with the installer's exit code, and offers the release page.
 
 **Never delete or rename the two assets of a published release** (`EarthRelief3D-Setup.exe` and
 `EarthRelief3D-Setup.exe.sha256`), and never replace one with a different file: copies already installed look for exactly
@@ -89,5 +92,7 @@ build or any signing on the development PC.
 - [ ] A second install over the first keeps the settings.
 - [ ] Uninstall removes `C:\Program Files\Qapow\EarthRelief3D` and leaves `%LOCALAPPDATA%\EarthRelief3D`.
 - [ ] Once a newer release is published: the installed older copy shows the banner within a minute of starting;
-      "Download and install", then "Install now", updates it, and the app starts again **not** as administrator
-      (Task Manager, Details, the "Elevated" column says No). Refusing Windows' permission leaves the app open and says so.
+      "Download and install", then "Install now", updates it, and the restarted app is **not** elevated
+      (Task Manager, Details, the "Elevated" column says No). Its settings (for example Text size) are kept.
+- [ ] Choosing "No" at Windows' permission prompt leaves the app open, and the banner says the update was not installed,
+      with the exit code.

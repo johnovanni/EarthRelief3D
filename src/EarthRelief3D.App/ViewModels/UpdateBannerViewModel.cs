@@ -37,6 +37,11 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
         nameof(ShowInstallNow), nameof(ShowOpenDownloadPage), nameof(ShowCheckNow))]
     private UpdateBannerState _state;
 
+    /// <summary>"Install now" was chosen and the installer has started: the Ready banner stays, without its buttons, until the installer closes the app (R11).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowInstallNow), nameof(ShowLater))]
+    private bool _isInstalling;
+
     /// <summary>The banner's sentence(s) for the state.</summary>
     [ObservableProperty] private string _text = "";
 
@@ -52,9 +57,9 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     public bool IsVisible => State != UpdateBannerState.Hidden;
     public bool ShowDownload => State == UpdateBannerState.Offer;
     public bool ShowWhatsNew => State == UpdateBannerState.Offer;
-    public bool ShowLater => State is UpdateBannerState.Offer or UpdateBannerState.Ready or UpdateBannerState.Failed or UpdateBannerState.Stale;
+    public bool ShowLater => !IsInstalling && State is UpdateBannerState.Offer or UpdateBannerState.Ready or UpdateBannerState.Failed or UpdateBannerState.Stale;
     public bool ShowCancel => State == UpdateBannerState.Downloading;
-    public bool ShowInstallNow => State == UpdateBannerState.Ready;
+    public bool ShowInstallNow => State == UpdateBannerState.Ready && !IsInstalling;
     public bool ShowOpenDownloadPage => State == UpdateBannerState.Failed;
     public bool ShowCheckNow => State == UpdateBannerState.Stale;
 
@@ -75,6 +80,10 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
 
     public static string FailedText(string reason) => $"The update could not be used: {reason.Trim()} You can download it from its release page instead.";
 
+    /// <summary>The installer ended while the app was still open (ruling R11).</summary>
+    public static string NotInstalledText(int exitCode) =>
+        $"The update was not installed: the installer stopped (exit code {exitCode.ToString(System.Globalization.CultureInfo.InvariantCulture)}). If Windows asked for your permission and it was not given, that is why.";
+
     /// <summary>"1.1.0".</summary>
     public static string VersionText(Version v) => UpdateCheck.Normalise(v).ToString(3);
 
@@ -94,6 +103,14 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
 
     internal void ShowReady(ReleaseInfo r) => Set(UpdateBannerState.Ready, r, ReadyText(r));
     internal void ShowFailed(ReleaseInfo? r, string reason) => Set(UpdateBannerState.Failed, r, FailedText(reason));
+    internal void ShowNotInstalled(ReleaseInfo r, int exitCode) => Set(UpdateBannerState.Failed, r, NotInstalledText(exitCode));
+
+    /// <summary>The installer has started: the Ready text stays true ("EarthRelief3D will close, ..."), its buttons go.</summary>
+    internal void ShowInstalling(ReleaseInfo r)
+    {
+        ShowReady(r);
+        IsInstalling = true;
+    }
     internal void ShowStale() => Set(UpdateBannerState.Stale, null, StaleText);
     internal void Hide() => Set(UpdateBannerState.Hidden, Release, "");
 
@@ -101,6 +118,7 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     {
         Release = r;
         Message = "";
+        IsInstalling = false;
         if (state != UpdateBannerState.Downloading) ProgressText = "";
         Text = text;
         State = state;
@@ -134,7 +152,7 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     [RelayCommand]
     private void Later()
     {
-        if (!ShowLater) return;
+        if (!ShowLater) return;   // also while the installer runs
         if (LaterRequested is { } l) l(); else Hide();
     }
 
@@ -147,7 +165,7 @@ public sealed partial class UpdateBannerViewModel : ObservableObject
     [RelayCommand]
     private void InstallNow()
     {
-        if (State == UpdateBannerState.Ready) InstallRequested?.Invoke();
+        if (State == UpdateBannerState.Ready && !IsInstalling) InstallRequested?.Invoke();
     }
 
     /// <summary>"Open the download page": the release's page (or the list of releases).</summary>

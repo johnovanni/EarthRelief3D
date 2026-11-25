@@ -16,32 +16,40 @@ public class TextScaleLayoutTests
         Assert.Equal(450, TextScaleLayout.PanelWidth(1000, 1.25), 6);   // 0.45 of the window, not 525
     }
 
-    public static TheoryData<double, double, double, bool, bool> Cases()
+    /// <summary>A tall update banner at 100% (four lines and a row of buttons), times the text size, for the model (R13).</summary>
+    internal const double BannerTestBaseHeight = 130;
+
+    public static TheoryData<double, double, double, bool, bool, bool> Cases()
     {
-        var d = new TheoryData<double, double, double, bool, bool>();
+        var d = new TheoryData<double, double, double, bool, bool, bool>();
         foreach (var s in TextScaleLayout.Choices)
             foreach (var (w, h) in new[] { (1000.0, 760.0), (1200.0, 760.0) })
                 foreach (var legendOpen in new[] { false, true })
-                    d.Add(s, w, h, legendOpen, true);
+                    foreach (var banner in new[] { false, true })
+                        d.Add(s, w, h, legendOpen, true, banner);
         return d;
     }
 
+    /// <summary>The model: no card covers another, with or without the update banner (R13: it covers no card).</summary>
     [Theory]
     [MemberData(nameof(Cases))]
-    public void CardsDoNotOverlapAt150PercentIn1000Wide(double scale, double width, double height, bool legendOpen, bool explainerOpen)
+    public void CardsDoNotOverlapAt150PercentIn1000Wide(double scale, double width, double height, bool legendOpen, bool explainerOpen, bool banner)
     {
         var window = new Size(width, height);
-        var r = TextScaleLayout.CardBounds(window, scale, panelOpen: true, explainerOpen: explainerOpen, legendOpen: legendOpen);
-        string[] names = ["strip", "legend", "panel", "explainer", "sources"];
-        Assert.Equal(5, r.Length);
+        var r = TextScaleLayout.CardBounds(window, scale, panelOpen: true, explainerOpen: explainerOpen, legendOpen: legendOpen,
+            bannerHeight: banner ? BannerTestBaseHeight * scale : 0);
+        string[] names = ["strip", "legend", "panel", "explainer", "sources", "banner"];
+        Assert.Equal(6, r.Length);
+        Assert.Equal(!banner, r[5].IsEmpty);
         var all = new Rect(0, 0, width, height);
         for (int i = 0; i < r.Length; i++)
         {
+            if (i == 5 && !banner) continue;
             Assert.False(r[i].IsEmpty, names[i] + " is shown");
             Assert.True(r[i].Width > 0 && r[i].Height > 0, $"{names[i]} has a size at {scale}");
             Assert.True(all.Contains(r[i]), $"{names[i]} {r[i]} lies inside the {width}x{height} window at {scale}");
             for (int j = i + 1; j < r.Length; j++)
-                Assert.False(r[i].IntersectsWith(r[j]), $"{names[i]} {r[i]} covers {names[j]} {r[j]} at {scale}, {width}x{height}, legend {(legendOpen ? "open" : "closed")}");
+                Assert.False(r[i].IntersectsWith(r[j]), $"{names[i]} {r[i]} covers {names[j]} {r[j]} at {scale}, {width}x{height}, legend {(legendOpen ? "open" : "closed")}, banner {banner}");
         }
     }
 
@@ -59,6 +67,13 @@ public class TextScaleLayoutTests
         // At 100% in a wide window it stays beside the panel, as before.
         var wide = TextScaleLayout.CardBounds(new Size(1200, 760), 1.0, panelOpen: true, explainerOpen: true, legendOpen: false);
         Assert.True(wide[3].Right <= wide[2].Left);
+        // The banner (R13): from the strip's right edge to the window's right edge, at the top; the panel and the explainer start below it.
+        var withBanner = TextScaleLayout.CardBounds(new Size(1200, 760), 1.0, panelOpen: true, explainerOpen: true, legendOpen: false, bannerHeight: 100);
+        Assert.Equal(new Rect(TextScaleLayout.StripBaseWidth + 2 * TextScaleLayout.Gap, TextScaleLayout.Gap,
+            1200 - TextScaleLayout.Gap - (TextScaleLayout.StripBaseWidth + 2 * TextScaleLayout.Gap), 100), withBanner[5]);
+        Assert.Equal(withBanner[5].Bottom + TextScaleLayout.Gap, withBanner[2].Top);
+        Assert.Equal(withBanner[5].Bottom + TextScaleLayout.Gap, withBanner[3].Top);
+        Assert.Equal(0, TextScaleLayout.BannerOffset(0));
     }
 
     [Theory]
@@ -99,7 +114,12 @@ public class TextScaleLayoutTests
     [InlineData(1.25, 1000, 760)]
     [InlineData(1.5, 1000, 760)]
     [InlineData(1.5, 1200, 760)]
-    public void TheRealCardsDoNotOverlapEither(double scale, double width, double height) => StaAsync.Run(async () =>
+    [InlineData(1.0, 1000, 760, true)]
+    [InlineData(1.25, 1000, 760, true)]
+    [InlineData(1.5, 1000, 760, true)]
+    [InlineData(1.0, 1200, 760, true)]
+    [InlineData(1.5, 1200, 760, true)]
+    public void TheRealCardsDoNotOverlapEither(double scale, double width, double height, bool banner = false) => StaAsync.Run(async () =>
     {
         var store = await SampleStore.LoadAsync();
         var countries = EarthRelief3D.Core.Feeds.CountryResolver.LoadDefault();
@@ -112,6 +132,10 @@ public class TextScaleLayoutTests
         Assert.Equal(scale, settings.Current.TextScale);
         vm.Panel.Show("SDN", CrisisLayer.Food);
         Assert.True(vm.Panel.Explainer.Open(EarthRelief3D.App.ViewModels.CountryPanelViewModel.FoodExplainerId));
+        // R13: with the update banner's offer showing (the longest text), it covers no card.
+        if (banner)
+            vm.Updates.ShowForPicture(EarthRelief3D.Core.Updates.UpdateCheck.Parse(Samples.Text("github_release_latest_newer.json")),
+                EarthRelief3D.App.ViewModels.UpdateBannerState.Offer);
         foreach (var legendOpen in new[] { false, true })
         {
             vm.Legend.IsOpen = legendOpen;
@@ -121,7 +145,8 @@ public class TextScaleLayoutTests
                 root.Arrange(new Rect(0, 0, width, height));
                 root.UpdateLayout();
             }
-            string[] names = ["Strip", "LegendCard", "Panel", "ExplainerCard", "StatusCard"];
+            string[] names = banner ? ["Strip", "LegendCard", "Panel", "ExplainerCard", "StatusCard", "UpdateBannerView"]
+                : ["Strip", "LegendCard", "Panel", "ExplainerCard", "StatusCard"];
             var rects = names.Select(n =>
             {
                 var card = (FrameworkElement)window.FindName(n);
@@ -137,43 +162,9 @@ public class TextScaleLayoutTests
                 {
                     var overlap = Rect.Intersect(rects[i], rects[j]);
                     Assert.True(overlap.IsEmpty || overlap.Width < 1 || overlap.Height < 1,
-                        $"{names[i]} {rects[i]} covers {names[j]} {rects[j]} at {scale}, {width}x{height}, legend {(legendOpen ? "open" : "closed")}");
+                        $"{names[i]} {rects[i]} covers {names[j]} {rects[j]} at {scale}, {width}x{height}, legend {(legendOpen ? "open" : "closed")}, banner {banner}");
                 }
             }
         }
     });
-
-    /// <summary>
-    /// The update banner (P5-19) sits at the top centre, between the layer strip and the panel; where that room is too narrow it
-    /// goes under the panel's header, in the panel's column. It never covers the strip or the panel's header.
-    /// </summary>
-    [Theory]
-    [InlineData(1.0)]
-    [InlineData(1.25)]
-    [InlineData(1.5)]
-    public void TheUpdateBannerNeverCoversTheStripOrThePanelsHeader(double scale)
-    {
-        foreach (var width in new[] { 1000.0, 1200.0, 1600.0 })
-            foreach (var panelOpen in new[] { false, true })
-                foreach (var stripW in new[] { 0.0, 200 * scale, TextScaleLayout.StripBaseWidth * scale })
-                {
-                    var window = new Size(width, 760);
-                    double gap = TextScaleLayout.Gap, headerBottom = gap + 44 * scale;
-                    var b = TextScaleLayout.BannerBounds(window, scale, stripW, panelOpen, headerBottom);
-                    string at = $"{width} wide, {scale}, strip {stripW}, panel {(panelOpen ? "open" : "closed")}: banner {b}";
-                    var strip = new Rect(gap, gap, Math.Max(1, stripW), 760 * TextScaleLayout.StripShare);
-                    double panelW = TextScaleLayout.PanelWidth(width, scale);
-                    var header = panelOpen ? new Rect(width - gap - panelW, gap, panelW, headerBottom - gap) : Rect.Empty;
-                    var banner = new Rect(b.Left, b.Top, b.Width, 1);   // its height is its text's: only its top edge is fixed
-                    Assert.True(b.Width >= TextScaleLayout.BannerMinBaseWidth * scale || (panelOpen && b.Width == panelW), at);
-                    Assert.True(b.Width <= TextScaleLayout.BannerBaseWidth * scale + 0.001, at);
-                    Assert.True(b.Left >= 0 && b.Right <= width, at);
-                    Assert.False(banner.IntersectsWith(strip) && b.Top < strip.Bottom, "covers the strip: " + at);
-                    if (panelOpen) Assert.False(new Rect(b.Left, b.Top, b.Width, 1).IntersectsWith(header) || (b.Top < header.Bottom && b.Right > header.Left), "covers the panel's header: " + at);
-                }
-        // Room enough: the window's centre.
-        var wide = TextScaleLayout.BannerBounds(new Size(1600, 760), 1.0, 320, panelOpen: false, 56);
-        Assert.Equal(800, wide.Left + wide.Width / 2, 6);
-        Assert.Equal(TextScaleLayout.Gap, wide.Top);
-    }
 }

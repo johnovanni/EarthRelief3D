@@ -24,8 +24,7 @@
     <Border x:Name="Card" Background="#F7101624" CornerRadius="8" Padding="14,10"
             Visibility="{Binding IsOpen, Converter={StaticResource B2V}}">
         <DockPanel>
-            <!-- HeaderRow: the update banner never covers it (MainWindow.FitCards). -->
-            <DockPanel x:Name="HeaderRow" DockPanel.Dock="Top" LastChildFill="True">
+            <DockPanel DockPanel.Dock="Top" LastChildFill="True">
                 <Button DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="8,1" Content="×" FontSize="16"
                         ToolTip="Close (Esc)" Command="{Binding CloseCommand}" VerticalAlignment="Top"/>
                 <TextBlock Text="{Binding CountryName}" FontWeight="SemiBold" FontSize="18" Margin="0,0,8,0"/>

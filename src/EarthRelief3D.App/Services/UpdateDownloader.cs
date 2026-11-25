@@ -172,32 +172,50 @@ public sealed class UpdateDownloader
     /// </summary>
     public string? Verify(string path, ReleaseInfo r, string sha256, string runningExePath)
     {
-        var failure = VerifyCore(path, r, sha256, runningExePath);
-        if (failure is not null) DeleteQuietly(path);
+        using var held = VerifyAndHold(path, r, sha256, runningExePath, out var failure);
         return failure;
     }
 
-    private string? VerifyCore(string path, ReleaseInfo r, string sha256, string runningExePath)
+    /// <summary>
+    /// <see cref="Verify"/>, and on success the file stays open (ruling R12): read access, others may only read, so nobody can write,
+    /// rename or delete it until the caller disposes the stream, which it does once the installer has started. Null on failure (the
+    /// file is then deleted and <paramref name="failure"/> says why).
+    /// </summary>
+    public FileStream? VerifyAndHold(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure)
     {
-        if (UpdateCheck.RefuseReason(r) is { } refused) return refused;
-        if (_signatures.SignerSubject(runningExePath) is not { } appSigner) return UnsignedAppText;
+        var held = VerifyCore(path, r, sha256, runningExePath, out failure);
+        if (held is null) DeleteQuietly(path);
+        return held;
+    }
+
+    private FileStream? VerifyCore(string path, ReleaseInfo r, string sha256, string runningExePath, out string? failure)
+    {
+        failure = UpdateCheck.RefuseReason(r);
+        if (failure is not null) return null;
+        if (_signatures.SignerSubject(runningExePath) is not { } appSigner) { failure = UnsignedAppText; return null; }
         var full = Path.GetFullPath(path);
         if (!string.Equals(full, Path.Combine(FolderFor(r.Version), UpdateCheck.SetupName), StringComparison.OrdinalIgnoreCase))
-            return "The installer is not in EarthRelief3D's updates folder.";
-        if (!File.Exists(full)) return "The downloaded installer is no longer there.";
+        {
+            failure = "The installer is not in EarthRelief3D's updates folder.";
+            return null;
+        }
+        if (!File.Exists(full)) { failure = "The downloaded installer is no longer there."; return null; }
+        FileStream? file = null;
         try
         {
-            // Read with others allowed only to read, so the file cannot change while it is checked.
-            using var file = new FileStream(full, FileMode.Open, FileAccess.Read, FileShare.Read);
-            if (file.Length != r.Setup!.Size) return SizeText(file.Length, r.Setup.Size);
-            var actual = Convert.ToHexStringLower(SHA256.HashData(file));
-            if (actual != sha256) return ShaText(actual, sha256);
-            return CheckSignature(full, appSigner);
+            // Opened first and kept open through every check: what is checked is what runs.
+            file = new FileStream(full, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (file.Length != r.Setup!.Size) failure = SizeText(file.Length, r.Setup.Size);
+            else if (Convert.ToHexStringLower(SHA256.HashData(file)) is var actual && actual != sha256) failure = ShaText(actual, sha256);
+            else failure = CheckSignature(full, appSigner);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            return "The downloaded installer could not be read: " + Sentence(ex.Message);
+            failure = "The downloaded installer could not be read: " + Sentence(ex.Message);
         }
+        if (failure is null) return file;
+        file?.Dispose();   // closed before the caller's delete
+        return null;
     }
 
     private string? CheckSignature(string path, string appSigner)

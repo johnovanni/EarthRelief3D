@@ -53,8 +53,7 @@ public sealed class UpdateServiceTests : IDisposable
         settings ??= new MemorySettingsStore();
         var launcher = new FakeLauncher(_order);
         var banner = new UpdateBannerViewModel(_opener, Running);
-        var svc = new UpdateService(fetch ?? Fetch, new UpdateDownloader(_http, _signatures, _dir), launcher, settings, _clock, _log, Running, AppExe,
-            () => _order.Add("shutdown"), banner);
+        var svc = new UpdateService(fetch ?? Fetch, new UpdateDownloader(_http, _signatures, _dir), launcher, settings, _clock, _log, Running, AppExe, banner);
         return (svc, settings, launcher);
     }
 
@@ -275,8 +274,12 @@ public sealed class UpdateServiceTests : IDisposable
         return (svc, launcher);
     }
 
+    /// <summary>
+    /// R11: "Install now" starts the installer with the silent arguments, as an ordinary shell start (no "runas": the installer asks
+    /// Windows itself, so it restarts the app as the user). The app does not close itself: the banner stays, without buttons.
+    /// </summary>
     [Fact]
-    public async Task InstallStartsTheInstallerThenShutsDown()
+    public async Task InstallStartsTheInstallerWithoutRunas()
     {
         var bytes = Payload();
         var (svc, launcher) = await Offered(bytes);
@@ -294,26 +297,87 @@ public sealed class UpdateServiceTests : IDisposable
         Assert.Equal("/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS", args);
         Assert.Equal(UpdateService.InstallerArguments, args);
         Assert.True(launcher.FileExistedWhenStarted);
-        Assert.Equal(["launch", "shutdown"], _order);
+        Assert.Equal(["launch"], _order);   // nothing else: the app does not shut itself down
+        // While the installer runs, the Ready text stays (it is still true) and its buttons go.
+        Assert.Equal(UpdateBannerState.Ready, svc.Banner.State);
+        Assert.True(svc.Banner.IsInstalling);
+        Assert.False(svc.Banner.ShowInstallNow);
+        Assert.False(svc.Banner.ShowLater);
+        svc.Banner.InstallNowCommand.Execute(null);
+        Assert.Single(launcher.Started);   // not started twice
+
+        // The real launcher: the shell, without the runas verb.
+        var start = ShellInstallerLauncher.StartInfo(path, args);
+        Assert.True(start.UseShellExecute);
+        Assert.Equal("", start.Verb);
+        Assert.Equal(path, start.FileName);
+        Assert.Equal(args, start.Arguments);
+        Assert.Equal(Path.GetDirectoryName(path), start.WorkingDirectory);
+
+        // The installer closes the app (it is being shut down) and then ends: the banner says nothing more.
+        svc.Dispose();
+        launcher.Exit.SetResult(0);
+        await Task.Delay(100);
+        Assert.Equal(UpdateBannerState.Ready, svc.Banner.State);
+        Assert.DoesNotContain(_log.Lines, l => l.Contains("was not installed", StringComparison.Ordinal));
     }
 
+    /// <summary>R11: an installer that ends while the app is still open did not install; the app says so, with the exit code, and the file goes.</summary>
     [Fact]
-    public async Task RefusedPermissionKeepsTheAppOpen()
+    public async Task InstallerThatExitsLeavesTheAppOpenAndSaysSo()
     {
         var bytes = Payload();
         var (svc, launcher) = await Offered(bytes);
-        launcher.Refuse = ShellInstallerLauncher.PermissionRefusedText;
         await svc.DownloadAndInstallAsync();
         svc.Banner.InstallNowCommand.Execute(null);
-        Assert.Equal(["launch"], _order);   // no shutdown
+        Assert.True(svc.Banner.IsInstalling);
+        launcher.Exit.SetResult(5);
+        for (int i = 0; i < 200 && svc.Banner.State != UpdateBannerState.Failed; i++) await Task.Delay(10);   // the watch resumes on the test's context
         Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
-        Assert.Equal("The update could not be used: Windows did not give permission, so the update was not installed. You can download it from its release page instead.",
+        Assert.Equal("The update was not installed: the installer stopped (exit code 5). If Windows asked for your permission and it was not given, that is why.",
             svc.Banner.Text);
+        Assert.False(svc.Banner.IsInstalling);
         Assert.True(svc.Banner.ShowOpenDownloadPage);
+        Assert.True(svc.Banner.ShowLater);
         Assert.False(svc.Banner.ShowInstallNow);
         Assert.False(File.Exists(Path.Combine(_dir, "1.1.0", UpdateCheck.SetupName)));
+        Assert.Contains(_log.Lines, l => l.Contains("exit code 5", StringComparison.Ordinal));
         svc.Banner.OpenDownloadPageCommand.Execute(null);
         Assert.Equal("https://github.com/johnovanni/EarthRelief3D/releases/tag/v1.1.0", Assert.Single(_opener.Opened));
+    }
+
+    /// <summary>Windows could not start the installer at all: the app stays open, says why, and the file goes.</summary>
+    [Fact]
+    public async Task InstallerThatCannotStartKeepsTheAppOpen()
+    {
+        var bytes = Payload();
+        var (svc, launcher) = await Offered(bytes);
+        launcher.Refuse = "Windows could not start the installer: The operation was refused.";
+        await svc.DownloadAndInstallAsync();
+        svc.Banner.InstallNowCommand.Execute(null);
+        Assert.Equal(UpdateBannerState.Failed, svc.Banner.State);
+        Assert.Equal("The update could not be used: Windows could not start the installer: The operation was refused. You can download it from its release page instead.",
+            svc.Banner.Text);
+        Assert.False(File.Exists(Path.Combine(_dir, "1.1.0", UpdateCheck.SetupName)));
+    }
+
+    /// <summary>R12: from the last check until the installer has started, the file is held: nothing can write, rename or delete it. Then it is let go.</summary>
+    [Fact]
+    public async Task TheInstallerIsLockedUntilItHasStarted()
+    {
+        var bytes = Payload();
+        var (svc, launcher) = await Offered(bytes);
+        launcher.Tamper = true;
+        await svc.DownloadAndInstallAsync();
+        svc.Banner.InstallNowCommand.Execute(null);
+        Assert.Single(launcher.Started);
+        Assert.True(launcher.WriteBlocked, "a write was let through while the installer started");
+        Assert.True(launcher.RenameBlocked, "a rename was let through while the installer started");
+        Assert.True(launcher.DeleteBlocked, "a delete was let through while the installer started");
+        var path = Path.Combine(_dir, "1.1.0", UpdateCheck.SetupName);
+        Assert.Equal(bytes, File.ReadAllBytes(path));   // unchanged
+        // Let go once started: the installer (and Windows) can use the file freely.
+        using (new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)) { }
     }
 
     [Fact]

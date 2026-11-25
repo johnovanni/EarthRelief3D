@@ -119,17 +119,40 @@ internal sealed class FakeReleaseHandler : HttpMessageHandler
 internal sealed class FakeLauncher(List<string>? log = null) : IInstallerLauncher
 {
     public List<(string Path, string Arguments)> Started { get; } = [];
+    /// <summary>When set, Windows "could not start" the installer, with this sentence.</summary>
     public string? Refuse { get; set; }
     public bool FileExistedWhenStarted { get; private set; }
+    /// <summary>Completes with the installer's exit code when the test says it ended.</summary>
+    public TaskCompletionSource<int> Exit { get; } = new();
 
-    public bool TryStart(string path, string arguments, out string? error)
+    /// <summary>R12: while "starting", tries to write to, rename and delete the installer (as another program might); records which were stopped.</summary>
+    public bool Tamper { get; set; }
+    public bool WriteBlocked { get; private set; }
+    public bool RenameBlocked { get; private set; }
+    public bool DeleteBlocked { get; private set; }
+
+    public bool TryStart(string path, string arguments, out Task<int>? exited, out string? error)
     {
         log?.Add("launch");
         FileExistedWhenStarted = File.Exists(path);
+        if (Tamper)
+        {
+            WriteBlocked = Blocked(() => { using var w = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete); w.WriteByte(0); });
+            RenameBlocked = Blocked(() => File.Move(path, path + ".swapped"));
+            DeleteBlocked = Blocked(() => File.Delete(path));
+        }
+        exited = null;
         if (Refuse is { } r) { error = r; return false; }
         Started.Add((path, arguments));
+        exited = Exit.Task;
         error = null;
         return true;
+    }
+
+    private static bool Blocked(Action tamper)
+    {
+        try { tamper(); return false; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return true; }
     }
 }
 
