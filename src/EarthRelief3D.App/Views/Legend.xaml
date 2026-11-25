@@ -123,6 +123,18 @@
             <ItemsControl ItemsSource="{Binding Lines}" ItemTemplate="{StaticResource LineTemplate}"/>
             <!-- Plan 3: the shading that is on (unless food) and the marker layers the crisis lines do not cover. -->
             <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource LineTemplate}"/>
+            <!-- P5-12: the January rule for FTS appeals; empty (and collapsed) the rest of the year. -->
+            <TextBlock Text="{Binding FtsNote}" Foreground="#8A92A3" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FtsNote}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
             <!-- The flyout: reports the source published that could not be put on the map. -->
             <ToggleButton x:Name="UnplacedButton" Style="{x:Null}" Margin="0,6,0,0" HorizontalAlignment="Left" Background="Transparent"

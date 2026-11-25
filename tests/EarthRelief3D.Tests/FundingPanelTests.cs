@@ -2,6 +2,7 @@ using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Model;
 using EarthRelief3D.Core.Store;
+using GlobeCore.Feeds;
 
 namespace EarthRelief3D.Tests;
 
@@ -58,6 +59,29 @@ public class FundingPanelTests
         Assert.Equal("$1,000 received; requirement not published", CountryPanelViewModel.FundingText(Plan("FJI", null, 1000, null, false)));
         // FTS gave no percentage: ours is not worked out (P4-4).
         Assert.Equal("$1,000 of $3,000 (FTS gives no percentage)", CountryPanelViewModel.FundingText(Plan("FJI", 3000, 1000, null, false)));
+    }
+
+    [Fact]
+    public async Task LastYearShownSaysNoAppealYet()
+    {
+        var h = new SampleHttpHandler();
+        h.Map(FtsFundingFeed.PackageUrl.ToString(), Samples.Path("hdx_fts_package.json"));
+        h.MapText(Samples.FtsCsv, "countryCode,id,name,code,typeId,typeName,startDate,endDate,year,requirements,funding,percentFunded\n"
+            + "AFG,1,Afghanistan 2027,A27,1,Flash appeal,,,2027,500,50,10\n"
+            + "SDN,3,Sudan 2026,S26,1,Flash appeal,,,2026,900,450,50\n");
+        var ind = new IndicatorStore();
+        var now = new DateTime(2027, 1, 15, 12, 0, 0, DateTimeKind.Utc);
+        await new FtsFundingFeed(new GlobeCore.Feeds.FeedHttp("test", h), ind, new CrisisStore(), new FixedClock(now), new ListLog()).RunOnceAsync(default);
+        var panel = new CountryPanelViewModel(new CrisisStore(), iso => CountryResolver.LoadDefault().ByIso3(iso)?.Name, nowUtc: () => now,
+            indicators: ind, logistics: AccessPanelTests.Logistics);
+        panel.Show("SDN");
+        var s = Funding(panel, 2026);
+        Assert.Equal("Humanitarian appeals 2026", s.Heading);
+        Assert.Equal(("Appeal", "No appeal in FTS for 2027 yet"), s.Rows[0]);
+        Assert.Equal("Sudan 2026", s.Rows[1].Label);
+        Assert.Equal("No appeal in FTS for 2027 yet", CountryPanelViewModel.NoAppealYet(2027));
+        panel.Show("AFG");
+        Assert.DoesNotContain(Funding(panel, 2027).Rows, r => r.Value.Contains("yet"));
     }
 
     [Fact]

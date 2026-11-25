@@ -8,6 +8,7 @@ using GlobeCore.Storage;
 using EarthRelief3D.App.Curated;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.App.Presentation;
+using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Regions;
 
@@ -124,6 +125,9 @@ public sealed partial class LegendViewModel : ObservableObject
     /// <summary>The standard UN sentence, shown under the header even when the legend is folded (spec Q3, §11).</summary>
     public string UnNote => BoundaryNote;
 
+    /// <summary>The January rule for FTS appeals (P5-12); empty outside January, so the legend never states a rule that is not in force.</summary>
+    [ObservableProperty] private string _ftsNote = "";
+
     /// <summary>The header row: how many layers the legend explains, or that none is shown.</summary>
     public string HeaderText
     {
@@ -196,6 +200,7 @@ public sealed partial class LegendViewModel : ObservableObject
                 Measures(summary.Layer), summary.Source, SourceAsOf.LegendDate(summary), Keys(summary.Layer),
                 summary.Layer == CrisisLayer.Food ? FamineNote : null));
         }
+        FtsNote = FtsFundingFeed.InNewYearWindow(now) ? FtsFundingFeed.NewYearNote : "";
         Lines = lines;
         Entries = BuildEntries(now);
         Unplaced = [.. s.Unplaced.OrderByDescending(u => u.Citation.AsOfUtc)

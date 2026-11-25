@@ -234,6 +234,15 @@ public class LegendViewModelTests
     }
 
     [Fact]
+    public void FtsLineHasTheNewYearNote()
+    {
+        LegendViewModel At(DateTime now) => new(new CrisisStore(), new LayerStripViewModel(new MemorySettingsStore()), nowUtc: () => now);
+        Assert.Equal(FtsFundingFeed.NewYearNote, At(new DateTime(2027, 1, 20, 0, 0, 0, DateTimeKind.Utc)).FtsNote);
+        Assert.Equal("", At(new DateTime(2027, 2, 1, 0, 0, 0, DateTimeKind.Utc)).FtsNote);
+        Assert.Equal("", At(T).FtsNote);
+    }
+
+    [Fact]
     public void AccessLine()
     {
         var c = new SourceCitation(AcapsAccessFeed.Publisher, AcapsAccessFeed.Dataset, "December 2025", AcapsAccessFeed.PageUrl, AcapsAccessFeed.Licence,

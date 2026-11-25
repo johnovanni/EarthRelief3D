@@ -653,6 +653,8 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     public const string GettingHelpHeading = "Getting help in";
 
     /// <summary>"Humanitarian appeals 2026": the heading of a year's appeal-funding section.</summary>
+    /// <summary>"No appeal in FTS for 2027 yet": heads a country section that still shows last year's appeals (P5-12).</summary>
+    public static string NoAppealYet(int year) => $"No appeal in FTS for {year.ToString(System.Globalization.CultureInfo.InvariantCulture)} yet";
     public static string FundingHeading(int year) => "Humanitarian appeals " + year.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>The heading before the appeals are loaded (the year is not known yet).</summary>
@@ -781,11 +783,15 @@ public sealed partial class CountryPanelViewModel : ObservableObject
                 CrisisText.SourceLine(any.Citation, CrisisText.DataDate(any.Citation, now)), any.Citation.Url);
             yield break;
         }
+        int newest = snap.Appeals.Max(a => a.Year);
         foreach (var year in mine.GroupBy(a => a.Year).OrderByDescending(g => g.Key))
         {
             var plans = year.OrderBy(a => a.PlanName, StringComparer.Ordinal).ToList();
             var cite = plans.Select(a => a.Citation).MaxBy(c => c.AsOfUtc)!;
-            yield return new PanelSection(FundingHeading(year.Key), [.. plans.Select(a => (a.PlanName, FundingText(a)))],
+            List<(string Label, string Value)> rows = [.. plans.Select(a => (a.PlanName, FundingText(a)))];
+            // An older year shown while FTS has a newer one for other countries (January, P5-12): say there is no new appeal yet.
+            if (year.Key < newest) rows.Insert(0, ("Appeal", NoAppealYet(newest)));
+            yield return new PanelSection(FundingHeading(year.Key), rows,
                 CrisisText.SourceLine(cite, CrisisText.DataDate(cite, now)), cite.Url);
         }
     }
