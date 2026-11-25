@@ -141,7 +141,7 @@ is later. The long evidence titles wrap ("Evidence: Sudan | Our Work & How to He
 This is the first picture of a charity entry (Plan 4 never saw one).
 
 **`sudan-help`: the port arc against the depot arc (P5-14).** Run 1 (port 1.5, depot 1.0): Sudan's label point to Port
-Sudan and to the Dubai depot leave in the same direction, and the teal port arc was visible for only about 35 screen pixels
+Sudan and to the Dubai depot leave in the same direction, and the teal port arc was visible for only about 35 screen pixels (estimates by eye from the picture)
 from Sudan, then lay under the blue depot ribbon. After the tuning (R14: port 2.0, depot 0.5, airport 1.25 unchanged) run 2
 shows the teal arc for about 60 pixels from Sudan, then it again lies under the blue Dubai ribbon heading north-east;
 **nothing teal reaches the Port Sudan diamond to the south-east, so the port arc is still mostly hidden.** The unit test
@@ -174,7 +174,7 @@ it is pinned by `TextScaleLayoutTests` at 150% in 1,000 x 760.
 - **Lift factors** (`HubArcLayer.LiftFactor`): port 2.0 (was 1.5), airport 1.25 (unchanged), depot 0.5 (was 1.0), ruling R14.
   `HubArcGeometryTests` pin the new values and check, in 3D, that the port arc is higher above the surface than the depot
   arc for the first three quarters of its length (it was the first half). That is not what the camera sees: the picture
-  improved only from about 35 to about 60 visible pixels, and the port arc is still mostly hidden (see below).
+  improved only from about 35 to about 60 visible pixels (by eye), and the port arc is still mostly hidden (see below).
 
 ## Seen, not tuned
 
@@ -260,8 +260,8 @@ Added by Task 11:
     the installer stopped (exit code N). If Windows asked for your permission and it was not given, that is why." Say if you
     would rather the app asked for permission itself (it would restart elevated, which was judged a security fault).
 13. **Closed strip:** it keeps Settings and About under the closed header (ruling R15; P5-23 said only the header). Say which you want.
-15. **Port arc:** it is still mostly hidden under the depot arc in `sudan-help`. Say if a later fix (2D overlay, or separating arcs by bearing) is wanted.
 14. **Settings at 150%:** the Text size control is below the strip's fold (scroll to reach it). Say if it should move.
+15. **Port arc:** it is still mostly hidden under the depot arc in `sudan-help`. Say if a later fix (2D overlay, or separating arcs by bearing) is wanted.
 
 ## Deferred minor findings
 
