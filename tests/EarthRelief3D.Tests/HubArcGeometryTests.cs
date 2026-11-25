@@ -55,21 +55,21 @@ public class HubArcGeometryTests
     public void KindsLiftedDifferently()
     {
         // P5-14: each hub kind has its own lift factor, so arcs that leave in nearly the same direction do not lie on top of each other.
-        Assert.Equal(1.5, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.Port));
+        Assert.Equal(2.0, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.Port));
         Assert.Equal(1.25, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.Airport));
-        Assert.Equal(1.0, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.UnDepot));
-        var from = new SurfacePoint(0, 0); var to = new SurfacePoint(0, 6);   // 6 degrees: 0.0262 x 1.5 is below the 0.08 cap
+        Assert.Equal(0.5, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.UnDepot));
+        var from = new SurfacePoint(0, 0); var to = new SurfacePoint(0, 6);   // 6 degrees: 0.0262 x 2 is below the cap
         double Mid(EarthRelief3D.Core.Logic.HubKind k)
         {
             var path = HubArcLayer.ArcPoints(from, to, HubArcLayer.LiftFactor(k));
             return ((Vector3D)path[path.Count / 2]).Length - 1;
         }
         double depot = Mid(EarthRelief3D.Core.Logic.HubKind.UnDepot);
-        Assert.Equal(1.5, Mid(EarthRelief3D.Core.Logic.HubKind.Port) / depot, 3);
-        Assert.Equal(1.25, Mid(EarthRelief3D.Core.Logic.HubKind.Airport) / depot, 3);
+        Assert.Equal(4.0, Mid(EarthRelief3D.Core.Logic.HubKind.Port) / depot, 3);
+        Assert.Equal(2.5, Mid(EarthRelief3D.Core.Logic.HubKind.Airport) / depot, 3);
         // The cap is scaled too.
-        var far = HubArcLayer.ArcPoints(new SurfacePoint(0, 0), new SurfacePoint(0, 120), 1.5);
-        Assert.Equal(1 + 0.08 * 1.5, far.Max(p => ((Vector3D)p).Length), 3);
+        var far = HubArcLayer.ArcPoints(new SurfacePoint(0, 0), new SurfacePoint(0, 120), 2.0);
+        Assert.Equal(1 + 0.08 * 2.0, far.Max(p => ((Vector3D)p).Length), 3);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class HubArcGeometryTests
         var depot = HubArcLayer.ArcPoints(sudan, new SurfacePoint(24.896171, 55.16235), HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.UnDepot));
         var start = (Vector3D)port[0];
         int checkedPoints = 0;
-        for (int i = 1; i <= port.Count / 2; i++)
+        for (int i = 1; i <= port.Count * 3 / 4; i++)   // the first picture run showed the port arc hidden after a third; now above for the first three quarters
         {
             double angle = AngleDeg(port[0], port[i]);
             // The depot path's point at the same central angle from the start.

@@ -107,12 +107,15 @@ public sealed class HubArcLayer : SceneLayer
     /// <summary>
     /// How much higher each kind of hub's arc is lifted (P5-14): arcs from one place to a port and to a depot can leave in nearly the
     /// same direction (Sudan's label point to Port Sudan and to the Dubai depot), and the short port arc lay under the depot's ribbon.
+    /// The first picture run (Task 11) showed 1.5 against 1.0 still hid the port arc after its first third (the depot arc, being
+    /// longer, climbs higher there), so the port is lifted 2.0 and the depot 0.5: the port arc is then above from the start to about
+    /// seven eighths of its length (it must land on the surface, where the depot arc passes over it).
     /// </summary>
     public static double LiftFactor(HubKind kind) => kind switch
     {
-        HubKind.Port => 1.5,
+        HubKind.Port => 2.0,
         HubKind.Airport => 1.25,
-        _ => 1.0,
+        _ => 0.5,
     };
 
     /// <summary>

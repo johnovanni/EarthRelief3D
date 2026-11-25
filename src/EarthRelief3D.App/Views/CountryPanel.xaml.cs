@@ -59,6 +59,7 @@ public partial class CountryPanel : UserControl
         {
             if (_vm is not { FocusedSectionIndex: >= 0 } vm) { Scroller.ScrollToTop(); return; }
             if (SectionList.ItemContainerGenerator.ContainerFromIndex(vm.FocusedSectionIndex) is not FrameworkElement item) return;
+            Scroller.UpdateLayout();   // the entries' own containers exist only after a layout pass (the first picture run found none)
             // The charities focus (P5-15): the first charity entry's top, not the section's.
             ScrollToTopOf(vm.FocusedEntryIndex >= 0 && EntryElement(item, vm.FocusedEntryIndex) is { } entry ? entry : item);
         });
