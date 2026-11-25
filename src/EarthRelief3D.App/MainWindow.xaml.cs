@@ -19,10 +19,10 @@ public partial class MainWindow : Window
         DataContext = vm;
         Scene = new SceneController(Viewport, Overlay, vm, this, store, countries, clock, log);
         // No hover tooltips from the globe while the mouse is over a card.
-        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard }) Scene.HoverBlockers.Add(card);
+        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard, DataCardView }) Scene.HoverBlockers.Add(card);
         // Text size (C8, P5-8): every card is scaled from Settings, and sized from TextScaleLayout so none covers another.
         // A new card (Welcome, About, Data) goes in this list and in FitCards.
-        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard];
+        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard, DataCardView];
         ApplyTextScale();
         vm.Settings.TextScaleChanged += (_, _) => { ApplyTextScale(); FitCards(); };
         SizeChanged += (_, _) => FitCards();
@@ -37,6 +37,16 @@ public partial class MainWindow : Window
         vm.Legend.PropertyChanged += OnOpenChanged;
         vm.Panel.PropertyChanged += OnOpenChanged;
         vm.Explainer.PropertyChanged += OnOpenChanged;
+        vm.Cards.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(CardHost.Open)) FitCards(); };
+        DataCardView.SizeChanged += (_, _) => FitCards();
+    }
+
+    /// <summary>The "Data" button: opens the Data card, or closes it when it is open.</summary>
+    private void OnDataButtonClick(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (vm.Cards.Open == AppCard.Data) vm.Cards.CloseTop();
+        else vm.Cards.Show(AppCard.Data);
     }
 
     private readonly FrameworkElement[] _cards;
@@ -81,6 +91,11 @@ public partial class MainWindow : Window
         SetMax(LegendCard, FrameworkElement.MaxWidthProperty, TextScaleLayout.LegendMaxWidth(w, scale, columnOpen, sourcesW));
         // Open: at most half the window's height, and never over the strip. Closed: no cap (it is two or three lines).
         SetMax(LegendCard, FrameworkElement.MaxHeightProperty, legendOpen ? TextScaleLayout.LegendMaxHeight(h, Strip.ActualHeight) : double.PositiveInfinity);
+
+        // The Data card: centred, 900 x 640 at 100% at most, the text size times that, never over the window's edge less 24 (TextScaleLayout).
+        var data = TextScaleLayout.DataCardMax(w, h, scale);
+        SetMax(DataCardView, FrameworkElement.MaxWidthProperty, data.Width);
+        SetMax(DataCardView, FrameworkElement.MaxHeightProperty, data.Height);
 
         // The explainer: beside the panel, or under it.
         var b = TextScaleLayout.ExplainerBounds(new Size(w, h), scale, stripW, vm.Panel.IsOpen, Panel.ActualHeight, LegendCard.ActualHeight, sourcesH);

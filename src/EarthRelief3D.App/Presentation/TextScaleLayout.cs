@@ -43,6 +43,16 @@ public static class TextScaleLayout
     /// <summary>The share of the window's height an open legend may take before it scrolls (P5-24).</summary>
     public const double LegendShare = 0.5;
 
+    /// <summary>The Data card's size at most at 100%.</summary>
+    public const double DataCardBaseWidth = 900, DataCardBaseHeight = 640;
+
+    /// <summary>
+    /// The most the Data card takes on screen: 900 by 640 at 100%, times the text size, never more than the window less
+    /// <see cref="Gap"/> on each side (24). It is centred over the globe and covers the other cards while it is open.
+    /// </summary>
+    public static Size DataCardMax(double windowWidth, double windowHeight, double scale) =>
+        new(Math.Max(1, Math.Min(DataCardBaseWidth * scale, windowWidth - 2 * Gap)), Math.Max(1, Math.Min(DataCardBaseHeight * scale, windowHeight - 2 * Gap)));
+
     /// <summary>A saved text size as the app reads it: one of <see cref="Choices"/>, or 1.0.</summary>
     public static double Normalise(double saved) => Choices.Contains(saved) ? saved : 1.0;
 
@@ -64,9 +74,12 @@ public static class TextScaleLayout
     public static double LegendMaxHeight(double windowHeight, double stripHeight) =>
         Math.Max(120, Math.Min(windowHeight * LegendShare - 2 * Gap, windowHeight - stripHeight - 4 * Gap));
 
-    /// <summary>How wide the legend may be: not over the right-hand column (the panel, or the explainer under it) or, with neither, the Sources card.</summary>
+    /// <summary>
+    /// How wide the legend may be: not over the right-hand column (the panel, or the explainer under it) and not over the Sources card
+    /// at the bottom (which has grown with the Data button: at 150% it can be wider than the column).
+    /// </summary>
     public static double LegendMaxWidth(double windowWidth, double scale, bool columnOpen, double sourcesWidth) =>
-        Math.Max(100, Math.Min(LegendBaseWidth * scale, windowWidth - 3 * Gap - (columnOpen ? PanelWidth(windowWidth, scale) : sourcesWidth)));
+        Math.Max(100, Math.Min(LegendBaseWidth * scale, windowWidth - 3 * Gap - Math.Max(sourcesWidth, columnOpen ? PanelWidth(windowWidth, scale) : 0)));
 
     /// <summary>The bottom of the panel's column: above the Sources card.</summary>
     public static double ColumnBottom(double windowHeight, double sourcesHeight) => windowHeight - 2 * Gap - sourcesHeight;

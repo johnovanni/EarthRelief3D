@@ -193,7 +193,7 @@ public sealed partial class LegendViewModel : ObservableObject
         {
             if (!_layers.IsShown(summary.Layer)) continue;
             lines.Add(new LegendLine(summary.Layer, LayerStyle.Symbol(summary.Layer), LayerStyle.SymbolColor(summary.Layer),
-                Measures(summary.Layer), summary.Source, summary.LegendDate, Keys(summary.Layer),
+                Measures(summary.Layer), summary.Source, SourceAsOf.LegendDate(summary), Keys(summary.Layer),
                 summary.Layer == CrisisLayer.Food ? FamineNote : null));
         }
         Lines = lines;

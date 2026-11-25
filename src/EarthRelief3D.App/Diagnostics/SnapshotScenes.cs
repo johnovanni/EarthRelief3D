@@ -28,12 +28,26 @@ namespace EarthRelief3D.App.Diagnostics;
 /// legend and the layer strip's list open (the default, so the earlier pictures still compare) or folded; nothing is saved (P5-23, P5-24).
 /// <paramref name="TextScale"/> (scene field "textScale": 1, 1.25 or 1.5; default 1) sets the text size for this picture only, and saves
 /// nothing (C8). <paramref name="WindowSize"/> (scene field "windowSize": [width, height], at least 1000 by 600) sets the window's size
-/// for this picture, and the size it had is back afterwards.
+/// for this picture, and the size it had is back afterwards. <paramref name="Card"/> (scene field "card": "welcome", "about", "data" or
+/// "settings") opens that card, or the Settings flyout, for this picture; no field: no card and the flyout shut. A card whose view
+/// model the app has not registered yet fails the scene with "card 'about' is not available".
 /// </summary>
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
                                    string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null,
-                                   bool LegendOpen = true, bool StripOpen = true, double TextScale = 1.0, Size? WindowSize = null)
+                                   bool LegendOpen = true, bool StripOpen = true, double TextScale = 1.0, Size? WindowSize = null, string? Card = null)
 {
+    /// <summary>The scene field "card" values, in the order they are named to the user.</summary>
+    public static IReadOnlyList<string> CardNames { get; } = ["welcome", "about", "data", "settings"];
+
+    /// <summary>The card the scene opens over the globe (<see cref="ViewModels.AppCard.None"/> for none, and for "settings").</summary>
+    public AppCard AppCard => Card switch
+    {
+        "welcome" => AppCard.Welcome, "about" => AppCard.About, "data" => AppCard.Data, _ => AppCard.None,
+    };
+
+    /// <summary>True when the scene shows the Settings flyout.</summary>
+    public bool OpensSettings => Card == "settings";
+
     /// <summary>"1, 1.25 or 1.5": the text sizes a scene may name.</summary>
     internal static string AllowedTextScales()
     {
@@ -174,8 +188,15 @@ public static class SnapshotScenes
                         throw new FormatException($"Scene {name}: windowSize is [width, height], at least {min.Width:0} by {min.Height:0}.");
                     windowSize = new Size(ws[0].GetDouble(), ws[1].GetDouble());
                 }
+                string? card = null;
+                if (e.TryGetProperty("card", out var cd))
+                {
+                    card = cd.ValueKind == JsonValueKind.String ? cd.GetString()?.ToLowerInvariant() : null;
+                    if (card is null || !SnapshotScene.CardNames.Contains(card))
+                        throw new FormatException($"Scene {name}: card is \"welcome\", \"about\", \"data\" or \"settings\".");
+                }
                 list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant(),
-                    legendOpen, stripOpen, textScale, windowSize));
+                    legendOpen, stripOpen, textScale, windowSize, card));
             }
             if (list.Count == 0) throw new FormatException("The file has no scenes.");
             return list;
@@ -241,6 +262,10 @@ public static class SnapshotScenes
                         window.Height = wantedHeight;
                         await window.Dispatcher.InvokeAsync(() => window.UpdateLayout(), DispatcherPriority.Render);
                     }
+                    // Cards: only the one the scene names is open (none, when it names none), and the Settings flyout only for "settings".
+                    if (!vm.Cards.IsAvailable(s.AppCard)) throw new InvalidOperationException($"Scene {s.Name}: card '{s.Card}' is not available.");
+                    vm.Cards.Show(s.AppCard);
+                    vm.Settings.IsOpen = s.OpensSettings;
                     if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker, s.FocusSection);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
                     if (s.Explainer is { } xid && !vm.Panel.Explainer.Open(xid))

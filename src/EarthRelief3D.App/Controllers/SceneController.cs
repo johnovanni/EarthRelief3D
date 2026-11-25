@@ -405,7 +405,12 @@ public sealed class SceneController
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        // Esc closes the explainer card first, then the panel (Plan 4 Task 9).
+        // Esc closes the open card (Welcome, About, Data) first, then the explainer card, then the panel (Plan 4 Task 9; Plan 5 Task 4).
+        if (e.Key == Key.Escape && _vm.Cards.CloseTop())
+        {
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.Escape && _vm.Explainer.IsOpen)
         {
             e.Handled = true;

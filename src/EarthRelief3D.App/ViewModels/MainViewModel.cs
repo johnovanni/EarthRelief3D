@@ -9,6 +9,9 @@ using EarthRelief3D.Core.Help;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Regions;
 using GlobeCore.Storage;
+using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Sources;
+using GlobeCore.Wpf.Services;
 using GlobeCore.Wpf.Status;
 
 namespace EarthRelief3D.App.ViewModels;
@@ -29,9 +32,13 @@ public sealed class MainViewModel
     /// <param name="logistics">The Logistics Cluster's country pages (Plan 4); none when not given.</param>
     /// <param name="crisisPlace">The place a country's crisis is taken to be, for the nearest hubs (P4-6): its label point; none when not given.</param>
     /// <param name="help">The help catalog behind "Your one small step" and the Settings country and state lists (Plan 4); none when not given.</param>
+    /// <param name="registry">The list of data sources the Data card shows (Plan 5); empty when not given (the card says it could not be read).</param>
+    /// <param name="datasets">The newest citation of each bundled extract that loaded, by its folder under <c>data\datasets</c> (the Data card's dates).</param>
+    /// <param name="links">Opens the Data card's links in the user's browser; the real shell when not given.</param>
     public MainViewModel(CrisisStore store, ISettingsStore<AppSettings> settings, Func<string, string?> countryName, Dispatcher? dispatcher,
         Func<DateTime>? nowUtc = null, CurrentBoundaries? boundaries = null, IndicatorStore? indicators = null, MarkerDataStore? markerData = null,
-        CuratedStore? curated = null, LogisticsClusterLinks? logistics = null, Func<string, GeoPosition?>? crisisPlace = null, HelpTables? help = null)
+        CuratedStore? curated = null, LogisticsClusterLinks? logistics = null, Func<string, GeoPosition?>? crisisPlace = null, HelpTables? help = null,
+        SourceRegistry? registry = null, IReadOnlyDictionary<string, SourceCitation>? datasets = null, ILinkOpener? links = null)
     {
         ArgumentNullException.ThrowIfNull(store);
         Indicators = indicators ?? new IndicatorStore();
@@ -50,6 +57,31 @@ public sealed class MainViewModel
         // Choosing a state writes the open panel's senators again at once.
         Settings.StateChanged += (_, _) => Panel.RefreshOpen();
         Status = new StatusDotsViewModel(AppServices.StatusDotNames, dispatcher);
+        // Plan 5: the cards over the globe. The Data card lists every source with its date, read again when a store changes while it is open.
+        Registry = registry ?? new SourceRegistry([]);
+        var datasetCitations = datasets ?? new Dictionary<string, SourceCitation>();
+        var helpTables = help ?? HelpTables.Empty;
+        Cards = new CardHost();
+        Data = new DataViewModel(Registry, () => new SourceAsOfInputs(store.Snapshot, Indicators.Snapshot, datasetCitations, Curated, helpTables, boundaries?.Set),
+            nowUtc ?? (() => DateTime.UtcNow), links ?? new ShellLinkOpener());
+        Cards.Register(AppCard.Data, Data.Refresh);
+        Data.CloseRequested += (_, _) => { if (Cards.Open == AppCard.Data) Cards.CloseTop(); };
+        void RefreshDataCard()
+        {
+            if (Cards.Open == AppCard.Data) Data.Refresh();
+        }
+        int refreshPending = 0;
+        void OnDataChanged(object? sender, EventArgs e)
+        {
+            // Raised on the feeds' threads: only a flag crosses, and the stores are read on the UI thread.
+            if (dispatcher is null || dispatcher.CheckAccess()) { RefreshDataCard(); return; }
+            if (Interlocked.Exchange(ref refreshPending, 1) == 1) return;
+            dispatcher.BeginInvoke(() => { Volatile.Write(ref refreshPending, 0); RefreshDataCard(); });
+        }
+        store.Changed += OnDataChanged;
+        Indicators.Changed += OnDataChanged;
+        Curated.Changed += OnDataChanged;
+        if (boundaries is not null) boundaries.Changed += (_, _) => OnDataChanged(null, EventArgs.Empty);
         // The prison camps layer draws from the marker store: its points follow the curated store (no tables: not loaded, R2).
         PublishCurated();
         Curated.Changed += (_, _) => PublishCurated();
@@ -73,6 +105,15 @@ public sealed class MainViewModel
 
     /// <summary>The UN depots, airports and ports the nearest-hub rows and the arcs measure to (Plan 4); the extracts are set once loaded.</summary>
     public HubStore Hubs { get; }
+
+    /// <summary>The list of data sources (<c>data\sources.json</c>) the Data card and the About card show.</summary>
+    public SourceRegistry Registry { get; }
+
+    /// <summary>Which card is open over the globe: Welcome, About or Data, one at a time; Esc closes it first.</summary>
+    public CardHost Cards { get; }
+
+    /// <summary>The Data card (Plan 5 Task 4): every source with its date, licence and link.</summary>
+    public DataViewModel Data { get; }
 
     public LayerStripViewModel Layers { get; }
     public SettingsViewModel Settings { get; }

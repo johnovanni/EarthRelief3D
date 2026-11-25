@@ -69,7 +69,7 @@ public class LaunchOptionsTests
     }
 }
 
-public class SnapshotScenesTests
+public partial class SnapshotScenesTests
 {
     private static string ScenesFile => Path.Combine(AppContext.BaseDirectory, "SnapshotScenes", "scenes.json");
 
