@@ -38,6 +38,14 @@ public partial class SnapshotScenesTests
         Assert.Equal(AppCard.None, scenes[4].AppCard);
     }
 
+    [Fact]
+    public void CharitiesFocusIsAccepted()
+    {
+        var scenes = Read("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","panel":"SDN","panelFocus":"Charities"}]}""");
+        Assert.Equal(PanelFocus.Charities, scenes[0].FocusSection);
+        Assert.Contains("charities", SnapshotScene.PanelFocusNames);
+    }
+
     [Theory]
     [InlineData("\"help\"")]
     [InlineData("\"\"")]

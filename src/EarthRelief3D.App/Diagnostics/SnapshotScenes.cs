@@ -83,9 +83,9 @@ public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosi
         CountryPanelViewModel.AccessExplainerId, CountryPanelViewModel.StepExplainerId,
     ];
 
-    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3), then "access" and "help" (Plan 4).</summary>
+    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3), then "access" and "help" (Plan 4) and "charities" (Plan 5).</summary>
     public static IReadOnlyList<string> PanelFocusNames { get; } =
-        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps), "access", "help"];
+        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps), "access", "help", "charities"];
 
     /// <summary>The shading the scene names ("food", "water", ...; at most one), or none.</summary>
     public ShadingLayer Shading => Layers.Select(n => LayerCatalog.TryParse(n, out var sh, out _) ? sh : null)
@@ -102,8 +102,9 @@ public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosi
         "displacement" => CrisisLayer.Displacement, _ => null,
     };
 
-    /// <summary>The Plan 4 section a <see cref="PanelFocus"/> name stands for ("access", "help"), or null.</summary>
-    public ViewModels.PanelFocus? FocusSection => PanelFocus?.ToLowerInvariant() switch { "access" => ViewModels.PanelFocus.Access, "help" => ViewModels.PanelFocus.Help, _ => null };
+    /// <summary>The Plan 4 section a <see cref="PanelFocus"/> name stands for ("access", "help", "charities"), or null.</summary>
+    public ViewModels.PanelFocus? FocusSection => PanelFocus?.ToLowerInvariant() switch { "access" => ViewModels.PanelFocus.Access, "help" => ViewModels.PanelFocus.Help,
+        "charities" => ViewModels.PanelFocus.Charities, _ => null };
 
     /// <summary>The curated marker layer a <see cref="PanelFocus"/> name stands for ("atrocities", "camps"), or null.</summary>
     public MarkerLayer? FocusMarker => PanelFocus?.ToLowerInvariant() switch

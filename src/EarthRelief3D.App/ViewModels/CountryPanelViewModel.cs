@@ -37,7 +37,7 @@ public sealed record PanelSection(string Heading, IReadOnlyList<(string Label, s
 /// A part of the panel, other than a crisis layer's, that a scene or a click can open the panel at: the Getting help in
 /// section's access scores, or "Your one small step" (<see cref="Help"/>; it focuses nothing when the panel has no help tables).
 /// </summary>
-public enum PanelFocus { Access, Help }
+public enum PanelFocus { Access, Help, Charities }
 
 /// <summary>
 /// The country panel (C1: per country, a section per crisis), the "What is happening" part of spec §9.1. Sections come in
@@ -110,6 +110,11 @@ public sealed partial class CountryPanelViewModel : ObservableObject
     [ObservableProperty] private IReadOnlyList<string> _sourcesChecked = [];
     /// <summary>The section the panel was opened at (a marker click, C1), or -1.</summary>
     [ObservableProperty] private int _focusedSectionIndex = -1;
+    /// <summary>
+    /// With <see cref="PanelFocus.Charities"/> (P5-15): the index, in the focused section's <c>Entries</c>, of the first charity entry
+    /// (the first entry after the pooled fund or CERF); -1 otherwise, or when no charity is shown.
+    /// </summary>
+    [ObservableProperty] private int _focusedEntryIndex = -1;
 
     private CrisisLayer? _focus;
     private MarkerLayer? _markerFocus;
@@ -203,6 +208,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         Headline = "";
         HasHeadline = false;
         FocusedSectionIndex = -1;
+        FocusedEntryIndex = -1;
         _focus = null;
         _markerFocus = null;
         _sectionFocus = null;
@@ -281,7 +287,7 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         // Getting help in and funding sections, and is not a crisis either.
         if (_help is not null && (currentCrisis || _indicators?.Snapshot.AppealsOf(iso3).Count > 0))
         {
-            if (_sectionFocus == PanelFocus.Help && focusIndex < 0) focusIndex = sections.Count;
+            if (_sectionFocus is PanelFocus.Help or PanelFocus.Charities && focusIndex < 0) focusIndex = sections.Count;
             sections.Add(StepSection(_help, iso3, _nameOf(iso3) ?? iso3, DateOnly.FromDateTime(now), _userState(), _curated?.ShowDrafts ?? false));
         }
         var projectionOnly = !currentCrisis && food is { ProjectionOnly: true };
@@ -298,6 +304,16 @@ public sealed partial class CountryPanelViewModel : ObservableObject
         HasHeadline = Headline.Length > 0;
         SourcesChecked = ShowsSourcesChecked ? [.. SourceDates.All(s, now).Select(x => SourceCheckedLine(x, food, displaced, now))] : [];
         FocusedSectionIndex = focusIndex;
+        FocusedEntryIndex = _sectionFocus == PanelFocus.Charities && focusIndex >= 0 ? FirstCharityIndex(sections[focusIndex].Entries) : -1;
+    }
+
+    /// <summary>The first "Give" entry after the fund line that is a charity (not the "no charities" line), or -1.</summary>
+    private static int FirstCharityIndex(IReadOnlyList<HelpEntry>? entries)
+    {
+        if (entries is null) return -1;
+        for (int i = 1; i < entries.Count; i++)
+            if (entries[i].Group == HelpCatalog.GiveGroup && !entries[i].Lines.Contains(HelpCatalog.NoCharitiesText)) return i;
+        return -1;
     }
 
     /// <summary>

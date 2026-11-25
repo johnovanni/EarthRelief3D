@@ -77,7 +77,8 @@ public partial class SnapshotScenesTests
     public void TheCommittedScenesLoad()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps", "access", "sudan-access", "sudan-help", "sudan-explainer-food"],
+        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps", "access", "sudan-access", "sudan-help", "sudan-explainer-food",
+            "first-start", "about", "data", "text-150", "text-150-narrow", "sudan-charities", "closed-cards", "update-offer", "update-ready", "update-stale"],
             scenes.Select(s => s.Name));
         Assert.All(scenes, s => Assert.Equal(new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc), s.DisplayTimeUtc));
         Assert.Equal(new GeoPosition(10, 25), scenes[0].LookAt);
@@ -303,7 +304,7 @@ public partial class SnapshotScenesTests
     public void PlanFourScenesAreInTheFile()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(14, scenes.Count);
+        Assert.Equal(24, scenes.Count);   // fourteen from Plans 2 to 4, ten from Plan 5
         var access = scenes.Single(s => s.Name == "access");
         Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Access, access.Shading);
         var help = scenes.Single(s => s.Name == "sudan-help");
@@ -315,6 +316,18 @@ public partial class SnapshotScenesTests
         Assert.Equal("SDN", ex.Panel);
         Assert.True(ex.ShowDrafts);
         Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Access, scenes.Single(s => s.Name == "sudan-access").FocusSection);
+
+        // Plan 5 (Task 11): the ten new scenes' fields.
+        Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Charities, scenes.Single(s => s.Name == "sudan-charities").FocusSection);
+        Assert.False(scenes.Single(s => s.Name == "first-start").LegendOpen);
+        Assert.Equal(EarthRelief3D.App.ViewModels.AppCard.Welcome, scenes.Single(s => s.Name == "first-start").AppCard);
+        Assert.Equal(1.5, scenes.Single(s => s.Name == "text-150-narrow").TextScale);
+        Assert.Equal(new System.Windows.Size(1000, 760), scenes.Single(s => s.Name == "text-150-narrow").WindowSize);
+        Assert.True(scenes.Single(s => s.Name == "text-150").OpensSettings);
+        var closed = scenes.Single(s => s.Name == "closed-cards");
+        Assert.False(closed.StripOpen);
+        Assert.False(closed.LegendOpen);
+        Assert.Equal(["offer", "ready", "stale"], scenes.Where(s => s.Name.StartsWith("update-", StringComparison.Ordinal)).Select(s => s.Update));
     }
 
     [Fact]
@@ -338,7 +351,7 @@ public partial class SnapshotScenesTests
             Assert.Equal(EarthRelief3D.App.Presentation.CrisisLayer.Food, scenes[2].FocusLayer);
             Assert.Null(scenes[2].FocusMarker);
             Assert.False(scenes[2].ShowDrafts);   // absent means off
-            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps", "access", "help"], SnapshotScene.PanelFocusNames);
+            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps", "access", "help", "charities"], SnapshotScene.PanelFocusNames);
         }
         finally { File.Delete(path); }
     }
