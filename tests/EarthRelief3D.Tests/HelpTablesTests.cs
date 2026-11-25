@@ -86,7 +86,9 @@ public class HelpTablesTests
         foreach (var c in t.Charities)
         {
             Assert.Equal(approved.Contains(c.Id) ? new Review(Review.Approved, new DateOnly(2026, 11, 25)) : new Review(Review.Draft, null), c.Review);
-            Assert.Equal("Claude (draft)", c.Reviewer);
+            // An approved row names the owner as its reviewer and is dated the approval day; a draft names its drafter.
+            Assert.Equal(approved.Contains(c.Id) ? "Owner (approved 2026-11-25); drafted by Claude" : "Claude (draft)", c.Reviewer);
+            if (approved.Contains(c.Id)) Assert.Equal(new DateOnly(2026, 11, 25), c.ReviewedOn);
             var rating = Assert.Single(c.Ratings);
             Assert.Equal("Charity Navigator", rating.Evaluator);
             Assert.Equal(new Uri($"https://www.charitynavigator.org/ein/{c.Ein.Replace("-", "", StringComparison.Ordinal)}"), rating.ReportUrl);

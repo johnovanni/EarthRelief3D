@@ -272,7 +272,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in SYR: [OCHA 3W operational presence (HDX HAPI), Syria, 2026-01-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in TCD: [Hunger Relief in Chad | Action Against Hunger](https://www.actionagainsthunger.org/location/africa/chad/) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -459,7 +459,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in VEN: [OCHA 3W operational presence (HDX HAPI), Venezuela, 2026-01-01 to 2026-07-02](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [Yemen | International Medical Corps](https://internationalmedicalcorps.org/country/yemen/) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -501,7 +501,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [Donate to help Yemen | IRC](https://www.rescue.org/country/yemen) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -546,7 +546,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [NRC in Yemen | NRC](https://www.nrc.no/countries/middle-east/yemen) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: EIN matched by name in Publication 78 only. Country evidence is on nrc.no, the international organisation's site; NRC USA's own page is itself part of nrc.no (www.nrc.no/usa).
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -661,7 +661,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [Donate to Help Children in Yemen Crisis | Save The Children](https://www.savethechildren.org/us/where-we-work/yemen) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: Its US site does not state membership of Save the Children International in so many words: its FAQ sends donors outside the US to Save the Children International for their local Save the Children office, and savethechildren.net describes Save the Children as a global membership organisation of Save the Children International and its national members. Please confirm it is the US member.
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -708,7 +708,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [UNICEF Yemen](https://www.unicef.org/yemen/) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: Country evidence for MLI, MOZ, NER, VEN and YEM is on unicef.org, the international organisation's site (unicefusa.org answered scripts with a bot check for those pages). The unicefusa.org home page does not link to unicef.org; its About UNICEF USA page does (opened 24 Nov 2026).
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -755,7 +755,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [IOM Yemen](https://yemen.iom.int/) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: Country evidence is on iom.int, the international organisation's site, which usaforiom.org links to from its home page.
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -796,7 +796,7 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in YEM: [UNFPA Yemen](https://yemen.unfpa.org/en) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Note: Country evidence is on unfpa.org, the international organisation's site. The usaforunfpa.org home page does not link to unfpa.org; its FAQ page does (opened 24 Nov 2026).
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
 
@@ -888,6 +888,6 @@ United States (`US`): charities are checked in the IRS Tax Exempt Organization S
 - Works in TCD: [OCHA 3W operational presence (HDX HAPI), Chad, 2026-09-01 to 2026-09-30](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [Yemen Hunger Crisis from Civil War](https://wfpusa.org/place/yemen/) (charity's own page, checked 24 Nov 2026; expires 24 Nov 2027)
 - Works in YEM: [OCHA 3W operational presence (HDX HAPI), Yemen, 2026-01-01 to 2026-08-31](https://data.humdata.org/dataset/hdx-hapi-operational-presence) (OCHA 3W, checked 24 Nov 2026; expires 24 Nov 2027)
-- Reviewed 24 Nov 2026 by Claude (draft); the review expires 24 Nov 2027
+- Reviewed 25 Nov 2026 by Owner (approved 2026-11-25); drafted by Claude; the review expires 25 Nov 2027
 - Checks: every check holds once it is approved
 - Status: **approved** on 25 Nov 2026
