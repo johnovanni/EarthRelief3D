@@ -60,7 +60,7 @@ public sealed class HubLabelsLayer : OverlayLayer
         var wanted = new List<(string, Point, Color)>();
         foreach (var spec in _specs() ?? [])
         {
-            var path = HubArcLayer.ArcPoints(spec.From, spec.Link.Hub.Position, HubArcLayer.LiftFactor(spec.Link.Hub.Kind));
+            var path = HubArcLayer.ArcPoints(spec.From, spec.Link.Hub.Position);
             if (path.Count < 2) continue;
             var p = HubArcLayer.MidPoint(path);
             var toEye = eye - (Vector3D)p;

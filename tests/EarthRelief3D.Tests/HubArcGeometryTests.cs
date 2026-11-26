@@ -1,7 +1,17 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Shapes;
+using AstroCore.Earth;
 using EarthRelief3D.App.Layers;
 using EarthRelief3D.Core.Feeds;
+using EarthRelief3D.App.Presentation;
+using EarthRelief3D.Core.Logic;
+using EarthRelief3D.Core.Model;
 using GlobeCore.Bodies;
+using GlobeCore.Wpf.Camera;
+using GlobeCore.Wpf.Rendering;
 
 namespace EarthRelief3D.Tests;
 
@@ -52,60 +62,6 @@ public class HubArcGeometryTests
     }
 
     [Fact]
-    public void KindsLiftedDifferently()
-    {
-        // P5-14: each hub kind has its own lift factor, so arcs that leave in nearly the same direction do not lie on top of each other.
-        Assert.Equal(2.0, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.Port));
-        Assert.Equal(1.25, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.Airport));
-        Assert.Equal(0.5, HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.UnDepot));
-        var from = new SurfacePoint(0, 0); var to = new SurfacePoint(0, 6);   // 6 degrees: 0.0262 x 2 is below the cap
-        double Mid(EarthRelief3D.Core.Logic.HubKind k)
-        {
-            var path = HubArcLayer.ArcPoints(from, to, HubArcLayer.LiftFactor(k));
-            return ((Vector3D)path[path.Count / 2]).Length - 1;
-        }
-        double depot = Mid(EarthRelief3D.Core.Logic.HubKind.UnDepot);
-        Assert.Equal(4.0, Mid(EarthRelief3D.Core.Logic.HubKind.Port) / depot, 3);
-        Assert.Equal(2.5, Mid(EarthRelief3D.Core.Logic.HubKind.Airport) / depot, 3);
-        // The cap is scaled too.
-        var far = HubArcLayer.ArcPoints(new SurfacePoint(0, 0), new SurfacePoint(0, 120), 2.0);
-        Assert.Equal(1 + 0.08 * 2.0, far.Max(p => ((Vector3D)p).Length), 3);
-    }
-
-    [Fact]
-    public void PortArcAboveDepotArcFromSudan()
-    {
-        // P5-14: Sudan's label point to Port Sudan (918 km) left in almost the direction of the arc to the Dubai depot and lay under it.
-        var sudan = CountryResolver.LoadDefault().ByIso3("SDN")!.LabelPoint;
-        var port = HubArcLayer.ArcPoints(sudan, new SurfacePoint(19.6, 37.2), HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.Port));
-        var depot = HubArcLayer.ArcPoints(sudan, new SurfacePoint(24.896171, 55.16235), HubArcLayer.LiftFactor(EarthRelief3D.Core.Logic.HubKind.UnDepot));
-        var start = (Vector3D)port[0];
-        int checkedPoints = 0;
-        for (int i = 1; i <= port.Count * 3 / 4; i++)   // the first picture run showed the port arc hidden after a third; now above for the first three quarters
-        {
-            double angle = AngleDeg(port[0], port[i]);
-            // The depot path's point at the same central angle from the start.
-            int j = Enumerable.Range(0, depot.Count).MinBy(k => Math.Abs(AngleDeg(depot[0], depot[k]) - angle));
-            Assert.True(((Vector3D)port[i]).Length > ((Vector3D)depot[j]).Length,
-                $"at {angle:F2} degrees the port arc ({((Vector3D)port[i]).Length:F5}) is not above the depot arc ({((Vector3D)depot[j]).Length:F5})");
-            checkedPoints++;
-        }
-        Assert.True(checkedPoints >= 3);
-        Assert.True(start.Length > 0);
-    }
-
-    [Fact]
-    public void ArcsAreWideAndAboveTheMarkers()
-    {
-        // Final review F2: about 3 px wide, and lifted above the highest point-marker layer so no marker mesh hides a ribbon's ends.
-        Assert.Equal(3, HubArcLayer.WidthPx);
-        double highest = Enum.GetValues<EarthRelief3D.App.Presentation.MarkerLayer>()
-            .Max(l => PointMarkerLayer.BaseHeight + (int)l * PointMarkerLayer.LayerLift);
-        Assert.True(HubArcLayer.SurfaceClearance > highest, $"clearance {HubArcLayer.SurfaceClearance} is not above the markers at {highest}");
-        Assert.True(HubArcLayer.SurfaceClearance < 1.02, "the ends still sit on the globe");
-    }
-
-    [Fact]
     public void ArcLabelsAreNeverDroppedForOverlapping() => StaAsync.Sta(() =>
     {
         // Final review F2 (m24): three labels at almost the same point are all placed (moved apart, or forced), never dropped.
@@ -127,19 +83,104 @@ public class HubArcGeometryTests
     });
 
     [Fact]
-    public void RibbonIsAStripOfTheGivenWidth() => StaAsync.Sta(() =>
+    public void OneLiftForEveryKind()
     {
-        var path = HubArcLayer.ArcPoints(new SurfacePoint(0, 0), new SurfacePoint(0, 10));
-        var mesh = HubArcLayer.Ribbon(path, 0.004);
-        Assert.Equal(2 * path.Count, mesh.Positions.Count);
-        Assert.Equal(6 * (path.Count - 1), mesh.TriangleIndices.Count);
-        Assert.Equal(0.004, (mesh.Positions[0] - mesh.Positions[1]).Length, 6);
-        // Counter-clockwise seen from outside: every triangle's normal points away from the globe's centre.
-        for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+        // R18 withdraws P5-14 and R14: every kind of hub has the same gentle rise (6 degrees: 0.25 x 0.1047 rad = 0.0262).
+        var path = HubArcLayer.ArcPoints(new SurfacePoint(0, 0), new SurfacePoint(0, 6));
+        Assert.Equal(1 + 0.25 * 6 * Math.PI / 180, ((Vector3D)path[path.Count / 2]).Length, 3);
+    }
+
+    [Fact]
+    public void ArcsAboveTheMarkers()
+    {
+        // Final review F2: about 3 px wide and above every marker; R18: drawn on the overlay, under the labels.
+        Assert.Equal(3, HubArcLayer.WidthPx);
+        Assert.Equal(5, HubArcLayer.EdgeWidthPx);
+        Assert.True(typeof(GlobeCore.Wpf.Layers.OverlayLayer).IsAssignableFrom(typeof(HubArcLayer)));
+        Assert.All(Enum.GetValues<MarkerLayer>(), l => Assert.True(PointMarkerLayer.OrderOf(l) < HubArcLayer.Order));
+        Assert.True(HubArcLayer.Order < LabelsOverlayLayer.Order);
+    }
+
+    // ---------------------------------------------------------------- sudan-help (owner item 15, R18)
+
+    private static readonly DateTime Now = new(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc);
+
+    private static HubArcSpec Spec(HubKind kind, string name, double lat, double lon)
+    {
+        var hub = new Hub(kind, name, "XXX", new SurfacePoint(lat, lon), "",
+            new SourceCitation("test", "x", null, new Uri("https://example.org"), "x", "x", Now, Now));
+        return new HubArcSpec(new HubLink(hub, 0), CountryResolver.LoadDefault().ByIso3("SDN")!.LabelPoint);
+    }
+
+    private static readonly HubArcSpec PortSudan = Spec(HubKind.Port, "Port Sudan", 19.6, 37.2);
+    private static readonly HubArcSpec Dubai = Spec(HubKind.UnDepot, "UNHRD Dubai", 24.896171, 55.16235);
+    private static readonly HubArcSpec Dongola = Spec(HubKind.Airport, "Dongola Airport", 19.15, 30.43);
+
+    /// <summary>The camera of the sudan-help picture: straight down on 15 N 35 E at the fitted distance for a 1482 x 903 window.</summary>
+    private static Projector SudanHelpCamera() => HubArcScreenTests.LookingDownOn(new GeoPosition(15, 35),
+        CameraRules.FitDistance(45, 1482.0 / 903, CameraLimits.EarthDefault), 1482, 903);
+
+    [Fact]
+    public void PortArcBesideDepotArcInSudanHelp()
+    {
+        var projector = SudanHelpCamera();
+        var lines = HubArcLayer.Lines([Dubai, PortSudan, Dongola], projector);
+        var port = lines.Single(l => l.Spec == PortSudan).Line;
+        var depot = lines.Single(l => l.Spec == Dubai).Line;
+        var airport = lines.Single(l => l.Spec == Dongola).Line;
+        // What the camera sees: the port line never lies on the depot line, from end to end: their 3 px coloured lines never
+        // overlap (ruling R20), and the port line, drawn after it, is on top with its own dark edge between them.
+        foreach (var p in port)
+            Assert.True(HubArcScreen.Distance(p, depot) >= HubArcLayer.WidthPx, $"port point {p} is {HubArcScreen.Distance(p, depot):F2} px from the depot line");
+        // It still ends at Port Sudan, and the airport line, leaving in another direction, is not moved.
+        Assert.True(projector.TryProject(MarkerMeshes.Above(new SurfacePoint(19.6, 37.2), 1.0), out var portSudan));
+        Assert.True((port[^1] - portSudan).Length <= 3, $"the port line ends {(port[^1] - portSudan).Length:F2} px from Port Sudan");
+        Assert.True(projector.TryProject(MarkerMeshes.Above(PortSudan.From, 1.0), out var start));
+        Assert.True((airport[0] - start).Length < 0.01);
+        // Drawn longest first: the short port line on top of the depot line.
+        Assert.True(lines.ToList().FindIndex(l => l.Spec == Dubai) < lines.ToList().FindIndex(l => l.Spec == PortSudan));
+    }
+
+    private static Canvas RenderInto(HubArcLayer layer, Canvas? canvas = null)
+    {
+        canvas ??= new Canvas();
+        layer.Render(canvas, SudanHelpCamera());
+        return canvas;
+    }
+
+    [Fact]
+    public void ArcsDrawUnderLabels() => StaAsync.Sta(() =>
+    {
+        var layer = new HubArcLayer(() => [Dubai, PortSudan, Dongola]);
+        var canvas = RenderInto(layer);
+        var shapes = canvas.Children.OfType<Polyline>().Where(p => p.Visibility == Visibility.Visible).ToList();
+        Assert.Equal(6, shapes.Count);
+        Assert.Equal(3, layer.ArcCount);
+        Assert.All(shapes, s => Assert.True(Panel.GetZIndex(s) < 0, "an arc would draw over a label"));
+        for (int i = 0; i < shapes.Count; i += 2)
         {
-            var a = mesh.Positions[mesh.TriangleIndices[i]]; var b = mesh.Positions[mesh.TriangleIndices[i + 1]]; var c = mesh.Positions[mesh.TriangleIndices[i + 2]];
-            var normal = Vector3D.CrossProduct(b - a, c - a);
-            Assert.True(Vector3D.DotProduct(normal, (Vector3D)a) > 0, $"triangle {i / 3} faces inwards");
+            var edge = shapes[i]; var line = shapes[i + 1];
+            Assert.Equal(5, edge.StrokeThickness);
+            Assert.Equal(LayerStyle.MarkerEdgeColor, ((SolidColorBrush)edge.Stroke).Color);
+            Assert.Equal(3, line.StrokeThickness);
+            Assert.Contains(((SolidColorBrush)line.Stroke).Color, new[] { LayerStyle.UnDepotColor, LayerStyle.PortColor, LayerStyle.AirportColor });
+            Assert.True(canvas.Children.IndexOf(edge) < canvas.Children.IndexOf(line), "the edge is under its line");
         }
+        // The depot (longest) is drawn first, the port last of the two.
+        var colours = shapes.Where((_, i) => i % 2 == 1).Select(s => ((SolidColorBrush)s.Stroke).Color).ToList();
+        Assert.True(colours.IndexOf(LayerStyle.UnDepotColor) < colours.IndexOf(LayerStyle.PortColor));
+    });
+
+    [Fact]
+    public void ClearsWhenNoArcs() => StaAsync.Sta(() =>
+    {
+        IReadOnlyList<HubArcSpec> specs = [Dubai, PortSudan, Dongola];
+        var layer = new HubArcLayer(() => specs);
+        var canvas = RenderInto(layer);
+        specs = [];
+        layer.Changed();
+        RenderInto(layer, canvas);
+        Assert.DoesNotContain(canvas.Children.OfType<Polyline>(), p => p.Visibility == Visibility.Visible);
+        Assert.Equal(0, layer.ArcCount);
     });
 }
