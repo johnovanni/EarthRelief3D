@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:EarthRelief3D.App.Views"
              xmlns:vm="clr-namespace:EarthRelief3D.App.ViewModels"
              xmlns:pres="clr-namespace:EarthRelief3D.App.Presentation"
-             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12" Width="380" Foreground="White">
+             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12" Width="420" Foreground="White">
     <!-- DataContext: CountryPanelViewModel. The "What is happening" part of the panel (spec §9.1). -->
     <UserControl.Resources>
         <ResourceDictionary>

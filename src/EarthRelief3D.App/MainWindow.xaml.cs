@@ -1,4 +1,7 @@
+using System.ComponentModel;
 using System.Windows;
+using EarthRelief3D.App.Presentation;
+using EarthRelief3D.App.Views;
 using EarthRelief3D.App.Controllers;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
@@ -16,30 +19,132 @@ public partial class MainWindow : Window
         DataContext = vm;
         Scene = new SceneController(Viewport, Overlay, vm, this, store, countries, clock, log);
         // No hover tooltips from the globe while the mouse is over a card.
-        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard }) Scene.HoverBlockers.Add(card);
-        // The legend never grows over the layer strip above it: it scrolls when the window is short.
-        SizeChanged += (_, _) => FitLegend();
-        Strip.SizeChanged += (_, _) => FitLegend();
-        // The explainer card never covers the layer strip: its left edge stays right of the strip, and it shrinks to fit.
-        Root.SizeChanged += (_, _) => FitExplainer();
-        Strip.SizeChanged += (_, _) => FitExplainer();
+        foreach (var card in new UIElement[] { Strip, Panel, ExplainerCard, LegendCard, StatusCard, DataCardView, AboutCardView, WelcomeCardView, UpdateBannerView }) Scene.HoverBlockers.Add(card);
+        // Text size (C8, P5-8): every card is scaled from Settings, and sized from TextScaleLayout so none covers another.
+        // A new card (Welcome, About, Data) goes in this list and in FitCards.
+        _cards = [Strip, LegendCard, Panel, ExplainerCard, StatusCard, DataCardView, AboutCardView, WelcomeCardView, UpdateBannerView];
+        ApplyTextScale();
+        vm.Settings.TextScaleChanged += (_, _) => { ApplyTextScale(); FitCards(); };
+        SizeChanged += (_, _) => FitCards();
+        Root.SizeChanged += (_, _) => FitCards();
+        // What each card's size depends on: the strip's width and height, the legend's and panel's height, the Sources card.
+        Strip.SizeChanged += (_, _) => FitCards();
+        LegendCard.SizeChanged += (_, _) => FitCards();   // opening or closing the legend changes what room the strip has
+        Panel.SizeChanged += (_, _) => FitCards();
+        StatusCard.SizeChanged += (_, _) => FitCards();
+        // Opening or closing a card changes the room the others have: fit at once, not at the next size change (review m11).
+        void OnOpenChanged(object? sender, PropertyChangedEventArgs e) { if (e.PropertyName == "IsOpen") FitCards(); }
+        vm.Legend.PropertyChanged += OnOpenChanged;
+        vm.Panel.PropertyChanged += OnOpenChanged;
+        vm.Explainer.PropertyChanged += OnOpenChanged;
+        vm.Cards.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(CardHost.Open)) FitCards(); };
+        DataCardView.SizeChanged += (_, _) => FitCards();
+        AboutCardView.SizeChanged += (_, _) => FitCards();
+        WelcomeCardView.SizeChanged += (_, _) => FitCards();
+        vm.Updates.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(UpdateBannerViewModel.IsVisible)) FitCards(); };
+        UpdateBannerView.SizeChanged += (_, _) => FitCards();   // its height moves the cards below it (R13)
     }
 
-    private void FitExplainer()
+    /// <summary>The "Data" button: opens the Data card, or closes it when it is open.</summary>
+    private void OnDataButtonClick(object sender, RoutedEventArgs e)
     {
-        var m = ExplainerCard.Margin;
-        double left = Strip.ActualWidth + Strip.Margin.Left + Strip.Margin.Right;
-        if (Math.Abs(m.Left - left) > 0.5) ExplainerCard.Margin = new Thickness(left, m.Top, m.Right, m.Bottom);
+        if (DataContext is not MainViewModel vm) return;
+        if (vm.Cards.Open == AppCard.Data) vm.Cards.CloseTop();
+        else vm.Cards.Show(AppCard.Data);
+    }
+
+    private readonly FrameworkElement[] _cards;
+
+    /// <summary>Puts the Settings text size on every card (<see cref="CardScale"/>).</summary>
+    private void ApplyTextScale()
+    {
+        double scale = (DataContext as MainViewModel)?.Settings.TextScale ?? 1.0;
+        foreach (var card in _cards) CardScale.Apply(card, scale);
     }
 
     /// <summary>The share of the window's height the layer strip may take before it scrolls (Plan 3's groups are long).</summary>
-    public const double StripShare = 0.62;
+    public const double StripShare = TextScaleLayout.StripShare;
 
-    private void FitLegend()
+    /// <summary>The share of the window's height an open legend may take before it scrolls (P5-24).</summary>
+    public const double LegendShare = TextScaleLayout.LegendShare;
+
+    /// <summary>
+    /// Sizes the cards from the window, the text size and what is open, with <see cref="TextScaleLayout"/>'s rules (the model the
+    /// tests check): the strip scrolls when the window is short and never wider than its limit; the legend never grows over the
+    /// strip above it, or under the panel; the panel and the explainer stay above the Sources card; the explainer stays right of
+    /// the strip and left of the panel, or goes under the panel when the room beside it is too narrow. While the update banner shows
+    /// (top, right of the strip; ruling R13), the panel, the explainer and the centred cards start below it, so it covers no card.
+    /// </summary>
+    private void FitCards()
     {
-        Strip.MaxHeight = Math.Max(200, Root.ActualHeight * StripShare - Strip.Margin.Top - Strip.Margin.Bottom);
-        double above = Strip.ActualHeight + Strip.Margin.Top + Strip.Margin.Bottom + LegendCard.Margin.Top + LegendCard.Margin.Bottom;
-        LegendCard.MaxHeight = Math.Max(120, Root.ActualHeight - above);
+        if (DataContext is not MainViewModel vm || Root.ActualWidth <= 0 || Root.ActualHeight <= 0) return;
+        double w = Root.ActualWidth, h = Root.ActualHeight, scale = vm.Settings.TextScale;
+        double sourcesW = StatusCard.ActualWidth, sourcesH = StatusCard.ActualHeight;
+
+        SetMax(Strip, FrameworkElement.MaxWidthProperty, TextScaleLayout.StripBaseWidth * scale);
+        double stripW = Strip.ActualWidth;
+        bool explainerUnder = vm.Explainer.IsOpen && TextScaleLayout.IsStacked(w, scale, stripW);
+        bool columnOpen = vm.Panel.IsOpen || explainerUnder;
+
+        // The update banner: at the top, from the strip's right edge to the window's right edge; the cards below make room for it.
+        double bannerH = vm.Updates.IsVisible ? UpdateBannerView.ActualHeight : 0;
+        double offset = TextScaleLayout.BannerOffset(bannerH);
+        var banner = TextScaleLayout.BannerBounds(new Size(w, h), stripW, bannerH);
+        SetMax(UpdateBannerView, FrameworkElement.WidthProperty, banner.Width);
+        SetMargin(UpdateBannerView, new Thickness(banner.Left, banner.Top, 0, 0));
+
+        // The panel: its width from the text size; its height leaves the Sources card (and the explainer, when under it) its room.
+        SetMax(Panel, FrameworkElement.WidthProperty, TextScaleLayout.PanelWidth(w, scale));
+        SetMax(Panel, FrameworkElement.MaxHeightProperty, TextScaleLayout.PanelMaxHeight(h, sourcesH, explainerUnder, offset));
+        SetMargin(Panel, new Thickness(TextScaleLayout.Gap, TextScaleLayout.Gap + offset, TextScaleLayout.Gap, TextScaleLayout.Gap));
+
+        // The strip and the legend: a closed legend is only its header and the UN note, so the strip may take all the rest of the height.
+        bool legendOpen = vm.Legend.IsOpen;
+        SetMax(Strip, FrameworkElement.MaxHeightProperty, TextScaleLayout.StripMaxHeight(h, legendOpen, LegendCard.ActualHeight));
+        SetMax(LegendCard, FrameworkElement.MaxWidthProperty, TextScaleLayout.LegendMaxWidth(w, scale, columnOpen, sourcesW));
+        // Open: at most half the window's height, and never over the strip. Closed: no cap (it is two or three lines).
+        SetMax(LegendCard, FrameworkElement.MaxHeightProperty, legendOpen ? TextScaleLayout.LegendMaxHeight(h, Strip.ActualHeight) : double.PositiveInfinity);
+
+        // The Data card: centred, 900 x 640 at 100% at most, the text size times that, never over the window's edge less 24 (TextScaleLayout).
+        // While the banner shows they are centred in the room below it.
+        var centred = new Thickness(TextScaleLayout.Gap, TextScaleLayout.Gap + offset, TextScaleLayout.Gap, TextScaleLayout.Gap);
+        foreach (var card in new FrameworkElement[] { DataCardView, AboutCardView, WelcomeCardView }) SetMargin(card, centred);
+        var data = TextScaleLayout.DataCardMax(w, h - offset, scale);
+        SetMax(DataCardView, FrameworkElement.MaxWidthProperty, data.Width);
+        SetMax(DataCardView, FrameworkElement.MaxHeightProperty, data.Height);
+        // The About card has the same room as the Data card (they are never open together).
+        SetMax(AboutCardView, FrameworkElement.MaxWidthProperty, data.Width);
+        SetMax(AboutCardView, FrameworkElement.MaxHeightProperty, data.Height);
+
+        // The Welcome card: centred, at most 620 wide at 100% (times the text size), never over the window's edge less 24.
+        var welcome = TextScaleLayout.WelcomeCardMax(w, h - offset, scale);
+        SetMax(WelcomeCardView, FrameworkElement.MaxWidthProperty, welcome.Width);
+        SetMax(WelcomeCardView, FrameworkElement.MaxHeightProperty, welcome.Height);
+
+        // The explainer: beside the panel, or under it.
+        var b = TextScaleLayout.ExplainerBounds(new Size(w, h), scale, stripW, vm.Panel.IsOpen, Panel.ActualHeight, LegendCard.ActualHeight, sourcesH, offset);
+        SetMax(ExplainerCard, FrameworkElement.MaxWidthProperty, Math.Max(1, b.Width));
+        SetMax(ExplainerCard, FrameworkElement.MaxHeightProperty, Math.Max(1, b.Height));
+        var margin = new Thickness(b.Left, b.Top, Math.Max(0, w - b.Right), 0);
+        var m = ExplainerCard.Margin;
+        if (Math.Abs(m.Left - margin.Left) > 0.5 || Math.Abs(m.Top - margin.Top) > 0.5 || Math.Abs(m.Right - margin.Right) > 0.5 || m.Bottom != 0)
+            ExplainerCard.Margin = margin;
+    }
+
+    /// <summary>Sets a margin only when it changes by more than half a pixel.</summary>
+    private static void SetMargin(FrameworkElement card, Thickness value)
+    {
+        var m = card.Margin;
+        if (Math.Abs(m.Left - value.Left) > 0.5 || Math.Abs(m.Top - value.Top) > 0.5 || Math.Abs(m.Right - value.Right) > 0.5 || Math.Abs(m.Bottom - value.Bottom) > 0.5)
+            card.Margin = value;
+    }
+
+    /// <summary>Sets a size property only when it changes (a change sets off the card's size changed, which fits again).</summary>
+    private static void SetMax(FrameworkElement card, DependencyProperty property, double value)
+    {
+        double now = (double)card.GetValue(property);
+        if (double.IsPositiveInfinity(now) && double.IsPositiveInfinity(value)) return;
+        if (double.IsNaN(now) ? !double.IsNaN(value) : !(Math.Abs(now - value) <= 0.5)) card.SetValue(property, value);
     }
 
     public SceneController Scene { get; }

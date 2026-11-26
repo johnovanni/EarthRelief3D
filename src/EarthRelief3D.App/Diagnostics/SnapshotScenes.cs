@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -8,6 +9,7 @@ using EarthRelief3D.App.Controllers;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Curated;
+using EarthRelief3D.Core.Updates;
 using GlobeCore.Feeds;
 using GlobeCore.Logging;
 using GlobeCore.Wpf.Diagnostics;
@@ -23,10 +25,56 @@ namespace EarthRelief3D.App.Diagnostics;
 /// or a square opens them). <paramref name="ShowDrafts"/> shows the curated rows the owner has not approved yet, labelled
 /// "Draft: not yet reviewed", for this picture only, as <c>--show-drafts</c> does for a whole run (P3-4). <paramref name="Explainer"/>
 /// (an explainer id, needs a panel; ruling R19) opens the explainer card for that picture, as the section's "What is this" link does.
+/// <paramref name="LegendOpen"/> and <paramref name="StripOpen"/> (scene fields "legend" and "strip": "open" or "closed") show the
+/// legend and the layer strip's list open (the default, so the earlier pictures still compare) or folded; nothing is saved (P5-23, P5-24).
+/// <paramref name="TextScale"/> (scene field "textScale": 1, 1.25 or 1.5; default 1) sets the text size for this picture only, and saves
+/// nothing (C8). <paramref name="WindowSize"/> (scene field "windowSize": [width, height], at least 1000 by 600) sets the window's size
+/// for this picture, and the size it had is back afterwards. <paramref name="Card"/> (scene field "card": "welcome", "about", "data" or
+/// "settings") opens that card, or the Settings flyout, for this picture; no field: no card and the flyout shut. A card whose view
+/// model the app has not registered yet fails the scene with "card 'about' is not available". <paramref name="Update"/> (scene field
+/// "update": "offer", "downloading", "ready", "failed" or "stale") shows the update banner in that state for this picture, filled from
+/// the synthetic <see cref="SnapshotScenes.UpdateSampleName"/> in the samples folder (P5-22; no network); no field: no banner.
 /// </summary>
 public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosition? LookAt, string[] Layers, string? Panel,
-                                   string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null)
+                                   string? PanelFocus = null, bool ShowDrafts = false, string? Explainer = null,
+                                   bool LegendOpen = true, bool StripOpen = true, double TextScale = 1.0, Size? WindowSize = null, string? Card = null,
+                                   string? Update = null)
 {
+    /// <summary>The scene field "update" values, in the order they are named to the user.</summary>
+    public static IReadOnlyList<string> UpdateNames { get; } = ["offer", "downloading", "ready", "failed", "stale"];
+
+    /// <summary>The banner state the scene shows (<see cref="UpdateBannerState.Hidden"/> when it names none).</summary>
+    public UpdateBannerState UpdateState => Update switch
+    {
+        "offer" => UpdateBannerState.Offer, "downloading" => UpdateBannerState.Downloading, "ready" => UpdateBannerState.Ready,
+        "failed" => UpdateBannerState.Failed, "stale" => UpdateBannerState.Stale, _ => UpdateBannerState.Hidden,
+    };
+
+    /// <summary>True when the scene shows the update banner (the run then reads the sample release).</summary>
+    public bool ShowsUpdate => UpdateState != UpdateBannerState.Hidden;
+
+    /// <summary>The scene field "card" values, in the order they are named to the user.</summary>
+    public static IReadOnlyList<string> CardNames { get; } = ["welcome", "about", "data", "settings"];
+
+    /// <summary>The card the scene opens over the globe (<see cref="ViewModels.AppCard.None"/> for none, and for "settings").</summary>
+    public AppCard AppCard => Card switch
+    {
+        "welcome" => AppCard.Welcome, "about" => AppCard.About, "data" => AppCard.Data, _ => AppCard.None,
+    };
+
+    /// <summary>True when the scene shows the Settings flyout.</summary>
+    public bool OpensSettings => Card == "settings";
+
+    /// <summary>"1, 1.25 or 1.5": the text sizes a scene may name.</summary>
+    internal static string AllowedTextScales()
+    {
+        var names = TextScaleLayout.Choices.Select(c => c.ToString(CultureInfo.InvariantCulture)).ToArray();
+        return string.Join(", ", names[..^1]) + " or " + names[^1];
+    }
+
+    /// <summary>The smallest window a scene may ask for (the app's minimum width, and a height the cards still fit).</summary>
+    public static Size MinWindowSize { get; } = new(1000, 600);
+
     /// <summary>The <see cref="Explainer"/> ids: one per crisis kind, "access" and the step section's "why-these" (Plan 4 Task 9; ruling R19).</summary>
     public static IReadOnlyList<string> ExplainerNames { get; } =
     [
@@ -35,9 +83,9 @@ public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosi
         CountryPanelViewModel.AccessExplainerId, CountryPanelViewModel.StepExplainerId,
     ];
 
-    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3), then "access" and "help" (Plan 4).</summary>
+    /// <summary>The <see cref="PanelFocus"/> names: the Plan 2 layers, then the curated marker layers (Plan 3), then "access" and "help" (Plan 4) and "charities" (Plan 5).</summary>
     public static IReadOnlyList<string> PanelFocusNames { get; } =
-        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps), "access", "help"];
+        [.. LaunchOptions.LayerNames, LayerCatalog.Id(MarkerLayer.Atrocities), LayerCatalog.Id(MarkerLayer.Camps), "access", "help", "charities"];
 
     /// <summary>The shading the scene names ("food", "water", ...; at most one), or none.</summary>
     public ShadingLayer Shading => Layers.Select(n => LayerCatalog.TryParse(n, out var sh, out _) ? sh : null)
@@ -54,8 +102,9 @@ public sealed record SnapshotScene(string Name, DateTime DisplayTimeUtc, GeoPosi
         "displacement" => CrisisLayer.Displacement, _ => null,
     };
 
-    /// <summary>The Plan 4 section a <see cref="PanelFocus"/> name stands for ("access", "help"), or null.</summary>
-    public ViewModels.PanelFocus? FocusSection => PanelFocus?.ToLowerInvariant() switch { "access" => ViewModels.PanelFocus.Access, "help" => ViewModels.PanelFocus.Help, _ => null };
+    /// <summary>The Plan 4 section a <see cref="PanelFocus"/> name stands for ("access", "help", "charities"), or null.</summary>
+    public ViewModels.PanelFocus? FocusSection => PanelFocus?.ToLowerInvariant() switch { "access" => ViewModels.PanelFocus.Access, "help" => ViewModels.PanelFocus.Help,
+        "charities" => ViewModels.PanelFocus.Charities, _ => null };
 
     /// <summary>The curated marker layer a <see cref="PanelFocus"/> name stands for ("atrocities", "camps"), or null.</summary>
     public MarkerLayer? FocusMarker => PanelFocus?.ToLowerInvariant() switch
@@ -74,6 +123,9 @@ public static class SnapshotScenes
 {
     public static readonly TimeSpan DataTimeout = TimeSpan.FromSeconds(30);
     public static readonly TimeSpan SettleTimeout = TimeSpan.FromSeconds(30);
+
+    /// <summary>The synthetic release a scene with "update" shows (in the <c>--offline-samples</c> folder; read only when a scene asks, P5-22).</summary>
+    public const string UpdateSampleName = "github_release_latest_newer.json";
 
     /// <summary>The scene <c>--snapshot</c> takes: the options' camera, layers (default all) and panel at <paramref name="time"/>.</summary>
     public static SnapshotScene FromOptions(LaunchOptions o, DateTime time) =>
@@ -129,7 +181,50 @@ public static class SnapshotScenes
                         throw new FormatException($"Scene {name}: showDrafts is true or false.");
                     drafts = sd.GetBoolean();
                 }
-                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant()));
+                bool OpenOrClosed(string field)
+                {
+                    if (!e.TryGetProperty(field, out var v)) return true;   // not named: open, as in the earlier pictures
+                    return (v.ValueKind == JsonValueKind.String ? v.GetString()?.ToLowerInvariant() : null) switch
+                    {
+                        "open" => true,
+                        "closed" => false,
+                        _ => throw new FormatException($"Scene {name}: {field} is \"open\" or \"closed\"."),
+                    };
+                }
+                bool legendOpen = OpenOrClosed("legend"), stripOpen = OpenOrClosed("strip");
+                double textScale = 1.0;
+                if (e.TryGetProperty("textScale", out var ts))
+                {
+                    if (ts.ValueKind != JsonValueKind.Number || !TextScaleLayout.Choices.Contains(ts.GetDouble()))
+                        throw new FormatException($"Scene {name}: textScale is {SnapshotScene.AllowedTextScales()}.");
+                    textScale = ts.GetDouble();
+                }
+                Size? windowSize = null;
+                if (e.TryGetProperty("windowSize", out var ws))
+                {
+                    var min = SnapshotScene.MinWindowSize;
+                    if (ws.ValueKind != JsonValueKind.Array || ws.GetArrayLength() != 2
+                        || ws[0].ValueKind != JsonValueKind.Number || ws[1].ValueKind != JsonValueKind.Number
+                        || !(ws[0].GetDouble() >= min.Width) || !(ws[1].GetDouble() >= min.Height))
+                        throw new FormatException($"Scene {name}: windowSize is [width, height], at least {min.Width:0} by {min.Height:0}.");
+                    windowSize = new Size(ws[0].GetDouble(), ws[1].GetDouble());
+                }
+                string? card = null;
+                if (e.TryGetProperty("card", out var cd))
+                {
+                    card = cd.ValueKind == JsonValueKind.String ? cd.GetString()?.ToLowerInvariant() : null;
+                    if (card is null || !SnapshotScene.CardNames.Contains(card))
+                        throw new FormatException($"Scene {name}: card is \"welcome\", \"about\", \"data\" or \"settings\".");
+                }
+                string? update = null;
+                if (e.TryGetProperty("update", out var up))
+                {
+                    update = up.ValueKind == JsonValueKind.String ? up.GetString()?.ToLowerInvariant() : null;
+                    if (update is null || !SnapshotScene.UpdateNames.Contains(update))
+                        throw new FormatException($"Scene {name}: update is \"offer\", \"downloading\", \"ready\", \"failed\" or \"stale\".");
+                }
+                list.Add(new SnapshotScene(name, utc, lookAt, layers, panel?.ToUpperInvariant(), focus?.ToLowerInvariant(), drafts, explainer?.ToLowerInvariant(),
+                    legendOpen, stripOpen, textScale, windowSize, card, update));
             }
             if (list.Count == 0) throw new FormatException("The file has no scenes.");
             return list;
@@ -162,15 +257,17 @@ public static class SnapshotScenes
     /// that fails is logged and the run goes on; the app exits with 0, or 1 if any scene failed or the globe never showed.
     /// </summary>
     /// <param name="draftsForAll">The run was started with <c>--show-drafts</c>: every scene shows the drafts.</param>
+    /// <param name="updateSample">The release a scene's "update" banner shows (<see cref="UpdateSampleName"/>); null when no scene has one.</param>
     public static async Task RunAsync(Window window, SceneController scene, MainViewModel vm, IReadOnlyList<SnapshotScene> scenes,
                                       SettableClock displayClock, string outDir, int delayMs, Task dataReady, IAppLog log,
-                                      bool draftsForAll = false)
+                                      bool draftsForAll = false, ReleaseInfo? updateSample = null)
     {
         int exitCode = 0;
         try
         {
             Directory.CreateDirectory(outDir);
             await scene.FirstComposeDisplayed;
+            var (normalWidth, normalHeight) = (window.Width, window.Height);
             foreach (var s in scenes)
             {
                 try
@@ -184,6 +281,23 @@ public static class SnapshotScenes
                     var plainTitle = window.Title.Replace(LaunchOptions.DraftsTitleNote, "", StringComparison.Ordinal);
                     window.Title = drafts ? plainTitle + LaunchOptions.DraftsTitleNote : plainTitle;
                     vm.Layers.SetLayers(s.Shading, s.Markers);
+                    vm.Layers.SetOpenQuietly(s.StripOpen);    // for this picture only: nothing is saved
+                    vm.Legend.SetOpenQuietly(s.LegendOpen);
+                    vm.Settings.SetTextScaleQuietly(s.TextScale);   // for this picture only: nothing is saved
+                    var (wantedWidth, wantedHeight) = s.WindowSize is { } size ? (size.Width, size.Height) : (normalWidth, normalHeight);
+                    if (window.Width != wantedWidth || window.Height != wantedHeight)
+                    {
+                        window.Width = wantedWidth;
+                        window.Height = wantedHeight;
+                        await window.Dispatcher.InvokeAsync(() => window.UpdateLayout(), DispatcherPriority.Render);
+                    }
+                    // Cards: only the one the scene names is open (none, when it names none), and the Settings flyout only for "settings".
+                    if (!vm.Cards.IsAvailable(s.AppCard)) throw new InvalidOperationException($"Scene {s.Name}: card '{s.Card}' is not available.");
+                    vm.Cards.Show(s.AppCard);
+                    vm.Settings.IsOpen = s.OpensSettings;
+                    // The update banner: only in the state the scene names (none, when it names none); nothing is downloaded.
+                    if (s.ShowsUpdate && updateSample is null) throw new InvalidOperationException($"Scene {s.Name}: the sample release {UpdateSampleName} was not read.");
+                    if (updateSample is not null) vm.Updates.ShowForPicture(updateSample, s.UpdateState);
                     if (s.Panel is { } iso) vm.Panel.Show(iso, s.FocusLayer, s.FocusMarker, s.FocusSection);
                     else if (vm.Panel.IsOpen) vm.Panel.CloseCommand.Execute(null);
                     if (s.Explainer is { } xid && !vm.Panel.Explainer.Open(xid))
@@ -196,6 +310,7 @@ public static class SnapshotScenes
                     await Task.Delay(delayMs);
                     await SettleAsync(scene, window.Dispatcher, log);
                     Save(window, Path.Combine(outDir, s.Name + ".png"));
+                    if (s.WindowSize is not null) { window.Width = normalWidth; window.Height = normalHeight; }   // the size it had
                     log.Info($"Diagnostics: saved scene {s.Name}");
                 }
                 catch (OperationCanceledException) { return; }   // the window closed first

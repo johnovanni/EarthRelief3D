@@ -13,7 +13,7 @@ const string Usage = """
       DataTool gem-renewables <xlsx> --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool gem-steel  <plant-level xlsx> --release "<release>" [--file-version <v>] --published yyyy-MM-dd [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
       DataTool airports   <airports.csv> [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
-      DataTool ports      <WPI.zip or UpdatedPub150.csv> [--published yyyy-MM-dd] [--downloaded yyyy-MM-dd] [--out <folder>] [--note <text>]...
+      DataTool ports      <WPI.zip or UpdatedPub150.csv> [--published yyyy-MM-dd] [--downloaded yyyy-MM-dd] [--portal-note "<text>"] [--out <folder>] [--note <text>]...
       DataTool simplify   <geojson> <tolerance in degrees> [--out <file>]
       DataTool senators   <senators_cfm.xml> [--out <file>]   (the US Senate contact list, to data\countries\US\senators.json; no --published: the list carries its own date)
       DataTool describe   <xlsx>     [--sheet <name>] [--rows <n>] [--distinct <column>] [--header-row <n>]
@@ -22,6 +22,7 @@ const string Usage = """
 
     airports and ports need no --published: OurAirports' file has no date (its as-of is the download day), and the World Port Index's
     is the date of the CSV inside the zip (--published overrides it, and is needed for a bare CSV).
+    --portal-note: what was seen on NGA's portal, put in the licence note as given (for example "msi.nga.mil answered 503 on 2027-05-02"); without it the note says the portal was not re-checked for this extract.
     --published: the source file's own date (its Last-Modified; for GEM, the 1st of the release month). --downloaded: the day
     it was downloaded (default: the file's modified date). --out: default data\datasets\<id> in the repository. --note: added
     to the manifest's notes. --release: GEM's release as its citation words it ("September 2026 release"); --file-version: a
@@ -31,7 +32,7 @@ const string Usage = """
 if (args.Length < 2) { Console.Error.WriteLine(Usage); return 2; }
 var verb = args[0];
 var path = args[1];
-string? published = null, downloaded = null, output = null, sheet = null, distinct = null, release = null, fileVersion = null;
+string? published = null, downloaded = null, output = null, sheet = null, distinct = null, release = null, fileVersion = null, portalNote = null;
 int sampleRows = 3, headerRow = 1;
 var notes = new List<string>();
 var takes = new List<string>();
@@ -45,6 +46,7 @@ for (int i = 2; i < args.Length; i++)
         case "--downloaded": downloaded = Next(); break;
         case "--out": output = Next(); break;
         case "--note": notes.Add(Next()); break;
+        case "--portal-note": portalNote = Next(); break;
         case "--release": release = Next(); break;
         case "--file-version": fileVersion = Next(); break;
         case "--take": takes.Add(Next()); break;
@@ -104,7 +106,7 @@ try
         if (verb == "ports" && given is null && !path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("a bare CSV has no date of its own: give --published (the zip's file date, yyyy-MM-dd)");
         var hubSource = new SourceFile(path, given ?? day, day);
-        var hubs = verb == "airports" ? HubExtractor.Airports(hubSource, CountryCodes.Default) : HubExtractor.Ports(hubSource, CountryCodes.Default, given);
+        var hubs = verb == "airports" ? HubExtractor.Airports(hubSource, CountryCodes.Default) : HubExtractor.Ports(hubSource, CountryCodes.Default, given, portalNote);
         if (notes.Count > 0) hubs = hubs with { Manifest = hubs.Manifest with { Notes = [.. hubs.Manifest.Notes, .. notes] } };
         var hubFolder = output ?? Path.Combine(RepoRoot(), "data", "datasets", hubs.Manifest.Id);
         DatasetWriter.WritePoints(hubs, hubFolder);

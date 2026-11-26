@@ -39,8 +39,7 @@
                                     <TextBlock x:Name="Icon" Text="{TemplateBinding Tag}" Width="26" FontSize="17"
                                                TextAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
                                     <ContentPresenter x:Name="Label" Margin="6,0,6,0" VerticalAlignment="Center"
-                                                      TextElement.Foreground="White" TextElement.FontSize="14"
-                                                      Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource B2V}}"/>
+                                                      TextElement.Foreground="White" TextElement.FontSize="14"/>
                                     <TextBlock x:Name="Off" Text="off" Foreground="#9AA3B5" FontSize="12" Margin="0,0,6,0" Visibility="Collapsed"/>
                                 </StackPanel>
                             </Border>
@@ -71,13 +70,45 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{TemplateBinding Tag}" Width="26" FontSize="17" TextAlignment="Center"/>
                                     <ContentPresenter Margin="6,0,6,0" VerticalAlignment="Center" TextElement.Foreground="White"
-                                                      TextElement.FontSize="14"
-                                                      Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource B2V}}"/>
+                                                      TextElement.FontSize="14"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!-- The strip's own header (P5-23): ▾ when open, ▸ and "closed" when closed, then "≡ Layers". -->
+            <Style x:Key="StripHeader" TargetType="ToggleButton">
+                <Setter Property="Margin" Value="0,1"/>
+                <Setter Property="ToolTipService.InitialShowDelay" Value="250"/>
+                <Setter Property="ToolTipService.Placement" Value="Right"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="4,0" Height="32"
+                                    BorderBrush="Transparent" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Arrow" Text="▾" Width="20" FontSize="13" TextAlignment="Center" Foreground="#C8CDD8"/>
+                                    <TextBlock Text="≡" Width="22" FontSize="17" TextAlignment="Center" Foreground="White"/>
+                                    <TextBlock Text="Layers" Foreground="White" FontSize="14" Margin="6,0,6,0"/>
+                                    <TextBlock x:Name="Closed" Text="closed" Foreground="#9AA3B5" FontSize="11" Margin="0,0,6,0" Visibility="Collapsed"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter TargetName="Arrow" Property="Text" Value="▸"/>
+                                    <Setter TargetName="Closed" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#7FB6FF"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -97,8 +128,7 @@
                             <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="4,0" Height="24">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="Arrow" Text="▾" Width="26" FontSize="13" TextAlignment="Center" Foreground="#C8CDD8"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Visibility="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource B2V}}">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding Name}" Foreground="#C8CDD8" FontSize="12" FontWeight="SemiBold" Margin="2,0,6,0"/>
                                         <TextBlock x:Name="Closed" Text="closed" Foreground="#9AA3B5" FontSize="11" Margin="0,0,6,0" Visibility="Collapsed"/>
                                     </StackPanel>
@@ -124,11 +154,14 @@
         <!-- Scrolls when the window is too short for every group (MainWindow sets the strip's MaxHeight). -->
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
         <StackPanel>
-            <ToggleButton Style="{StaticResource CommandButton}" Tag="≡" Content="Layers"
-                          IsChecked="{Binding IsExpanded}" ToolTip="Show or hide the labels"/>
+            <!-- The header closes the whole strip (P5-23): the same arrow and the word "closed" as the group headers. It stays
+                 when the strip is closed, so the strip can always be opened again. Enter and Space work (a button). -->
+            <ToggleButton Style="{StaticResource StripHeader}" IsChecked="{Binding IsOpen}"
+                          ToolTip="{x:Static vm:LayerStripViewModel.HeaderTooltip}"
+                          AutomationProperties.Name="Layers"/>
 
             <!-- Crises, Needs and Resources: a header (with the one-shading note), then one toggle per layer. -->
-            <ItemsControl ItemsSource="{Binding Groups}" Focusable="False">
+            <ItemsControl ItemsSource="{Binding VisibleGroups}" Focusable="False">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type vm:LayerGroup}">
                         <StackPanel>
@@ -141,7 +174,6 @@
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
                                                     <Condition Binding="{Binding IsCollapsible}" Value="False"/>
-                                                    <Condition Binding="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </MultiDataTrigger>
@@ -163,7 +195,6 @@
                                                 <MultiDataTrigger.Conditions>
                                                     <Condition Binding="{Binding HasNote}" Value="True"/>
                                                     <Condition Binding="{Binding IsOpen}" Value="True"/>
-                                                    <Condition Binding="{Binding DataContext.IsExpanded, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True"/>
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </MultiDataTrigger>
@@ -191,6 +222,10 @@
                               IsChecked="{Binding Settings.IsOpen}" ToolTip="Settings: whose formal determinations are shown"/>
                 <views:SettingsFlyout DataContext="{Binding Settings}"/>
             </StackPanel>
+            <!-- About (Plan 5 Task 5): opens the About card over the globe. -->
+            <ToggleButton Style="{StaticResource CommandButton}" Tag="ⓘ" Content="About" Command="{Binding AboutCommand}"
+                          Visibility="{Binding HasAbout, Converter={StaticResource B2V}}" AutomationProperties.Name="About EarthRelief3D"
+                          ToolTip="About EarthRelief3D: version, licences, credits and how markers are sized"/>
         </StackPanel>
         </ScrollViewer>
     </Border>

@@ -117,21 +117,26 @@ public class AppStartupTests
     private static CrisisSnapshot WithoutBundled(CrisisSnapshot s) =>
         s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source) && u.Source != ResourceMarkers.DotName && u.Source != HubMarkers.DotName)] };
 
-    /// <summary>A log that also records the thread each line was written on.</summary>
+    /// <summary>A log that also records the thread each line was written on, and whether it was a thread-pool thread.</summary>
     private sealed class ThreadLog : GlobeCore.Logging.IAppLog
     {
         private readonly object _gate = new();
-        private readonly List<(string Line, int Thread)> _entries = [];
-        public IReadOnlyList<(string Line, int Thread)> Entries { get { lock (_gate) return [.. _entries]; } }
+        private readonly List<(string Line, int Thread, bool Pool)> _entries = [];
+        public IReadOnlyList<(string Line, int Thread, bool Pool)> Entries { get { lock (_gate) return [.. _entries]; } }
         public IEnumerable<string> Lines => Entries.Select(e => e.Line);
-        private void Add(string m) { lock (_gate) _entries.Add((m, Environment.CurrentManagedThreadId)); }
+        private void Add(string m) { lock (_gate) _entries.Add((m, Environment.CurrentManagedThreadId, Thread.CurrentThread.IsThreadPoolThread)); }
         public void Info(string m) => Add("INFO " + m);
         public void Warn(string m, Exception? e = null) => Add("WARN " + m);
         public void Error(string m, Exception? e = null) => Add("ERROR " + m);
     }
 
+    /// <remarks>
+    /// Run on a dedicated STA thread, as the app's UI thread is. xUnit runs async tests on thread-pool threads: once such a
+    /// test awaited, the pool could run the load (queued by Create on that same thread) on the very thread that called Create,
+    /// so the thread ids matched and the test failed now and then in full runs. A dedicated thread is never lent to the pool.
+    /// </remarks>
     [Fact]
-    public async Task CachedIpcAreasLoadOffTheUiThreadAndReachTheMap()
+    public void CachedIpcAreasLoadOffTheUiThreadAndReachTheMap() => StaAsync.Run(async () =>
     {
         var root = TempRoot();
         try
@@ -148,6 +153,7 @@ public class AppStartupTests
             var offline = new FeedHttp("test", new SampleHttpHandler());   // every request answers 404
             var log = new ThreadLog();
             int uiThread = Environment.CurrentManagedThreadId;
+            Assert.False(Thread.CurrentThread.IsThreadPoolThread);   // the "UI thread" here is a dedicated thread, as in the app
             using var services = AppServices.Create(root, offline, new FixedClock(IpcAreaFixture.Now), log, new MemorySettingsStore(),
                 dispatcher: null, ipcAreaPause: TimeSpan.Zero);
             await services.IpcAreasLoaded.WaitAsync(TimeSpan.FromSeconds(30));
@@ -156,6 +162,7 @@ public class AppStartupTests
             Assert.Contains(log.Lines, l => l.Contains("1 countries loaded from the cache (NGA)"));
             // Parsed and written on a pool thread, not on the thread that called Create (the UI thread in the app).
             var loaded = Assert.Single(log.Entries, e => e.Line.Contains("loaded from the cache"));
+            Assert.True(loaded.Pool, $"the cached areas were loaded on thread {loaded.Thread}, not a pool thread");
             Assert.NotEqual(uiThread, loaded.Thread);
             // The map draws Nigeria by area.
             Assert.Same(services.Store.Snapshot.IpcAreas[0], Assert.Single(FoodImageLayer.Plan(services.Store.Snapshot.AsSeenAt(IpcAreaFixture.Now))).Areas);
@@ -165,7 +172,7 @@ public class AppStartupTests
             Assert.Single(services.Store.Snapshot.IpcAreas);
         }
         finally { Delete(root); }
-    }
+    });
 
     [Fact]
     public async Task NoCacheStartsEmptyAndShutdownSavesTheCache()
@@ -503,6 +510,24 @@ public class AppStartupTests
             root.UpdateLayout();
             await Task.Delay(50);   // the panel scrolls to its focused section at Loaded priority
 
+            // P5-24: the legend starts folded: its header (with "closed") and the UN note show, its lines do not.
+            var folded = Descendants<TextBlock>(root).Select(t => t.Text).ToList();
+            Assert.Contains(vm.Legend.HeaderText, folded);
+            Assert.Contains(LegendViewModel.BoundaryNote, folded);
+            static bool Shown(DependencyObject d)
+            {
+                for (; d is not null; d = System.Windows.Media.VisualTreeHelper.GetParent(d))
+                    if (d is UIElement { Visibility: not Visibility.Visible }) return false;
+                return true;
+            }
+            Assert.DoesNotContain(Descendants<TextBlock>(root), t => t.Text == LegendViewModel.FamineNote && Shown(t));
+            Assert.Contains(Descendants<TextBlock>(root), t => t.Text == LegendViewModel.BoundaryNote && Shown(t));
+            Assert.False(vm.Legend.IsOpen);
+            // The strip's own header says "closed" only when the strip is closed (it starts open).
+            Assert.Contains("Layers", folded);
+            vm.Legend.IsOpen = true;
+            root.UpdateLayout();
+
             var texts = Descendants<TextBlock>(root).Select(t => t.Text).ToList();
             Assert.Contains("Sudan", texts);
             Assert.Contains(CountryPanelViewModel.ConflictHeading, texts);
@@ -525,8 +550,8 @@ public class AppStartupTests
             Assert.Equal(0, Descendants<TextBlock>(root).Count(t => t.Text == "closed" && t.Visibility == Visibility.Visible));
             Assert.Contains(texts, t => t.EndsWith(LegendViewModel.BoundaryNote, StringComparison.Ordinal));
             // The four sources, the two needs feeds, the two getting-help feeds (Plan 4), Borders, the three bundled extracts (Task 6), GEM's (Task 7) and the hubs' (Plan 4 Task 4),
-            // and the two radio buttons of Settings' "Distances" (Task 5).
-            Assert.Equal(16, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
+            // the two radio buttons of Settings' "Distances" (Task 5) and the three of "Text size" (Plan 5 Task 3).
+            Assert.Equal(19, Descendants<System.Windows.Shapes.Ellipse>(root).Count());
             Assert.Contains(texts, t => t.StartsWith("Borders: Natural Earth 5.1.2 (2022-05-13); Crimea shown as part of Ukraine", StringComparison.Ordinal));
             // R17: the food section's phase bar, its caption, its rows, and the legend's famine note.
             var bar = Assert.Single(Descendants<EarthRelief3D.App.Views.PhaseBarView>(root));

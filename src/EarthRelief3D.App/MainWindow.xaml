@@ -4,7 +4,15 @@
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:views="clr-namespace:EarthRelief3D.App.Views"
         xmlns:status="clr-namespace:GlobeCore.Wpf.Status;assembly=GlobeCore.Wpf"
-        Title="EarthRelief3D" Height="760" Width="1200" MinWidth="1000" Background="#04060E">
+        Title="EarthRelief3D" Icon="app.ico" Height="760" Width="1200" MinWidth="1000" Background="#04060E">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="B2V"/>
+        </ResourceDictionary>
+    </Window.Resources>
     <!-- The globe, markers, overlay and camera input are wired by Controllers/SceneController. -->
     <Grid x:Name="Root">
         <!-- Left-drag rotates; Helix's other default gestures are off (as in EarthWatch3D). Home, double-click and the
@@ -42,15 +50,32 @@
         <views:Legend x:Name="LegendCard" DataContext="{Binding Legend}"/>
         <!-- The explainer card (Plan 4 Task 9), to the left of the panel (380 wide, 12 margin each side); Esc closes it first.
              It comes after the legend so that it draws over it, and is opaque, so the legend's text does not show through. Its
-             left margin follows the layer strip (MainWindow.FitExplainer), so in a narrow window it shrinks rather than cover it. -->
+             left margin follows the layer strip (MainWindow.FitCards), so in a narrow window it shrinks rather than cover it. -->
         <views:ExplainerCard x:Name="ExplainerCard" DataContext="{Binding Explainer}"/>
         <!-- Status dots per source (bottom right); the tooltip gives the last update or the error. -->
         <Border x:Name="StatusCard" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12" Padding="8,2"
                 Background="#CC101624" CornerRadius="8">
             <StackPanel Orientation="Horizontal">
+                <!-- The Data card: every source, its date, licence and link (Plan 5 Task 4). A text button at the left of the Sources card. -->
+                <Button x:Name="DataButton" Style="{StaticResource CardButton}" Content="Data" FontSize="12" Padding="8,1" Margin="0,0,8,0"
+                        VerticalAlignment="Center" ToolTip="Where the data comes from: every source, its date and licence"
+                        AutomationProperties.Name="Data sources" Click="OnDataButtonClick"/>
                 <TextBlock Text="Sources" Foreground="#C8CDD8" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <status:StatusDotsView DataContext="{Binding Status}"/>
             </StackPanel>
         </Border>
+        <!-- The Data card, centred over everything else (the last child draws on top); shown while CardHost says so. Its maximum size
+             comes from MainWindow.FitCards. -->
+        <views:DataCard x:Name="DataCardView" DataContext="{Binding Data}"
+                        Visibility="{Binding DataContext.Cards.DataOpen, ElementName=Root, Converter={StaticResource B2V}}"/>
+        <!-- The Welcome card (Plan 5 Task 6): centred, at most 620 wide at 100%. -->
+        <views:WelcomeCard x:Name="WelcomeCardView" DataContext="{Binding Welcome}"
+                           Visibility="{Binding DataContext.Cards.WelcomeOpen, ElementName=Root, Converter={StaticResource B2V}}"/>
+        <!-- The About card (Plan 5 Task 5): the same place and size as the Data card; only one card is open at a time. -->
+        <views:AboutCard x:Name="AboutCardView" DataContext="{Binding About}"
+                         Visibility="{Binding DataContext.Cards.AboutOpen, ElementName=Root, Converter={StaticResource B2V}}"/>
+        <!-- The update banner (Plan 5 Task 10, P5-19): not a card. At the top, from the layer strip's right edge to the window's right
+             edge (MainWindow.FitCards, ruling R13); while it shows, the panel, the explainer and the centred cards start below it. -->
+        <views:UpdateBanner x:Name="UpdateBannerView" DataContext="{Binding Updates}" Panel.ZIndex="10"/>
     </Grid>
 </Window>

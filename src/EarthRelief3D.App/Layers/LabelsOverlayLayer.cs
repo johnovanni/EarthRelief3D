@@ -30,11 +30,15 @@ public sealed class LabelsOverlayLayer : OverlayLayer
     private readonly CountryResolver _countries;
     private readonly LabelOverlay _labels;
     private readonly Func<DateTime> _nowUtc;
+    private readonly Func<double> _textScale;
 
     /// <param name="nowUtc">The display clock: the snapshot is judged at it (WHO's 90 days, IPC's 12 months).</param>
-    public LabelsOverlayLayer(CrisisStore store, LayerStripViewModel layers, CountryResolver countries, Canvas overlay, Func<DateTime> nowUtc)
+    /// <param name="textScale">The text size chosen in Settings (1.0, 1.25 or 1.5), read at each render; null: 100%. <see cref="Changed"/> says it changed.</param>
+    public LabelsOverlayLayer(CrisisStore store, LayerStripViewModel layers, CountryResolver countries, Canvas overlay, Func<DateTime> nowUtc,
+                              Func<double>? textScale = null)
         : base(LayerId, "Country and disease labels", Order)
     {
+        _textScale = textScale ?? (() => 1.0);
         _nowUtc = nowUtc ?? throw new ArgumentNullException(nameof(nowUtc));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _layers = layers ?? throw new ArgumentNullException(nameof(layers));
@@ -67,6 +71,7 @@ public sealed class LabelsOverlayLayer : OverlayLayer
         }
 
         var index = _countries.Index;
+        double k = _textScale();   // the labels follow the text size; their offsets from the point with them
         _labels.Begin();
         int placed = 0;
         var eye = (Vector3D)projector.Eye;
@@ -77,9 +82,9 @@ public sealed class LabelsOverlayLayer : OverlayLayer
             var toEye = eye - (Vector3D)p;
             if (toEye.Length <= 0 || Vector3D.DotProduct((Vector3D)p, toEye) / toEye.Length < LimbCosine) continue;
             if (!projector.TryProject(p, out var at)) continue;
-            if (_labels.TryAdd(country.Name, new Point(at.X + 4, at.Y - 9), LayerStyle.LabelColor, fontSize: FontSize)) placed++;
+            if (_labels.TryAdd(country.Name, new Point(at.X + 4, at.Y - 9 * k), LayerStyle.LabelColor, fontSize: FontSize * k)) placed++;
             if (diseases.Count > 0
-                && _labels.TryAdd(string.Join(", ", diseases), new Point(at.X + 4, at.Y + 7), LayerStyle.OutbreakColor, fontSize: FontSize - 1)) placed++;
+                && _labels.TryAdd(string.Join(", ", diseases), new Point(at.X + 4, at.Y + 7 * k), LayerStyle.OutbreakColor, fontSize: (FontSize - 1) * k)) placed++;
         }
         _labels.End();
         PlacedCount = placed;
@@ -96,6 +101,9 @@ public sealed class LabelsOverlayLayer : OverlayLayer
 
     /// <summary>The boundaries changed (any thread): the labels are placed again at the next render.</summary>
     public void BoundariesChanged() => Invalidate();
+
+    /// <summary>The text size changed (UI thread): the labels are drawn again at the new size.</summary>
+    public void Changed() => Invalidate();
 
     private void OnLayersChanged(object? sender, PropertyChangedEventArgs e) => Invalidate();
 

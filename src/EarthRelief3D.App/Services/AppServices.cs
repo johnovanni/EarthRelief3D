@@ -9,6 +9,7 @@ using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Feeds;
 using EarthRelief3D.Core.Help;
 using EarthRelief3D.Core.Model;
+using EarthRelief3D.Core.Sources;
 using EarthRelief3D.Core.Store;
 using GlobeCore.Feeds;
 using GlobeCore.Earth;
@@ -252,10 +253,24 @@ public sealed class AppServices : IDisposable
             help = HelpTables.Empty;
         }
 
+        // Plan 5: the list of data sources (data\sources.json) the Data card shows. A bad file is a packaging fault the tests catch;
+        // should one ship anyway, the card is empty and says the list could not be read, and the log says why.
+        SourceRegistry registry;
+        try { registry = SourceRegistry.Load(BoundaryData.DataDir); }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+        {
+            log.Error("The source list could not be read; the Data card is empty", ex);
+            registry = new SourceRegistry([]);
+        }
+        // The Data card's dates for the bundled extracts: each one that loaded, by its folder name (one that did not is left out, so it says so).
+        var datasetCitations = DatasetCitations([.. bundled.Select(b => (b.Folder, b.Loaded ? b.Newest : null)),
+            .. pointLoads.Concat(hubLoads).Select(l => (l.Item2.Folder, l.Item2.Loaded ? l.Item2.Citation : null))]);
+
         var resolver = countries;
         // P4-6: the crisis place for the nearest hubs is the country's label point (a point inside the country).
         var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries, indicators,
-            curated: curated, logistics: logistics, crisisPlace: iso => resolver.ByIso3(iso)?.LabelPoint, help: help);
+            curated: curated, logistics: logistics, crisisPlace: iso => resolver.ByIso3(iso)?.LabelPoint, help: help,
+            registry: registry, datasets: datasetCitations, dataFolder: root.Root);
         var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.SeriesDate(c, clock.UtcNow)));
@@ -270,6 +285,10 @@ public sealed class AppServices : IDisposable
             IpcAreasLoaded = areasLoaded,
         };
     }
+
+    /// <summary>The bundled extracts' newest citations by folder name (the last part of the extract's path); an extract with none is left out.</summary>
+    public static IReadOnlyDictionary<string, SourceCitation> DatasetCitations(IEnumerable<(string Folder, SourceCitation? Citation)> extracts) =>
+        extracts.Where(x => x.Citation is not null).ToDictionary(x => Path.GetFileName(x.Folder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), x => x.Citation!, StringComparer.Ordinal);
 
     /// <summary>The start-up load of the cached IPC areas (off the UI thread); completes when they are in the store. Never faults.</summary>
     public Task IpcAreasLoaded { get; private init; } = Task.CompletedTask;

@@ -5,6 +5,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The MIT licences require their notices to ship with the app; About opens this file. -->
+    <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\THIRD-PARTY-NOTICES-DOTNET-RUNTIME.txt" Link="THIRD-PARTY-NOTICES-DOTNET-RUNTIME.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EarthRelief3D.Core\EarthRelief3D.Core.csproj" />
     <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Wpf\GlobeCore.Wpf.csproj" />
     <ProjectReference Include="$(GlobeCoreRoot)src\GlobeCore.Earth\GlobeCore.Earth.csproj" />
@@ -13,6 +19,10 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="HelixToolkit.Wpf" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="app.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +36,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <RootNamespace>EarthRelief3D.App</RootNamespace>
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>

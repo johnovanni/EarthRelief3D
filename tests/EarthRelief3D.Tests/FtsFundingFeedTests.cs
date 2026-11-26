@@ -46,6 +46,80 @@ public class FtsFundingFeedTests
         Assert.All(ind.Snapshot.Appeals, a => Assert.Equal(2026, a.Year));
     }
 
+    private static DateTime Utc(int y, int m, int d) => new(y, m, d, 9, 0, 0, DateTimeKind.Utc);
+
+    private const string NewYearRows =
+        "AFG,1,Afghanistan 2027,A27,1,Humanitarian needs and response plan,,,2027,500,50,10\n"
+        + "AFG,2,Afghanistan 2026,A26,1,Humanitarian needs and response plan,,,2026,400,300,75\n"
+        + "SDN,3,Sudan 2026,S26,1,Humanitarian needs and response plan,,,2026,900,450,50\n"
+        + "SDN,4,Sudan flash 2026,S26b,1,Flash appeal,,,2026,100,10,10\n";
+
+    private static async Task<IndicatorSnapshot> Run(string rows, DateTime now, ListLog? log = null)
+    {
+        var ind = new IndicatorStore();
+        await new FtsFundingFeed(HttpWithCsv(Header + rows), ind, new CrisisStore(), new FixedClock(now), log ?? new ListLog()).RunOnceAsync(default);
+        return ind.Snapshot;
+    }
+
+    [Fact]
+    public async Task NewYearKeepsLastYearForCountriesWithoutNewPlans()
+    {
+        Assert.True(FtsFundingFeed.InNewYearWindow(Utc(2027, 1, 31)));
+        Assert.False(FtsFundingFeed.InNewYearWindow(Utc(2027, 2, 1)));
+        var snap = await Run(NewYearRows, Utc(2027, 1, 15));
+        Assert.Equal([1], snap.AppealsOf("AFG").Select(a => a.PlanId));
+        Assert.All(snap.AppealsOf("AFG"), a => Assert.Equal(2027, a.Year));
+        Assert.Equal([3, 4], snap.AppealsOf("SDN").Select(a => a.PlanId).Order());
+        Assert.All(snap.AppealsOf("SDN"), a => Assert.Equal(2026, a.Year));
+        Assert.Contains("2026", snap.AppealsOf("SDN")[0].Citation.Version);   // each appeal keeps its own year's citation
+    }
+
+    [Fact]
+    public async Task FallbackEndsAfterJanuary()
+    {
+        var snap = await Run(NewYearRows, Utc(2027, 2, 1));
+        Assert.Empty(snap.AppealsOf("SDN"));
+        Assert.Equal([1], snap.AppealsOf("AFG").Select(a => a.PlanId));
+    }
+
+    [Fact]
+    public async Task NoNewYearRowsAtAllStillFallsBack()
+    {
+        var log = new ListLog();
+        var snap = await Run(NewYearRows.Replace("2027", "2026").Replace("AFG,1,", "AFG,9,"), Utc(2027, 3, 10), log);
+        Assert.NotEmpty(snap.Appeals);
+        Assert.All(snap.Appeals, a => Assert.Equal(2026, a.Year));
+    }
+
+    [Fact]
+    public async Task RegionalWithinItsOwnYear()
+    {
+        var rows = "ISL,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "FJI,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "TON,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "TON,950,Tonga 2027,T27,1,Flash appeal,,,2027,10,1,10\n";
+        var snap = await Run(rows, Utc(2027, 1, 10));
+        Assert.True(Assert.Single(snap.AppealsOf("ISL")).Regional);
+        Assert.True(Assert.Single(snap.AppealsOf("FJI")).Regional);
+        var ton = Assert.Single(snap.AppealsOf("TON"));
+        Assert.Equal(950, ton.PlanId);
+        Assert.False(ton.Regional);   // regional only within its own year
+    }
+
+    [Fact]
+    public async Task RegionalSurvivesTheJanuaryFilter()
+    {
+        var rows = "ISL,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "FJI,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "TON,900,Regional plan,R1,1,Flash appeal,,,2026,3000,1000,33\n"
+            + "FJI,951,Fiji 2027,F27,1,Flash appeal,,,2027,10,1,10\n"
+            + "TON,950,Tonga 2027,T27,1,Flash appeal,,,2027,10,1,10\n";
+        var snap = await Run(rows, Utc(2027, 1, 10));
+        var isl = Assert.Single(snap.AppealsOf("ISL"));
+        Assert.Equal(2026, isl.Year);
+        Assert.True(isl.Regional);   // only ISL keeps it, but it is still the whole plan's figures
+    }
+
     [Fact]
     public async Task NoPlanRowsForEitherYearIsFormatChanged()
     {

@@ -94,7 +94,7 @@ public sealed class SceneController
         _displacement = new DisplacementSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowDisplacement };
         _conflict = new ConflictSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowConflict };
         _outbreaks = new OutbreakSceneLayer(store, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.ShowOutbreaks };
-        _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay, () => _clock.UtcNow);
+        _labels = new LabelsOverlayLayer(store, vm.Layers, _countries, overlay, () => _clock.UtcNow, () => vm.Settings.TextScale);
         // Plan 3: the curated atrocity glyphs (C14), judged at the display time.
         _atrocities = new AtrocityLayer(vm.Curated, _countries, () => _clock.UtcNow) { IsVisible = vm.Layers.IsShown(MarkerLayer.Atrocities) };
         _atrocityDay = DateOnly.FromDateTime(_clock.UtcNow);
@@ -106,7 +106,7 @@ public sealed class SceneController
         IReadOnlyList<HubArcSpec> CurrentArcs() => HubArcLayer.SpecsFor(vm.Panel.IsOpen, vm.Layers.IsShown(MarkerLayer.HubLines), vm.Panel.Iso3,
             iso => _countries.ByIso3(iso)?.LabelPoint, vm.Hubs.Hubs);
         _hubArcs = new HubArcLayer(CurrentArcs) { IsVisible = vm.Layers.IsShown(MarkerLayer.HubLines) };
-        _hubLabels = new HubLabelsLayer(CurrentArcs, () => vm.Settings.Units, overlay) { IsVisible = vm.Layers.IsShown(MarkerLayer.HubLines) };
+        _hubLabels = new HubLabelsLayer(CurrentArcs, () => vm.Settings.Units, overlay, () => vm.Settings.TextScale) { IsVisible = vm.Layers.IsShown(MarkerLayer.HubLines) };
         _timeTimer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher) { Interval = DisplayTimeInterval };
         _timeTimer.Tick += OnTimeTick;
 
@@ -123,6 +123,7 @@ public sealed class SceneController
         _vm.Panel.PropertyChanged += OnPanelChanged;
         _vm.Hubs.Changed += OnHubsChanged;
         _vm.Settings.UnitsChanged += OnHubsChanged;
+        _vm.Settings.TextScaleChanged += OnTextScaleChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;   // static event: unsubscribed in OnClosed
     }
 
@@ -285,6 +286,13 @@ public sealed class SceneController
         _hubLabels.Changed();
     }
 
+    // The text size changed (Settings, or a snapshot scene): the globe's labels are placed again at the new size.
+    private void OnTextScaleChanged(object? sender, EventArgs e)
+    {
+        _labels.Changed();
+        _hubLabels.Changed();
+    }
+
     // Any thread (the feeds'): the layers only ask the host for a recompose or an update.
     private void OnIndicatorsChanged(object? sender, EventArgs e)
     {
@@ -397,7 +405,12 @@ public sealed class SceneController
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        // Esc closes the explainer card first, then the panel (Plan 4 Task 9).
+        // Esc closes the open card (Welcome, About, Data) first, then the explainer card, then the panel (Plan 4 Task 9; Plan 5 Task 4).
+        if (e.Key == Key.Escape && _vm.Cards.CloseTop())
+        {
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.Escape && _vm.Explainer.IsOpen)
         {
             e.Handled = true;
@@ -450,6 +463,7 @@ public sealed class SceneController
         _vm.Panel.PropertyChanged -= OnPanelChanged;
         _vm.Hubs.Changed -= OnHubsChanged;
         _vm.Settings.UnitsChanged -= OnHubsChanged;
+        _vm.Settings.TextScaleChanged -= OnTextScaleChanged;
         _countries.Changed -= OnBoundariesChanged;
         _displacement.Close(); _conflict.Close(); _outbreaks.Close(); _atrocities.Close(); _labels.Close(); _food?.Close();
         _host?.Dispose();

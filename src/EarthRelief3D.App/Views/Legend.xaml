@@ -69,13 +69,72 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Border Background="#F2101624" CornerRadius="8" Padding="10,8">
+        <!-- A header row (P5-24: a button, so a click, Enter or Space opens and closes it), the body only when open, and the UN
+             note always: under the header when folded, at the foot of the body when open (as "Borders: ... UN note"). -->
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ToggleButton x:Name="HeaderButton" Grid.Row="0" Style="{x:Null}" IsChecked="{Binding IsOpen}" HorizontalAlignment="Left"
+                      Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2,1"
+                      ToolTip="{x:Static vm:LegendViewModel.HeaderTooltip}" AutomationProperties.Name="Legend">
+            <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <!-- A dock panel, not a row: in a narrow window (large text) the header's words wrap. -->
+                        <DockPanel LastChildFill="True">
+                            <TextBlock x:Name="Arrow" DockPanel.Dock="Left" Text="▾" Width="20" FontSize="13" TextAlignment="Center" Foreground="#C8CDD8" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="Closed" DockPanel.Dock="Right" Text="closed" Foreground="#9AA3B5" FontSize="11" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+                            <TextBlock Text="{Binding HeaderText}" FontWeight="SemiBold" FontSize="13" Foreground="#C8CDD8" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="Arrow" Property="Text" Value="▸"/>
+                            <Setter TargetName="Closed" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#3A4866"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="#7FB6FF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </ToggleButton.Template>
+        </ToggleButton>
+        <!-- Folded: just the UN note, small and grey, under the header. -->
+        <TextBlock Grid.Row="2" Text="{Binding UnNote}" Foreground="#8A92A3" FontSize="11" TextWrapping="Wrap" Margin="22,2,0,0">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
         <!-- Scrolls instead of growing over the layer strip when the window is short (MainWindow sets the card's MaxHeight). -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0" Visibility="{Binding IsOpen, Converter={StaticResource B2V}}">
         <StackPanel>
-            <TextBlock Text="Legend" FontWeight="SemiBold" FontSize="13" Foreground="#C8CDD8" Margin="0,0,0,4"/>
             <ItemsControl ItemsSource="{Binding Lines}" ItemTemplate="{StaticResource LineTemplate}"/>
             <!-- Plan 3: the shading that is on (unless food) and the marker layers the crisis lines do not cover. -->
             <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource LineTemplate}"/>
+            <!-- P5-12: the January rule for FTS appeals; empty (and collapsed) the rest of the year. -->
+            <TextBlock Text="{Binding FtsNote}" Foreground="#8A92A3" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FtsNote}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
             <!-- The flyout: reports the source published that could not be put on the map. -->
             <ToggleButton x:Name="UnplacedButton" Style="{x:Null}" Margin="0,6,0,0" HorizontalAlignment="Left" Background="Transparent"
@@ -115,5 +174,6 @@
             <TextBlock Text="{Binding BoundaryText}" Foreground="#8A92A3" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
         </StackPanel>
         </ScrollViewer>
+        </Grid>
     </Border>
 </UserControl>

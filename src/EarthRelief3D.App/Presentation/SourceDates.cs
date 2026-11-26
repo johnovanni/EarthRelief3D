@@ -15,10 +15,10 @@ public sealed record SourceSummary(CrisisLayer Layer, string ShortName, string W
     SourceCitation? Newest, DateTime? CheckedUtc)
 {
     /// <summary>
-    /// The legend's date text: the data's date; or, with no data, "none recorded · checked &lt;date&gt;" (WHO: "no reports
-    /// in the last 90 days · checked &lt;date&gt;"); or "not yet checked".
+    /// The legend's date text (<see cref="SourceAsOf.LegendDate"/>, shared with the Data card): the data's date; or, with no
+    /// data, "none recorded · checked &lt;date&gt;" (WHO: "no reports in the last 90 days · checked &lt;date&gt;"); or "not yet checked".
     /// </summary>
-    public string LegendDate => DateText ?? (CheckedUtc is { } t ? SourceDates.NothingFound(ShortName) + " · " + SourceDates.Checked(t) : SourceDates.NotChecked);
+    public string LegendDate => SourceAsOf.LegendDate(this);
 }
 
 /// <summary>The sources, the newest date of each layer's data and when each source was checked, for the legend, the panel and the hover.</summary>

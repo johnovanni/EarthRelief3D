@@ -12,7 +12,7 @@ namespace EarthRelief3D.Core.Feeds;
 /// Appeal requirements and funding from OCHA's Financial Tracking Service on HDX (docs/data-sources.md section 13; CC BY-IGO on
 /// HDX, CC BY 4.0 on the FTS site, no key). One CSV, <c>fts_requirements_funding_global.csv</c>, refreshed daily.
 /// <para>
-/// Ruling P4-4: rows with a plan id for the clock's year (else last year, in early January before FTS has the new plans). A row
+/// Ruling P4-4: rows with a plan id for the clock's year; ruling P5-12: in January a country with none yet keeps last year's. A row
 /// with a blank <c>id</c> is money not tied to a plan ("Not specified"): not an appeal, skipped. A plan whose id appears under
 /// more than one country, or whose <c>typeName</c> contains "Regional", is flagged <see cref="AppealFunding.Regional"/>: its
 /// figures are for the whole plan and are never a country's own. <c>percentFunded</c> is kept as published; a blank
@@ -35,6 +35,10 @@ public sealed class FtsFundingFeed(FeedHttp http, IndicatorStore indicators, Cri
 
     private readonly CountryResolver _countries = countries ?? CountryResolver.LoadDefault();
 
+    public const string NewYearNote = "In January, a country with no appeal for the new year yet shows last year's.";
+    /// <summary>1 to 31 January (UTC): FTS may not have the new year's plans for every country yet (ruling P5-12).</summary>
+    public static bool InNewYearWindow(DateTime nowUtc) => nowUtc.ToUniversalTime().Month == 1;
+
     public string Name => FeedName;
     public TimeSpan Interval => TimeSpan.FromDays(1);
 
@@ -47,11 +51,11 @@ public sealed class FtsFundingFeed(FeedHttp http, IndicatorStore indicators, Cri
         var (url, loaded) = FindResource(package);
         var csv = await http.GetBytesAsync(url, ct).ConfigureAwait(false);
 
-        var (appeals, unplaced, year) = Read(csv, loaded, now);
+        var (appeals, unplaced, year) = Read(csv, loaded, now, out var keptLastYear);
         indicators.ReplaceAppeals(appeals);
         crises.ReplaceUnplaced(Name, unplaced);
         crises.MarkChecked(Name, now);   // R12
-        log.Info($"{Name}: {year}, {appeals.Count} appeal rows, {appeals.Count(a => a.Regional)} of them regional; {unplaced.Count} codes not placed");
+        log.Info($"{Name}: {year}, {appeals.Count} appeal rows, {appeals.Count(a => a.Regional)} of them regional; {keptLastYear} countries kept last year's plans (new-year window); {unplaced.Count} codes not placed");
         return FeedRunResult.Ok;
     }
 
@@ -78,7 +82,7 @@ public sealed class FtsFundingFeed(FeedHttp http, IndicatorStore indicators, Cri
         throw new FeedFormatException($"the HDX package has no resource named {ResourceFileName}");
     }
 
-    private (List<AppealFunding> Appeals, List<UnplacedReport> Unplaced, int Year) Read(byte[] csv, DateTime loadedUtc, DateTime now)
+    private (List<AppealFunding> Appeals, List<UnplacedReport> Unplaced, int Year) Read(byte[] csv, DateTime loadedUtc, DateTime now, out int keptLastYear)
     {
         var plans = new List<PlanRow>();
         string[]? header = null;
@@ -95,20 +99,39 @@ public sealed class FtsFundingFeed(FeedHttp http, IndicatorStore indicators, Cri
                 Whole(F("requirements")), Whole(F("funding")) ?? 0, Whole(F("percentFunded")) is { } p ? (int)p : null));
         }
 
-        // This year's plans; early in January FTS may not have the new year's yet, so last year's.
+        // Ruling P5-12: this year's plans. In January a country with none yet keeps last year's (FTS may not have its new plans);
+        // from 1 February only this year's. With no plan for this year at all, last year's whatever the date.
         var thisYear = plans.Where(p => p.Year == now.Year).ToList();
-        var chosen = thisYear.Count > 0 ? thisYear : plans.Where(p => p.Year == now.Year - 1).ToList();
+        var lastYear = plans.Where(p => p.Year == now.Year - 1).ToList();
+        List<PlanRow> chosen;
+        keptLastYear = 0;
+        if (thisYear.Count == 0)
+        {
+            chosen = lastYear;
+            if (chosen.Count > 0) log.Warn($"{Name}: no plan rows for {now.Year} in the file; using {now.Year - 1}");
+        }
+        else if (InNewYearWindow(now))
+        {
+            var haveNew = thisYear.Select(p => p.Iso3).ToHashSet(StringComparer.Ordinal);
+            var kept = lastYear.Where(p => !haveNew.Contains(p.Iso3)).ToList();
+            keptLastYear = kept.Select(p => p.Iso3).Distinct(StringComparer.Ordinal).Count();
+            chosen = [.. thisYear, .. kept];
+        }
+        else chosen = thisYear;
         if (chosen.Count == 0) throw new FeedFormatException($"{ResourceFileName} has no plan rows (with an id) for {now.Year} or {now.Year - 1}");
-        var year2 = chosen[0].Year;
+        var year2 = chosen.Max(p => p.Year);
 
-        var citation = new SourceCitation(Publisher, Dataset, year2.ToString(CultureInfo.InvariantCulture), CreditUrl, Licence,
+        // Each year's appeals carry that year's citation; a plan is regional within its own year.
+        SourceCitation CitationFor(int y) => new(Publisher, Dataset, y.ToString(CultureInfo.InvariantCulture), CreditUrl, Licence,
             $"Financial Tracking Service (FTS), {loadedUtc.ToString("d MMM yyyy", CultureInfo.InvariantCulture)}, {CreditUrl.GetLeftPart(UriPartial.Authority)}",
             loadedUtc, now, CitationDate.AsOf);
+        var citations = chosen.Select(p => p.Year).Distinct().ToDictionary(y => y, CitationFor);
 
-        var countriesPerPlan = chosen.GroupBy(p => p.PlanId).ToDictionary(g => g.Key, g => g.Select(p => p.Iso3).Distinct().Count());
+        // Counted over all of a year's rows, before the January filter: a plan is regional within its own year even when only one of its countries keeps it.
+        var countriesPerPlan = plans.GroupBy(p => (p.Year, p.PlanId)).ToDictionary(g => g.Key, g => g.Select(p => p.Iso3).Distinct().Count());
         var appeals = new List<AppealFunding>();
         var unplaced = new List<UnplacedReport>();
-        var seen = new HashSet<(string, int)>();
+        var seen = new HashSet<(string, int, int)>();
         var notPlaced = new HashSet<string>(StringComparer.Ordinal);
         foreach (var p in chosen)
         {
@@ -117,13 +140,13 @@ public sealed class FtsFundingFeed(FeedHttp http, IndicatorStore indicators, Cri
                 if (notPlaced.Add(p.Iso3))
                 {
                     log.Warn($"{Name}: code {p.Iso3} has no unit in the boundary set; listed as not placed");
-                    unplaced.Add(new UnplacedReport(Name, $"FTS appeals for \"{p.Iso3}\"", "no unit in the boundary set for this code", citation));
+                    unplaced.Add(new UnplacedReport(Name, $"FTS appeals for \"{p.Iso3}\"", "no unit in the boundary set for this code", citations[p.Year]));
                 }
                 continue;
             }
-            if (!seen.Add((p.Iso3, p.PlanId))) continue;
-            var regional = countriesPerPlan[p.PlanId] > 1 || p.PlanType.Contains("Regional", StringComparison.OrdinalIgnoreCase);
-            appeals.Add(new AppealFunding(p.Iso3, p.PlanId, p.PlanName, p.PlanType, p.Year, p.Requirements, p.Funding, p.Percent, regional, citation));
+            if (!seen.Add((p.Iso3, p.Year, p.PlanId))) continue;
+            var regional = countriesPerPlan[(p.Year, p.PlanId)] > 1 || p.PlanType.Contains("Regional", StringComparison.OrdinalIgnoreCase);
+            appeals.Add(new AppealFunding(p.Iso3, p.PlanId, p.PlanName, p.PlanType, p.Year, p.Requirements, p.Funding, p.Percent, regional, citations[p.Year]));
         }
         return ([.. appeals.OrderBy(a => a.Iso3, StringComparer.Ordinal).ThenBy(a => a.PlanId)], unplaced, year2);
     }

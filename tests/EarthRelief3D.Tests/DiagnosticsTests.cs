@@ -69,7 +69,7 @@ public class LaunchOptionsTests
     }
 }
 
-public class SnapshotScenesTests
+public partial class SnapshotScenesTests
 {
     private static string ScenesFile => Path.Combine(AppContext.BaseDirectory, "SnapshotScenes", "scenes.json");
 
@@ -77,7 +77,8 @@ public class SnapshotScenesTests
     public void TheCommittedScenesLoad()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps", "access", "sudan-access", "sudan-help", "sudan-explainer-food"],
+        Assert.Equal(["africa", "pacific", "sudan-panel", "sudan-panel-food", "no-crisis-panel", "water", "resources", "renewables", "myanmar-panel", "dprk-camps", "access", "sudan-access", "sudan-help", "sudan-explainer-food",
+            "first-start", "about", "data", "text-150", "text-150-narrow", "sudan-charities", "closed-cards", "update-offer", "update-ready", "update-stale"],
             scenes.Select(s => s.Name));
         Assert.All(scenes, s => Assert.Equal(new DateTime(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc), s.DisplayTimeUtc));
         Assert.Equal(new GeoPosition(10, 25), scenes[0].LookAt);
@@ -185,6 +186,101 @@ public class SnapshotScenesTests
     }
 
     [Fact]
+    public void LegendAndStripFieldsAreRead()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z"},
+                  {"name":"b","displayTimeUtc":"2026-11-22T12:00:00Z","legend":"closed","strip":"closed"},
+                  {"name":"c","displayTimeUtc":"2026-11-22T12:00:00Z","legend":"Open","strip":"OPEN"}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.True(scenes[0].LegendOpen);   // the default: the earlier pictures still compare
+            Assert.True(scenes[0].StripOpen);
+            Assert.False(scenes[1].LegendOpen);
+            Assert.False(scenes[1].StripOpen);
+            Assert.True(scenes[2].LegendOpen);
+            Assert.True(scenes[2].StripOpen);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Theory]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","legend":"folded"}]}""", "legend is \"open\" or \"closed\"")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","strip":"shut"}]}""", "strip is \"open\" or \"closed\"")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","legend":true}]}""", "legend is \"open\" or \"closed\"")]
+    public void LegendAndStripAnyOtherValueIsRefusedPlainly(string json, string expected)
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(path, json);
+        try { Assert.Contains(expected, Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message); }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
+    public void TextScaleAndWindowSizeAreRead()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(path, """
+                {"scenes":[
+                  {"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z"},
+                  {"name":"b","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1.5,"windowSize":[1000,760]},
+                  {"name":"c","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1.25,"windowSize":[1000,600]},
+                  {"name":"d","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1}]}
+                """);
+            var scenes = SnapshotScenes.Load(path);
+            Assert.Equal(1.0, scenes[0].TextScale);   // the default: the earlier pictures still compare
+            Assert.Null(scenes[0].WindowSize);
+            Assert.Equal(1.5, scenes[1].TextScale);
+            Assert.Equal(new System.Windows.Size(1000, 760), scenes[1].WindowSize);
+            Assert.Equal(1.25, scenes[2].TextScale);
+            Assert.Equal(new System.Windows.Size(1000, 600), scenes[2].WindowSize);
+            Assert.Equal(1.0, scenes[3].TextScale);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Theory]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":1.3}]}""")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":"big"}]}""")]
+    [InlineData("""{"scenes":[{"name":"a","displayTimeUtc":"2026-11-22T12:00:00Z","textScale":2}]}""")]
+    public void BadTextScaleIsRefused(string json)
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(path, json);
+        try
+        {
+            var message = Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message;
+            Assert.Contains("Scene a: textScale is 1, 1.25 or 1.5", message);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Theory]
+    [InlineData("[999,760]")]
+    [InlineData("[1200,599]")]
+    [InlineData("[1200]")]
+    [InlineData("[1200,700,5]")]
+    [InlineData("\"1200x700\"")]
+    [InlineData("[\"a\",\"b\"]")]
+    public void TooSmallWindowIsRefused(string size)
+    {
+        var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
+        File.WriteAllText(path, "{\"scenes\":[{\"name\":\"a\",\"displayTimeUtc\":\"2026-11-22T12:00:00Z\",\"windowSize\":" + size + "}]}");
+        try
+        {
+            var message = Assert.Throws<FormatException>(() => SnapshotScenes.Load(path)).Message;
+            Assert.Contains("Scene a: windowSize is [width, height], at least 1000 by 600", message);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
     public void ExplainerFieldOpensTheCard()
     {
         var path = Path.Combine(Path.GetTempPath(), "er3d-scenes-" + Guid.NewGuid().ToString("N") + ".json");
@@ -208,7 +304,7 @@ public class SnapshotScenesTests
     public void PlanFourScenesAreInTheFile()
     {
         var scenes = SnapshotScenes.Load(ScenesFile);
-        Assert.Equal(14, scenes.Count);
+        Assert.Equal(24, scenes.Count);   // fourteen from Plans 2 to 4, ten from Plan 5
         var access = scenes.Single(s => s.Name == "access");
         Assert.Equal(EarthRelief3D.App.Presentation.ShadingLayer.Access, access.Shading);
         var help = scenes.Single(s => s.Name == "sudan-help");
@@ -220,6 +316,18 @@ public class SnapshotScenesTests
         Assert.Equal("SDN", ex.Panel);
         Assert.True(ex.ShowDrafts);
         Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Access, scenes.Single(s => s.Name == "sudan-access").FocusSection);
+
+        // Plan 5 (Task 11): the ten new scenes' fields.
+        Assert.Equal(EarthRelief3D.App.ViewModels.PanelFocus.Charities, scenes.Single(s => s.Name == "sudan-charities").FocusSection);
+        Assert.False(scenes.Single(s => s.Name == "first-start").LegendOpen);
+        Assert.Equal(EarthRelief3D.App.ViewModels.AppCard.Welcome, scenes.Single(s => s.Name == "first-start").AppCard);
+        Assert.Equal(1.5, scenes.Single(s => s.Name == "text-150-narrow").TextScale);
+        Assert.Equal(new System.Windows.Size(1000, 760), scenes.Single(s => s.Name == "text-150-narrow").WindowSize);
+        Assert.True(scenes.Single(s => s.Name == "text-150").OpensSettings);
+        var closed = scenes.Single(s => s.Name == "closed-cards");
+        Assert.False(closed.StripOpen);
+        Assert.False(closed.LegendOpen);
+        Assert.Equal(["offer", "ready", "stale"], scenes.Where(s => s.Name.StartsWith("update-", StringComparison.Ordinal)).Select(s => s.Update));
     }
 
     [Fact]
@@ -243,7 +351,7 @@ public class SnapshotScenesTests
             Assert.Equal(EarthRelief3D.App.Presentation.CrisisLayer.Food, scenes[2].FocusLayer);
             Assert.Null(scenes[2].FocusMarker);
             Assert.False(scenes[2].ShowDrafts);   // absent means off
-            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps", "access", "help"], SnapshotScene.PanelFocusNames);
+            Assert.Equal(["conflict", "food", "outbreaks", "displacement", "atrocities", "camps", "access", "help", "charities"], SnapshotScene.PanelFocusNames);
         }
         finally { File.Delete(path); }
     }

@@ -22,8 +22,17 @@ public sealed record AppSettings
     public bool ShowFood { get; init; } = true;
     public bool ShowOutbreaks { get; init; } = true;
     public bool ShowDisplacement { get; init; } = true;
-    /// <summary>The layer strip shows text labels beside its icons.</summary>
+    /// <summary>
+    /// The layer strip's list of groups is open (P5-23). The name is from Plan 2, when it meant "labels shown"; kept so an older
+    /// file still reads (false there now reads as closed).
+    /// </summary>
     public bool LayerStripExpanded { get; init; } = true;
+
+    /// <summary>The first-run Welcome card has been shown and closed (Plan 5 Task 6). A file from Plan 4 or earlier has no flag: it reads as not shown, so the card shows once.</summary>
+    public bool WelcomeShown { get; init; }
+
+    /// <summary>The legend shows its full text (P5-24); folded to its header and the UN note by default.</summary>
+    public bool LegendOpen { get; init; }
 
     /// <summary>The one shading shown (P3-6); null in a Plan 2 file (then <see cref="ShowFood"/> says).</summary>
     public ShadingLayer? Shading { get; init; }
@@ -52,6 +61,28 @@ public sealed record AppSettings
 
     /// <summary>The user's state (Settings, "Your state (optional)"; P4-15), by two-letter code, for listing their two senators; null: not chosen. Not personal data: a state, not an address.</summary>
     public string? UserState { get; init; }
+
+    /// <summary>
+    /// The size of the text on the cards (Settings, "Text size"; C8, P5-8): 1.0 (100%, the default), 1.25 or 1.5. A file without
+    /// it reads as 100%; any other saved number reads as 100% too (<see cref="EffectiveTextScale"/>).
+    /// </summary>
+    public double TextScale { get; init; } = 1.0;
+
+    /// <summary>Settings, "Updates": ask GitHub once a day whether a newer EarthRelief3D is out (P5-18). On by default; a file without it reads as on.</summary>
+    public bool CheckForUpdates { get; init; } = true;
+
+    /// <summary>When an update check last got an answer it could read (P5-22); null: never.</summary>
+    public DateTime? LastUpdateCheckOkUtc { get; init; }
+
+    /// <summary>When this copy first tried to check for a new version (P5-22: a copy that has never succeeded counts from here); null: never tried.</summary>
+    public DateTime? FirstUpdateCheckUtc { get; init; }
+
+    /// <summary>When the user turned <see cref="CheckForUpdates"/> off (P5-22 counts 30 days from here); null while it is on.</summary>
+    public DateTime? UpdateChecksOffUtc { get; init; }
+
+    /// <summary><see cref="TextScale"/> when it is one of <see cref="TextScaleLayout.Choices"/>, else 1.0.</summary>
+    [JsonIgnore]
+    public double EffectiveTextScale => TextScaleLayout.Normalise(TextScale);
 
     /// <summary>The shading to show: <see cref="Shading"/>, or for a Plan 2 file food when <see cref="ShowFood"/>, else none.</summary>
     [JsonIgnore]

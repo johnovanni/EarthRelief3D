@@ -1,5 +1,8 @@
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Shapes;
 using AstroCore.Earth;
 using EarthRelief3D.App.Presentation;
 using EarthRelief3D.Core.Logic;
@@ -14,76 +17,122 @@ namespace EarthRelief3D.App.Layers;
 public sealed record HubArcSpec(HubLink Link, SurfacePoint From);
 
 /// <summary>
-/// The arcs from the selected country to its nearest UN depot, airport and port (Plan 4 Task 5, P4-7). Each is a ribbon about
-/// 3 px wide in its hub's colour, drawn above every point-marker layer (final review F2: they were lost among the hub markers), along the great circle and lifted in the middle (<see cref="ArcPoints"/>), built here:
-/// GlobeCore is not changed. They are drawn only while the country panel is open and the "Lines to nearest hubs" toggle is on
-/// (<see cref="SpecsFor"/>). <see cref="Changed"/> (any thread) says the panel, the toggle or the hubs changed; the ribbons are
-/// also rebuilt when the zoom changes the size of a pixel by more than <see cref="CrisisSceneLayer.RescaleRatio"/>, as the
-/// point markers are, so they stay 3 px wide.
+/// The arcs from the selected country to its nearest UN depot, airport and port (Plan 4 Task 5, P4-7), drawn as 2D lines on
+/// the globe's overlay (ruling H1): each a line about 3 px wide in its hub's colour over a 5 px dark edge, along the great
+/// circle and lifted in the middle (<see cref="ArcPoints"/>), with the parts behind the globe cut. Arcs that run together on
+/// screen (Sudan's to Port Sudan and to the Dubai depot) are pushed apart where they are close, so they lie side by side 4 px
+/// apart (H4), and are drawn longest first, so the shortest is on top where they meet (<see cref="Lines"/>, <see cref="HubArcScreen"/>). Being 2D they are above every marker (final
+/// review F2); a negative Z-index keeps them under the place names and distance labels on the shared canvas. GlobeCore is not
+/// changed. They are drawn only while the country panel is open and the "Lines to nearest hubs" toggle is on
+/// (<see cref="SpecsFor"/>). <see cref="Changed"/> (any thread) says the panel, the toggle or the hubs changed.
 /// </summary>
-public sealed class HubArcLayer : SceneLayer
+public sealed class HubArcLayer : OverlayLayer
 {
     /// <summary>Above every point-marker layer (130 + its number, at most 142) and below the labels (200): final review F2.</summary>
     public const int Order = 150;
-    /// <summary>The ribbon's width in screen pixels.</summary>
+    /// <summary>The line's width in screen pixels.</summary>
     public const double WidthPx = 3;
+    /// <summary>The dark edge under each line, in pixels: 1 px shows on each side.</summary>
+    public const double EdgeWidthPx = 5;
+    /// <summary>The lines' Z-index on the overlay canvas: under the labels (0).</summary>
+    public const int ZIndex = -1;
     /// <summary>The tallest an arc is lifted, in Earth radii; shorter arcs are lifted by a quarter of their central angle in radians.</summary>
     public const double MaxLift = 0.08;
     public const double LiftPerRadian = 0.25;
-    /// <summary>
-    /// The arcs' whole path rises by this factor, so their ends lie above the highest point-marker layer (at most 1.0074 Earth
-    /// radii, <see cref="PointMarkerLayer.BaseHeight"/>) and no marker mesh hides them (the geometry itself is <see cref="ArcPoints"/>).
-    /// </summary>
-    public const double SurfaceClearance = 1.008;
 
     private readonly Func<IReadOnlyList<HubArcSpec>> _specs;
-    private int _dirty = 1;
-    private double _builtWorldPerPx = double.NaN;
+    private readonly List<(Polyline Edge, Polyline Line)> _pool = [];
+    private readonly Dictionary<Color, Brush> _brushes = [];
 
-    /// <param name="specs">The arcs to draw now (read on the UI thread in <see cref="Update"/>); see <see cref="SpecsFor"/>.</param>
+    /// <param name="specs">The arcs to draw now (read on the UI thread in <see cref="Render"/>); see <see cref="SpecsFor"/>.</param>
     public HubArcLayer(Func<IReadOnlyList<HubArcSpec>> specs)
         : base(LayerCatalog.Id(MarkerLayer.HubLines), LayerCatalog.Label(MarkerLayer.HubLines), Order)
     {
         _specs = specs ?? throw new ArgumentNullException(nameof(specs));
     }
 
-    /// <summary>How many arcs are drawn (tests, diagnostics).</summary>
+    /// <summary>How many arcs are drawn (tests, diagnostics): arcs with at least one visible part.</summary>
     public int ArcCount { get; private set; }
 
-    /// <summary>The panel, the toggle or the hubs changed (any thread): the arcs are read again at the next update.</summary>
-    public void Changed()
+    /// <summary>The panel, the toggle or the hubs changed (any thread): the arcs are drawn again at the next render.</summary>
+    public void Changed() => Invalidate();
+
+    public override void Render(Canvas overlay, Projector projector)
     {
-        Volatile.Write(ref _dirty, 1);
-        Invalidate();
+        ArgumentNullException.ThrowIfNull(overlay);
+        var lines = Lines(_specs() ?? [], projector);
+        for (int i = 0; i < lines.Count; i++)
+        {
+            if (i == _pool.Count) _pool.Add((Add(overlay, EdgeWidthPx), Add(overlay, WidthPx)));
+            var (edge, line) = _pool[i];
+            var points = new PointCollection(lines[i].Line);
+            points.Freeze();
+            edge.Points = points;
+            edge.Stroke = BrushFor(LayerStyle.MarkerEdgeColor);
+            edge.Visibility = Visibility.Visible;
+            line.Points = points;
+            line.Stroke = BrushFor(LayerStyle.HubColor(lines[i].Spec.Link.Hub.Kind));
+            line.Visibility = Visibility.Visible;
+        }
+        for (int i = lines.Count; i < _pool.Count; i++) Hide(_pool[i]);
+        ArcCount = lines.Select(l => l.Spec).Distinct().Count();
     }
 
-    public override void Update(SceneContext ctx)
+    protected override void Clear(Canvas overlay)
     {
-        double wpp = Picking.WorldPerPixel(ctx.Projector);
-        bool data = Interlocked.Exchange(ref _dirty, 0) == 1;
-        bool rescale = double.IsNaN(_builtWorldPerPx) || wpp > _builtWorldPerPx * CrisisSceneLayer.RescaleRatio
-                       || wpp * CrisisSceneLayer.RescaleRatio < _builtWorldPerPx;
-        if (!data && !rescale) return;
-        _builtWorldPerPx = wpp;
-        var group = new Model3DGroup();
-        int arcs = 0;
-        foreach (var spec in _specs() ?? [])
+        foreach (var pair in _pool) Hide(pair);
+        ArcCount = 0;
+    }
+
+    /// <summary>
+    /// What is drawn for <paramref name="specs"/> seen through <paramref name="projector"/>: each arc's visible parts in screen
+    /// pixels (<see cref="HubArcScreen.VisibleRuns"/>), pushed apart where they run together, near-ties settled by each arc's
+    /// bearing on the ground (<see cref="HubArcScreen.SideBySide"/>, <see cref="InitialBearing"/>), in drawing order, longest
+    /// first (<see cref="HubArcScreen.DrawOrder"/>).
+    /// </summary>
+    public static IReadOnlyList<(HubArcSpec Spec, IReadOnlyList<Point> Line)> Lines(IReadOnlyList<HubArcSpec> specs, Projector projector)
+    {
+        ArgumentNullException.ThrowIfNull(specs);
+        var runs = new List<(HubArcSpec Spec, IReadOnlyList<Point> Line)>();
+        foreach (var spec in specs)
+            foreach (var run in HubArcScreen.VisibleRuns(ArcPoints(spec.From, spec.Link.Hub.Position), projector))
+                runs.Add((spec, run));
+        var screen = runs.Select(r => r.Line).ToList();
+        var apart = HubArcScreen.SideBySide(screen, [.. runs.Select(r => InitialBearing(r.Spec.From, r.Spec.Link.Hub.Position))]);
+        return [.. HubArcScreen.DrawOrder(screen).Select(i => (runs[i].Spec, apart[i]))];
+    }
+
+    private static Polyline Add(Canvas overlay, double width)
+    {
+        var p = new Polyline
         {
-            var path = ArcPoints(spec.From, spec.Link.Hub.Position);
-            if (path.Count < 2) continue;
-            var lifted = path.Select(p => new Point3D(p.X * SurfaceClearance, p.Y * SurfaceClearance, p.Z * SurfaceClearance)).ToList();
-            var material = MarkerMeshes.Material(LayerStyle.HubColor(spec.Link.Hub.Kind));
-            group.Children.Add(new GeometryModel3D(Ribbon(lifted, WidthPx * wpp), material) { BackMaterial = material });
-            arcs++;
-        }
-        ArcCount = arcs;
-        if (arcs == 0)
+            StrokeThickness = width,
+            StrokeLineJoin = PenLineJoin.Round,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
+            IsHitTestVisible = false,
+            Visibility = Visibility.Collapsed,
+        };
+        Panel.SetZIndex(p, ZIndex);
+        overlay.Children.Add(p);
+        return p;
+    }
+
+    private static void Hide((Polyline Edge, Polyline Line) pair)
+    {
+        pair.Edge.Visibility = Visibility.Collapsed;
+        pair.Line.Visibility = Visibility.Collapsed;
+    }
+
+    private Brush BrushFor(Color c)
+    {
+        if (!_brushes.TryGetValue(c, out var b))
         {
-            Root.Content = null;
-            return;
+            var brush = new SolidColorBrush(c);
+            brush.Freeze();
+            _brushes[c] = b = brush;
         }
-        group.Freeze();
-        Root.Content = group;
+        return b;
     }
 
     // ---------------------------------------------------------------- what to draw
@@ -108,7 +157,9 @@ public sealed class HubArcLayer : SceneLayer
     /// The arc's points in Earth radii: the great circle from <paramref name="from"/> to <paramref name="to"/> in steps of 1
     /// degree or less (<see cref="SphereLines.Densify"/>, which takes the short way across the date line and over a pole), each
     /// lifted by <c>1 + h·sin(πt)</c> where t runs from 0 to 1 along the path and
-    /// <c>h = min(0.08, 0.25 × the central angle in radians)</c>: on the surface at both ends, highest in the middle.
+    /// <c>h = min(0.08, 0.25 × the central angle in radians)</c>, the same for every kind of hub (H1 withdrew P5-14's
+    /// factors): on the surface at both ends, highest in the middle. The rise is drawing only (C3): distances are measured
+    /// on the sphere.
     /// </summary>
     public static IReadOnlyList<Point3D> ArcPoints(SurfacePoint from, SurfacePoint to)
     {
@@ -130,39 +181,14 @@ public sealed class HubArcLayer : SceneLayer
         return result;
     }
 
-    /// <summary>
-    /// A flat strip <paramref name="width"/> wide (Earth radii) along <paramref name="path"/>, lying across the path in the
-    /// surface's tangent plane: two vertices per path point (left, right), two triangles per step, counter-clockwise seen
-    /// from outside the globe. Empty for a path of fewer than two points.
-    /// </summary>
-    public static MeshGeometry3D Ribbon(IReadOnlyList<Point3D> path, double width)
+    /// <summary>The great circle's bearing at <paramref name="from"/> towards <paramref name="to"/>, degrees clockwise from north (0 to 360).</summary>
+    public static double InitialBearing(SurfacePoint from, SurfacePoint to)
     {
-        ArgumentNullException.ThrowIfNull(path);
-        var positions = new Point3DCollection();
-        var indices = new Int32Collection();
-        if (path.Count >= 2)
-        {
-            var side = new Vector3D(1, 0, 0);
-            for (int i = 0; i < path.Count; i++)
-            {
-                var tangent = path[Math.Min(i + 1, path.Count - 1)] - path[Math.Max(i - 1, 0)];
-                var up = (Vector3D)path[i];
-                // Left of the direction of travel, seen from outside: up × tangent. Kept from the step before if the path stalls.
-                var s = Vector3D.CrossProduct(up, tangent);
-                if (s.LengthSquared > 1e-18) { s.Normalize(); side = s; }
-                positions.Add(path[i] + side * (width / 2));
-                positions.Add(path[i] - side * (width / 2));
-            }
-            for (int i = 0; i < path.Count - 1; i++)
-            {
-                int l0 = 2 * i, r0 = l0 + 1, l1 = l0 + 2, r1 = l0 + 3;
-                indices.Add(l0); indices.Add(r0); indices.Add(r1);
-                indices.Add(l0); indices.Add(r1); indices.Add(l1);
-            }
-        }
-        var mesh = new MeshGeometry3D { Positions = positions, TriangleIndices = indices };
-        mesh.Freeze();
-        return mesh;
+        double f1 = from.LatitudeDeg * Math.PI / 180, f2 = to.LatitudeDeg * Math.PI / 180;
+        double dl = (to.LongitudeDeg - from.LongitudeDeg) * Math.PI / 180;
+        double y = Math.Sin(dl) * Math.Cos(f2);
+        double x = Math.Cos(f1) * Math.Sin(f2) - Math.Sin(f1) * Math.Cos(f2) * Math.Cos(dl);
+        return (Math.Atan2(y, x) * 180 / Math.PI + 360) % 360;
     }
 
     /// <summary>The point the distance label sits at: the middle of the arc, at its top.</summary>

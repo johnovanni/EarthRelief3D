@@ -9,6 +9,9 @@ public sealed record SourceCitation(string Publisher, string Dataset, string? Ve
     /// extract's manifest) or a <see cref="CitationDate.Release"/> ("September 2026 release (file V2)"); null for every other meaning.
     /// </summary>
     public string? DateText { get; init; }
+
+    /// <summary>The day the source published the file (a bundled extract's manifest <c>published</c>); null when not known. Credits that ask for a publication date use this, never <see cref="RetrievedUtc"/>.</summary>
+    public DateTime? PublishedUtc { get; init; }
 }
 
 /// <summary>What <see cref="SourceCitation.AsOfUtc"/> means, so the screen never calls a load date or a year "as of" a day.</summary>

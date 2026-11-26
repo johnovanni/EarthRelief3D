@@ -1,0 +1,75 @@
+<UserControl x:Class="EarthRelief3D.App.Views.WelcomeCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12" MaxWidth="620" Foreground="White">
+    <!-- DataContext: WelcomeViewModel. The first-run Welcome card (Plan 5 Task 6), centred over the globe, opaque, text only, scrolling
+         inside. MainWindow.FitCards sets its maximum size from the text size and the window. Esc closes it first (SceneController). -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GlobeCore.Wpf;component/Styles/CardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="BodyText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="SectionHead" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Margin" Value="0,14,0,4"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Border Background="#FF101624" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="8" Padding="18,14">
+        <DockPanel>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" FontWeight="SemiBold" FontSize="20" Foreground="White" TextWrapping="Wrap"/>
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                <Button Style="{StaticResource CardButton}" Content="Settings" Padding="14,4" Margin="0,0,8,0"
+                        Command="{Binding OpenSettingsCommand}" AutomationProperties.Name="Open Settings"/>
+                <Button x:Name="StartButton" Style="{StaticResource CardButton}" Content="Start" Padding="18,4" IsDefault="False"
+                        Command="{Binding StartCommand}" AutomationProperties.Name="Start"/>
+            </StackPanel>
+            <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,10,0,0" Focusable="False">
+                <StackPanel Margin="0,0,8,0">
+                    <ItemsControl ItemsSource="{Binding Paragraphs}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource BodyText}" Margin="0,0,0,8"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{Binding Heading}" Style="{StaticResource SectionHead}"/>
+                    <ItemsControl ItemsSource="{Binding Keys}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="26"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Symbol}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{Binding Brush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Text}" Style="{StaticResource BodyText}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding Note}" Style="{StaticResource BodyText}" Margin="0,6,0,0"/>
+
+                    <TextBlock Text="{Binding Panel}" Style="{StaticResource BodyText}" Margin="0,14,0,0"/>
+
+                    <TextBlock Text="{Binding SizeHeading}" Style="{StaticResource SectionHead}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton GroupName="WelcomeTextSize" Content="100%" IsChecked="{Binding IsScale100, Mode=TwoWay}" Foreground="White" FontSize="13" Margin="0,0,16,0"/>
+                        <RadioButton GroupName="WelcomeTextSize" Content="125%" IsChecked="{Binding IsScale125, Mode=TwoWay}" Foreground="White" FontSize="13" Margin="0,0,16,0"/>
+                        <RadioButton GroupName="WelcomeTextSize" Content="150%" IsChecked="{Binding IsScale150, Mode=TwoWay}" Foreground="White" FontSize="13"/>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding State}" Style="{StaticResource BodyText}" Margin="0,14,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

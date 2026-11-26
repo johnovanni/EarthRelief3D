@@ -57,6 +57,11 @@ public sealed partial class SettingsViewModel : ObservableObject
     /// <summary>Under the group's header.</summary>
     public const string DeterminationsNote = "Court judgments and UN findings are always shown. A government is offered only when every formal determination it has made within the stated scope is listed.";
 
+    /// <summary>The header of the text size choice (C8, P5-8): 100%, 125% or 150%, first in the flyout.</summary>
+    public const string TextSizeGroup = "Text size";
+    /// <summary>Under the group's header.</summary>
+    public const string TextSizeNote = "Makes the text on the cards larger. The globe stays the same size.";
+
     /// <summary>The header of the unit choice.</summary>
     public const string DistancesGroup = "Distances";
     /// <summary>Under the group's header.</summary>
@@ -72,16 +77,27 @@ public sealed partial class SettingsViewModel : ObservableObject
     public const string StateNote = "Used only to list your two senators. The app never asks for an address or ZIP code.";
     public const string NotChosenText = "Not chosen";
 
+    /// <summary>The header of the update choice (P5-18), last in the flyout.</summary>
+    public const string UpdatesGroup = "Updates";
+    /// <summary>The check box: on by default.</summary>
+    public const string UpdatesCheckText = "Check for a new version once a day";
+    /// <summary>Under the group's header.</summary>
+    public const string UpdatesNote = "Asks GitHub whether a newer EarthRelief3D is out. New versions bring updated data and fixes. Nothing is downloaded unless you choose to.";
+
     private readonly ISettingsStore<AppSettings> _settings;
     private readonly CuratedStore _curated;
+    private readonly Func<DateTime> _nowUtc;
     private DistanceUnit _units;
+    private double _textScale;
     private string? _userState;
 
     [ObservableProperty] private bool _isOpen;
 
     /// <param name="help">The help catalog: its profiles give "Your country", its senators give "Your state"; null: both lists are empty.</param>
-    public SettingsViewModel(ISettingsStore<AppSettings> settings, CuratedStore curated, HelpTables? help = null)
+    /// <param name="nowUtc">The clock for the day the update check is turned off (P5-22); the system clock when not given.</param>
+    public SettingsViewModel(ISettingsStore<AppSettings> settings, CuratedStore curated, HelpTables? help = null, Func<DateTime>? nowUtc = null)
     {
+        _nowUtc = nowUtc ?? (() => DateTime.UtcNow);
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _curated = curated ?? throw new ArgumentNullException(nameof(curated));
         Countries = help?.AvailableCountries ?? [];
@@ -101,7 +117,60 @@ public sealed partial class SettingsViewModel : ObservableObject
         Governments = [.. offered.Select(g => new GovernmentChoice(this, g, on.Contains(g.Iso3)))];
         curated.SetGovernments(Governments.Where(g => g.IsChecked).Select(g => g.Iso3));
         _units = settings.Load().Units;
+        _textScale = settings.Load().EffectiveTextScale;
     }
+
+    /// <summary>The size of the text on the cards: 1.0, 1.25 or 1.5 (100% by default). Saved, and announced by <see cref="TextScaleChanged"/>. Any other value is ignored.</summary>
+    public double TextScale
+    {
+        get => _textScale;
+        set
+        {
+            if (!TextScaleLayout.Choices.Contains(value) || _textScale == value) return;
+            _settings.Save(_settings.Load() with { TextScale = value });
+            ChangeTextScale(value);
+        }
+    }
+
+    /// <summary>Sets the size for one picture of a snapshot scene: announced, but not saved.</summary>
+    internal void SetTextScaleQuietly(double value)
+    {
+        if (TextScaleLayout.Choices.Contains(value) && _textScale != value) ChangeTextScale(value);
+    }
+
+    private void ChangeTextScale(double value)
+    {
+        _textScale = value;
+        OnPropertyChanged(nameof(TextScale));
+        OnPropertyChanged(nameof(IsScale100));
+        OnPropertyChanged(nameof(IsScale125));
+        OnPropertyChanged(nameof(IsScale150));
+        TextScaleChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>The "100%" radio button. Setting it false does nothing: a radio button leaves its state when another is chosen.</summary>
+    public bool IsScale100
+    {
+        get => _textScale == 1.0;
+        set { if (value) TextScale = 1.0; }
+    }
+
+    /// <summary>The "125%" radio button.</summary>
+    public bool IsScale125
+    {
+        get => _textScale == 1.25;
+        set { if (value) TextScale = 1.25; }
+    }
+
+    /// <summary>The "150%" radio button.</summary>
+    public bool IsScale150
+    {
+        get => _textScale == 1.5;
+        set { if (value) TextScale = 1.5; }
+    }
+
+    /// <summary>The text size was changed (and saved): the cards and the globe's labels are drawn again.</summary>
+    public event EventHandler? TextScaleChanged;
 
     /// <summary>The countries that have a profile, by name (today the United States).</summary>
     public IReadOnlyList<AvailableCountry> Countries { get; }
@@ -183,6 +252,25 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     /// <summary>The unit was changed (and saved): the panel's rows and the arc labels are written again.</summary>
     public event EventHandler? UnitsChanged;
+
+    /// <summary>
+    /// "Check for a new version once a day" (P5-18), on by default. Saved; turning it off saves the time (P5-22 counts 30 days from
+    /// it), turning it on clears that time. Announced by <see cref="CheckForUpdatesChanged"/>.
+    /// </summary>
+    public bool CheckForUpdates
+    {
+        get => _settings.Load().CheckForUpdates;
+        set
+        {
+            if (CheckForUpdates == value) return;
+            _settings.Save(_settings.Load() with { CheckForUpdates = value, UpdateChecksOffUtc = value ? null : _nowUtc() });
+            OnPropertyChanged();
+            CheckForUpdatesChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>The update choice was changed (and saved): About's status line follows.</summary>
+    public event EventHandler? CheckForUpdatesChanged;
 
     /// <summary>The governments offered (C15), in the file's order.</summary>
     public IReadOnlyList<GovernmentChoice> Governments { get; }

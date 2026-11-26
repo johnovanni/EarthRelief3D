@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Media;
 using System.Windows.Threading;
 using EarthRelief3D.App.ViewModels;
 using EarthRelief3D.Core.Help;
@@ -57,9 +58,28 @@ public partial class CountryPanel : UserControl
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
         {
             if (_vm is not { FocusedSectionIndex: >= 0 } vm) { Scroller.ScrollToTop(); return; }
-            if (SectionList.ItemContainerGenerator.ContainerFromIndex(vm.FocusedSectionIndex) is FrameworkElement item)
-                ScrollToTopOf(item);
+            if (SectionList.ItemContainerGenerator.ContainerFromIndex(vm.FocusedSectionIndex) is not FrameworkElement item) return;
+            Scroller.UpdateLayout();   // the entries' own containers exist only after a layout pass (the first picture run found none)
+            // The charities focus (P5-15): the first charity entry's top, not the section's.
+            ScrollToTopOf(vm.FocusedEntryIndex >= 0 && EntryElement(item, vm.FocusedEntryIndex) is { } entry ? entry : item);
         });
+    }
+
+    /// <summary>The element of the section's <paramref name="index"/>-th help entry (the groups keep the entries' order), or null.</summary>
+    private static FrameworkElement? EntryElement(DependencyObject section, int index)
+    {
+        var found = new List<FrameworkElement>();
+        void Walk(DependencyObject d)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(d); i++)
+            {
+                var c = VisualTreeHelper.GetChild(d, i);
+                if (c is StackPanel { DataContext: HelpEntry } sp) found.Add(sp);
+                else Walk(c);
+            }
+        }
+        Walk(section);
+        return index < found.Count ? found[index] : null;
     }
 
     /// <summary>

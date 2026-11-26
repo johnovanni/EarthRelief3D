@@ -305,6 +305,30 @@ public class HelpPanelTests
     }
 
     [Fact]
+    public void CharitiesFocusPointsAtTheFirstCharity()
+    {
+        // P5-15: with the real help tables, Sudan's section opens at the first entry after the pooled fund.
+        var real = HelpTables.Load(BoundaryData.DataDir, "US");
+        var panel = Panel(real, WithConflict("SDN"));
+        panel.Show("SDN", section: PanelFocus.Charities);
+        var section = panel.Sections[panel.FocusedSectionIndex];
+        Assert.Equal(CountryPanelViewModel.StepHeading, section.Heading);
+        Assert.StartsWith("UN pooled fund for Sudan", section.Entries![0].Title, StringComparison.Ordinal);
+        Assert.Equal(1, panel.FocusedEntryIndex);
+        Assert.Equal("Action Against Hunger USA", section.Entries[panel.FocusedEntryIndex].Title);
+
+        panel.Show("SDN", section: PanelFocus.Help);   // another focus: no entry
+        Assert.Equal(-1, panel.FocusedEntryIndex);
+        panel.Show("SDN");
+        Assert.Equal(-1, panel.FocusedEntryIndex);
+
+        // A country with no charity shown has nothing to point at.
+        var bare = Panel(HelpTables.Empty, WithConflict("SDN"));
+        bare.Show("SDN", section: PanelFocus.Charities);
+        Assert.Equal(-1, bare.FocusedEntryIndex);
+    }
+
+    [Fact]
     public void NoCrisisNoStep()
     {
         // Iceland, no crisis and no appeal: no step section. Getting help in still shows.

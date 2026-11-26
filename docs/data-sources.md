@@ -1,4 +1,4 @@
-# Data sources (Plans 2, 3 and 4)
+# Data sources (Plans 2 to 5)
 
 Sections 1 to 4 (Plan 2) were checked live on 2026-11-22 and sections 5 to 10 (Plan 3) on 2026-11-23, with `tools/fetch-samples.ps1` (User-Agent `EarthRelief3D/0.1.0 (+https://github.com/johnovanni/EarthRelief3D)`).
 No source needs a key or an account. Samples are in `tests/Samples` (see its README). Sections 12 to 20 (Plan 4) were checked on 2026-11-24.
@@ -386,6 +386,7 @@ Checked live 2026-11-24. Samples: `tests/Samples/hdx_fts_package.json` (untrimme
 - **A blank `id`:** 2,635 rows. They read `name` "Not specified" with blank `code`, `typeId`, `typeName`, dates, `requirements` and `percentFunded`, and a `funding` figure: money given to the country that is not tied to a plan. It is not an appeal and has no percent, so it is ignored for appeal funding. Years after the current one (2027 to 2031) exist only as such rows.
 - **2026:** 166 rows, 57 with a plan id; `typeName` blank (109), "Regional response plan" (28), "Humanitarian needs and response plan" (20), "Flash appeal" (5), "Other" (4). 2025 for AFG, SDN and HTI: one plan row and one "Not specified" row each.
 - **Licence and credit:** HDX `cc-by-igo`; every FTS page footer: "Except where otherwise noted, content on this site is licensed under a Creative Commons BY 4.0 International license." FTS terms (https://fts.unocha.org/content/terms-use): data may be used "provided that suitable attribution of FTS as data source is given. Such attribution should cite the Financial Tracking Service (FTS), the publication date of the figures used and the relevant URL." The credit the app shows: "Financial Tracking Service (FTS), <date>, <URL>"; if amended or combined, "based on Financial Tracking Service (FTS), <date>, <URL>". The FTS logo is not used.
+- **Credit (as the source registry holds it):** "Financial Tracking Service (FTS), <date>, https://fts.unocha.org" (`<date>` is the figures' publication date; the URL is FTS's home page, because the app reads the whole file, not one page).
 - **Sample:** all 166 rows of 2026 and the six 2025 rows of AFG, SDN and HTI (172 rows), as published (bytes unchanged).
 
 ## 14. OCHA country-based pooled funds and CERF (Plan 4)
@@ -393,6 +394,7 @@ Checked live 2026-11-24. Samples: `tests/Samples/hdx_fts_package.json` (untrimme
 Checked 2026-11-24 (the plan's source check read the pages; this task re-read the CBPF footer). No sample: the curated `pooled-funds.json` cites the pages.
 
 - **Portal licence:** https://cbpf.data.unocha.org/ footer: "Except where otherwise noted, content on this site is licensed under a Creative Commons Attribution 4.0 International license". The OData API (https://cbpfapi.unocha.org/vo2/odata/Poolfund?$format=json, 46 rows, no "active" flag) states no licence of its own.
+- **Credit:** "OCHA country-based pooled funds and CERF, https://cbpf.data.unocha.org/" (wording chosen by the app; the source prescribes none). Each fund row also cites its own OCHA page.
 - **Giving:** there is no per-fund donate page. https://www.unocha.org/our-funding explains how to give; https://cerf.un.org/donate is CERF's page ("for U.S. tax-deductible gifts" go through the UN Foundation).
 - **Extract (Plan 4 Task 6):** `data/help/pooled-funds.json`: OCHA's 20 fund pages plus `cerf`, all drafts checked 2026-11-24. A regional fund covers its CBPF sub-funds' countries (Asia-Pacific: BGD, FJI, LAO, NPL, PAK, PNG, PHL, SLB, LKA, TON, VUT; West and Central Africa: BFA, TCD, MLI, NER; Latin America and the Caribbean: COL, SLV, GTM, HTI, HND; Eastern and Southern Africa: KEN, UGA); the Syria Cross-border fund maps to SYR, which has two funds. Each row's citation is its OCHA page; `docs/help-review.md` lists them for the owner.
 
@@ -402,9 +404,11 @@ Checked 2026-11-24. Sample: `tests/Samples/wpi_excerpt.csv` (100 real rows, all 
 
 - **Portal:** https://msi.nga.mil/Publications/WPI and https://msi.nga.mil/ still answer HTTP 503 (under maintenance). **Portal in maintenance on 2026-11-24; file date 2026-11-05.** No licence statement and no edition number could be read. The maintenance page links https://msi.nga.mil/apology_objects/WPI.zip (HTTP 200, 377,921 bytes, one file `UpdatedPub150.csv`, dated 2026-11-05). Re-check when the portal is back.
 - **Basis for use:** a US federal government work (17 U.S.C. section 105); not confirmed from NGA's own page (secondary sources only).
+- **Credit:** "US National Geospatial-Intelligence Agency (NGA), World Port Index (Pub 150), public domain." (wording chosen by the app; the source prescribes none).
 - **File:** UTF-8 with BOM, CRLF, 3,809 data rows, 118 columns. Used: `Main Port Name`, `UN/LOCODE`, `Country Code` (holds the country **name**, for example "Myanmar (Burma)"), `Harbor Size` (US spelling), `Latitude`, `Longitude`, `World Port Index Number` (written "8225.0"). `Harbor Size`: Very Small 2,109; Small 1,023; Medium 376; Large 174; blank 127, where "blank" is one space. 460 rows have no `UN/LOCODE`, also written as one space, among them 2 Large and 9 Medium. Some LOCODEs have no space ("HTPAP", "NGBON"). Coordinates are long decimals ("38.983333000000002").
 - **Sample:** Large 24, Medium 34, Small 13, Very Small 17 and blank 12; 11 rows with an empty `UN/LOCODE`; includes ports of Sudan, Yemen, Fiji, Haiti, Somalia, Ukraine, Nigeria and Venezuela. Written back with the BOM and CRLF.
 - **Extract (Task 4, `DataTool ports WPI.zip`, run 2026-11-24 on the 377,921-byte zip, CSV dated 2026-11-05):** `data/datasets/wpi-ports`: 546 ports in 108 countries (Large 174, Medium 372) of the 550 Large or Medium rows; 4 are not placed (Christmas Island, Guadeloupe, Martinique, Gibraltar: no unit in the boundary set). The country is the first two letters of the UN/LOCODE (536 ports); 10 ports with no LOCODE use the country name. Its date is the zip entry's, as-of 2026-11-05.
+- **Command line (Plan 5, P5-13):** `DataTool ports <WPI.zip> --downloaded <yyyy-MM-dd> [--portal-note "<text>"]`. With `--portal-note`, the manifest's licence note contains the given text as what was seen on NGA's portal (for example `--portal-note "msi.nga.mil answered 503 on 2027-05-02"`) and no other date; without it the note says NGA's portal was not re-checked for this extract, with no date. The committed `data/datasets/wpi-ports` was extracted on 2026-11-24 and its note ("under maintenance on 2026-11-24") is true for that day; it has not been rebuilt.
 
 ## 16. OurAirports (Plan 4)
 
@@ -437,6 +441,8 @@ Both sites answer scripts with HTTP 403. They were opened as ordinary pages in t
   5. Panama City: World Food Programme, UNHRD Panama, Paseo de la Americas Panama Pacifico, Howard, Arraijan, Panama, Republic of Panama.
 - **Depot positions (ruling R21, final fix wave):** UNHRD gives no coordinates, so each depot is marked at the airport its own address names or sits beside, with the airport's position from the bundled OurAirports extract (`data/datasets/ourairports`, The Unlicense, as of 2026-11-24): Accra → Kotoka International (DGAA; the address names it); Brindisi → Brindisi Airport (LIBR; the address is on the former SS16 by the airport); Dubai → Al Maktoum International (OMDW, IATA DWC; "Nearest Landmark - DWC"); Kuala Lumpur → Sultan Abdul Aziz Shah International, Subang (WMSA; Jalan TUDM, the air force road); Panama → Panamá Pacífico International (MPPA, the former Howard air base; "Panama Pacifico, Howard"). Each position is approximate. No share-alike data (C6) is used for them.
 - **US State Department:** www.state.gov's "Contact Us" link goes to https://register.state.gov/contactus/contactusform (title "U.S. Department of State - Contact Us"). It lists topic contacts (emergencies abroad, passports, visas and more) and ends with a "Contact Us Form" for inquiries "unrelated to the topics above"; it warns "we cannot guarantee we will be able to respond to all inquiries." That URL is the profile's State Department contact, noting that the form is at the end of the page.
+- **Credit, UNHRD:** "UNHRD (WFP), Contacts | UNHRD - Humanitarian Response Depot, https://unhrd.org/contacts" (wording chosen by the app, from the citation above; the source prescribes none). Licence: no statement was read on the pages (they were read for facts, not for a licence), so the registry says so.
+- **Credit, official contact links (House finder, State Department, UN Blue Book):** "US House of Representatives, Find Your Representative (house.gov); US Department of State, Contact Us; United Nations, The Blue Book" (wording chosen by the app; the sources prescribe none; links only, nothing is copied).
 
 ## 19. Logistics Cluster country pages (Plan 4; links only)
 
@@ -444,12 +450,26 @@ Checked 2026-11-24 (curl gets HTTP 403; read through the web-fetch tool). `data/
 
 - **List:** https://logcluster.org/en/where-we-work lists 218 country links. Only the 18 with an operation slug (`/en/where-we-work/<iso3>/<slug>`) plus Myanmar's `/mmr` were opened and recorded; the rest are bare `/<iso3>` pages. A country without a row has no Logistics Cluster link in the app.
 - **Terms** (https://logcluster.org/en/terms-of-use, as the plan's check read them): "You agree not to use or distribute the information for commercial purposes", and the Logistics Cluster must be credited. Links only; nothing is copied.
+- **Credit:** "Logistics Cluster, https://logcluster.org/en/where-we-work" (wording chosen by the app, to meet the terms' "must be credited"; the source prescribes no wording).
 
 ## 20. IRS Form 990 e-file bulk files: Range requests (Plan 4; Task 7 relies on this)
 
 Checked 2026-11-24 with `curl -H "Range: bytes=0-99" https://apps.irs.gov/pub/epostcard/990/xml/2026/2026_TEOS_XML_01A.zip` (the project's User-Agent; the 100 bytes were discarded).
 
 - **Result: HTTP 206 Partial Content**, `Accept-Ranges: bytes`, `Content-Range: bytes 0-99/71497607`, `Content-Length: 100`, `Content-Type: application/zip`, `Last-Modified: Thu, 19 Feb 2026 18:32:24 GMT`. The zip is 71,497,607 bytes, so the vetting tool can read a zip's central directory and one member by byte ranges instead of downloading the whole file.
+- **Credit (IRS Tax Exempt Organization Search: Publication 78 and the revocation list; Form 990 e-file data):** "US Internal Revenue Service (IRS), Tax Exempt Organization Search (Publication 78, revocation list) and Form 990 e-file data, https://apps.irs.gov/app/eos/" (wording chosen by the app; the source prescribes none). Licence basis: a US federal government work (17 U.S.C. section 105); not confirmed from the IRS's own page.
+
+## 21. Credits for links, curated tables and the globe picture (Plan 5)
+
+Written 2026-11-25 so that every row of `data/sources.json` has its credit in this document. No data is fetched for these.
+
+- **Charity evaluators (Charity Navigator, https://www.charitynavigator.org/, and BBB Wise Giving Alliance, https://give.org/):** the app links to their pages and says which rating a charity must have to be listed (`docs/help-review.md`); no rating is copied. **Credit:** "Charity Navigator (charitynavigator.org) and BBB Wise Giving Alliance (give.org): links only, ratings are not copied" (wording chosen by the app; the sources prescribe none). Checked 2026-11-24.
+- **Curated tables (`data/curated`: designations, camp sites, explainers; `data/help`):** written for this app from cited documents; every row carries its own citation. **Credit:** "Each curated entry cites its own source documents" (wording chosen by the app). Licence: the app's own, MIT. Checked 2026-11-24.
+- **Globe picture, NASA Blue Marble** (GlobeCore, `external/GlobeCore/THIRD-PARTY-NOTICES.txt`): **Credit:** "NASA Earth Observatory, Blue Marble Next Generation with Topography and Bathymetry (July 2004, R. Stockli)", from GlobeCore's notices, which add "NASA imagery is generally not copyrighted (NASA Media Usage Guidelines)". Read 2026-11-25.
+
+## Where the credits live (Plan 5)
+
+The credit for every source named above is held once, in `data/sources.json` (the source registry): its credit wording, licence, links and the "as of" rule for its date. About and the Data card are built from that file, and `THIRD-PARTY-NOTICES.txt` repeats the same wording. A test checks that every credit fragment in the registry appears verbatim in this document and in the notices file, so a credit cannot drift from what is written here. A new source needs its section here and one row there.
 
 ## Offline samples (`--offline-samples`)
 
@@ -495,6 +515,7 @@ R5), so the water, sanitation and health-care figures in offline runs and pictur
   `raw.githubusercontent.com`) and only after it passes validation; the last good set stays in
   `%LOCALAPPDATA%\EarthRelief3D\cache\boundaries\<tag>\`. Natural Earth's latest release is still v5.1.2 (checked 2026-11-22),
   so today nothing is downloaded.
+- **Credit:** "Natural Earth (https://www.naturalearthdata.com/), public domain" (wording follows GlobeCore's notices, `external/GlobeCore/THIRD-PARTY-NOTICES.txt`, which give "Natural Earth (https://www.naturalearthdata.com/), 1:50m coastline and land boundary lines. Public domain."; not a wording Natural Earth prescribes).
 - **Download size:** adopting a new Natural Earth release downloads about 6.2 MB (countries 3.08 MB, lines 0.76 MB, admin-1
   2.33 MB), once per release; the daily check is a few KB. A rejected release is not downloaded again (until the app's
   rules or probes, or GlobeCore, change), and after a failed download the next try waits 6 hours.
