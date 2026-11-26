@@ -8,12 +8,18 @@ namespace EarthRelief3D.Tests;
 
 internal sealed class FixedClock(DateTime now) : IClock { public DateTime UtcNow { get; set; } = now; }
 
+/// <summary>
+/// Records log lines. Feeds run side by side on pool threads (the scheduler starts every due feed at once), so writes are
+/// locked: a plain List.Add from several threads can lose a line (it did, in the v1.0.1 release build's HdxFirewallTests).
+/// Read <see cref="Lines"/> after the runs have finished.
+/// </summary>
 internal sealed class ListLog : IAppLog
 {
     public List<string> Lines { get; } = [];
-    public void Info(string m) => Lines.Add("INFO " + m);
-    public void Warn(string m, Exception? e = null) => Lines.Add("WARN " + m);
-    public void Error(string m, Exception? e = null) => Lines.Add("ERROR " + m);
+    private void Add(string line) { lock (Lines) Lines.Add(line); }
+    public void Info(string m) => Add("INFO " + m);
+    public void Warn(string m, Exception? e = null) => Add("WARN " + m);
+    public void Error(string m, Exception? e = null) => Add("ERROR " + m);
 }
 
 internal static class Samples
