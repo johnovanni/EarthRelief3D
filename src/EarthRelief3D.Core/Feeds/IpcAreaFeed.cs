@@ -121,6 +121,7 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
         var sets = new List<IpcAreaSet>();
         var kept = new List<string>();
         var asked = false;
+        FeedBlockedException? blocked = null;
         foreach (var f in CurrentRecords(national, now))
         {
             ct.ThrowIfCancellationRequested();
@@ -149,6 +150,12 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
                     + $"asked again after {rejected.RejectedUtc + rejected.RetryAfter:yyyy-MM-dd HH:mm} UTC");
                 continue;
             }
+            // HDX's firewall refused a request in this run: the countries left are not asked (each would only be refused again).
+            if (blocked is not null)
+            {
+                kept.Add(iso3);
+                continue;
+            }
             if (asked && _pause > TimeSpan.Zero) await Task.Delay(_pause, ct).ConfigureAwait(false);   // spread the requests to HDX
             asked = true;
             try
@@ -172,6 +179,13 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
                     log.Info($"{LogName}: {iso3} keeps the 20% rule: {why}");
                 }
             }
+            catch (FeedBlockedException e)
+            {
+                lock (_gate) _entries.Remove(iso3);
+                kept.Add(iso3);
+                blocked = e;
+                log.Warn($"{LogName}: {iso3} and the countries after it keep the 20% rule for now: {e.Message}");
+            }
             catch (Exception e) when (e is HttpRequestException or TimeoutException or FeedFormatException or FeedAuthException or IOException)
             {
                 lock (_gate) _entries.Remove(iso3);
@@ -181,7 +195,7 @@ public sealed class IpcAreaFeed(FeedHttp http, CrisisStore store, IClock clock, 
         }
         store.ReplaceIpcAreas(sets);
         log.Info($"{LogName}: {sets.Count} countries drawn by area ({string.Join(", ", sets.Select(s => s.Iso3))}); "
-            + $"{kept.Count} keep the 20% rule");
+            + $"{kept.Count} keep the 20% rule" + (blocked is null ? "" : " (HDX refused requests during this run)"));
     }
 
     // One country: the search, the licence, the national CSV's current period, then the GeoJSON. "Downloaded" says whether

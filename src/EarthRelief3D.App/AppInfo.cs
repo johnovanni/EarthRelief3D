@@ -24,6 +24,9 @@ public static class AppInfo
     /// <summary>The tooltip note on an idle feed (none of the Plan 2 feeds skips runs, but the scheduler needs one).</summary>
     public const string FeedIdleNote = "Not polled right now";
 
+    /// <summary>The file under the cache folder that keeps the hosts paused after a firewall challenge (GlobeCore's HostPauses).</summary>
+    public const string HostPausesFile = "host-pauses.json";
+
     private static string GetVersion()
     {
         var info = typeof(AppInfo).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;

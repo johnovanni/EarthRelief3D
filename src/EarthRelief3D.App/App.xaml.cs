@@ -125,10 +125,14 @@ public partial class App : Application
             : options.DisplayTimeUtc is { } start ? new OffsetClock(new SystemClock()) { Offset = start - DateTime.UtcNow }
             : new SystemClock();
         if (samplesDir is not null) log.Info($"Offline samples from {samplesDir}; data folder {root.Root}");
-        var http = samplesDir is null ? new FeedHttp(AppInfo.UserAgent) : new FeedHttp(AppInfo.UserAgent, OfflineSamples.CreateHandler(samplesDir));
+        // A host whose firewall challenges the app (HDX's did, 26 Nov 2026) is left alone for 1 to 6 hours, kept across restarts.
+        var http = samplesDir is null
+            ? new FeedHttp(AppInfo.UserAgent, pauses: new HostPauses(clock, Path.Combine(root.CacheDir, AppInfo.HostPausesFile), log))
+            : new FeedHttp(AppInfo.UserAgent, OfflineSamples.CreateHandler(samplesDir));
         // Offline samples answer at once: no wait between countries in the IPC area step (it would delay the pictures' data).
         var services = _services = AppServices.Create(root, http, clock, log, _settings, Dispatcher,
-            ipcAreaPause: samplesDir is null ? null : TimeSpan.Zero, showDrafts: options.ShowDrafts);
+            ipcAreaPause: samplesDir is null ? null : TimeSpan.Zero, showDrafts: options.ShowDrafts,
+            resumeFeeds: samplesDir is null && scenes is null);
 
         var window = new MainWindow(services.Main, services.Store, services.Countries, displayClock ?? clock, log);
         if (samplesDir is not null) window.Title += " - SAMPLE DATA (offline)";   // sample data is never mistaken for live data

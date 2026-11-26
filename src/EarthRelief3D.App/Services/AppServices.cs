@@ -150,8 +150,12 @@ public sealed class AppServices : IDisposable
     /// <param name="dispatcher">The UI thread's dispatcher (null in tests: view models update at once).</param>
     /// <param name="ipcAreaPause">The IPC area step's wait between countries (null: <see cref="IpcAreaFeed.DefaultPause"/>; zero for offline samples).</param>
     /// <param name="showDrafts">Also show the curated rows the owner has not approved yet (<c>--show-drafts</c>, P3-4).</param>
+    /// <param name="resumeFeeds">
+    /// Live runs: a feed whose cached check is less than its interval old is not run at start-up (see <see cref="FeedScheduler"/>'s
+    /// <c>lastSuccess</c>). False (tests, offline samples, pictures): every feed runs at once.
+    /// </param>
     public static AppServices Create(AppDataRoot root, FeedHttp http, IClock clock, IAppLog log, ISettingsStore<AppSettings> settings,
-        Dispatcher? dispatcher, TimeSpan? ipcAreaPause = null, bool showDrafts = false)
+        Dispatcher? dispatcher, TimeSpan? ipcAreaPause = null, bool showDrafts = false, bool resumeFeeds = false)
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(http);
@@ -174,8 +178,10 @@ public sealed class AppServices : IDisposable
         // The country-value series of the last run, shown at once (offline too) with their own dates.
         var indicators = new IndicatorStore();
         var indicatorCache = new IndicatorCache(root, log);
+        var cachedSeriesLoaded = false;
         if (indicatorCache.Load() is { } cachedSeries)
         {
+            cachedSeriesLoaded = true;
             indicators.Load(cachedSeries);
             log.Info($"Indicator cache loaded: {cachedSeries.Series.Count} series");
         }
@@ -271,7 +277,16 @@ public sealed class AppServices : IDisposable
         var main = new MainViewModel(store, settings, iso => resolver.ByIso3(iso)?.Name, dispatcher, () => clock.UtcNow, boundaries, indicators,
             curated: curated, logistics: logistics, crisisPlace: iso => resolver.ByIso3(iso)?.LabelPoint, help: help,
             registry: registry, datasets: datasetCitations, dataFolder: root.Root);
-        var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote);
+        // Reopening the app does not ask every source again at once (HDX's firewall challenged a burst of restarts, 26 Nov 2026):
+        // with both caches loaded, a feed checked less than its interval ago keeps the cached data and runs when the interval is up.
+        var checks = resumeFeeds && cached is not null && cachedSeriesLoaded ? store.Snapshot.CheckedUtc : null;
+        var scheduler = new FeedScheduler(feeds, clock, log, AppInfo.FeedIdleNote,
+            checks is null ? null : name => checks.TryGetValue(name, out var t) ? t : null);
+        if (checks is not null)
+        {
+            var resumed = scheduler.Statuses.Where(s => s.State == FeedState.Ok).Select(s => $"{s.Name} at {s.NextRunUtc:yyyy-MM-dd HH:mm}").ToList();
+            if (resumed.Count > 0) log.Info($"Checked recently, so not asked again yet: {string.Join(", ", resumed)} UTC");
+        }
         foreach (var status in scheduler.Statuses) main.Status.Update(status);
         foreach (var b in bundled) main.Status.Update(BundledDataset.Status(b, c => CrisisText.SeriesDate(c, clock.UtcNow)));
         ApplyBundledPoints(main.MarkerData, store, pointLoads);
