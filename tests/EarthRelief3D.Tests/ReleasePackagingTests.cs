@@ -113,11 +113,16 @@ public sealed class ReleasePackagingTests
     }
 
     [Fact]
-    public void VersionIsOneZeroZero()
+    public void VersionIsThreeNumbersAndIsTheBuiltOne()
     {
+        // The one place the version is set (docs/release.md); the release tag must be v<this>. Not pinned to a value, so a
+        // release only raises it there.
         var props = Read("Directory.Build.props");
-        Assert.Matches(@"<Version>1\.0\.0</Version>", props);
+        var m = System.Text.RegularExpressions.Regex.Match(props, @"<Version>(\d+)\.(\d+)\.(\d+)</Version>");
+        Assert.True(m.Success, "Directory.Build.props must set <Version> to three numbers");
         Assert.Contains("installer", props);
+        var built = typeof(ReleasePackagingTests).Assembly.GetName().Version!;
+        Assert.Equal($"{m.Groups[1].Value}.{m.Groups[2].Value}.{m.Groups[3].Value}", $"{built.Major}.{built.Minor}.{built.Build}");
     }
 
     /// <summary>P5-21: a silent update (the in-app updater) starts the app again as the user; an interactive install keeps its "Launch" box.</summary>
