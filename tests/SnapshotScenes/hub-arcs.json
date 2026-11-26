@@ -1,7 +1,7 @@
 {
   "scenes": [
     { "name": "sudan-help",        "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [15, 35], "layers": ["access", "un-depots", "airports", "ports", "hub-lines"], "panel": "SDN", "panelFocus": "help", "showDrafts": true },
-    { "name": "sudan-help-tilted", "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [45, 5],  "layers": ["access", "un-depots", "airports", "ports", "hub-lines"], "panel": "SDN", "panelFocus": "help", "showDrafts": true },
+    { "name": "sudan-help-turned",  "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [0, 35],  "layers": ["access", "un-depots", "airports", "ports", "hub-lines"], "panel": "SDN", "panelFocus": "help", "showDrafts": true },
     { "name": "yemen-help",        "displayTimeUtc": "2026-11-22T12:00:00Z", "lookAt": [15, 48], "layers": ["access", "un-depots", "airports", "ports", "hub-lines"], "panel": "YEM", "panelFocus": "help", "showDrafts": true }
   ]
 }

@@ -73,20 +73,62 @@ public class HubArcScreenTests
     public void TinyArcIsNotBundled()
     {
         Assert.False(HubArcScreen.RunTogether(A, D));
-        Assert.Equal([0.0, 0.0], HubArcScreen.SideOffsets([A, D]));
+        var r = HubArcScreen.SideBySide([A, D]);
+        Assert.Equal(A, r[0]);
+        Assert.Equal(D, r[1]);
     }
+
+    /// <summary>The smallest distance from any point of <paramref name="line"/> to <paramref name="other"/>.</summary>
+    private static double Gap(IReadOnlyList<Point> line, IReadOnlyList<Point> other) => line.Min(p => HubArcScreen.Distance(p, other));
 
     [Fact]
     public void TwoArcsSplitApart()
     {
-        // With y down the normal of +x is (0, 1): B (y = 2) is on the + side of A.
-        Assert.Equal([-2.0, 2.0], HubArcScreen.SideOffsets([A, B]));
+        // With y down the normal of +x is (0, 1): B (y = 2) is on the + side of A. Each moves half the way, only where they are close.
+        var r = HubArcScreen.SideBySide([A, B]);
+        Assert.True(Gap(r[1], r[0]) >= HubArcScreen.Spacing - 0.1, $"gap {Gap(r[1], r[0]):F2}");
+        Assert.All(r[1], p => Assert.True(p.Y > 2));
+        Assert.All(r[0].Zip(A), x => Assert.True((x.First - x.Second).Length <= HubArcScreen.Spacing / 2 + 0.1));
+        Assert.Equal(A[^1], r[0][^1]);   // beyond B's end A is on its true path
     }
 
     [Fact]
     public void ThreeArcsFanInOrder()
     {
-        Assert.Equal([0.0, 4.0, -4.0], HubArcScreen.SideOffsets([A, B, E]));
+        var r = HubArcScreen.SideBySide([A, B, E]);
+        Assert.True(Gap(r[1], r[0]) >= HubArcScreen.Spacing - 0.15, $"B to A {Gap(r[1], r[0]):F2}");
+        Assert.True(Gap(r[2], r[0]) >= HubArcScreen.Spacing - 0.15, $"E to A {Gap(r[2], r[0]):F2}");
+        for (int k = 2; k < 8; k++)
+        {
+            Assert.True(r[1][k].Y > 0, "B stays on the + side");
+            Assert.True(r[2][k].Y < 0, "E stays on the - side");
+        }
+    }
+
+    [Fact]
+    public void CrossingLinesKeepApart()
+    {
+        // Final review I1: on screen the port line can start 1-2 px on one side of the depot line and leave on the other; a
+        // shift of the whole line pushed them together. They are pushed apart where they are close, on the side that needs least.
+        var a = Line(new(0, 0), new(200, 0), 21);
+        List<Point> f = [new(0, 0), new(10, -0.9), new(20, -1.6), new(30, -1.7), new(40, -1.0), new(50, 0.7), new(60, 3.3),
+            new(70, 6.9), new(80, 11.1), new(90, 15.5)];
+        Assert.True(HubArcScreen.RunTogether(a, f));
+        var r = HubArcScreen.SideBySide([a, f]);
+        Assert.True(Gap(r[1], r[0]) >= HubArcLayer.WidthPx, $"gap {Gap(r[1], r[0]):F2}");
+        Assert.True((r[1][^1] - f[^1]).Length < 0.5, "the far end stays on its true path");
+        Assert.All(r[1].Zip(f), x => Assert.True((x.First - x.Second).Length <= 3.0, $"moved {(x.First - x.Second).Length:F2}"));
+    }
+
+    [Fact]
+    public void TieBreakIsTheGroundBearing()
+    {
+        // Final review I1: when neither side needs clearly less pushing, the bearing on the ground decides (clockwise: the +
+        // side), which does not change as the globe turns.
+        var g = Line(new(0, 0), new(80, 0.4));
+        Assert.True(HubArcScreen.SideBySide([A, g], [90.0, 80.0])[1][5].Y < 0);
+        Assert.True(HubArcScreen.SideBySide([A, g], [90.0, 100.0])[1][5].Y > 0);
+        Assert.True(HubArcScreen.SideBySide([A, g], [359.0, 1.0])[1][5].Y > 0);   // across north
     }
 
     [Fact]
@@ -99,6 +141,8 @@ public class HubArcScreenTests
             Assert.Equal(A[i].X, shifted[i].X, 9);
             Assert.Equal(2, shifted[i].Y, 9);
         }
+        var each = HubArcScreen.Shift(A, [.. Enumerable.Range(0, A.Count).Select(i => (double)i)]);
+        for (int i = 0; i < A.Count; i++) Assert.Equal(i, each[i].Y, 9);
     }
 
     [Fact]

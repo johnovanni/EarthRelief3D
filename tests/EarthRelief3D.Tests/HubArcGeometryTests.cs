@@ -132,13 +132,32 @@ public class HubArcGeometryTests
         // overlap (ruling H3), and the port line, drawn after it, is on top with its own dark edge between them.
         foreach (var p in port)
             Assert.True(HubArcScreen.Distance(p, depot) >= HubArcLayer.WidthPx, $"port point {p} is {HubArcScreen.Distance(p, depot):F2} px from the depot line");
-        // It still ends at Port Sudan, and the airport line, leaving in another direction, is not moved.
+        // It still ends on the Port Sudan marker (H4: Port Sudan lies on the depot line on screen, so both move apart there), and
+        // the airport line, leaving in another direction, is not moved.
         Assert.True(projector.TryProject(MarkerMeshes.Above(new SurfacePoint(19.6, 37.2), 1.0), out var portSudan));
-        Assert.True((port[^1] - portSudan).Length <= 3, $"the port line ends {(port[^1] - portSudan).Length:F2} px from Port Sudan");
+        Assert.True((port[^1] - portSudan).Length <= PointMarkerLayer.DefaultSizePx, $"the port line ends {(port[^1] - portSudan).Length:F2} px from Port Sudan");
         Assert.True(projector.TryProject(MarkerMeshes.Above(PortSudan.From, 1.0), out var start));
         Assert.True((airport[0] - start).Length < 0.01);
         // Drawn longest first: the short port line on top of the depot line.
         Assert.True(lines.ToList().FindIndex(l => l.Spec == Dubai) < lines.ToList().FindIndex(l => l.Spec == PortSudan));
+    }
+
+    [Theory]
+    [InlineData(0, 35, 0.6)]
+    [InlineData(-10, 45, 0.6)]
+    [InlineData(0, 35, 1.0)]
+    [InlineData(15, 30, 1.0)]
+    [InlineData(20, 35, 1.0)]
+    public void PortArcBesideDepotArcWhenTheGlobeIsTurned(double lat, double lon, double zoom)
+    {
+        // Final review I1: off-centre and zoomed-in views (the side was once chosen from the whole line and pushed the lines together).
+        var projector = HubArcScreenTests.LookingDownOn(new GeoPosition(lat, lon),
+            zoom * CameraRules.FitDistance(45, 1482.0 / 903, CameraLimits.EarthDefault), 1482, 903);
+        var lines = HubArcLayer.Lines([Dubai, PortSudan, Dongola], projector);
+        var port = lines.Single(l => l.Spec == PortSudan).Line;
+        var depot = lines.Single(l => l.Spec == Dubai).Line;
+        double closest = port.Min(p => HubArcScreen.Distance(p, depot));
+        Assert.True(closest >= HubArcLayer.WidthPx, $"the port line comes {closest:F2} px from the depot line");
     }
 
     private static Canvas RenderInto(HubArcLayer layer, Canvas? canvas = null)

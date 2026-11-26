@@ -6,19 +6,23 @@ namespace EarthRelief3D.App.Layers;
 
 /// <summary>
 /// The hub arcs on the screen (ruling H1): each arc's path projected to pixels with the parts behind the globe cut
-/// (<see cref="VisibleRuns"/>), and arcs that run together moved apart sideways so they lie side by side, like lines on a
-/// transit map (<see cref="SideOffsets"/>, <see cref="Shift"/>). Pure geometry: no WPF elements.
+/// (<see cref="VisibleRuns"/>), and arcs that run together pushed apart where they are close, so they lie side by side
+/// (<see cref="SideBySide"/>). Pure geometry: no WPF elements.
 /// </summary>
 public static class HubArcScreen
 {
     /// <summary>Pixels between the centre lines of two arcs drawn side by side (3 px lines with a 1 px dark gap).</summary>
     public const double Spacing = 4;
-    /// <summary>A point within this many pixels of another arc lies on it (H2).</summary>
+    /// <summary>A point within this many pixels of another arc lies on it (H2): only there are arcs pushed apart (H4).</summary>
     public const double NearPx = 6;
     /// <summary>Two arcs run together when at least this share of the shorter one's points lie on the other (H2).</summary>
     public const double ShareTogether = 0.5;
     /// <summary>Points this close to an arc's start are not counted: every arc from one place meets the others there (H2).</summary>
     public const double StartPx = 2 * NearPx;
+    /// <summary>When the two sides need pushing within this many pixels of each other, the bearing on the ground decides (H4).</summary>
+    public const double TieBandPx = 1;
+    /// <summary>Rounds of pushing: each moves every pair half of what it still lacks, so three arcs in a bundle settle too.</summary>
+    public const int Rounds = 12;
 
     /// <summary>
     /// True when the camera at <paramref name="eye"/> sees <paramref name="p"/> (on or above the unit globe): the straight
@@ -80,39 +84,103 @@ public static class HubArcScreen
     }
 
     /// <summary>
-    /// One sideways offset in pixels per line (positive: along <see cref="Shift"/>'s normal). Lines that run together
-    /// (<see cref="RunTogether"/>, joined in groups) are spread <see cref="Spacing"/> apart around their middle, in the order
-    /// of each line's mean signed distance from the group's longest line, so they never cross. Other lines get 0.
+    /// The lines drawn side by side (H4, after final review I1): lines that run together (<see cref="RunTogether"/>,
+    /// joined in groups) are pushed apart sideways, each point along its own line's normal, just enough that their centre
+    /// lines are <see cref="Spacing"/> apart wherever they are within <see cref="NearPx"/> of each other, each line of a
+    /// pair moving half. Where they are already apart nothing moves, so a line still ends at its hub unless the hub lies on
+    /// another arc. Each pair keeps one side all along (<see cref="ChooseSide"/>), so the lines never cross. Other lines are
+    /// returned as they are.
     /// </summary>
-    public static double[] SideOffsets(IReadOnlyList<IReadOnlyList<Point>> lines)
+    /// <param name="bearings">Each line's bearing on the ground at its start, degrees clockwise from north (optional): settles
+    /// near-ties, so lines do not swap sides as the globe turns.</param>
+    public static IReadOnlyList<IReadOnlyList<Point>> SideBySide(IReadOnlyList<IReadOnlyList<Point>> lines, IReadOnlyList<double>? bearings = null)
     {
         ArgumentNullException.ThrowIfNull(lines);
+        if (bearings is not null && bearings.Count != lines.Count) throw new ArgumentException("One bearing per line.", nameof(bearings));
         int n = lines.Count;
-        var offsets = new double[n];
         var group = Enumerable.Range(0, n).ToArray();
         int Find(int i) => group[i] == i ? i : group[i] = Find(group[i]);
         for (int i = 0; i < n; i++)
             for (int j = i + 1; j < n; j++)
                 if (RunTogether(lines[i], lines[j])) group[Find(i)] = Find(j);
-        foreach (var members in Enumerable.Range(0, n).GroupBy(Find).Select(g => g.ToList()).Where(g => g.Count > 1))
+
+        // side[(a, b)]: the side of b's line that a keeps (+1: along the normal).
+        var side = new Dictionary<(int, int), int>();
+        for (int i = 0; i < n; i++)
+            for (int j = i + 1; j < n; j++)
+            {
+                if (Find(i) != Find(j)) continue;
+                var (reference, other) = Length(lines[i]) >= Length(lines[j]) ? (i, j) : (j, i);
+                double? diff = bearings is null ? null : bearings[other] - bearings[reference];
+                int s = ChooseSide(lines[other], lines[reference], diff);
+                side[(other, reference)] = s;
+                side[(reference, other)] = -s;
+            }
+
+        var current = lines.Select(l => (IReadOnlyList<Point>)[.. l]).ToList();
+        for (int round = 0; round < Rounds && side.Count > 0; round++)
         {
-            int reference = members.OrderByDescending(i => Length(lines[i])).ThenBy(i => i).First();
-            var ordered = members.OrderBy(i => i == reference ? 0 : lines[i].Average(p => SignedDistance(p, lines[reference])))
-                                 .ThenBy(i => i).ToList();
-            for (int slot = 0; slot < ordered.Count; slot++)
-                offsets[ordered[slot]] = (slot - (ordered.Count - 1) / 2.0) * Spacing;
+            var push = current.Select(l => new double[l.Count]).ToList();
+            double most = 0;
+            foreach (var ((a, b), s) in side)
+                for (int k = 0; k < current[a].Count; k++)
+                {
+                    double need = Need(current[a][k], current[b], s);
+                    push[a][k] += s * need / 2;
+                    most = Math.Max(most, need);
+                }
+            if (most < 0.01) break;
+            for (int i = 0; i < n; i++)
+                if (push[i].Any(v => v != 0)) current[i] = Shift(current[i], push[i]);
         }
-        return offsets;
+        return current;
     }
 
     /// <summary>
-    /// The line moved <paramref name="offset"/> pixels sideways at every point, along the unit normal (−dy, dx) of its local
-    /// direction (the neighbours on both sides; one side at the ends).
+    /// Which side of <paramref name="reference"/> <paramref name="line"/> keeps (+1: along the normal): the one that needs
+    /// less pushing (<see cref="Need"/>, the most over its points). When the two differ by less than
+    /// <see cref="TieBandPx"/> and <paramref name="bearingDiff"/> (the line's bearing minus the reference's, degrees) is
+    /// given, clockwise on the ground is the + side (on screen, seen from outside the globe, clockwise stays clockwise).
     /// </summary>
+    public static int ChooseSide(IReadOnlyList<Point> line, IReadOnlyList<Point> reference, double? bearingDiff = null)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        ArgumentNullException.ThrowIfNull(reference);
+        double plus = line.Select(p => Need(p, reference, +1)).DefaultIfEmpty(0).Max();
+        double minus = line.Select(p => Need(p, reference, -1)).DefaultIfEmpty(0).Max();
+        if (Math.Abs(plus - minus) < TieBandPx && bearingDiff is { } diff)
+        {
+            double wrapped = ((diff % 360) + 540) % 360 - 180;   // -180 to 180
+            return wrapped >= 0 ? +1 : -1;
+        }
+        return plus <= minus ? +1 : -1;
+    }
+
+    /// <summary>How far <paramref name="p"/> must move to be <see cref="Spacing"/> from the line on side <paramref name="side"/>; 0 beyond <see cref="NearPx"/>.</summary>
+    private static double Need(Point p, IReadOnlyList<Point> line, int side)
+    {
+        double d = SignedDistance(p, line);
+        if (Math.Abs(d) > NearPx) return 0;
+        return Math.Max(0, Spacing - side * d);
+    }
+
+    /// <summary>The line moved <paramref name="offset"/> pixels sideways at every point (see the per-point overload).</summary>
     public static IReadOnlyList<Point> Shift(IReadOnlyList<Point> line, double offset)
     {
         ArgumentNullException.ThrowIfNull(line);
-        if (offset == 0 || line.Count < 2) return [.. line];
+        return Shift(line, [.. Enumerable.Repeat(offset, line.Count)]);
+    }
+
+    /// <summary>
+    /// The line with each point moved its own <paramref name="offsets"/> pixels sideways, along the unit normal (−dy, dx) of
+    /// the line's local direction (the neighbours on both sides; one side at the ends).
+    /// </summary>
+    public static IReadOnlyList<Point> Shift(IReadOnlyList<Point> line, IReadOnlyList<double> offsets)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        ArgumentNullException.ThrowIfNull(offsets);
+        if (offsets.Count != line.Count) throw new ArgumentException("One offset per point.", nameof(offsets));
+        if (line.Count < 2 || offsets.All(o => o == 0)) return [.. line];
         // Where the line stalls (repeated points) a point keeps the normal before it; stalled first points take the first one found.
         var normals = new Vector?[line.Count];
         for (int i = 0; i < line.Count; i++)
@@ -127,7 +195,7 @@ public static class HubArcScreen
         for (int i = 0; i < line.Count; i++)
         {
             normal = normals[i] ?? normal;
-            result.Add(line[i] + normal * offset);
+            result.Add(line[i] + normal * offsets[i]);
         }
         return result;
     }

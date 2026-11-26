@@ -20,8 +20,8 @@ public sealed record HubArcSpec(HubLink Link, SurfacePoint From);
 /// The arcs from the selected country to its nearest UN depot, airport and port (Plan 4 Task 5, P4-7), drawn as 2D lines on
 /// the globe's overlay (ruling H1): each a line about 3 px wide in its hub's colour over a 5 px dark edge, along the great
 /// circle and lifted in the middle (<see cref="ArcPoints"/>), with the parts behind the globe cut. Arcs that run together on
-/// screen (Sudan's to Port Sudan and to the Dubai depot) are drawn side by side, 4 px apart, longest first, so the shortest is
-/// on top where they meet (<see cref="Lines"/>, <see cref="HubArcScreen"/>). Being 2D they are above every marker (final
+/// screen (Sudan's to Port Sudan and to the Dubai depot) are pushed apart where they are close, so they lie side by side 4 px
+/// apart (H4), and are drawn longest first, so the shortest is on top where they meet (<see cref="Lines"/>, <see cref="HubArcScreen"/>). Being 2D they are above every marker (final
 /// review F2); a negative Z-index keeps them under the place names and distance labels on the shared canvas. GlobeCore is not
 /// changed. They are drawn only while the country panel is open and the "Lines to nearest hubs" toggle is on
 /// (<see cref="SpecsFor"/>). <see cref="Changed"/> (any thread) says the panel, the toggle or the hubs changed.
@@ -86,8 +86,9 @@ public sealed class HubArcLayer : OverlayLayer
 
     /// <summary>
     /// What is drawn for <paramref name="specs"/> seen through <paramref name="projector"/>: each arc's visible parts in screen
-    /// pixels (<see cref="HubArcScreen.VisibleRuns"/>), moved apart sideways where they run together
-    /// (<see cref="HubArcScreen.SideOffsets"/>), in drawing order, longest first (<see cref="HubArcScreen.DrawOrder"/>).
+    /// pixels (<see cref="HubArcScreen.VisibleRuns"/>), pushed apart where they run together, near-ties settled by each arc's
+    /// bearing on the ground (<see cref="HubArcScreen.SideBySide"/>, <see cref="InitialBearing"/>), in drawing order, longest
+    /// first (<see cref="HubArcScreen.DrawOrder"/>).
     /// </summary>
     public static IReadOnlyList<(HubArcSpec Spec, IReadOnlyList<Point> Line)> Lines(IReadOnlyList<HubArcSpec> specs, Projector projector)
     {
@@ -97,8 +98,8 @@ public sealed class HubArcLayer : OverlayLayer
             foreach (var run in HubArcScreen.VisibleRuns(ArcPoints(spec.From, spec.Link.Hub.Position), projector))
                 runs.Add((spec, run));
         var screen = runs.Select(r => r.Line).ToList();
-        var offsets = HubArcScreen.SideOffsets(screen);
-        return [.. HubArcScreen.DrawOrder(screen).Select(i => (runs[i].Spec, HubArcScreen.Shift(runs[i].Line, offsets[i])))];
+        var apart = HubArcScreen.SideBySide(screen, [.. runs.Select(r => InitialBearing(r.Spec.From, r.Spec.Link.Hub.Position))]);
+        return [.. HubArcScreen.DrawOrder(screen).Select(i => (runs[i].Spec, apart[i]))];
     }
 
     private static Polyline Add(Canvas overlay, double width)
@@ -178,6 +179,16 @@ public sealed class HubArcLayer : OverlayLayer
             result.Add(new Point3D(flat[i].X * r, flat[i].Y * r, flat[i].Z * r));
         }
         return result;
+    }
+
+    /// <summary>The great circle's bearing at <paramref name="from"/> towards <paramref name="to"/>, degrees clockwise from north (0 to 360).</summary>
+    public static double InitialBearing(SurfacePoint from, SurfacePoint to)
+    {
+        double f1 = from.LatitudeDeg * Math.PI / 180, f2 = to.LatitudeDeg * Math.PI / 180;
+        double dl = (to.LongitudeDeg - from.LongitudeDeg) * Math.PI / 180;
+        double y = Math.Sin(dl) * Math.Cos(f2);
+        double x = Math.Cos(f1) * Math.Sin(f2) - Math.Sin(f1) * Math.Cos(f2) * Math.Cos(dl);
+        return (Math.Atan2(y, x) * 180 / Math.PI + 360) % 360;
     }
 
     /// <summary>The point the distance label sits at: the middle of the arc, at its top.</summary>
