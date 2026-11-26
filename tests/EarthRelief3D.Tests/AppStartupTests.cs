@@ -117,21 +117,26 @@ public class AppStartupTests
     private static CrisisSnapshot WithoutBundled(CrisisSnapshot s) =>
         s with { Unplaced = [.. s.Unplaced.Where(u => !AppServices.BundledDatasets.Any(d => d.Name == u.Source) && u.Source != ResourceMarkers.DotName && u.Source != HubMarkers.DotName)] };
 
-    /// <summary>A log that also records the thread each line was written on.</summary>
+    /// <summary>A log that also records the thread each line was written on, and whether it was a thread-pool thread.</summary>
     private sealed class ThreadLog : GlobeCore.Logging.IAppLog
     {
         private readonly object _gate = new();
-        private readonly List<(string Line, int Thread)> _entries = [];
-        public IReadOnlyList<(string Line, int Thread)> Entries { get { lock (_gate) return [.. _entries]; } }
+        private readonly List<(string Line, int Thread, bool Pool)> _entries = [];
+        public IReadOnlyList<(string Line, int Thread, bool Pool)> Entries { get { lock (_gate) return [.. _entries]; } }
         public IEnumerable<string> Lines => Entries.Select(e => e.Line);
-        private void Add(string m) { lock (_gate) _entries.Add((m, Environment.CurrentManagedThreadId)); }
+        private void Add(string m) { lock (_gate) _entries.Add((m, Environment.CurrentManagedThreadId, Thread.CurrentThread.IsThreadPoolThread)); }
         public void Info(string m) => Add("INFO " + m);
         public void Warn(string m, Exception? e = null) => Add("WARN " + m);
         public void Error(string m, Exception? e = null) => Add("ERROR " + m);
     }
 
+    /// <remarks>
+    /// Run on a dedicated STA thread, as the app's UI thread is. xUnit runs async tests on thread-pool threads: once such a
+    /// test awaited, the pool could run the load (queued by Create on that same thread) on the very thread that called Create,
+    /// so the thread ids matched and the test failed now and then in full runs. A dedicated thread is never lent to the pool.
+    /// </remarks>
     [Fact]
-    public async Task CachedIpcAreasLoadOffTheUiThreadAndReachTheMap()
+    public void CachedIpcAreasLoadOffTheUiThreadAndReachTheMap() => StaAsync.Run(async () =>
     {
         var root = TempRoot();
         try
@@ -148,6 +153,7 @@ public class AppStartupTests
             var offline = new FeedHttp("test", new SampleHttpHandler());   // every request answers 404
             var log = new ThreadLog();
             int uiThread = Environment.CurrentManagedThreadId;
+            Assert.False(Thread.CurrentThread.IsThreadPoolThread);   // the "UI thread" here is a dedicated thread, as in the app
             using var services = AppServices.Create(root, offline, new FixedClock(IpcAreaFixture.Now), log, new MemorySettingsStore(),
                 dispatcher: null, ipcAreaPause: TimeSpan.Zero);
             await services.IpcAreasLoaded.WaitAsync(TimeSpan.FromSeconds(30));
@@ -156,6 +162,7 @@ public class AppStartupTests
             Assert.Contains(log.Lines, l => l.Contains("1 countries loaded from the cache (NGA)"));
             // Parsed and written on a pool thread, not on the thread that called Create (the UI thread in the app).
             var loaded = Assert.Single(log.Entries, e => e.Line.Contains("loaded from the cache"));
+            Assert.True(loaded.Pool, $"the cached areas were loaded on thread {loaded.Thread}, not a pool thread");
             Assert.NotEqual(uiThread, loaded.Thread);
             // The map draws Nigeria by area.
             Assert.Same(services.Store.Snapshot.IpcAreas[0], Assert.Single(FoodImageLayer.Plan(services.Store.Snapshot.AsSeenAt(IpcAreaFixture.Now))).Areas);
@@ -165,7 +172,7 @@ public class AppStartupTests
             Assert.Single(services.Store.Snapshot.IpcAreas);
         }
         finally { Delete(root); }
-    }
+    });
 
     [Fact]
     public async Task NoCacheStartsEmptyAndShutdownSavesTheCache()
