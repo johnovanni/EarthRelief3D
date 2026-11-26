@@ -204,6 +204,56 @@ public class AppStartupTests
         finally { Delete(root); }
     }
 
+    /// <summary>
+    /// Reopening the app does not ask every source again (HDX's firewall challenged a burst of five restarts, 26 Nov 2026): with
+    /// both caches loaded, a feed checked less than its interval ago starts green with its cached time and is not run at the
+    /// first tick. Tests, offline samples and pictures (resumeFeeds false) still run every feed at once.
+    /// </summary>
+    [Fact]
+    public async Task ARestartDoesNotAskARecentlyCheckedSourceAgain()
+    {
+        var root = TempRoot();
+        try
+        {
+            var now = SampleStore.Now;
+            var checks = new Dictionary<string, DateTime>(StringComparer.Ordinal)
+            {
+                [FtsFundingFeed.FeedName] = now.AddHours(-2),   // daily: checked 2 h ago
+                ["UCDP"] = now.AddDays(-30),                    // long ago: runs at once
+            };
+            using (var first = AppServices.Create(root, new FeedHttp("test", new SampleHttpHandler()), new FixedClock(now), new ListLog(),
+                       new MemorySettingsStore(), dispatcher: null))
+            {
+                first.Store.Load(TestData.Snap() with { CheckedUtc = checks });
+                first.Indicators.Replace("gho.water", CountryValueLayerTests.Water(new CountryValue("SDN", 40, 2024, CountryValueLayerTests.Gho)));
+                first.Shutdown();
+            }
+
+            var h = new SampleHttpHandler();   // every request answers 404
+            var log = new ListLog();
+            using var again = AppServices.Create(root, new FeedHttp("test", h), new FixedClock(now), log, new MemorySettingsStore(),
+                dispatcher: null, resumeFeeds: true);
+            var fts = again.Scheduler.Statuses.Single(s => s.Name == FtsFundingFeed.FeedName);
+            Assert.Equal(FeedState.Ok, fts.State);
+            Assert.Equal(now.AddHours(-2), fts.LastSuccessUtc);
+            Assert.Equal(now.AddHours(22), fts.NextRunUtc);
+            Assert.Equal(FeedState.Ok, again.Main.Status.Dots.Single(d => d.Name == FtsFundingFeed.FeedName).State);
+            Assert.Contains(log.Lines, l => l.StartsWith("INFO Checked recently, so not asked again yet: FTS at ", StringComparison.Ordinal));
+
+            await again.Scheduler.TickAsync(default);
+            Assert.DoesNotContain(h.Requests, r => r == FtsFundingFeed.PackageUrl.ToString());
+            Assert.Equal(FeedState.Ok, again.Scheduler.Statuses.Single(s => s.Name == FtsFundingFeed.FeedName).State);
+            Assert.Equal(FeedState.Retrying, again.Scheduler.Statuses.Single(s => s.Name == "UCDP").State);
+
+            // Without resumeFeeds (tests, samples, pictures) every feed runs at once, FTS too.
+            var h2 = new SampleHttpHandler();
+            using var plain = AppServices.Create(root, new FeedHttp("test", h2), new FixedClock(now), new ListLog(), new MemorySettingsStore(), dispatcher: null);
+            await plain.Scheduler.TickAsync(default);
+            Assert.Contains(h2.Requests, r => r == FtsFundingFeed.PackageUrl.ToString());
+        }
+        finally { Delete(root); }
+    }
+
     /// <summary>"No sound anywhere": a message box with an icon plays a Windows sound, so none may have one.</summary>
     [Fact]
     public void NothingInTheAppPlaysASound()
