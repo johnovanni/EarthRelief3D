@@ -308,6 +308,14 @@ R1 to R15 were made while building it (its SDD ledger; R14 in Task 11); **these 
 | R15 | When the strip is closed, Settings and About stay visible under the "Layers" header (P5-23 said only the header) | They are commands, not layers, and would otherwise be unreachable while the strip is closed | Two buttons |
 | R17 | Welcome, About and Data are not modal and do not dim the globe (P5-7 said over a dimmed globe) | A dim, click-blocking layer would be new untested visuals with no launch left to check it; the cards close with their button or Esc | A click on the globe behind an open card still acts on the globe |
 
+#### Hub arcs side by side (after Plan 5, owner item 15, 2026-11-25)
+
+| # | Ruling | Reason | Cost |
+|---|---|---|---|
+| H1 | (owner, 2026-11-25; withdraws P5-14 and R14) The hub arcs are 2D lines on the globe's overlay, not 3D ribbons: a 3 px line in the hub's colour over a 5 px dark edge, under the labels, the parts behind the globe cut. Arcs that run together on screen are drawn side by side, 4 px between centre lines (each at most about 2 px off its true path), longest first; one lift for every kind of hub. Design: `docs/superpowers/specs/2026-11-25-hub-arcs-side-by-side-design.md` | From the `sudan-help` camera no height separates the port arc from the depot arc, and the picture did not follow the 3D heights; a screen test can measure what the camera shows | The arcs are a few pixels off their true paths where they run together |
+| H2 | Two arcs run together when at least half of the shorter one's points more than 12 px from its start lie within 6 px of the other (`HubArcScreen.NearPx`, `ShareTogether`, `StartPx`) | Every arc from one place meets the others at the start; a very short arc is not moved on a guess | An arc that only grazes another is drawn on its true path |
+| H3 | The `sudan-help` test asks that the port and depot centre lines stay at least 3 px apart (the line width), not 3.5 | At one point, 23 px from the start, they come to 3.45 px: Port Sudan's path is not exactly parallel to Dubai's; the port line is drawn on top with its own dark edge, so it is never covered | The depot line shows about 2.5 px wide there |
+
 ### Out of scope (for now)
 
 - Countries other than the US in the help panel (the data shape allows them, §9.4).

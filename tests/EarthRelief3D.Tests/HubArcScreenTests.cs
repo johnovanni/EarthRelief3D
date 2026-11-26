@@ -8,7 +8,7 @@ using GlobeCore.Wpf.Rendering;
 
 namespace EarthRelief3D.Tests;
 
-/// <summary>The hub arcs' screen geometry (ruling R18): hidden parts cut, arcs that run together drawn side by side.</summary>
+/// <summary>The hub arcs' screen geometry (ruling H1): hidden parts cut, arcs that run together drawn side by side.</summary>
 public class HubArcScreenTests
 {
     /// <summary>A projector for a camera looking straight down on <paramref name="at"/> from <paramref name="distance"/> Earth radii, 45 degrees wide, as the app's.</summary>

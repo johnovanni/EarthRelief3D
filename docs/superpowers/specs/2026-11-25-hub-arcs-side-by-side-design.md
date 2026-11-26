@@ -52,7 +52,7 @@ failed.
 - GlobeCore (`external/`) is not changed.
 - Checked visually only with the app's own `--snapshot-scenes` pictures (`--offline-samples tests\Samples`), at most 2
   launches; never a screen capture.
-- New rulings go in the design's ruling table (R18 onward).
+- New rulings go in the design's ruling tables, in their own table (H1 onward): R18 to R20 are taken in earlier plans' tables.
 
 ## Left to the builder
 

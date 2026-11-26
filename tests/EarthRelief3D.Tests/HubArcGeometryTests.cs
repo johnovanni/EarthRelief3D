@@ -85,7 +85,7 @@ public class HubArcGeometryTests
     [Fact]
     public void OneLiftForEveryKind()
     {
-        // R18 withdraws P5-14 and R14: every kind of hub has the same gentle rise (6 degrees: 0.25 x 0.1047 rad = 0.0262).
+        // H1 withdraws P5-14 and R14: every kind of hub has the same gentle rise (6 degrees: 0.25 x 0.1047 rad = 0.0262).
         var path = HubArcLayer.ArcPoints(new SurfacePoint(0, 0), new SurfacePoint(0, 6));
         Assert.Equal(1 + 0.25 * 6 * Math.PI / 180, ((Vector3D)path[path.Count / 2]).Length, 3);
     }
@@ -93,7 +93,7 @@ public class HubArcGeometryTests
     [Fact]
     public void ArcsAboveTheMarkers()
     {
-        // Final review F2: about 3 px wide and above every marker; R18: drawn on the overlay, under the labels.
+        // Final review F2: about 3 px wide and above every marker; H1: drawn on the overlay, under the labels.
         Assert.Equal(3, HubArcLayer.WidthPx);
         Assert.Equal(5, HubArcLayer.EdgeWidthPx);
         Assert.True(typeof(GlobeCore.Wpf.Layers.OverlayLayer).IsAssignableFrom(typeof(HubArcLayer)));
@@ -101,7 +101,7 @@ public class HubArcGeometryTests
         Assert.True(HubArcLayer.Order < LabelsOverlayLayer.Order);
     }
 
-    // ---------------------------------------------------------------- sudan-help (owner item 15, R18)
+    // ---------------------------------------------------------------- sudan-help (owner item 15, H1)
 
     private static readonly DateTime Now = new(2026, 11, 22, 12, 0, 0, DateTimeKind.Utc);
 
@@ -129,7 +129,7 @@ public class HubArcGeometryTests
         var depot = lines.Single(l => l.Spec == Dubai).Line;
         var airport = lines.Single(l => l.Spec == Dongola).Line;
         // What the camera sees: the port line never lies on the depot line, from end to end: their 3 px coloured lines never
-        // overlap (ruling R20), and the port line, drawn after it, is on top with its own dark edge between them.
+        // overlap (ruling H3), and the port line, drawn after it, is on top with its own dark edge between them.
         foreach (var p in port)
             Assert.True(HubArcScreen.Distance(p, depot) >= HubArcLayer.WidthPx, $"port point {p} is {HubArcScreen.Distance(p, depot):F2} px from the depot line");
         // It still ends at Port Sudan, and the airport line, leaving in another direction, is not moved.

@@ -5,7 +5,7 @@ using GlobeCore.Wpf.Rendering;
 namespace EarthRelief3D.App.Layers;
 
 /// <summary>
-/// The hub arcs on the screen (ruling R18): each arc's path projected to pixels with the parts behind the globe cut
+/// The hub arcs on the screen (ruling H1): each arc's path projected to pixels with the parts behind the globe cut
 /// (<see cref="VisibleRuns"/>), and arcs that run together moved apart sideways so they lie side by side, like lines on a
 /// transit map (<see cref="SideOffsets"/>, <see cref="Shift"/>). Pure geometry: no WPF elements.
 /// </summary>
@@ -13,11 +13,11 @@ public static class HubArcScreen
 {
     /// <summary>Pixels between the centre lines of two arcs drawn side by side (3 px lines with a 1 px dark gap).</summary>
     public const double Spacing = 4;
-    /// <summary>A point within this many pixels of another arc lies on it (R19).</summary>
+    /// <summary>A point within this many pixels of another arc lies on it (H2).</summary>
     public const double NearPx = 6;
-    /// <summary>Two arcs run together when at least this share of the shorter one's points lie on the other (R19).</summary>
+    /// <summary>Two arcs run together when at least this share of the shorter one's points lie on the other (H2).</summary>
     public const double ShareTogether = 0.5;
-    /// <summary>Points this close to an arc's start are not counted: every arc from one place meets the others there (R19).</summary>
+    /// <summary>Points this close to an arc's start are not counted: every arc from one place meets the others there (H2).</summary>
     public const double StartPx = 2 * NearPx;
 
     /// <summary>

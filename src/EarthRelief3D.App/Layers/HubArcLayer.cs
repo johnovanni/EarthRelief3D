@@ -18,7 +18,7 @@ public sealed record HubArcSpec(HubLink Link, SurfacePoint From);
 
 /// <summary>
 /// The arcs from the selected country to its nearest UN depot, airport and port (Plan 4 Task 5, P4-7), drawn as 2D lines on
-/// the globe's overlay (ruling R18): each a line about 3 px wide in its hub's colour over a 5 px dark edge, along the great
+/// the globe's overlay (ruling H1): each a line about 3 px wide in its hub's colour over a 5 px dark edge, along the great
 /// circle and lifted in the middle (<see cref="ArcPoints"/>), with the parts behind the globe cut. Arcs that run together on
 /// screen (Sudan's to Port Sudan and to the Dubai depot) are drawn side by side, 4 px apart, longest first, so the shortest is
 /// on top where they meet (<see cref="Lines"/>, <see cref="HubArcScreen"/>). Being 2D they are above every marker (final
@@ -156,7 +156,7 @@ public sealed class HubArcLayer : OverlayLayer
     /// The arc's points in Earth radii: the great circle from <paramref name="from"/> to <paramref name="to"/> in steps of 1
     /// degree or less (<see cref="SphereLines.Densify"/>, which takes the short way across the date line and over a pole), each
     /// lifted by <c>1 + h·sin(πt)</c> where t runs from 0 to 1 along the path and
-    /// <c>h = min(0.08, 0.25 × the central angle in radians)</c>, the same for every kind of hub (R18 withdrew P5-14's
+    /// <c>h = min(0.08, 0.25 × the central angle in radians)</c>, the same for every kind of hub (H1 withdrew P5-14's
     /// factors): on the surface at both ends, highest in the middle. The rise is drawing only (C3): distances are measured
     /// on the sphere.
     /// </summary>
